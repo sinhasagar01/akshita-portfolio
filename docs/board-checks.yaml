@@ -50,6 +50,17 @@ entries:
       Superseded framing, kept because it argues why the fix had to be a config change rather than a
       rule. There is no live condition left in it.
 
+  - match: "A DARK CASE-STUDY HERO IS A DESIGN UNIT"
+    kind: structural
+    holds_while:
+      file: components/case-study/SectionRenderer.tsx
+      pattern: "\\sdata-ground="
+      expect: absent
+    note: >-
+      The item is open because the design is NOT shipped — the declaration was deleted rather than
+      fulfilled. If SectionRenderer emits a ground again somebody has taken option 1, and this entry
+      describes a repository that no longer exists.
+
   - match: "A LOCAL `github` WRITE MODE AGAINST A FORK"
     kind: structural
     holds_while:

@@ -33,6 +33,7 @@
 // ways, and that no two roles collide without a stated reason. The jobs below are prose, and a
 // person still decides whether they are honest.
 import { readFileSync, readdirSync } from "node:fs";
+import { blankCommentBodies } from "../strip-comments.mjs";
 import { join } from "node:path";
 
 let pass = 0, fail = 0;
@@ -1201,6 +1202,64 @@ console.log("\nR · the accent ROLE remaps on a dark ground and the accent RUNG 
      the narrower-vocabulary defect, here inside the gate built for the same subject. */
   t("R2b ⚠ …NOR DOES A CHILD — the ground on an anchor and the foreground on its span is the form `a { color: inherit }` FORCES, and it measured 3.24 to 3.65 live on two public pages",
     [...new Set(nested)].sort(), []);
+}
+
+console.log("\nS · a ground DECLARATION must be reachable by a remap");
+/* ⚠ THIS EXISTS BECAUSE A DECLARATION WAS TRUE FOR TWO DAYS AND FALSE FOR FOUR, AND NOTHING NOTICED.
+ *
+ * `SectionRenderer` emitted `data-ground="dark"` on a case-study hero and a quote band (2026-08-07).
+ * Two days later the token remap was narrowed from `[data-ground="dark"]` to
+ * `:root[data-ground="dark"]` — a correct fix, because at 0-1-0 it TIED `:root` and lost to a
+ * `:root` block four hundred lines below on source order. At 0-2-0 it wins.
+ *
+ * ⚠ AND `:root` MATCHES `<html>` ALONE, so from that moment a SECTION could never take the values.
+ * The heroes went on declaring dark and painting `--color-surface`. `SiteHeader`'s predicate reads
+ * `[data-ground="dark"]` on ANY element, believed them, and retoned the nav to white links over a
+ * near-white hero: NAV LINKS AT 1.09 AGAINST A 4.5 FLOOR, five regions, two live pages, all five
+ * light palettes. Measured from the paint on production.
+ *
+ * ⚠ THE INVARIANT IS NOT "NEVER EMIT IT ON A SECTION". It is that an emission and a remap must
+ * AGREE: if any non-root element declares a ground, some non-`:root` block must be able to remap it.
+ * Either side alone is fine; the pair is what lies.
+ *
+ * ⚠ AND THE SPECIFICITY FACT THAT MADE THE ORIGINAL FIX SAFE WAS NEVER WRITTEN DOWN, WHICH IS WHY
+ * ITS COST WENT UNSEEN: SPECIFICITY ONLY BREAKS TIES BETWEEN RULES MATCHING THE SAME ELEMENT. A
+ * `:root` block declares custom properties on `<html>`; a section block declares them on the
+ * section. They never compete — the section inherits until it declares its own, and then its own
+ * wins for it and its descendants regardless of source order. So a mid-page block would have needed
+ * no prefix at all, and adding one to the root block cost the mid-page case everything. */
+{
+  const css = readFileSync(join(root, "app/globals.css"), "utf8");
+  /* Selector positions only — comments discuss this attribute at length and a raw scan would match
+     the prose describing it, which this repository has now done in three separate tools. */
+  const decls = [...blankCommentBodies(css).matchAll(/^[^\n{}]*\[data-ground="dark"\][^\n{}]*\{/gm)].map((m) => m[0].trim());
+  const nonRootRemap = decls.filter((d) => !/^:root\[data-ground/.test(d));
+  const emitters = [];
+  const tsxAll = [];
+  (function w(d) {
+    for (const e of readdirSync(join(root, d), { withFileTypes: true })) {
+      if (e.name.startsWith(".") || e.name === "node_modules") continue;
+      const c = `${d}/${e.name}`;
+      if (e.isDirectory()) w(c); else if (c.endsWith(".tsx")) tsxAll.push(c);
+    }
+  })("components");
+  (function w(d) {
+    for (const e of readdirSync(join(root, d), { withFileTypes: true })) {
+      if (e.name.startsWith(".") || e.name === "node_modules") continue;
+      const c = `${d}/${e.name}`;
+      if (e.isDirectory()) w(c); else if (c.endsWith(".tsx")) tsxAll.push(c);
+    }
+  })("app");
+  for (const f of tsxAll) {
+    const src = blankCommentBodies(readFileSync(join(root, f), "utf8"));
+    if (/\sdata-ground=/.test(src) && !f.endsWith("app/layout.tsx")) emitters.push(f);
+  }
+  console.log(`      remap blocks: ${decls.length} (${nonRootRemap.length} reach a non-root element)`);
+  console.log(`      non-root emitters: ${emitters.length ? emitters.join(", ") : "none"}`);
+  t("S1 the stylesheet was read and carries the ground block at all, so S2 is not passing over nothing",
+    decls.length > 0, true);
+  t("S2 ⚠ NO ELEMENT DECLARES A GROUND THE STYLESHEET CANNOT REMAP — a declaration nothing can honour is read by consumers as true",
+    emitters.length > 0 && nonRootRemap.length === 0 ? emitters : [], []);
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
