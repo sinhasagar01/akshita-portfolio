@@ -309,6 +309,35 @@ gates.
 
   **THE SUPERSEDED FRAMING, KEPT BECAUSE THE MEASUREMENT IS SOUND AND ONLY ITS CONCLUSION WAS NOT:**
 
+- **⚠ BOARDED: REPLACE AS ONE COMMIT — AND IT IS BLOB-PLUS-YAML, NOT DELETE-PLUS-WRITE, WHICH IS
+  WHAT MAKES IT A UNIT RATHER THAN A FLAG.** Replacing a gallery image issues TWO commits from one
+  click: `upload-block-image` commits the blob, then the panel calls `saveDraft` which commits the
+  entry yaml.
+
+  **⚠ THE OLD BLOB IS NEVER DELETED, WHICH IS WHY THE ORPHAN ITEM EXISTS.** Content addressing means
+  a replaced image simply stops being referenced — so there is no deletion to pair with the write,
+  and the `additions` plus `deletions` shape the commit layer already has does not apply.
+
+  **SO ONE COMMIT MEANS THE UPLOAD ROUTE OWNING THE YAML WRITE** — it would need the entry's current
+  content and the serializer, neither of which it has today. **A real change with its own scope.**
+
+  **⚠ AND IT WOULD HAVE PREVENTED NONE OF THE THREE REPORTED DEFECTS**, which is recorded here so it
+  is never picked up as a small fix that closes them.
+
+- **⚠ A CONCLUSION FROM THE WRONG PAIR, AND IT SURVIVED BECAUSE THE NUMBER WAS REAL.** Diagnosing a
+  `STALE_DATA` report, two commits were measured **19 seconds apart** and that gap was used to argue
+  the race was not a same-click pair but "one session outliving the branch it holds". **Both commits
+  were `update site settings draft` writes with nothing to do with the replace being diagnosed.**
+
+  **THE REPLACE FLOW IS TWO COMMITS FROM ONE CLICK**, which is what the discarded framing had said
+  and what the measurement appeared to refute. **Ratified by both parties**, because 19 seconds is a
+  real interval between real commits — it was simply an interval between the wrong two.
+
+  **⚠ THE WRONG-SUBJECT SHAPE ARRIVING IN A TIMELINE RATHER THAN IN A MEASUREMENT**, and the first
+  of those recorded here. Every earlier instance was a ratio, a count or a population; this was an
+  ordering. **The check is the same: name the subject beside the number** — "19 seconds between
+  WHICH two commits" would have failed immediately.
+
 - **⚠ BOARDED: U2's SUBJECT IS NOT ESTABLISHED, AND THREE CENSUSES OF IT INVERTED THE ANSWER EACH
   TIME.** An author looked for a Save button on the gallery panel. What that means has been derived
   three times and been wrong three times:
@@ -909,6 +938,28 @@ moment it grows an action again.
   and the loser is told. Removing the cleanup does not stop an author seeing a refusal; it stops the
   refusal destroying anything. **The refusal is now recoverable by re-trying the action**, because
   the branch and the winning commit are still there — which is exactly what it was not before.
+
+- **⚠ THE GUARD ON THE GUARD, STATED ONCE AS A RULE: IF A CONFIRMING READ FAILS, THE ORIGINAL STATE
+  STANDS.** Two consecutive units grew a confirmation — `mergeBranch` asking whether a merge landed
+  before reporting a failed publish, and the draft read asking whether the branch still exists before
+  blaming N entries. **Both then had to answer the same second question**, and answering it wrongly
+  turns each fix into the inverse defect it was written to remove.
+
+  **A READ THAT CANNOT RUN IS NOT PERMISSION TO CLAIM A DIFFERENT OUTCOME.** The confirmation makes a
+  claim HONEST rather than OPTIMISTIC; falling back to the original error is what keeps it honest
+  when the confirmation is the thing that broke. **This file's oldest failure mode is an instrument
+  reporting the shape of success when it could not look**, and a confirmation without a fallback is
+  that failure mode wearing a fix's clothes.
+
+- **⚠ FIELD ORDER IN AN OBJECT LITERAL IS NOT A CONTRACT — TWO INSTANCES, AND BOTH WOULD HAVE BEEN
+  "FIXED" BY PINNING THE ORDER.** `publish-preview` I1 compared object literals and failed on KEY
+  ORDER; `draft-overlay-degrade` C2 and C3 matched two fields as ADJACENT and went red when a third
+  arrived between them. **In all three the literal still carried everything the row named.**
+
+  **THE TELL IS THAT THE ROW FAILS ON AN ADDITION RATHER THAN A REMOVAL.** A row that goes red
+  because a field was ADDED is asserting a shape nobody agreed to — and the repair that suggests
+  itself, pinning the order, cements an implementation detail as a contract. **Compare as sorted
+  pairs, or match the fields independently.**
 
 - **⚠ AN ESTABLISHED MECHANISM AND AN UNATTRIBUTED INSTANCE ARE DIFFERENT CLAIMS, AND THE SECOND
   STAYS UNATTRIBUTED.** The deletion mechanism above is established from code. **Which of the day's
