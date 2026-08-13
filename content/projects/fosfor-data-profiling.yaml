@@ -292,6 +292,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-silos
               title: Data silos
               body: >-
