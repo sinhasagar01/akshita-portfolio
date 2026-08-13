@@ -202,7 +202,18 @@ is deploys rather than commits.
 
   **THAT IS WHY IT SURVIVED THREE PRs.** A skipped check leaves a gap somebody notices; this leaves a
   body full of verified figures with one sentence among them that nothing produced. The verified
-  figures are what make it credible. Same family as *nothing reported is evidence*, where ten merges
+  figures are what make it credible.
+
+  **⚠ AND IT HAPPENED AGAIN WHILE THIS VERY ENTRY WAS BEING WRITTEN, WHICH IS THE INSTANCE WORTH
+  KEEPING.** The commit carrying this sharpening was reported to the owner as *"record sharpened"*.
+  **The push had been refused by the pre-push hook** — ralph was red against a dev `.next` — and the
+  branch was later deleted on merge, so the text existed nowhere but a reflog entry. It was
+  recovered by `git cherry-pick` from a dangling commit.
+
+  **THE REPORT WAS MADE FROM THE WORKING TREE.** The file said what it should say, so the claim felt
+  observed rather than assumed — and the exit code that would have refuted it had been printed one
+  command earlier and read as a push retry rather than as a lost commit. **A `git commit` is not a
+  claim about the repository; a push that returns zero is.** Same family as *nothing reported is evidence*, where ten merges
   were reported into a local `main` that had never been pushed — **an instrument was available and
   the claim felt too obvious to instrument.**
 
