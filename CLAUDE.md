@@ -205,6 +205,14 @@ is deploys rather than commits.
 
 ## Open items
 
+⚠ **AN ENTRY BELONGS HERE ONLY IF IT CARRIES AN ACTION.** A closed finding kept for its reasoning
+goes under `Recorded` below. Without that rule this section degrades back to what it was: 46 entries
+sharing no subject, of which 35 were finished work nobody could tell from unfinished work — and a
+board that cannot be read is a board that gets batched, which is how a fix rides in on another fix's
+gates.
+
+
+
 - **⚠ A DEPLOY STATUS IS A READING WITH A TIMESTAMP, NOT A FACT — AND SO IS "MAIN IS AHEAD OF
   PRODUCTION".** Production was reported as one merge behind `main`. It was, at that moment, and the
   build was IN FLIGHT: the deployment for that merge landed at `11:01:23Z`, minutes later, with a
@@ -261,6 +269,255 @@ is deploys rather than commits.
   local `main`, `origin/main` and the deployed sha, read BEFORE a unit starts rather than when its
   push fails, is the whole remedy. The reading is available today; nobody takes it because a branch
   cut an hour ago feels current, and **"feels current" is exactly the state this entry is about.**
+
+- **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
+  FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
+  paint through a canvas pixel, sanity pair 21.000 first:
+
+      sapphire   10,16,22  on  73,91,203    3.32        cream     254,249,241 on 182,83,41   4.70
+      ink-flare  20,13,10  on  162,78,2     3.32        harbour   245,251,255 on 0,126,91    4.87
+      nocturne   13,14,25  on  115,79,185   3.24        orchid    252,249,253 on 153,63,148  5.76
+      basalt     15,15,15  on  82,119,0     3.65        cerise/fern                    4.66 / 4.63
+
+  **THE PAIR IS THE TOKENS THEMSELVES**, not any one consumer — read straight off
+  `--color-on-accent` against `--color-accent-500` it gives the identical figures. The shipped
+  gallery filter chip measures exactly the same, so this predates the hero.
+
+  **⚠ AND `.nav-cta` CLEARS ON ALL NINE — 4.93 TO 5.92 — BECAUSE IT USES WHITE RATHER THAN THE
+  ROLE.** That is the tell: the one accent-filled control that passes is the one not using the
+  vocabulary. `paint-sites`' own ALLOW entry records its figures and never asked the role the same
+  question.
+
+  **⚠ AND `.nav-cta` BYPASSING THE ROLE IS ITSELF THE FINDING, NOT THE ESCAPE HATCH.** A working
+  control that works BY NOT USING THE SYSTEM is evidence about the system rather than about the
+  control. Its white is defended in `paint-sites`' ALLOW as ground-independent by argument, which is
+  true — and the argument was never turned around to ask why the ROLE built for that exact job could
+  not make it. **The one accent-filled control that passes on all nine is the one not using the
+  vocabulary.** Any repair should make `on-accent` able to replace that white, or admit the role does
+  not cover its own case.
+
+  **THE HERO'S CTA KEEPS `on-accent` DELIBERATELY.** Pointing it at white would fix one element,
+  hide a token defect behind it and make the vocabulary wrong — the trade this project has spent
+  twelve sessions removing. **Denominator: 17 `text-on-accent` sites across 9 components, plus 3
+  `var(--color-on-accent)` readers in the stylesheet.** The fix is four dark values, which is a
+  palette change and not a component one.
+
+- **⚠ THE GALLERY HERO TOOK `/gallery` FROM 4 ABOVE-THE-FOLD IMAGE REQUESTS TO 9, AND NO `sizes`
+  FIXES THAT — BOARDED WITH THE MEASUREMENT.** The strip's five frames and the masonry's four eager
+  tiles are the same ITEMS and never the same URLs, so nothing is shared between them.
+
+      strip, sizes="170px"      5 x w=384   40,470 B      <- shipped
+      strip, masonry's sizes    5 x w=640   87,215 B         the browser reads `sizes`, never the box
+      EAGER_TILES = 4           4 x w=640   69,772 B
+
+  **`EAGER_TILES` IS BELOW THE HAIRLINE AND WAS DELIBERATELY NOT TOUCHED.** Lowering it is the
+  obvious claw-back and it is a masonry decision with its own reasoning — a row that is eager
+  because it is the first row a reader sees. **The trigger is the collection reaching a size where
+  the strip and the first row show different items**, at which point the eager row is paying for
+  content the hero has already loaded.
+
+- **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
+  GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
+  `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
+  orphan is recovered by re-upload at no storage cost. **Its hash is ALSO the hash of a live blog
+  image**, because content addressing gives identical bytes an identical hash under different
+  paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
+  against hashes would have deleted the blog's copy while "collecting" the gallery's.
+
+- **⚠ BLOG AND GALLERY ARE ABSENT FROM STUDIO SEARCH, AND IT IS AN OMISSION RATHER THAN A DECISION —
+  SETTLED BY `git log -S` RATHER THAN BY READING THE HEADER.** `buildStudioSearchIndex` takes
+  `{projects, experience, skills}`.
+
+      search index created   2026-07-07
+      blog collection added  2026-07-26   never added to it
+      gallery                added later, likewise
+
+  **`git log -S "blog"` on that file returns NOTHING — the word has never appeared in it.** So the
+  header's *"Scope: settings sections + experience + projects + skills"* is not a decision anyone
+  took about blog; it is a description written before blog existed and never revisited. **A comment
+  describing a smaller scope reads as a boundary somebody chose**, which is the `structural()` shape
+  arriving in prose rather than in a helper.
+
+  **NOT FIXED HERE, BECAUSE THE SUBJECT IS THE SEARCH AND NOT THE GALLERY.** Two collections are
+  missing and the fix is one change to a shared index; scoping it to gallery would fix it once per
+  collection, which is the boarding this file already carries for `useDraftForm`'s feedback.
+
+- **⚠ BOARDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
+  FEEDBACK, IT IS STUDIO-WIDE, AND IT IS NOT GALLERY'S.** There is no Save draft button on the
+  gallery panel and none is planned — blur saves, per the locked convention, and blog's post panel
+  has none either. **The convention is right and is not the question.**
+
+  **THE QUESTION IS WHY SOMEONE WENT LOOKING.** If an author reaches for a button, the indicator is
+  not saying clearly enough that the work is already saved. `SaveIndicator` reports `saving` and
+  `dirty` and the pill reports standing state, and between them an author still could not tell that
+  a blur had committed.
+
+  **⚠ DO NOT SHIP A BUTTON. IT WOULD CLOSE THE REPORT AND LEAVE THE CAUSE** — the same trade the
+  fold defect nearly got, where a Save control would have been added to a panel that already saved
+  while the missing composition stayed. This arc has that shape four times now: **an owner reports
+  the missing affordance, and the fix is always upstream of the symptom.**
+
+  **THE SUBJECT IS EVERY PANEL THAT SAVES ON BLUR, NOT THE GALLERY.** Scoping it to the surface
+  where it was noticed is how the same defect gets fixed once per collection — and the studio has
+  three editors plus the settings panels all sharing `useDraftForm`. **The unit is a census of what
+  each surface tells an author after a blur**, before any change to any of them.
+
+- **⚠ A SOURCE REGEX CANNOT SEE REACHABILITY, AND THE STANDING ANSWER FOR ANY ASSERTION ABOUT COPY
+  IS TO EXTRACT AND CALL.** `PublishBar`'s status sentence was a ternary chain guarded by regexes
+  over that component. Setting the first-failure binding to `null` makes the per-entry sentence
+  **unreachable while leaving every word of it in the file** — three rows stayed green.
+
+  **PRESENCE AND RESOLUTION ARE DIFFERENT QUANTITIES**, which this file already records against a
+  bundle grep that "verified" two shadowed CSS values by proving both present when the question was
+  which one resolved. **A string in a file and a string on screen are not the same claim.**
+
+  **THE REPAIR IS `bar-clearance.ts`'s AND IT IS NOW THE DEFAULT:** move the branching into a pure
+  function, call it with real inputs, assert the returned string. `lib/studio/draft-status-text.ts`
+  is the second instance, and the identical mutation now turns three rows red.
+
+  **⚠ AND THE SAME QUESTION IS OWED OF EVERY OTHER MESSAGE-PRESENCE ROW. COUNTED, NOT FIXED: SIX
+  ROWS ACROSS THREE SUITES** assert that a user-facing sentence exists in a source file —
+  `studio-index` (four: the reorder hint, two empty states, the homepage-order line), `studio-ink`
+  (the sections error and its retry), and `studio-save-bar` (the autosave title, per surface). Each
+  proves the words are in the file and none proves a reader can reach them.
+
+  **⚠ THE ASYMMETRY IS THE USEFUL PART: ABSENCE-BY-REGEX IS SOUND AND PRESENCE-BY-REGEX IS NOT.**
+  `hero-contract-copy` asserts two strings are GONE, and that direction holds — if the words are not
+  in the file, nothing can render them. Only the presence direction needs the extraction.
+
+- **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`, AND THE HEADLINE IS THE ASYMMETRY
+  RATHER THAN THE SEVEN INSTANCES.** One suite carried TWO scanners over two languages. The CSS side
+  blanked comments before parsing and its own note called the order load-bearing, because a construct
+  named inside prose reconfigures the parser. **The JSX side read raw source.** That is a coverage
+  difference INSIDE A SINGLE FILE, and it produced **seven false positives against zero measured
+  cost** — the last of them a note explaining that a heading's family utility was inert, which made
+  the count go UP.
+
+  **THE COST WAS MEASURED BEFORE THE CHANGE, NOT ARGUED AFTER IT.** Blanking left the census output
+  byte-identical — 4 public collisions and 19 inert, unchanged — across 178 files.
+
+  **⚠ AND IT FINDS MORE THAN IT REMOVES, WHICH WAS NOT THE POINT.** A `>` inside an
+  attribute-position comment terminated the raw element match early, so a real class after it was
+  never seen. Sixty files carry such a comment.
+
+  **THE BODY IS BLANKED AND NOT DELETED, AND A MUTATION IS WHY THAT IS ASSERTED.** `line` is computed
+  from the match index, so deleting would shift every reported line after the first comment in a
+  file. **The first fixture could not tell the two apart** — its comment was one line, so deletion
+  removed no newline and the line row passed under a mutation that replaced blanking with deletion.
+  A three-line fixture fires both. That is the *assertion that cannot fail for the reason it names*,
+  caught by mutation rather than by reading.
+
+  **⚠ THE TDZ SHAPE ARRIVED FOR THE THIRD TIME, IN THE FIXTURE.** The block called `elements()` above
+  `COMPONENT_TAG`'s declaration, which parses perfectly and throws at run time. `node --check` sees
+  none of it. Running the row is the only thing that does.
+
+  **SCOPED TO ONE SCANNER, DELIBERATELY.** `colour-census` also reads `.tsx` and its subject is
+  colour LITERALS rather than elements — a different question with a different blast radius, and the
+  precedent is `css-comment-trap`'s reverted string-blanking, which was right as an idea and broke
+  five assertions that read string contents. **That half is still open and is the trigger for the
+  next look: a comment naming a colour is still counted as a colour.**
+
+- **⚠ NEXT UNIT: THE UNLAYERED `img` RESET HAS FIRED FIVE TIMES — ASK WHETHER IT CAN BE LAYERED,
+  RATHER THAN LOGGING A SIXTH.** `img, video { max-width: 100%; height: auto; display: block }` sits
+  unlayered, so all three properties beat any utility in `@layer utilities`. Hazard 11's instances:
+  a `max-w-full` on the case-study preview, a full-height class on the gallery tile, and three inert
+  classes on the gallery overlay and tile. **An instance list this long is a question nobody has
+  asked.**
+
+  **THE MEASUREMENT THAT DECIDES IT, AND IT POINTS AT "ALWAYS AUTHORED".** Of 50 `<Image>`/`<img>`
+  elements in the tree, **12 already bypass the reset entirely** through `next/image`'s `fill`, which
+  Next writes as an INLINE style — the one thing that outranks an unlayered rule. Another 23 elements
+  carry an inline `height` or `aspectRatio`. **So the escape hatch is already the majority
+  mechanism**, and the reset is mostly serving elements that never argue with it.
+
+  **⚠ THE ANSWER IS PROBABLY NOT "LAYER ALL THREE", AND THE PRECEDENT SAYS WHY.** The dead-utilities
+  arc lifted 92 utilities across four properties and shipped it as **four PRs, one property at a
+  time**, because one diff containing 92 changes is a diff where nothing can be attributed. Lifting
+  `height` alone is the first unit; `max-width` and `display` are separate questions with separate
+  blast radii.
+
+  **THE OPEN QUESTION TO ANSWER FIRST:** whether lifting `height` changes any rendered box. Every
+  consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
+  only visible where a utility currently loses. **That set is exactly what `cascade-public` already
+  enumerates**, which means the blast radius is knowable before the edit rather than after it.
+
+- **Content. Writing posts through /studio, AND THE EXERCISE HAS NOW PAID FOR ITSELF TWICE IN ONE
+  SESSION.** It was ranked highest on the argument that three defects came from an author using the
+  editor and none from a gate. Both of this session's results were produced by an author using it,
+  and neither could have come from anywhere else.
+
+  **⚠ ONE IS A DEFECT IN THE EDITOR ITSELF.** The blog status control set a field and asked to save in
+  the same tick, the hook's latest-values ref was only written on render, the dirty check read
+  pre-click values and **returned without saving** — silently, with no Save button on that panel to
+  rescue it. A post could be set to Published and stay a draft through publish and deploy. Found by
+  the owner reporting the symptom, then by reading the commit history: **every studio commit touching
+  that post was blocks or images and none ever changed status.**
+
+  **⚠ THE OTHER IS `raster-grounds` A4's FIRST LIVE CATCH, AND THAT IS THE ARGUMENT MADE BY EVIDENCE.**
+  A4 was built after the Fosfor illustration was found with cream's ground baked in — **pre-existing
+  and revealed rather than caused.** An uploaded hero measured **50.6% within tolerance of a site
+  ground**, caught **on the day it arrived and before the post published**. Not a defect in /studio,
+  which worked exactly as designed: **a defect only an author using the editor can create, caught in
+  the one place a gate could see it.**
+
+  **THE RULING IS A REDRAW WITH A TRANSPARENT BACKGROUND, AND MAIN SITS RED UNTIL THE ASSET ARRIVES.**
+  That is the gate working. A `KNOWN` entry to make it green would be the escape hatch, and its end
+  condition would be **a promise rather than a trigger** — the one shape that registry refuses. The
+  cheaper route to green is to drop `heroImage` back to null and re-upload when the redraw exists,
+  since the post is a draft and the field is optional. **Removing an asset that is not ready is not an
+  exemption.**
+
+  **⚠ ALL THREE CLAIMS ABOVE ARE CLOSED, AND ALL THREE WERE STILL BEING CARRIED AS OPEN.** Measured on
+  `main`: the hero was re-uploaded in `add04fb` and **`raster-grounds` passes 11 of 11**, so main is
+  green and the redraw arrived. The status control **works** — `52ef514 chore(studio): update
+  blog/<slug> draft`, the head-field path with no noun, is the commit that flipped `status: draft`
+  to `published`, which refutes *"every studio commit touching that post was blocks or images and
+  none ever changed status"* by naming the one that did. And the post was **published, not a draft**.
+
+  **⚠ THE ITEM RANKED THE WORK AND EVERY PREMISE UNDER IT HAD EXPIRED.** Third time this pattern has
+  cost an ordering, after the experience descriptions and the published-post count. **The entries
+  most likely to be wrong are still the ones nobody has touched.**
+- **Kaushan Script — DECIDED, KEPT. The wordmark stays; the inert class on the heading is gone.**
+  The question was framed as debt left by the typography arc. It is not debt. **A wordmark in its own
+  face is not an inconsistency — it is what a wordmark IS**, and a logo drawn in a display face beside
+  headings in a serif is ordinary practice rather than a conflict. Two of the four live sites are the
+  identity doing exactly that: `.logo-sig` pairs script "Akshita" with tracked-caps "SINGH" as a
+  designed lockup, and the footer sets the full name at 42px above "PRODUCT DESIGNER" — **a signature
+  sign-off, which is the one job a script face is unambiguously for.**
+
+  ⚠ **AND THE PREMISE THAT MADE IT LOOK LIKE DEBT WAS ALREADY FALSE.** The record said the loudest
+  cursive survived the arc untouched. Measured live, the home page's `h1` — the largest statement of
+  the name on the site, and the page's top-level heading — **renders Source Serif**, because the
+  unlayered `h1` rule beats a utility in `@layer utilities`. The cursive never held the primary slot.
+  So the choice was never "script or serif for the identity"; the serif already had it, and Kaushan
+  holds the mark and the signature.
+
+  **What WAS real debt is fixed: `font-script` on that `h1` drew nothing and has been removed.** A
+  class that asks for one face and draws another is a lie in the markup, and it survived only because
+  the result looked right. `cascade-public`'s family-collision registry is now empty and zero is the
+  assertion.
+
+  The other cursive, Caveat in `AnnotatedImage.tsx`, is untouched and unexamined — a separate face
+  with a separate job, and no evidence either way was gathered here.
+
+Outcome numbers for Fosfor AI and Fosfor Data Profiling used to sit at the top of this list as the
+one thing blocking finished copy. Both case studies now carry a statCards block with specific
+figures, so that is no longer the blocker. Whether the figures are final is a judgement only the
+owner can make, which is a different question from whether the fields are filled.
+
+The light editorial direction was confirmed long ago and the tokens are set. That question is
+closed.
+
+## Recorded
+
+⚠ **CLOSED FINDINGS, KEPT FOR THEIR REASONING RATHER THAN THEIR STATUS.** Nothing here needs doing.
+Every entry is here because the REASON it was closed is worth more than the fact — the wrong turn
+that was taken, the measurement that settled it, the shape it turned out to be an instance of.
+
+⚠ **AND THEY ARE NOT ARCHIVED, DELETED OR SUMMARISED.** This file's own recurring defect is a claim
+that ages into being false while still reading as verification; summarising a closed finding is how
+its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
+moment it grows an action again.
 
 - **⚠ CLOSED: AN UNKINDED ITEM IS REFUSED AT PUBLISH — AND THE MIGRATION THAT HELD THIS UNIT BACK
   DID NOT EXIST.** The gate was deferred because "the gate and the content move together or publish
@@ -333,60 +590,6 @@ is deploys rather than commits.
   **It waits because it is a ruling with a MIGRATION attached:** one item on main already fails it, so
   the gate and the content have to move together or publish breaks on a piece that is live.
 
-- **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
-  FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
-  paint through a canvas pixel, sanity pair 21.000 first:
-
-      sapphire   10,16,22  on  73,91,203    3.32        cream     254,249,241 on 182,83,41   4.70
-      ink-flare  20,13,10  on  162,78,2     3.32        harbour   245,251,255 on 0,126,91    4.87
-      nocturne   13,14,25  on  115,79,185   3.24        orchid    252,249,253 on 153,63,148  5.76
-      basalt     15,15,15  on  82,119,0     3.65        cerise/fern                    4.66 / 4.63
-
-  **THE PAIR IS THE TOKENS THEMSELVES**, not any one consumer — read straight off
-  `--color-on-accent` against `--color-accent-500` it gives the identical figures. The shipped
-  gallery filter chip measures exactly the same, so this predates the hero.
-
-  **⚠ AND `.nav-cta` CLEARS ON ALL NINE — 4.93 TO 5.92 — BECAUSE IT USES WHITE RATHER THAN THE
-  ROLE.** That is the tell: the one accent-filled control that passes is the one not using the
-  vocabulary. `paint-sites`' own ALLOW entry records its figures and never asked the role the same
-  question.
-
-  **⚠ AND `.nav-cta` BYPASSING THE ROLE IS ITSELF THE FINDING, NOT THE ESCAPE HATCH.** A working
-  control that works BY NOT USING THE SYSTEM is evidence about the system rather than about the
-  control. Its white is defended in `paint-sites`' ALLOW as ground-independent by argument, which is
-  true — and the argument was never turned around to ask why the ROLE built for that exact job could
-  not make it. **The one accent-filled control that passes on all nine is the one not using the
-  vocabulary.** Any repair should make `on-accent` able to replace that white, or admit the role does
-  not cover its own case.
-
-  **THE HERO'S CTA KEEPS `on-accent` DELIBERATELY.** Pointing it at white would fix one element,
-  hide a token defect behind it and make the vocabulary wrong — the trade this project has spent
-  twelve sessions removing. **Denominator: 17 `text-on-accent` sites across 9 components, plus 3
-  `var(--color-on-accent)` readers in the stylesheet.** The fix is four dark values, which is a
-  palette change and not a component one.
-
-- **⚠ THE GALLERY HERO TOOK `/gallery` FROM 4 ABOVE-THE-FOLD IMAGE REQUESTS TO 9, AND NO `sizes`
-  FIXES THAT — BOARDED WITH THE MEASUREMENT.** The strip's five frames and the masonry's four eager
-  tiles are the same ITEMS and never the same URLs, so nothing is shared between them.
-
-      strip, sizes="170px"      5 x w=384   40,470 B      <- shipped
-      strip, masonry's sizes    5 x w=640   87,215 B         the browser reads `sizes`, never the box
-      EAGER_TILES = 4           4 x w=640   69,772 B
-
-  **`EAGER_TILES` IS BELOW THE HAIRLINE AND WAS DELIBERATELY NOT TOUCHED.** Lowering it is the
-  obvious claw-back and it is a masonry decision with its own reasoning — a row that is eager
-  because it is the first row a reader sees. **The trigger is the collection reaching a size where
-  the strip and the first row show different items**, at which point the eager row is paying for
-  content the hero has already loaded.
-
-- **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
-  GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
-  `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
-  orphan is recovered by re-upload at no storage cost. **Its hash is ALSO the hash of a live blog
-  image**, because content addressing gives identical bytes an identical hash under different
-  paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
-  against hashes would have deleted the blog's copy while "collecting" the gallery's.
-
 - **⚠ SHIPPED: THE UNPUBLISHED-CHANGES DISCLOSURE, AND THE PLACEMENT DERIVATION REVERSED ITSELF ON
   A CACHE.** It lives in the publish bar as a disclosure under the pill — the bar's standing state is
   a boolean, and a permanently open list would change the chrome on every studio page to answer a
@@ -454,24 +657,6 @@ is deploys rather than commits.
   `CollectionName`. A surface listing what publish would carry is a rendering of a value the studio
   computes on every page load — **and it would have shown `camera` right up until the branch was
   deleted**, which is the strongest argument for building it.
-
-- **⚠ BLOG AND GALLERY ARE ABSENT FROM STUDIO SEARCH, AND IT IS AN OMISSION RATHER THAN A DECISION —
-  SETTLED BY `git log -S` RATHER THAN BY READING THE HEADER.** `buildStudioSearchIndex` takes
-  `{projects, experience, skills}`.
-
-      search index created   2026-07-07
-      blog collection added  2026-07-26   never added to it
-      gallery                added later, likewise
-
-  **`git log -S "blog"` on that file returns NOTHING — the word has never appeared in it.** So the
-  header's *"Scope: settings sections + experience + projects + skills"* is not a decision anyone
-  took about blog; it is a description written before blog existed and never revisited. **A comment
-  describing a smaller scope reads as a boundary somebody chose**, which is the `structural()` shape
-  arriving in prose rather than in a helper.
-
-  **NOT FIXED HERE, BECAUSE THE SUBJECT IS THE SEARCH AND NOT THE GALLERY.** Two collections are
-  missing and the fix is one change to a shared index; scoping it to gallery would fix it once per
-  collection, which is the boarding this file already carries for `useDraftForm`'s feedback.
 
 - **⚠ A CENSUS OF UNCHECKED JOINS IS DERIVABLE, AND IT IS WHAT AN AUDIT CANNOT BE.** The gallery
   audit's honest limit was that **there is no list of joins to be exhaustive against** — its best
@@ -551,26 +736,6 @@ is deploys rather than commits.
   **THE CHECK: when a gate refuses everything, ask whether the passing state is REACHABLE before
   asking whether the gate is too strict.** Same family as an assertion that cannot fail for the
   reason it names, inverted — here the assertion could not PASS for the reason it named.
-
-- **⚠ BOARDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
-  FEEDBACK, IT IS STUDIO-WIDE, AND IT IS NOT GALLERY'S.** There is no Save draft button on the
-  gallery panel and none is planned — blur saves, per the locked convention, and blog's post panel
-  has none either. **The convention is right and is not the question.**
-
-  **THE QUESTION IS WHY SOMEONE WENT LOOKING.** If an author reaches for a button, the indicator is
-  not saying clearly enough that the work is already saved. `SaveIndicator` reports `saving` and
-  `dirty` and the pill reports standing state, and between them an author still could not tell that
-  a blur had committed.
-
-  **⚠ DO NOT SHIP A BUTTON. IT WOULD CLOSE THE REPORT AND LEAVE THE CAUSE** — the same trade the
-  fold defect nearly got, where a Save control would have been added to a panel that already saved
-  while the missing composition stayed. This arc has that shape four times now: **an owner reports
-  the missing affordance, and the fix is always upstream of the symptom.**
-
-  **THE SUBJECT IS EVERY PANEL THAT SAVES ON BLUR, NOT THE GALLERY.** Scoping it to the surface
-  where it was noticed is how the same defect gets fixed once per collection — and the studio has
-  three editors plus the settings panels all sharing `useDraftForm`. **The unit is a census of what
-  each surface tells an author after a blur**, before any change to any of them.
 
 - **⚠ A GUARD SCOPED TO A FILE MAY NAME THAT FILE'S LOCALS; A GUARD THAT ITERATES MAY NOT. THE
   PROPERTY IS THE ITERATION, NOT THE NAMING.** A `three-pane` row meant to check every shell
@@ -892,85 +1057,6 @@ is deploys rather than commits.
   **⚠ AND FOUR FOR FOUR IS A PREDICTION, NOT A TALLY.** The fifth collection will do this too. The
   cost of the browser run is minutes; the cost of skipping it has now been one production 404 and a
   silent draft-overlay degrade that nothing on screen named.
-
-- **⚠ A SOURCE REGEX CANNOT SEE REACHABILITY, AND THE STANDING ANSWER FOR ANY ASSERTION ABOUT COPY
-  IS TO EXTRACT AND CALL.** `PublishBar`'s status sentence was a ternary chain guarded by regexes
-  over that component. Setting the first-failure binding to `null` makes the per-entry sentence
-  **unreachable while leaving every word of it in the file** — three rows stayed green.
-
-  **PRESENCE AND RESOLUTION ARE DIFFERENT QUANTITIES**, which this file already records against a
-  bundle grep that "verified" two shadowed CSS values by proving both present when the question was
-  which one resolved. **A string in a file and a string on screen are not the same claim.**
-
-  **THE REPAIR IS `bar-clearance.ts`'s AND IT IS NOW THE DEFAULT:** move the branching into a pure
-  function, call it with real inputs, assert the returned string. `lib/studio/draft-status-text.ts`
-  is the second instance, and the identical mutation now turns three rows red.
-
-  **⚠ AND THE SAME QUESTION IS OWED OF EVERY OTHER MESSAGE-PRESENCE ROW. COUNTED, NOT FIXED: SIX
-  ROWS ACROSS THREE SUITES** assert that a user-facing sentence exists in a source file —
-  `studio-index` (four: the reorder hint, two empty states, the homepage-order line), `studio-ink`
-  (the sections error and its retry), and `studio-save-bar` (the autosave title, per surface). Each
-  proves the words are in the file and none proves a reader can reach them.
-
-  **⚠ THE ASYMMETRY IS THE USEFUL PART: ABSENCE-BY-REGEX IS SOUND AND PRESENCE-BY-REGEX IS NOT.**
-  `hero-contract-copy` asserts two strings are GONE, and that direction holds — if the words are not
-  in the file, nothing can render them. Only the presence direction needs the extraction.
-
-- **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`, AND THE HEADLINE IS THE ASYMMETRY
-  RATHER THAN THE SEVEN INSTANCES.** One suite carried TWO scanners over two languages. The CSS side
-  blanked comments before parsing and its own note called the order load-bearing, because a construct
-  named inside prose reconfigures the parser. **The JSX side read raw source.** That is a coverage
-  difference INSIDE A SINGLE FILE, and it produced **seven false positives against zero measured
-  cost** — the last of them a note explaining that a heading's family utility was inert, which made
-  the count go UP.
-
-  **THE COST WAS MEASURED BEFORE THE CHANGE, NOT ARGUED AFTER IT.** Blanking left the census output
-  byte-identical — 4 public collisions and 19 inert, unchanged — across 178 files.
-
-  **⚠ AND IT FINDS MORE THAN IT REMOVES, WHICH WAS NOT THE POINT.** A `>` inside an
-  attribute-position comment terminated the raw element match early, so a real class after it was
-  never seen. Sixty files carry such a comment.
-
-  **THE BODY IS BLANKED AND NOT DELETED, AND A MUTATION IS WHY THAT IS ASSERTED.** `line` is computed
-  from the match index, so deleting would shift every reported line after the first comment in a
-  file. **The first fixture could not tell the two apart** — its comment was one line, so deletion
-  removed no newline and the line row passed under a mutation that replaced blanking with deletion.
-  A three-line fixture fires both. That is the *assertion that cannot fail for the reason it names*,
-  caught by mutation rather than by reading.
-
-  **⚠ THE TDZ SHAPE ARRIVED FOR THE THIRD TIME, IN THE FIXTURE.** The block called `elements()` above
-  `COMPONENT_TAG`'s declaration, which parses perfectly and throws at run time. `node --check` sees
-  none of it. Running the row is the only thing that does.
-
-  **SCOPED TO ONE SCANNER, DELIBERATELY.** `colour-census` also reads `.tsx` and its subject is
-  colour LITERALS rather than elements — a different question with a different blast radius, and the
-  precedent is `css-comment-trap`'s reverted string-blanking, which was right as an idea and broke
-  five assertions that read string contents. **That half is still open and is the trigger for the
-  next look: a comment naming a colour is still counted as a colour.**
-
-- **⚠ NEXT UNIT: THE UNLAYERED `img` RESET HAS FIRED FIVE TIMES — ASK WHETHER IT CAN BE LAYERED,
-  RATHER THAN LOGGING A SIXTH.** `img, video { max-width: 100%; height: auto; display: block }` sits
-  unlayered, so all three properties beat any utility in `@layer utilities`. Hazard 11's instances:
-  a `max-w-full` on the case-study preview, a full-height class on the gallery tile, and three inert
-  classes on the gallery overlay and tile. **An instance list this long is a question nobody has
-  asked.**
-
-  **THE MEASUREMENT THAT DECIDES IT, AND IT POINTS AT "ALWAYS AUTHORED".** Of 50 `<Image>`/`<img>`
-  elements in the tree, **12 already bypass the reset entirely** through `next/image`'s `fill`, which
-  Next writes as an INLINE style — the one thing that outranks an unlayered rule. Another 23 elements
-  carry an inline `height` or `aspectRatio`. **So the escape hatch is already the majority
-  mechanism**, and the reset is mostly serving elements that never argue with it.
-
-  **⚠ THE ANSWER IS PROBABLY NOT "LAYER ALL THREE", AND THE PRECEDENT SAYS WHY.** The dead-utilities
-  arc lifted 92 utilities across four properties and shipped it as **four PRs, one property at a
-  time**, because one diff containing 92 changes is a diff where nothing can be attributed. Lifting
-  `height` alone is the first unit; `max-width` and `display` are separate questions with separate
-  blast radii.
-
-  **THE OPEN QUESTION TO ANSWER FIRST:** whether lifting `height` changes any rendered box. Every
-  consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
-  only visible where a utility currently loses. **That set is exactly what `cascade-public` already
-  enumerates**, which means the blast radius is knowable before the edit rather than after it.
 
 - **⚠ THE HERO'S SCROLL CUE WAS A 665px ANCHOR AROUND 140px OF TEXT — CLOSED, AND THE STRIPS WERE
   NEVER THE DEFECT.** `.hero-copy` is a grid and a grid item stretches its column by default, so
@@ -1315,42 +1401,6 @@ is deploys rather than commits.
   that can afford it to the file that cannot. **The comment forbidding it was already there and the
   suite failed within a minute of ignoring it.**
 
-- **Content. Writing posts through /studio, AND THE EXERCISE HAS NOW PAID FOR ITSELF TWICE IN ONE
-  SESSION.** It was ranked highest on the argument that three defects came from an author using the
-  editor and none from a gate. Both of this session's results were produced by an author using it,
-  and neither could have come from anywhere else.
-
-  **⚠ ONE IS A DEFECT IN THE EDITOR ITSELF.** The blog status control set a field and asked to save in
-  the same tick, the hook's latest-values ref was only written on render, the dirty check read
-  pre-click values and **returned without saving** — silently, with no Save button on that panel to
-  rescue it. A post could be set to Published and stay a draft through publish and deploy. Found by
-  the owner reporting the symptom, then by reading the commit history: **every studio commit touching
-  that post was blocks or images and none ever changed status.**
-
-  **⚠ THE OTHER IS `raster-grounds` A4's FIRST LIVE CATCH, AND THAT IS THE ARGUMENT MADE BY EVIDENCE.**
-  A4 was built after the Fosfor illustration was found with cream's ground baked in — **pre-existing
-  and revealed rather than caused.** An uploaded hero measured **50.6% within tolerance of a site
-  ground**, caught **on the day it arrived and before the post published**. Not a defect in /studio,
-  which worked exactly as designed: **a defect only an author using the editor can create, caught in
-  the one place a gate could see it.**
-
-  **THE RULING IS A REDRAW WITH A TRANSPARENT BACKGROUND, AND MAIN SITS RED UNTIL THE ASSET ARRIVES.**
-  That is the gate working. A `KNOWN` entry to make it green would be the escape hatch, and its end
-  condition would be **a promise rather than a trigger** — the one shape that registry refuses. The
-  cheaper route to green is to drop `heroImage` back to null and re-upload when the redraw exists,
-  since the post is a draft and the field is optional. **Removing an asset that is not ready is not an
-  exemption.**
-
-  **⚠ ALL THREE CLAIMS ABOVE ARE CLOSED, AND ALL THREE WERE STILL BEING CARRIED AS OPEN.** Measured on
-  `main`: the hero was re-uploaded in `add04fb` and **`raster-grounds` passes 11 of 11**, so main is
-  green and the redraw arrived. The status control **works** — `52ef514 chore(studio): update
-  blog/<slug> draft`, the head-field path with no noun, is the commit that flipped `status: draft`
-  to `published`, which refutes *"every studio commit touching that post was blocks or images and
-  none ever changed status"* by naming the one that did. And the post was **published, not a draft**.
-
-  **⚠ THE ITEM RANKED THE WORK AND EVERY PREMISE UNDER IT HAD EXPIRED.** Third time this pattern has
-  cost an ordering, after the experience descriptions and the published-post count. **The entries
-  most likely to be wrong are still the ones nobody has touched.**
 - **⚠ THE DEAD UTILITIES ARE CLOSED — 92, NOT 58, AND TAKEN ONE PROPERTY AT A TIME.** This item said
   58 line-heights and one change. It was **92 across four properties and two tag groups**, and one
   diff containing 92 changes is a diff where nothing can be attributed. Shipped as four PRs: `<p>`
@@ -1368,37 +1418,6 @@ is deploys rather than commits.
   **WHAT IS LEFT IS `color`: SIX `<a>` SITES, AND IT IS A DIFFERENT QUESTION.** The unlayered
   `a { color: inherit }` exists so links inherit their context, and `studio-cascade`'s premise rests
   on it. Lifting it is a new sequence, not the fifth step of this one.
-
-- **Kaushan Script — DECIDED, KEPT. The wordmark stays; the inert class on the heading is gone.**
-  The question was framed as debt left by the typography arc. It is not debt. **A wordmark in its own
-  face is not an inconsistency — it is what a wordmark IS**, and a logo drawn in a display face beside
-  headings in a serif is ordinary practice rather than a conflict. Two of the four live sites are the
-  identity doing exactly that: `.logo-sig` pairs script "Akshita" with tracked-caps "SINGH" as a
-  designed lockup, and the footer sets the full name at 42px above "PRODUCT DESIGNER" — **a signature
-  sign-off, which is the one job a script face is unambiguously for.**
-
-  ⚠ **AND THE PREMISE THAT MADE IT LOOK LIKE DEBT WAS ALREADY FALSE.** The record said the loudest
-  cursive survived the arc untouched. Measured live, the home page's `h1` — the largest statement of
-  the name on the site, and the page's top-level heading — **renders Source Serif**, because the
-  unlayered `h1` rule beats a utility in `@layer utilities`. The cursive never held the primary slot.
-  So the choice was never "script or serif for the identity"; the serif already had it, and Kaushan
-  holds the mark and the signature.
-
-  **What WAS real debt is fixed: `font-script` on that `h1` drew nothing and has been removed.** A
-  class that asks for one face and draws another is a lie in the markup, and it survived only because
-  the result looked right. `cascade-public`'s family-collision registry is now empty and zero is the
-  assertion.
-
-  The other cursive, Caveat in `AnnotatedImage.tsx`, is untouched and unexamined — a separate face
-  with a separate job, and no evidence either way was gathered here.
-
-Outcome numbers for Fosfor AI and Fosfor Data Profiling used to sit at the top of this list as the
-one thing blocking finished copy. Both case studies now carry a statCards block with specific
-figures, so that is no longer the blocker. Whether the figures are final is a judgement only the
-owner can make, which is a different question from whether the fields are filled.
-
-The light editorial direction was confirmed long ago and the tokens are set. That question is
-closed.
 
 ## Portable conventions
 
