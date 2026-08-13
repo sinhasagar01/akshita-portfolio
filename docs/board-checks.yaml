@@ -50,6 +50,16 @@ entries:
       Superseded framing, kept because it argues why the fix had to be a config change rather than a
       rule. There is no live condition left in it.
 
+  - match: "`SegmentedGroup` CANNOT BE REUSED ON THE PUBLIC SITE"
+    kind: structural
+    holds_while:
+      file: components/studio/SegmentedGroup.tsx
+      pattern: studio-accent-500
+      expect: present
+    note: >-
+      The item is open because the component paints frozen studio tokens. If those are gone somebody
+      has done the presentational-core split and the entry needs closing.
+
   - match: "A DARK CASE-STUDY HERO IS A DESIGN UNIT"
     kind: structural
     holds_while:

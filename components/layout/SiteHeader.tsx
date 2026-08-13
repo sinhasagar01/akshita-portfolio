@@ -18,8 +18,12 @@ import { RESUME_LABEL, type ElsewhereLink } from "@/lib/social-links";
 // `href` is the discriminator. STATE recorded the blog nav link as "one line, the launch
 // switch"; it is not, because this nav was built for anchors only, and nobody had tried it.
 const NAV = [
-  { id: "process", label: "Process" },
+  /* ⚠ THIS ORDER IS NOT COSMETIC — `getActiveSection()` BELOW READS IT AS DOM ORDER. It keeps the
+     LAST entry whose top is above the header, which is only correct while this array matches the
+     page. `nav-order` asserts the two agree; without that, moving a section on the home page makes
+     the spy highlight the wrong link and nothing goes red. */
   { id: "work",    label: "Work"    },
+  { id: "process", label: "Process" },
   { id: "about",   label: "About"   },
   { id: "blog",    label: "Blog", href: "/blog" },
   /* A THIRD ROUTE ENTRY, and adding it is the whole change for the same reason `blog` and
