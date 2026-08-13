@@ -45,6 +45,7 @@ import { ListboxField } from "./ListboxField";
 import InspectorResizer from "./InspectorResizer";
 import { useInspectorWidth } from "./useInspectorWidth";
 import { usePageWidthMin } from "./usePageWidthMin";
+import { usePublishSignal } from "./PublishProvider";
 import { useDraftForm } from "./useDraftForm";
 import { useSidebarWidth } from "./SidebarWidthProvider";
 import { BlockImageField, TextField, TextArea, groupLabelCls } from "./blocks/fields";
@@ -53,9 +54,23 @@ import { draftImageUrl } from "@/lib/studio/draft-image";
 import { GALLERY_CANVAS_MIN_PX, GALLERY_PANES_SUM, INSPECTOR_FOLD_PX } from "@/lib/studio/three-pane";
 import type { GalleryItem } from "@/lib/keystatic";
 
+/* ⚠ `image`, `width` AND `height` ARE IN THE FORM, AND THEIR ABSENCE WAS THE DEFECT. They were
+   held in a `useState` beside it, so the upload route committed the BYTES to the draft branch and
+   the ENTRY was never told — `image: null, width: 0, height: 0` on disk while the panel showed a
+   picture and read "MEASURED ON UPLOAD 1200x800". A gallery item could not hold an image at all.
+
+   ⚠ AND THE FIELD SET IS A SEVENTH HAND-MAINTAINED SPELLING OF THE SCHEMA'S KEYS. Hop 3 counted
+   six and brought them to five; this one was not in that count, because that census walked `lib/`
+   and this list lives in a component. A denominator computed inside a walk cannot see the walk's
+   own boundary — the same defect the census was closing, one directory over.
+   `collection-dispatch` I1 now compares this set to the schema, so a key the schema declares and
+   the form omits is a red row rather than a field that silently cannot be saved. */
 type Fields = {
   title: string;
   kind: string;
+  image: string | null;
+  width: number;
+  height: number;
   alt: string;
   description: string;
   tags: string[];
@@ -88,6 +103,7 @@ export default function GalleryEditPanel({
   /** The inspector's stored width, read and clamped on the SERVER so the first paint is right. */
   inspectorWidth: number;
 }) {
+  const { setUnpublished } = usePublishSignal();
   const sidebarPx = useSidebarWidth();
   const ins = useInspectorWidth(inspectorWidth, "gallery");
 
@@ -95,12 +111,11 @@ export default function GalleryEditPanel({
      shape prevents. They arrive together from one response and they are refused together at
      publish — a path with no dimensions is an upload that did not finish. Two useStates would
      make the intermediate state representable, and anything representable eventually happens. */
-  const [shot, setShot] = useState<{
-    src: string | null;
-    width: number;
-    height: number;
-    preview: string | null;
-  }>({ src: item.image, width: item.width, height: item.height, preview: null });
+  /* ⚠ ONLY THE OBJECT URL LIVES HERE NOW. The path and the dimensions moved into the form, because
+     state beside a form is state that never reaches disk — which is exactly what happened. What
+     remains is genuinely session-only: a `blob:` for bytes the browser already holds, which no
+     server can know about and which must not be persisted. */
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // This panel owns the preview url it displays and frees the one it supersedes — #190's rule.
   const ownedPreview = useRef<string | null>(null);
@@ -109,6 +124,9 @@ export default function GalleryEditPanel({
     initial: {
       title: item.title,
       kind: item.kind,
+      image: item.image,
+      width: item.width,
+      height: item.height,
       alt: item.alt,
       description: item.description,
       tags: [...item.tags],
@@ -120,12 +138,21 @@ export default function GalleryEditPanel({
     isDirty: (v, b) =>
       v.title !== b.title ||
       v.kind !== b.kind ||
+      v.image !== b.image ||
+      v.width !== b.width ||
+      v.height !== b.height ||
       v.alt !== b.alt ||
       v.description !== b.description ||
       v.caseStudy !== b.caseStudy ||
       v.tags.length !== b.tags.length ||
       v.tags.some((t, i) => t !== b.tags[i]),
     syncValuesOnSave: true,
+    /* ⚠ THE BAR IS A PAGE-LOAD SNAPSHOT AND SOMETHING MUST TELL IT AN EDIT HAPPENED. `BlogEditPanel`
+       has three of these; gallery had ZERO, so the pill read "All changes published" with Publish
+       disabled while four saves sat on the draft branch — an author unable to publish work that
+       demonstrably existed. `useDraftForm` calls this only on a save the server accepted, so it
+       cannot mark the site dirty for a write that did not land. */
+    onSaved: () => setUnpublished(true),
     toastLabel: `Gallery · ${slug}`,
     saveExtras: { collection: "gallery", slug },
   });
@@ -195,15 +222,15 @@ export default function GalleryEditPanel({
          WHAT STRATEGY 1 COSTS, STATED: one proxy round trip per canvas render, which the public
          page does not pay. One image, one trip, and it is correct whether the file is on the draft
          branch, on main, or in the browser's memory from a moment ago. */
-      image: shot.preview ?? (shot.src ? draftImageUrl(shot.src) : null),
-      width: shot.width,
-      height: shot.height,
+      image: previewUrl ?? (form.values.image ? draftImageUrl(form.values.image) : null),
+      width: form.values.width,
+      height: form.values.height,
       alt: form.values.alt,
       description: form.values.description,
       tags: form.values.tags.filter((t) => t.trim() !== ""),
       caseStudy: form.values.caseStudy.trim() === "" ? null : form.values.caseStudy,
     }),
-    [form.values, shot]
+    [form.values, previewUrl]
   );
 
   const inspector = (
@@ -214,23 +241,29 @@ export default function GalleryEditPanel({
         <div className="flex flex-col gap-4">
           <BlockImageField
             label="Image"
-            src={shot.preview ?? shot.src}
+            /* ⚠ THE COMMITTED PATH, NEVER THE `blob:` — AND THAT WAS THE SURFACE THE STRATEGY
+               CENSUS MISSED. `BlockImageField` renders `ImageThumb`, which is strategy 1 and
+               proxies whatever it is handed; handed an object URL it produced
+               `?path=blob:https://…` and drew "No image" beside a canvas showing the picture.
+               The census enumerated my three call sites and this one is a layer down, inside a
+               shared field. Now that the upload persists, the form's value IS the committed path
+               from the moment the response lands, and the proxy resolves it on the draft branch. */
+            src={form.values.image}
             slug={slug}
             collection="gallery"
             onChange={(src, file, dims) => {
               if (ownedPreview.current) URL.revokeObjectURL(ownedPreview.current);
               ownedPreview.current = file ? URL.createObjectURL(file) : null;
-              /* ⚠ A CLEAR ZEROES THE DIMENSIONS, and that is not tidying. `galleryPublishBlockers`
-                 refuses a zero, so clearing an image leaves the item unpublishable until a real
-                 upload replaces it — where carrying the old numbers forward would leave a record
-                 describing an image that is gone. That is the phantom-manifest shape `mutate.mjs`
-                 paid for: a restore that left records describing damage that no longer existed. */
-              setShot({
-                src,
-                width: src ? dims?.width ?? 0 : 0,
-                height: src ? dims?.height ?? 0 : 0,
-                preview: ownedPreview.current,
-              });
+              setPreviewUrl(ownedPreview.current);
+              /* ⚠ THE THREE FIELDS AND THEN A SAVE, IN ONE TICK — WHICH IS SAFE BECAUSE #438 MADE
+                 IT SO. `setField` writes `valuesRef` synchronously and `saveDraft` reads that ref
+                 rather than a render-time closure; before that repair this exact pattern returned
+                 early on a stale dirty check and reported a success it had not performed. The
+                 upload is the one write with no blur to ride on, so it must ask for the save. */
+              form.setField("image", src);
+              form.setField("width", src ? dims?.width ?? 0 : 0);
+              form.setField("height", src ? dims?.height ?? 0 : 0);
+              form.saveDraft();
             }}
           />
 
@@ -244,7 +277,7 @@ export default function GalleryEditPanel({
                   Width
                 </dt>
                 <dd className="m-0 font-mono text-[12px] text-studio-ink-950">
-                  {shot.width > 0 ? `${shot.width}px` : "—"}
+                  {form.values.width > 0 ? `${form.values.width}px` : "—"}
                 </dd>
               </div>
               <div>
@@ -252,10 +285,15 @@ export default function GalleryEditPanel({
                   Height
                 </dt>
                 <dd className="m-0 font-mono text-[12px] text-studio-ink-950">
-                  {shot.height > 0 ? `${shot.height}px` : "—"}
+                  {form.values.height > 0 ? `${form.values.height}px` : "—"}
                 </dd>
               </div>
             </dl>
+            {/* ⚠ READ FROM THE FORM, NOT FROM SESSION STATE, AND THAT IS THE WHOLE INCIDENT IN
+                ONE LINE. This panel read "MEASURED ON UPLOAD 1200x800" from a `useState` the entry
+                never saw — a surface reporting a value that would never be stored, beside a rail
+                that correctly showed nothing. A SURFACE SHOWING UNSAVED STATE AS THOUGH IT WERE
+                SAVED IS WORSE THAN ONE SHOWING NOTHING, and the empty one is what got reported. */}
             <p className="mt-2 text-[11px] leading-[1.5] text-studio-text-subtle">
               Written from the processed file, so these describe what the reader downloads rather
               than what was chosen. Re-upload to change them.

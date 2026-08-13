@@ -405,8 +405,13 @@ console.log("\nH · every gallery image surface resolves a DRAFT path, and none 
   const panel = blankCommentBodies(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "components/studio/GalleryEditPanel.tsx"), "utf8"));
   /* The canvas keeps the object URL FIRST — it is the only thing that resolves bytes the browser
      already holds — and falls back to the proxy, which resolves draft and main. */
+  /* ⚠ THE STORED PATH NOW COMES FROM THE FORM, NOT FROM SESSION STATE — this row pinned `shot`,
+   * which was the `useState` that held an image the entry never received. The CLAIM is unchanged
+   * and its subject moved: the session's blob first, because it needs no round trip and resolves
+   * bytes the browser already holds, then the proxy, which resolves draft and main. Never the raw
+   * path, which 404s until publish. */
   t("H2 canvas: the session's object URL first, then the proxy — never a raw path",
-    /shot\.preview \?\? \(shot\.src \? draftImageUrl\(shot\.src\) : null\)/.test(panel), true);
+    /previewUrl \?\? \(form\.values\.image \? draftImageUrl\(form\.values\.image\) : null\)/.test(panel), true);
   t("H2a …and it tells the overlay to skip the optimizer, which can fetch neither of those",
     /unoptimizedImage/.test(panel), true);
 
@@ -418,6 +423,75 @@ console.log("\nH · every gallery image surface resolves a DRAFT path, and none 
     /unoptimizedImage = false/.test(overlay), true);
   t("H3a …and the public page passes nothing, so it takes that default",
     /unoptimizedImage/.test(blankCommentBodies(readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "components/gallery/GalleryLightbox.tsx"), "utf8"))), false);
+}
+
+console.log("\nI · the FORM's field set is a seventh spelling of the schema's keys");
+/* ⚠ THIS IS THE LIST HOP 3's CENSUS DID NOT SEE, AND ITS ABSENCE MEANT A GALLERY ITEM COULD NOT
+ * HOLD AN IMAGE AT ALL. `Fields` in `GalleryEditPanel` omitted `image`, `width` and `height`, so
+ * the upload route committed the BYTES to the draft branch and the ENTRY was never told —
+ * `image: null, width: 0, height: 0` on disk while three surfaces showed a picture.
+ *
+ * THE CENSUS WALKED `lib/` AND THIS LIST LIVES IN A COMPONENT. A denominator computed inside a walk
+ * cannot see the walk's own boundary — the same defect that census was closing, one directory over.
+ *
+ * ⚠ AND THE TWO DIRECTIONS ARE DIFFERENT DEFECTS AGAIN, so both are asserted. A schema key with no
+ * form field CANNOT BE SAVED — this incident. A form field with no schema key is refused by the
+ * sanitizer at every save, which is loud but never reaches disk. */
+{
+  const panel = blankCommentBodies(readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), "..", "..", "components/studio/GalleryEditPanel.tsx"), "utf8"));
+  const i = panel.indexOf("type Fields = {");
+  const formKeys = i === -1 ? null
+    : [...panel.slice(i, panel.indexOf("};", i)).matchAll(/^\s{2}(\w+)[?]?:/gm)].map((m) => m[1]).sort();
+  t("I0 the form's field set was located — a null makes both directions vacuous",
+    formKeys !== null && formKeys.length > 0, true);
+
+  /* `slug` and `orderIndex` are the two schema keys the FORM must not carry, and they are named
+     rather than subtracted silently: the slug is the entry's identity and the sanitizer refuses a
+     patch for it, and `orderIndex` is written by the reorder route, never by a field. */
+  const NOT_IN_FORM = ["orderIndex"];
+  const shouldBeInForm = Object.keys(config.collections.gallery.schema)
+    .filter((k) => !NOT_IN_FORM.includes(k)).sort();
+
+  t("I1 ⚠ EVERY SCHEMA KEY THE AUTHOR EDITS HAS A FORM FIELD — one missing cannot be saved at all",
+    shouldBeInForm.filter((k) => !formKeys.includes(k)), []);
+  t("I2 …and every form field is a schema key, or the sanitizer refuses every save",
+    formKeys.filter((k) => !Object.keys(config.collections.gallery.schema).includes(k)), []);
+  /* ⚠ THE EXCLUSION HAS TO HAVE MEMBERS OR IT IS A RULE SELECTING NOTHING — and if `orderIndex`
+   * ever became editable, I1 would silently stop covering it. */
+  t("I3 …and the declared exclusion is real, so I1 is not passing over a widened filter",
+    NOT_IN_FORM.filter((k) => !Object.keys(config.collections.gallery.schema).includes(k)), []);
+  /* The image trio specifically, because they are the ones that were missing and the ones with no
+     blur to ride on — an upload has to ask for its own save. */
+  t("I4 ⚠ AND THE UPLOAD WRITES ALL THREE THEN ASKS FOR THE SAVE, since it has no blur to ride on",
+    ["image", "width", "height"].filter((k) => !new RegExp(`setField\\("${k}"`).test(panel)), []);
+  t("I4a …and calls saveDraft in the same tick, which #438's latest-ref repair made safe",
+    /form\.setField\("height"[\s\S]{0,120}?form\.saveDraft\(\)/.test(panel), true);
+}
+
+console.log("\nJ · a panel that saves must mark the site unpublished");
+/* ⚠ A JOIN, AND THE FOURTH OF ITS KIND IN THIS ARC. `BlogEditPanel` has three `setUnpublished`
+ * calls and gallery had ZERO, so the publish pill kept its page-load value: "All changes published"
+ * with Publish disabled, while four saves sat on the draft branch. An author could not publish work
+ * that demonstrably existed.
+ *
+ * NOTHING ASSERTED THIS FOR ANY PANEL. The save worked, the bar worked, and the wire between them
+ * was absent — which is the shape every gallery defect has had. */
+{
+  const PANELS = [
+    ["components/studio/BlogEditPanel.tsx", "blog"],
+    ["components/studio/GalleryEditPanel.tsx", "gallery"],
+  ];
+  t("J0 both draft-form panels were located", PANELS.length, 2);
+  for (const [file, name] of PANELS) {
+    const src = blankCommentBodies(readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "..", "..", file), "utf8"));
+    /* ⚠ ON `onSaved`, NOT ANYWHERE. `useDraftForm` calls that only for a save the SERVER accepted,
+     * so the flag cannot be raised for a write that never landed — which would be the mirror
+     * defect, a bar reporting unpublished work that does not exist. */
+    t(`J1 ${name}: marks the site unpublished from onSaved, which fires only on an accepted save`,
+      /onSaved: \(\) => setUnpublished\(true\)|onSaved: \([^)]*\) => \{[\s\S]{0,200}?setUnpublished\(true\)/.test(src), true);
+  }
 }
 
 console.log(`\ncollection-dispatch result: ${pass} passed, ${fail} failed`);
