@@ -50,8 +50,8 @@ export type Exercise = {
   fixture?: boolean;
 };
 
-/** The steps a collection is not done without. Create-to-publish plus a failure path — the eight
- *  named in the record, and the failure path is the one nobody performs voluntarily. */
+/** The full vocabulary of steps. Create-to-publish plus a failure path, which is the one nobody
+ *  performs voluntarily. NOT the set required of any particular collection — see below. */
 export const REQUIRED_STEPS = [
   "create",
   "upload",
@@ -62,6 +62,30 @@ export const REQUIRED_STEPS = [
   "publish",
   "failure-path",
 ] as const;
+
+/**
+ * ⚠ NOT-APPLICABLE IS A THIRD STATE BESIDE PERFORMED AND NOT-EXERCISED, AND THE FIRST VERSION OF
+ * THIS FILE DID NOT HAVE IT — SO IT WOULD HAVE REFUSED A CORRECT BLOG RUN.
+ *
+ * `COLLECTION_HAS_ORDER` declares `blog: false` deliberately: posts sort by `date`, which every post
+ * has and no author arranges, so `reorder-entries` returns 400 `unsupported_collection` for blog.
+ * Demanding `reorder` of every collection made blog's passing state UNREACHABLE — the
+ * `galleryPublishBlockers` shape one week later, where a gate refused every item because the editor
+ * could not produce a passing one. It was latent only because the record is empty, and it would
+ * have fired on the first real entry rather than on a fixture.
+ *
+ * ⚠ AND `orderable` IS PASSED IN RATHER THAN LISTED HERE, WHICH IS THE WHOLE POINT. A hand-written
+ * exemption naming blog would be the parallel-list defect arriving inside the gate built to find
+ * them — correct today, silently wrong the moment a collection's ordering changes. The caller reads
+ * `COLLECTION_HAS_ORDER`, and the suite asserts its parse found every collection so a failed read
+ * cannot quietly become "everything is orderable".
+ *
+ * `null` means the caller could not determine it, and that is refused rather than assumed — a read
+ * that cannot run is not permission to claim anything.
+ */
+export function applicableSteps(orderable: boolean): readonly string[] {
+  return REQUIRED_STEPS.filter((s) => s !== "reorder" || orderable);
+}
 
 /**
  * ⚠ THE FOLD IS THE ONE GEOMETRIC FACT AN EXERCISE MUST STRADDLE, AND IT IS NOT A PREFERENCE.
@@ -123,7 +147,7 @@ export function verbatimBlockers(messages: readonly string[]): string[] {
  */
 export function exerciseBlockers(
   exercise: Exercise,
-  opts: { fold: number; writePathLastChanged: string | null }
+  opts: { fold: number; writePathLastChanged: string | null; orderable: boolean | null }
 ): string[] {
   const out: string[] = [];
   const where = `${exercise.collection} (${exercise.date})`;
@@ -140,9 +164,36 @@ export function exerciseBlockers(
         `below it the shell passes no inspector and the canvas must supply the form itself`
     );
   }
-  const missing = REQUIRED_STEPS.filter((s) => !exercise.steps.includes(s));
-  if (missing.length > 0) {
-    out.push(`${where}: steps not performed — ${missing.join(", ")}`);
+  /* ⚠ A NULL `orderable` IS NOT "ASSUME EVERYTHING APPLIES". The caller could not read the ordering
+     table, and defaulting either way is a guess — one demands a step the product refuses, the other
+     excuses a step it supports. Both look like a pass. */
+  if (opts.orderable === null) {
+    out.push(`${where}: whether this collection is orderable could not be read, so the required steps are UNKNOWN`);
+  } else {
+    const applicable = applicableSteps(opts.orderable);
+    const missing = applicable.filter((s) => !exercise.steps.includes(s));
+    if (missing.length > 0) {
+      out.push(`${where}: steps not performed — ${missing.join(", ")}`);
+    }
+    /* ⚠ AND THE COMPLEMENT, WHICH IS WHERE A CLAIM AND THE PRODUCT COME APART. Recording `reorder`
+       for a collection whose reorder route returns 400 is a claim about something nobody did — and
+       without this row the exemption only ever makes the gate MORE permissive, so a false claim
+       would pass more easily than a true one. A conditional assertion needs its complement. */
+    const impossible = exercise.steps.filter(
+      (s) => (REQUIRED_STEPS as readonly string[]).includes(s) && !applicable.includes(s)
+    );
+    if (impossible.length > 0) {
+      out.push(
+        `${where}: steps recorded that this collection cannot perform — ${impossible.join(", ")}. ` +
+          `Reorder is refused with 400 unsupported_collection where COLLECTION_HAS_ORDER is false`
+      );
+    }
+    /* An unrecognised step name is neither performed nor not-applicable — it is a typo, and a typo
+       in a step name reads as coverage of a step nobody ran. */
+    const unknown = exercise.steps.filter((s) => !(REQUIRED_STEPS as readonly string[]).includes(s));
+    if (unknown.length > 0) {
+      out.push(`${where}: unrecognised step(s) — ${unknown.join(", ")}`);
+    }
   }
   if (exercise.messages.length === 0) {
     out.push(

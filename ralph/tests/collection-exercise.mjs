@@ -25,6 +25,7 @@ import { dirname, join } from "node:path";
 import { load } from "js-yaml";
 import {
   REQUIRED_STEPS,
+  applicableSteps,
   straddlesFold,
   exerciseStale,
   verbatimBlockers,
@@ -56,7 +57,21 @@ const GOOD = {
   steps: [...REQUIRED_STEPS],
   messages: ["Draft saved", "kind must be one of photo, illus, proj"],
 };
-const OPTS = { fold: 1100, writePathLastChanged: "2026-08-10" };
+const OPTS = { fold: 1100, writePathLastChanged: "2026-08-10", orderable: true };
+
+/* ⚠ THE ORDERING TABLE IS PARSED FROM ITS OWNER, NOT LISTED HERE. `commit-collection-entry.ts`
+ * cannot be imported — its relative imports are extensionless, so Node cannot resolve them — which
+ * is the standing reason a suite reads that module rather than calling it. What makes this sound
+ * where a reachability regex would not be: the subject is a DATA LITERAL, so parsing it is reading
+ * a value rather than guessing whether a branch runs.
+ *
+ * G1 asserts the parse found every collection. Without that, a changed table format yields an empty
+ * map, every lookup returns undefined, and the gate quietly stops requiring anything. */
+const commitSrc = readFileSync(join(root, "lib/studio/commit-collection-entry.ts"), "utf8");
+const orderBlock = (commitSrc.match(/COLLECTION_HAS_ORDER[^{]*\{([\s\S]*?)\n\};/) ?? ["", ""])[1];
+const ORDERABLE = new Map(
+  [...orderBlock.matchAll(/^\s*([a-z-]+):\s*(true|false)\s*,/gm)].map((m) => [m[1], m[2] === "true"])
+);
 
 // ---------------------------------------------------------------------------------------------
 console.log("\nA · the validator has a subject and accepts a complete entry");
@@ -69,6 +84,33 @@ t("A2 …and the required steps are the eight, so a shortened list cannot pass q
   [...REQUIRED_STEPS], ["create", "upload", "edit", "reorder", "delete", "preview", "publish", "failure-path"]);
 
 // ---------------------------------------------------------------------------------------------
+console.log("\nG · reorder is derived per collection, because not-applicable is a third state");
+/* ⚠ THIS SECTION EXISTS BECAUSE THE FIRST VERSION OF THIS GATE WOULD HAVE REFUSED A CORRECT BLOG
+ * RUN. `COLLECTION_HAS_ORDER` declares `blog: false` deliberately — posts sort by `date` — and
+ * `REQUIRED_STEPS` demanded reorder of everything, so blog's passing state was unreachable. The
+ * `galleryPublishBlockers` shape one week later, latent only because the record is empty. */
+t("G1 the ordering table PARSED, and found every collection — an empty map would silently require nothing",
+  [...ORDERABLE.keys()].sort(), ["blog", "experience", "gallery", "projects"]);
+t("G2 …and blog is the non-orderable one, read rather than assumed", ORDERABLE.get("blog"), false);
+t("G3 reorder is NOT required of a non-orderable collection",
+  applicableSteps(false).includes("reorder"), false);
+t("G4 …and IS required of an orderable one, so the exemption is not blanket",
+  applicableSteps(true).includes("reorder"), true);
+t("G5 ⚠ A CORRECT BLOG RUN — seven steps, no reorder — IS ACCEPTED",
+  exerciseBlockers({ ...GOOD, collection: "blog", steps: REQUIRED_STEPS.filter((s) => s !== "reorder") },
+    { ...OPTS, orderable: false }), []);
+/* ⚠ THE COMPLEMENT. Without it the exemption only ever makes the gate MORE permissive, so a false
+ * claim would pass more easily than a true one. */
+t("G6 …and CLAIMING a reorder blog cannot perform is refused",
+  exerciseBlockers({ ...GOOD, collection: "blog" }, { ...OPTS, orderable: false }).length, 1);
+t("G7 …while the same seven steps on an ORDERABLE collection are still short by reorder",
+  exerciseBlockers({ ...GOOD, steps: REQUIRED_STEPS.filter((s) => s !== "reorder") }, OPTS).length, 1);
+/* ⚠ AND AN UNREADABLE TABLE IS NOT A PASS, the posture every other read here takes. */
+t("G8 …and an unknown orderability is refused rather than assumed either way",
+  exerciseBlockers(GOOD, { ...OPTS, orderable: null }).length, 1);
+t("G9 …and a typo in a step name is refused, because it reads as coverage of a step nobody ran",
+  exerciseBlockers({ ...GOOD, steps: [...REQUIRED_STEPS, "publsh"] }, OPTS).length, 1);
+
 console.log("\nB · the fold, which is the geometric fact a single width cannot see");
 /* ⚠ THE CONSTANT IS READ FROM ITS OWNER RATHER THAN RETYPED. `three-pane.ts` declares the fold and
  * a copy here would be a second spelling that drifts — the parallel-list defect this whole unit is
@@ -155,7 +197,11 @@ const lastChanged = (c) => {
 
 const failures = [];
 for (const e of entries) {
-  const blockers = exerciseBlockers(e, { fold: FOLD, writePathLastChanged: lastChanged(e.collection) });
+  const blockers = exerciseBlockers(e, {
+    fold: FOLD,
+    writePathLastChanged: lastChanged(e.collection),
+    orderable: ORDERABLE.has(e.collection) ? ORDERABLE.get(e.collection) : null,
+  });
   const tag = e.fixture ? "FIXTURE" : "exercise";
   console.log(`      ${tag.padEnd(9)} ${String(e.collection).padEnd(11)} ${e.date}  ${blockers.length === 0 ? "ok" : "REFUSED"}`);
   for (const b of blockers) console.log(`                  ${b}`);
