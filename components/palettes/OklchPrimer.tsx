@@ -241,7 +241,16 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
           <div className="mt-7 flex flex-wrap justify-center gap-2.5">
             <a
               href="#lab"
-              className="inline-flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2.5 text-sm font-semibold"
+              /* ⚠ THE ROLE, NOT THE RUNG — AND THAT IS THE WHOLE FIX. `--color-accent` remaps on
+                 `[data-ground="dark"]`; `--color-accent-500` does NOT. So `on-accent` against the
+                 rung measured 3.24 to 3.65 on the four dark palettes against a 4.5 floor, live on a
+                 public page, while the same pairing against the role measures 6.75 to 7.52.
+                 ⚠ AND IT MOVES NOTHING ON LIGHT, MEASURED RATHER THAN ARGUED: on all five light
+                 palettes the role and the rung resolve to the IDENTICAL PAINT — cream 182,83,41,
+                 harbour 0,126,91, orchid 153,63,148, cerise 209,45,107, fern 75,127,32 — so the two
+                 columns are the same number and zero pixels change.
+                 This site was missed when eight others were moved off the rung. */
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold"
             >
               <span className="text-on-accent">Move the three controls ↓</span>
             </a>
@@ -766,7 +775,16 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
             </button>
             <Link
               href="/palettes"
-              className="rounded-full bg-accent-500 px-4 py-2.5 text-sm font-medium"
+              /* ⚠ THE ROLE, NOT THE RUNG — AND THAT IS THE WHOLE FIX. `--color-accent` remaps on
+                 `[data-ground="dark"]`; `--color-accent-500` does NOT. So `on-accent` against the
+                 rung measured 3.24 to 3.65 on the four dark palettes against a 4.5 floor, live on a
+                 public page, while the same pairing against the role measures 6.75 to 7.52.
+                 ⚠ AND IT MOVES NOTHING ON LIGHT, MEASURED RATHER THAN ARGUED: on all five light
+                 palettes the role and the rung resolve to the IDENTICAL PAINT — cream 182,83,41,
+                 harbour 0,126,91, orchid 153,63,148, cerise 209,45,107, fern 75,127,32 — so the two
+                 columns are the same number and zero pixels change.
+                 This site was missed when eight others were moved off the rung. */
+              className="rounded-full bg-accent px-4 py-2.5 text-sm font-medium"
             >
               <span className="text-on-accent">Playground · 01 — Palettes ↗</span>
             </Link>
