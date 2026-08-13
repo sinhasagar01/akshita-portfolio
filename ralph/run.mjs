@@ -22,6 +22,44 @@
 // same class of problem. A suite's OWN summary line is authoritative; the `[PASS]` count is
 // only a fallback for the eleven suites that print no summary.
 //
+// ---- ⚠ TWO RULES FOR WRITING A ROW, PUT HERE BECAUSE THIS IS THE FILE A SUITE AUTHOR READS ----
+//
+// Both were paid for in production. Neither is about this runner; both are about the rows.
+//
+// ⚠ 1 · ABSENCE-BY-REGEX IS SOUND. PRESENCE-BY-REGEX IS NOT.
+//
+// Asserting a string is ABSENT from a file is a real claim: if the words are not there, nothing can
+// render them. Asserting a string is PRESENT proves only that it was typed. It cannot see whether a
+// user could ever reach it.
+//
+// `PublishBar`'s status sentence was a ternary chain guarded by regexes over that component.
+// Setting one binding to `null` made a whole branch UNREACHABLE while leaving every word of it in
+// the file, and three rows stayed green. Presence and resolution are different quantities — the
+// same distinction that let a bundle grep once "verify" two shadowed CSS values by proving both
+// were present when the question was which one resolved.
+//
+// THE REMEDY IS `bar-clearance.ts`'s AND IT IS THE DEFAULT NOW: move the branching into a pure
+// function, call it with real inputs, assert the returned string. `lib/studio/draft-status-text.ts`
+// is the second instance. Six presence rows remain in this suite set, counted and left alone.
+//
+// ⚠ 2 · A GATE ON A COMPONENT PROVES NOTHING ABOUT A FLOW THAT DOES NOT CALL IT.
+//
+// When a TABLE selects a function, testing the function is half a claim. `gallery-format` proved
+// `sanitizeGalleryCreate` and the create path did not call it — a ternary's `else` arm sent gallery
+// to the projects sanitizer, and a project-shaped file went into `content/gallery/`. That reached
+// production as a 404.
+//
+// ⚠ AND THE SUITE WRITTEN TO CATCH IT COMMITTED THE SAME DEFECT TWICE. `collection-dispatch` drove
+// the gallery serializer directly and asserted the exact bytes; reinstating the precise 404 in the
+// dispatch table left every row green. Repairing that with a link row then covered `bytes` and not
+// `sanitize`, so a second mutation survived too. A row carries two links and checking one proves
+// half a join.
+//
+// SO: ASSERT THE LINK AS WELL AS THE TARGET. `collection-dispatch` A7 and A7a are the pattern —
+// read the table, assert which function each key names, and prove it by mutating the link rather
+// than the function. A census of this shape found 14 table rows across two files whose target a
+// suite proves and whose mapping nothing asserts; that is a standing count, not a backlog.
+//
 // ---- WHAT IT KEYS OFF ------------------------------------------------------------------
 //
 // PASS/FAIL IS THE EXIT CODE, never the parsed text. Every runnable suite ends with

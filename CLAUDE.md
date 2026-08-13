@@ -274,6 +274,25 @@ is deploys rather than commits.
   prose first would have left a documented gate still uncalled; fixing the code first would have left
   a false claim standing beside a true mechanism. The code and the claim move together.
 
+- **⚠ WHEN A MAP'S VALUE TYPE HAS TO WIDEN TO ADMIT ONE MEMBER, ASK WHY THAT MEMBER DIFFERS BEFORE
+  WIDENING. A `Record` THAT WILL NOT TYPE WITHOUT A UNION IS THE TYPE SYSTEM REPORTING AN
+  INCONSISTENCY.** Converting the create dispatch to `Record<CollectionName, …>` would not compile,
+  because three sanitizers returned `{ ok: true, value }` and one returned `{ ok: true, patch }`.
+  **The annotation was widened to a union of both shapes and it compiled.** I wrote that union
+  myself and did not read it as a finding.
+
+  **THE UNION IS THE EASIEST WAY TO SILENCE THE REPORT AND IT PRESERVES THE DEFECT.** It says "these
+  four are allowed to disagree" — which is exactly what the mapped type was introduced to stop, so
+  the widening undoes the change while leaving it in place. **Same session, same file, one PR
+  apart:** the identical shape had already been found in the error half, where gallery returned
+  `{ error: string }` against three `{ error: SaveError }` and a mapped type refused to build until
+  all four agreed.
+
+  **THE TELL IS THE `|` IN A MAP'S VALUE TYPE.** A registry exists to say its members are
+  interchangeable at that key; a union in its value type says they are not. Either the odd member
+  should join the others, or it does not belong in the map — and both are decisions, where widening
+  is a decision disguised as a type annotation.
+
 - **⚠ A GATE ON A COMPONENT PROVES NOTHING ABOUT A FLOW THAT DOES NOT CALL IT — AND THE SECOND HALF
   IS THE ONE THAT SHOULD CHANGE BEHAVIOUR.** `gallery-format` G1 to G3 proved `sanitizeGalleryCreate`
   correctly, and **the create path did not call it.** The route computed a sanitized value for its

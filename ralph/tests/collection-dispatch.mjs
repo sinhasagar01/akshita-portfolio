@@ -128,19 +128,48 @@ t("A5 ⚠ AND NONE OF THE THREE TERNARIES SURVIVES — the shapes that hid galle
  * not leaf-loadable, and neither is `blog-format`, so the table cannot be imported and called. What
  * this asserts is the LINK — row names function — while section D asserts what that function
  * WRITES. Together they cover the join; neither alone does. */
-t("A7 ⚠ EACH CREATE ROW NAMES ITS OWN COLLECTION'S SERIALIZER — the link the 404 broke",
+const createLinks = (() => {
+  const i = commit.indexOf("const CREATE_SPECS: Record<CollectionName, CreateSpec> = {");
+  const body = commit.slice(i, commit.indexOf("\n};", i));
+  const out = {};
+  for (const m of body.matchAll(/^\s{2}([a-z]+): \{([\s\S]*?)\n\s{2}\},/gm)) {
+    out[m[1]] = {
+      sanitize: (m[2].match(/sanitize:\s*(\w+)/) ?? [])[1] ?? null,
+      bytes: (m[2].match(/bytes: \([^)]*\) =>\s*(\w+)/) ?? [])[1] ?? null,
+    };
+  }
+  return out;
+})();
+/* ⚠ BOTH LINKS PER ROW, AND THE FIRST VERSION ASSERTED ONLY THE SERIALIZER — a gap found by a
+ * census of this exact shape and then CONFIRMED BY MUTATION: pointing gallery's `sanitize` at
+ * `sanitizeProjectCreate` left this suite 24 of 24 green. A row carries two links and a check on
+ * one of them proves half a join. */
+t("A7 ⚠ EACH CREATE ROW NAMES ITS OWN COLLECTION'S SANITIZER AND SERIALIZER — both links, not one",
+  createLinks,
+  {
+    experience: { sanitize: "sanitizeExperienceCreate", bytes: "serializeExperienceCreate" },
+    projects: { sanitize: "sanitizeProjectCreate", bytes: "serializeNewProject" },
+    blog: { sanitize: "sanitizeBlogCreate", bytes: "serializeNewBlogPost" },
+    gallery: { sanitize: "sanitizeGalleryCreate", bytes: "serializeNewGalleryEntry" },
+  });
+
+/* ⚠ THE ORDER TABLE'S LINKS, FOR THE SAME REASON AND FOUND THE SAME WAY. `A3` asserted the table
+ * NAMES every collection and `C2` asserted the round-trip through the serializer directly — so
+ * pointing gallery's row at `serializeExperienceOrder`, which is the precise shipped defect, also
+ * left this suite fully green. Naming a member is not the same claim as naming its target. */
+t("A7a …and each order row names its own collection's order serializer",
   (() => {
-    const i = commit.indexOf("const CREATE_SPECS: Record<CollectionName, CreateSpec> = {");
+    const i = commit.indexOf("const ORDER_SERIALIZERS: Record<CollectionName,");
     const body = commit.slice(i, commit.indexOf("\n};", i));
     const out = {};
-    for (const m of body.matchAll(/^\s{2}([a-z]+): \{[\s\S]*?bytes: \([^)]*\) =>\s*(\w+)/gm)) out[m[1]] = m[2];
+    for (const m of body.matchAll(/^\s{2}([a-z]+):\s*([A-Za-z_$][\w$]*),/gm)) out[m[1]] = m[2];
     return out;
   })(),
   {
-    experience: "serializeExperienceCreate",
-    projects: "serializeNewProject",
-    blog: "serializeNewBlogPost",
-    gallery: "serializeNewGalleryEntry",
+    projects: "serializeProjectOrder",
+    experience: "serializeExperienceOrder",
+    gallery: "serializeGalleryOrder",
+    blog: "null",
   });
 
 /* ⚠ AND THE ONE THAT WAS ALREADY CORRECT IS ASSERTED TO STILL BE. `editEntry`'s switch is the
