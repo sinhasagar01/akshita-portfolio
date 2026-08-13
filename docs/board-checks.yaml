@@ -1,0 +1,181 @@
+# WHICH `Open items` ENTRIES CAN BE RE-DERIVED, AND HOW.
+#
+# ⚠ SEVEN BOARD ENTRIES EXPIRED IN ONE SESSION AND THREE OF THEM SCOPED WORK BEFORE ANYONE
+# RE-DERIVED THEM. Nothing in this repository has the board as its subject; every other census
+# exists for a smaller one. This file is the board's.
+#
+# ---- ⚠ THE PREDICATE BOTH PARTIES WOULD HAVE REACHED FOR CATCHES NOTHING ----------------------
+#
+# "Does the symbol this entry names still exist" was measured before anything was built: 18 of 20
+# entries named a path or symbol and ALL 18 still resolved. It would have reported 20/20 green over
+# a board carrying seven dead entries — because every expired entry named things that still exist.
+# THEY EXPIRED WHEN THE WORK LANDED, NOT WHEN SOMETHING VANISHED.
+#
+# The kind that CAN go false mechanically is an ABSENCE or a STRUCTURAL claim, because filling the
+# gap is exactly what makes the sentence untrue.
+#
+# ---- HOW AN ENTRY DECLARES ITSELF -------------------------------------------------------------
+#
+#   match       a distinctive phrase from the entry's title. `board-decay` asserts it matches
+#               EXACTLY ONE entry, so a rewritten title fails here rather than silently unbinding.
+#   kind        absence | structural | measurement | judgement
+#   holds_while for absence and structural only — the condition under which the entry is still
+#               true. `file` + `pattern` + `expect: present|absent`. If the condition breaks, the
+#               ENTRY is stale, not the code.
+#   why         for measurement and judgement, what a machine cannot reach. Printed every run.
+#
+# ⚠ MEASUREMENT AND JUDGEMENT ENTRIES ARE NAMED INDIVIDUALLY IN THE OUTPUT, NEVER SUMMARISED. A
+# gate that prints "10 verified" over a 20-entry board is the third-of-the-board report reading as
+# coverage, which this record carries four times.
+
+entries:
+  - match: "THE MEASUREMENT AND THE GATES CANNOT SHARE `.next`"
+    kind: absence
+    holds_while:
+      file: next.config.ts
+      pattern: distDir
+      expect: absent
+    note: >-
+      The item is open because both consumers share one build directory. A `distDir` in the config
+      means somebody has separated them and the entry needs closing.
+
+  - match: "A LOCAL `github` WRITE MODE AGAINST A FORK"
+    kind: structural
+    holds_while:
+      file: .env.local.example
+      pattern: STUDIO_GITHUB_REPO
+      expect: present
+    note: >-
+      The item is boarded because the env knobs exist and are not aimed at a fork. If the example
+      file stops naming the repo knob, the item's premise has moved.
+
+  - match: "A DEPLOY STATUS IS A READING WITH A TIMESTAMP"
+    kind: absence
+    holds_while:
+      file: ralph/run.mjs
+      pattern: three-reading|stamped-row|deploy-row
+      expect: absent
+    note: >-
+      The gap is that no suite has the RUNNING SYSTEM as its subject. It closes when a stamped
+      three-reading row exists somewhere ralph runs.
+
+  - match: "REPLACE AS ONE COMMIT"
+    kind: judgement
+    why: >-
+      "One commit would have prevented none of the three reported defects" is almost certainly
+      right and has no mechanical form. Nothing here can weigh a counterfactual.
+
+  - match: "A CONCLUSION FROM THE WRONG PAIR"
+    kind: measurement
+    why: >-
+      Rests on two commit timestamps 19 seconds apart and which two commits they were. Re-deriving
+      it means reading git history for a specific past pair, not the current tree.
+
+  - match: "U2's SUBJECT IS NOT ESTABLISHED"
+    kind: measurement
+    why: >-
+      Closes only when a person opens the gallery panel at both widths. /studio is owner-gated and
+      every write route no-ops outside github mode, so nothing here can reach it.
+
+  - match: "ONE PANEL OF TWELVE HAS NO `SaveBar`"
+    kind: absence
+    holds_while:
+      file: components/studio/BlogEditPanel.tsx
+      pattern: <SaveBar
+      expect: absent
+    note: The entry states BlogEditPanel renders no save bar. Adding one closes it.
+
+  - match: "THE GALLERY HERO TOOK `/gallery` FROM 4"
+    kind: judgement
+    why: >-
+      Its trigger is "the collection reaching a size where the strip and the first row show
+      different items" — a condition about content that is a judgement about when the cost matters,
+      not a fact about the tree.
+
+  - match: "THE ORPHAN POPULATION IS ELEVEN"
+    kind: absence
+    holds_while:
+      file: ralph/tests/image-orphans.mjs
+      pattern: rmSync|unlinkSync
+      expect: absent
+    note: >-
+      The entry says the GC is the census and nothing is deleted. A delete call in that suite means
+      the item's own statement has stopped being true.
+
+  - match: "THE SECOND ORPHANED GALLERY BLOB"
+    kind: judgement
+    why: >-
+      Superseded framing, kept for the path-not-hash argument. It carries reasoning rather than a
+      condition.
+
+  # ⚠ THIS CHECK FIRED ON THE GATE'S FIRST RUN AND THE ENTRY WAS THE THING THAT WAS WRONG. It read
+  # `expect: absent` on `Save draft` in GalleryEditPanel, because the entry claimed no such control
+  # existed. One arrived in b64ec2e — the PR the entry cites as the correct fix — and NINE panels
+  # carry one. The entry is now the correction and the condition is inverted with it.
+  - match: "CLOSED BY THE BOARD GATE ON ITS FIRST RUN"
+    kind: structural
+    holds_while:
+      file: components/studio/GalleryEditPanel.tsx
+      pattern: 'label: "Save draft"'
+      expect: present
+    note: >-
+      The correction states the control exists and is the convention on nine panels. If it is
+      removed the original ruling becomes live again and this entry needs rewriting.
+
+  - match: "SUPERSEDED: AN AUTHOR LOOKED FOR A SAVE BUTTON"
+    kind: judgement
+    why: >-
+      Superseded framing, kept because the feedback argument is sound and only its premise was not.
+      Whether an indicator communicates is not a fact any regex can reach.
+
+  - match: "A SOURCE REGEX CANNOT SEE REACHABILITY"
+    kind: absence
+    holds_while:
+      file: ralph/tests/studio-index.mjs
+      pattern: reorderSubline|caseStudyEmptyState
+      expect: present
+    note: >-
+      The entry counted six message-presence rows owed an extraction. Two suites now call a leaf;
+      if those calls disappear the extraction has been undone.
+
+  - match: "THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`"
+    kind: absence
+    holds_while:
+      file: ralph/tests/colour-census.mjs
+      pattern: blankCommentBodies
+      expect: present
+    note: >-
+      The open half was colour-census counting a colour named in a comment. It now blanks; losing
+      that import reopens the entry.
+
+  - match: "Content. Writing posts through /studio"
+    kind: measurement
+    why: >-
+      Ranks content work by what an author using the editor finds. Only a person driving /studio
+      can move it.
+
+  - match: "Kaushan Script"
+    kind: structural
+    holds_while:
+      file: components/layout/SiteFooter.tsx
+      pattern: font-script
+      expect: present
+    note: >-
+      The ruling keeps the wordmark in its own face. If the script face stops being used in the
+      identity, the decision has been reversed and the entry describes a site that no longer exists.
+
+  - match: "CLOSED, AND IT WAS A FALSE CLAIM SITTING ON `main`"
+    kind: structural
+    holds_while:
+      file: lib/studio/search-index.ts
+      pattern: Record<CollectionName
+      expect: present
+    note: >-
+      This entry is the CORRECTION. It holds while the search index is derived; if the Record is
+      replaced by a hand-written list the omission can return.
+
+  - match: "BLOG AND GALLERY WERE ABSENT FROM STUDIO SEARCH"
+    kind: judgement
+    why: >-
+      Superseded framing, kept because `git log -S` is what separated an omission from a decision.
+      The reasoning is the artefact; there is no live condition.
