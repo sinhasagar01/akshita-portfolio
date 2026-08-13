@@ -189,6 +189,59 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ UNDER CONTENT ADDRESSING THE PATH IS THE SUBJECT AND THE HASH IS NOT — A HASH GREP ANSWERS A
+  QUESTION NOBODY ASKED.** Identical bytes carry an identical hash under DIFFERENT PATHS, by design.
+  Asked whether two uploaded gallery images were orphaned, a grep for `926214f008d6` returned a hit
+  in a **blog** entry — the same photograph had been uploaded to a post, and
+  `/images/blog/<post>/blocks/926214f008d6.webp` shares its hash with
+  `/images/gallery/akshita/blocks/926214f008d6.webp` and nothing else. **One orphan would have been
+  reported as recovered.**
+
+  **THE HASH IS AN IDENTITY OF BYTES; REACHABILITY IS A PROPERTY OF A PATH.** `blockImageHash` is
+  sha256 of the normalized file precisely so that re-uploading the same image is idempotent, which
+  is a feature — and the same property makes a hash useless for "is anything pointing at this file".
+
+  **ANYWHERE THIS REPO REASONS ABOUT BLOCK-IMAGE REACHABILITY — orphan checks, a future image GC,
+  a delete that enumerates assets — THE SUBJECT IS THE FULL PATH.** The boarded image-GC item is the
+  one most likely to meet this, and a GC that matched on hashes would delete a file another
+  collection is using.
+
+  **AND THE GOOD HALF OF THE SAME PROPERTY: RECOVERY COSTS NO STORAGE.** Re-uploading an orphaned
+  image yields the same path and commits no new blob; the entry is simply pointed at bytes already
+  there.
+
+- **⚠ A DENOMINATOR COMPUTED INSIDE A WALK CANNOT SEE THE WALK'S OWN BOUNDARY — AND THE STRONGEST
+  INSTANCE IS THE CENSUS THAT EXISTED TO CLOSE THAT DEFECT MISSING A LIST ONE DIRECTORY OVER.**
+  Hop 3 counted the gallery's parallel key lists, found six, and brought them to five. **The seventh
+  was `Fields` in `GalleryEditPanel`**, and it was missed because that census walked `lib/` while a
+  form's field set lives in a component.
+
+  **THE COST WAS NOT A WRONG NUMBER. IT WAS THAT A GALLERY ITEM COULD NOT HOLD AN IMAGE AT ALL** —
+  `image`, `width` and `height` were absent from the form, so the upload route committed bytes to
+  the draft branch and the entry was never told.
+
+  **⚠ AND EVERY EARLIER INSTANCE OF THIS SHAPE WAS ALSO A CENSUS BEING SURE OF ITSELF:** a
+  `.tsx`-only walk missing 81 rung references in `globals.css`, a `.css`-bounded sweep missing a JSX
+  inline style, a `box-shadow`-bounded one missing eleven backgrounds. **The census is always
+  complete within its walk. That is what makes the boundary invisible from inside it.**
+
+  **THE ONLY QUESTION THAT HELPS: what KIND of file could hold another instance, and does the walk
+  reach it?** Asked of hop 3, the answer was "a component can hold a field list", and it was not
+  asked.
+
+- **⚠ A GATE CAN BE RIGHT, WIRED, FIRING, AND STILL MEASURING A STATE THE PRODUCT CANNOT LEAVE.**
+  `galleryPublishBlockers` refuses an item with no image and zero dimensions. It was correct, it was
+  wired in hop 8, and it fired — **on every gallery item, because the editor could not persist an
+  image and therefore could not produce an item that satisfies it.**
+
+  **THE GATE WAS NOT WRONG AND ITS SUBJECT WAS UNREACHABLE.** A refusal an author cannot act on
+  reads as a broken gate, and the instinct is to soften it; softening would have admitted
+  `image: null` to production and made the reader's experience the defect instead of the author's.
+
+  **THE CHECK: when a gate refuses everything, ask whether the passing state is REACHABLE before
+  asking whether the gate is too strict.** Same family as an assertion that cannot fail for the
+  reason it names, inverted — here the assertion could not PASS for the reason it named.
+
 - **⚠ BOARDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
   FEEDBACK, IT IS STUDIO-WIDE, AND IT IS NOT GALLERY'S.** There is no Save draft button on the
   gallery panel and none is planned — blur saves, per the locked convention, and blog's post panel
