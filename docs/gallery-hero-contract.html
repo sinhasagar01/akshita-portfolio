@@ -1,0 +1,211 @@
+<!doctype html>
+<!--
+  CONTRACT — /gallery hero.  Authoritative about: the pill eyebrow, the headline weight and its single
+  italic accent word, the centred dek, the derived date chip, the two actions, the fanned strip, and the
+  fact row on its hairline.  Scope ENDS at that hairline — the filter row, masonry, lightbox and overlay
+  are the existing page and do not change, except the two zero-state sentences noted below.
+  NOT authoritative about: the frames (generated SVG so this renders standalone), the counts, or the date
+  range — all three are DERIVED FROM THE COLLECTION and are zero/absent today.
+  BOTH STATES ARE THE DESIGN.  The empty state is what ships until an item exists; it is the same layout,
+  not a second one.
+--><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/gallery hero — the record, with the strip</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--sans:"DM Sans",system-ui,sans-serif;--display:Fraunces,Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{box-sizing:border-box}
+body{margin:0;background:#E4E0D8;font-family:var(--sans);color:#2a231c}
+.doc{max-width:1400px;margin:0 auto;padding:24px 18px 60px}
+h1.d{font-family:var(--display);font-weight:600;font-size:25px;letter-spacing:-.03em;margin:0 0 6px}
+h2.d{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.03em;margin:40px 0 5px}
+.lede{color:#5f564c;max-width:94ch;font-size:14px;line-height:1.6;margin:0}
+.warn{font-size:12.5px;color:#9a3722;margin:11px 0 0;line-height:1.6;max-width:100ch}
+.sub{font-size:13px;color:#6f665c;margin:0 0 10px;line-height:1.6;max-width:100ch}
+.note{font-size:12.5px;color:#6f665c;margin:10px 2px 0;line-height:1.65;max-width:100ch}
+.note b{color:#2a231c;font-weight:600}
+.frame{border:1px solid rgba(20,16,12,.18);border-radius:14px;overflow:hidden;margin-top:10px;
+ box-shadow:0 20px 54px -34px rgba(0,0,0,.5)}
+.tog{display:flex;gap:7px;align-items:center;margin:14px 0 0;flex-wrap:wrap}
+.tog button{font:inherit;font-size:12px;border:1px solid rgba(20,16,12,.18);background:#fff;border-radius:999px;
+ padding:8px 14px;cursor:pointer;color:#2a231c}
+.tog button[aria-pressed="true"]{background:#1b1712;color:#fff;border-color:#1b1712}
+code{font-family:var(--mono);font-size:11.5px;background:rgba(40,30,20,.07);padding:1px 5px;border-radius:3px}
+
+.pg{--canvas:oklch(92.5% .014 68);--surface:oklch(98.5% .008 68);--well:oklch(96% .012 68);
+ --accent:oklch(46% .12 42);--accent-text:oklch(42% .12 42);--on-accent:oklch(98% .012 42);
+ --lead:oklch(18% .02 42);--body:oklch(34% .018 42);--subtle:oklch(50% .016 42);
+ --rule:oklch(18% .02 42/.14);--hair:oklch(18% .02 42/.07);
+ background:var(--canvas);color:var(--body)}
+
+.nav{position:relative;z-index:20;display:flex;align-items:center;gap:17px;width:max-content;margin:14px auto 0;
+ background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(14px);
+ border:1px solid var(--rule);border-radius:999px;padding:9px 10px 9px 20px;box-shadow:0 16px 40px -26px oklch(0% 0 0/.55)}
+.nav b{font-family:var(--display);font-style:italic;font-weight:500;font-size:16px;color:var(--lead)}
+.nav .sur{font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;color:var(--accent-text);padding-left:11px;border-left:1px solid var(--rule)}
+.nav a{font-size:12px;color:var(--subtle);text-decoration:none}
+.nav a.on{color:var(--accent-text);font-weight:600}
+.nav .cta{font-size:11.5px;font-weight:600;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:7px 14px;text-decoration:none}
+
+.hero{position:relative;padding:60px 0 0;overflow:hidden;text-align:center}
+.hero::before{content:"";position:absolute;left:50%;top:-16%;width:1150px;height:940px;transform:translateX(-50%);
+ z-index:0;pointer-events:none;
+ background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 17%,transparent),transparent 70%)}
+.hin{position:relative;z-index:2;max-width:980px;margin:0 auto;padding:0 30px}
+.pill{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--rule);border-radius:999px;
+ padding:8px 15px;background:var(--surface);box-shadow:0 10px 26px -18px oklch(0% 0 0/.5)}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.pill span{font-family:var(--mono);font-weight:500;font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--subtle)}
+.h-page{font-family:var(--display);font-weight:600;font-size:clamp(38px,6vw,84px);line-height:.94;
+ letter-spacing:-.052em;color:var(--lead);margin:26px 0 0}
+.h-page em{font-style:italic;font-weight:500;color:var(--accent-text)}
+.dek{font-size:16px;line-height:1.62;color:var(--subtle);margin:22px auto 0;max-width:54ch}
+.chip{display:inline-flex;align-items:center;gap:13px;margin-top:30px;padding:11px 18px;border:1px solid var(--rule);
+ background:var(--surface);border-radius:999px;font-family:var(--mono);font-size:13.5px;color:var(--lead);
+ box-shadow:0 14px 32px -24px oklch(0% 0 0/.5)}
+.chip em{font-style:normal;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--subtle)}
+.chip b{font-weight:500;color:var(--accent-text)}
+.chip s{text-decoration:none;color:var(--subtle)}
+.acts{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:999px;padding:12px 20px;
+ font:inherit;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+ text-decoration:none;box-shadow:0 12px 28px -16px var(--accent)}
+.btn.ghost{background:none;border:1px solid var(--rule);color:var(--body);font-weight:500;box-shadow:none}
+
+/* the strip — real frames, fanned, between the actions and the facts */
+.strip{position:relative;z-index:1;display:flex;gap:12px;justify-content:center;align-items:center;
+ margin-top:40px;padding:0 30px 6px;min-height:186px}
+.sh{display:block;border-radius:11px;border:1px solid var(--rule);background:var(--well);overflow:hidden;
+ box-shadow:0 20px 44px -32px oklch(0% 0 0/.55);position:relative;flex:0 0 auto;
+ transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s}
+.sh img{display:block;width:100%;height:100%;object-fit:cover}
+.strip:hover .sh{transform:rotate(0deg) translateY(0)}
+.sh:nth-child(1){width:118px;height:148px;transform:rotate(-4deg) translateY(8px)}
+.sh:nth-child(2){width:168px;height:116px;transform:rotate(1.5deg) translateY(-2px)}
+.sh:nth-child(3){width:132px;height:166px;transform:rotate(-1deg) translateY(-8px)}
+.sh:nth-child(4){width:162px;height:112px;transform:rotate(3deg) translateY(6px)}
+.sh:nth-child(5){width:116px;height:146px;transform:rotate(-2.5deg) translateY(2px)}
+.sh .yr{position:absolute;left:8px;bottom:7px;font-family:var(--mono);font-size:7.5px;letter-spacing:.16em;
+ color:oklch(99% 0 0/.88);text-shadow:0 1px 5px oklch(0% 0 0/.55)}
+
+/* the empty-strip fallback */
+.strip.none{gap:12px}
+.strip.none .sh{background:var(--well);border-style:dashed;box-shadow:none}
+.strip.none .sh::after{content:"";position:absolute;inset:0;
+ background:repeating-linear-gradient(45deg,transparent 0 7px,var(--hair) 7px 8px)}
+
+.facts{position:relative;z-index:2;display:flex;gap:44px;justify-content:center;flex-wrap:wrap;
+ margin:26px auto 0;padding:26px 30px 0;max-width:980px;border-top:1px solid var(--hair)}
+.facts div b{display:block;font-family:var(--mono);font-weight:500;font-size:22px;color:var(--lead);letter-spacing:-.03em}
+.facts div span{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;
+ color:var(--subtle);margin-top:7px}
+.facts div.zero b{color:var(--subtle)}
+
+.filters{display:flex;gap:9px;align-items:center;justify-content:center;flex-wrap:wrap;padding:38px 30px 0;position:relative;z-index:2}
+.fseg{display:flex;gap:2px;border:1px solid var(--rule);border-radius:999px;padding:3px;background:var(--surface)}
+.fseg button{font:inherit;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+ border:0;background:none;color:var(--subtle);padding:9px 14px;border-radius:999px;cursor:pointer}
+.fseg button.on{background:var(--accent);color:var(--on-accent);font-weight:500}
+.fseg button[disabled]{opacity:.4;cursor:not-allowed}
+.fcount{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle)}
+
+.masonry{columns:4;column-gap:14px;padding:26px 30px 46px;position:relative;z-index:2}
+.masonry .tile{break-inside:avoid;margin:0 0 14px;border-radius:12px;overflow:hidden;position:relative;display:block;
+ border:1px solid var(--rule);background:var(--well)}
+.masonry .tile img{display:block;width:100%;height:auto}
+.empty{text-align:center;padding:58px 30px 70px;position:relative;z-index:2}
+.empty p{font-family:var(--display);font-weight:500;font-size:19px;color:var(--lead);margin:0;letter-spacing:-.025em}
+.empty span{display:block;font-size:12.5px;color:var(--subtle);margin-top:9px}
+@media(max-width:900px){.masonry{columns:2}.sh:nth-child(4),.sh:nth-child(5){display:none}.nav a{display:none}
+ .facts{gap:26px}}
+</style></head><body><div class="doc">
+
+<h1 class="d">/gallery hero — the record, with the strip</h1>
+<p class="lede">A's shape with B's frames: the palettes-page hero, then the fanned strip, then the honest fact row. Press the toggle — the same hero is shown with items and with none, because the empty case is what ships on day one and it must not be a different design.</p>
+<p class="warn">⚠ <b>The strip and the facts are both derived, and that is the whole point of showing two states.</b> The frames are the five most recent items and the counts are real; with nothing in the collection the strip becomes five dashed placeholders and every count reads zero. <b>Nothing is invented in either state</b> — the date chip disappears rather than guessing, because no item carries a year yet.</p>
+
+<div class="tog"><b style="font-size:12px;margin-right:4px">State</b>
+ <button aria-pressed="true" onclick="setS(1,this)">With items</button>
+ <button aria-pressed="false" onclick="setS(0,this)">Empty — what ships today</button></div>
+
+<div class="frame"><div class="pg" id="pg">
+ <nav class="nav"><b>Akshita</b><span class="sur">SINGH</span><a href="#">Process</a><a href="#">Work</a>
+  <a href="#">About</a><a href="#">Blog</a><a href="#" class="on">Gallery</a><a href="#">Playground</a>
+  <a href="#">Contact</a><a href="#" class="cta">Resume ↗</a></nav>
+
+ <header class="hero">
+  <div class="hin">
+   <span class="pill"><i></i><span>Gallery · a record of looking</span></span>
+   <h1 class="h-page">Things I made<br>that aren't <em>work</em>.</h1>
+   <p class="dek">Photographs, drawings, and the odd product study that never became a case study. Mostly taken before 7am or after midnight.</p>
+   <span class="chip" id="chip"></span>
+   <div class="acts"><a class="btn" href="#" id="cta1">Browse everything ↓</a>
+    <a class="btn ghost" href="#">See the work instead ↗</a></div>
+  </div>
+  <div class="strip" id="strip"></div>
+  <div class="facts" id="facts"></div>
+ </header>
+
+ <div class="filters" id="filters"></div>
+ <div id="body"></div>
+</div></div>
+
+<p class="note"><b>The strip sits between the actions and the facts</b>, so the hero still reads top-down as claim → invitation → evidence, and the frames straighten on hover — one gesture that says they are pieces rather than decoration.</p>
+<p class="note"><b>⚠ The empty state is the one that ships today and it is deliberately the same design.</b> Five dashed placeholders where the frames go, four greyed zeros, no date chip, filters present but disabled, and a sentence that says the gallery is empty rather than that a category is. <b>A hero that changes shape on the first upload is two designs</b>, and the record already holds one page that grew a second layout that way.</p>
+<p class="note"><b>⚠ And the filtered-vs-empty distinction is fixed here.</b> Your screenshot showed "Nothing here yet in that category" on a gallery with no items at all — the filtered message answering the unfiltered question. Two zero states, two sentences: <code>Nothing here yet</code> when the collection is empty, <code>No drawings yet</code> when a filter has none.</p>
+<p class="note" style="margin-top:22px"><b>⚠ Two things this cannot settle.</b> The <b>date chip</b> needs an item carrying a year, so it is absent until one does — deriving a range from nothing is the invention this record keeps deleting. And <b>"See the work instead"</b> sends a visitor away; that is right if the gallery is a footnote and wrong if it is a draw, and it is a positioning call rather than a design one.</p>
+
+</div>
+<script>
+const SVG=(w,h,hue,i)=>{
+ const s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}">
+  <defs><linearGradient id="g${i}" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="oklch(74% .09 ${hue})"/><stop offset="1" stop-color="oklch(36% .07 ${(hue+40)%360})"/></linearGradient></defs>
+  <rect width="${w}" height="${h}" fill="url(#g${i})"/>
+  <circle cx="${w*.7}" cy="${h*.26}" r="${Math.min(w,h)*.13}" fill="oklch(93% .07 ${(hue+20)%360})" opacity=".5"/>
+  <path d="M0 ${h*.74} L${w*.28} ${h*.46} L${w*.53} ${h*.68} L${w*.78} ${h*.4} L${w} ${h*.6} L${w} ${h} L0 ${h} Z"
+   fill="oklch(24% .05 ${(hue+200)%360})" opacity=".7"/></svg>`;
+ return 'data:image/svg+xml;base64,'+btoa(s);
+};
+const ITEMS=[
+ {t:'Low tide, Gokarna',y:'2024',hue:32,w:1200,h:1500},
+ {t:'Terrace geometry',y:'2023',hue:220,w:1500,h:1050},
+ {t:'Study of a hand',y:'2024',hue:300,w:1100,h:1400},
+ {t:'Market, 5.40am',y:'2023',hue:60,w:1400,h:980},
+ {t:'Rain on the 12th',y:'2024',hue:240,w:1150,h:1450},
+ {t:'Two figures',y:'2023',hue:20,w:1400,h:1120},
+ {t:'Kerala backwater',y:'2022',hue:170,w:1500,h:960},
+ {t:'Colour test 04',y:'2025',hue:150,w:1200,h:1200},
+];
+let withItems=1;
+function setS(v,b){withItems=v;document.querySelectorAll('.tog button').forEach(x=>x.setAttribute('aria-pressed','false'));
+ b.setAttribute('aria-pressed','true');paint()}
+function paint(){
+ const strip=document.getElementById('strip'), facts=document.getElementById('facts'),
+  chip=document.getElementById('chip'), filters=document.getElementById('filters'), body=document.getElementById('body');
+ if(withItems){
+  strip.className='strip';
+  strip.innerHTML=ITEMS.slice(0,5).map((it,i)=>
+   `<span class="sh"><img src="${SVG(it.w,it.h,it.hue,i)}" alt=""><span class="yr">${it.y}</span></span>`).join('');
+  chip.style.display='';
+  chip.innerHTML='<em>latest</em><b>2025</b><s>·</s><em>earliest</em><b>2022</b>';
+  facts.innerHTML=[['8','pieces'],['4','photographs'],['3','drawings'],['1','study']]
+   .map(f=>`<div><b>${f[0]}</b><span>${f[1]}</span></div>`).join('');
+  filters.innerHTML=`<div class="fseg"><button class="on">All 8</button><button>Photographs 4</button>
+   <button>Drawings 3</button><button>Studies 1</button></div><span class="fcount">8 items</span>`;
+  body.innerHTML=`<div class="masonry">${ITEMS.map((it,i)=>
+   `<span class="tile"><img src="${SVG(it.w,it.h,it.hue,i)}" alt=""></span>`).join('')}</div>`;
+ } else {
+  strip.className='strip none';
+  strip.innerHTML='<span class="sh"></span><span class="sh"></span><span class="sh"></span><span class="sh"></span><span class="sh"></span>';
+  chip.style.display='none';
+  facts.innerHTML=[['0','pieces'],['0','photographs'],['0','drawings'],['0','studies']]
+   .map(f=>`<div class="zero"><b>${f[0]}</b><span>${f[1]}</span></div>`).join('');
+  filters.innerHTML=`<div class="fseg"><button class="on">All 0</button><button disabled>Photographs 0</button>
+   <button disabled>Drawings 0</button><button disabled>Studies 0</button></div><span class="fcount">0 items</span>`;
+  body.innerHTML=`<div class="empty"><p>Nothing here yet.</p>
+   <span>The first frames go up shortly.</span></div>`;
+ }
+}
+paint();
+</script></body></html>
