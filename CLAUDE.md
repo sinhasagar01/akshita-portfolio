@@ -230,6 +230,22 @@ is deploys rather than commits.
   `.githooks/pre-push` already makes. **What is missing is not a refusal, it is a reading nobody
   has to assemble by hand.**
 
+  **⚠ AND THE THIRD INSTANCE ARRIVED WITHIN THE DAY, ON THE SAME SUBJECT, AND COST A REBASE RATHER
+  THAN A CLAIM.** A unit was built against a `main` that was **47 commits stale** — the owner had
+  merged this very entry and authored five gallery items while the branch was open. The push was
+  refused, which is the only reason anyone looked.
+
+  **EVERY FIGURE IN THAT UNIT'S REPORT HAD BEEN TAKEN ON A ONE-ITEM COLLECTION.** Counts, renders,
+  request sizes, the fact row, the empty state. **They were re-taken rather than carried forward**,
+  and one claim died in the process: *"the empty state is what ships"* — true when written, false by
+  the time it was read, **because it was a fact about a MOMENT written in the present tense.** The
+  same defect as this entry's own subject, arriving in a deliverable rather than in a status.
+
+  **⚠ THE CHEAP FORM COVERS THIS TOO, WHICH IS THE ARGUMENT FOR BUILDING IT.** A stamped row of
+  local `main`, `origin/main` and the deployed sha, read BEFORE a unit starts rather than when its
+  push fails, is the whole remedy. The reading is available today; nobody takes it because a branch
+  cut an hour ago feels current, and **"feels current" is exactly the state this entry is about.**
+
 - **⚠ A GALLERY ITEM WITH AN EMPTY `kind` PASSES BOTH GATES AND NO FILTER CAN REACH IT — LIVE ON
   MAIN, AND THE HERO IS ONLY WHAT MADE IT VISIBLE.** `light-through-leaves` carries `kind: ''`.
   Measured against the collection as it stands:
@@ -248,11 +264,29 @@ is deploys rather than commits.
   against 3+1+0 is arithmetic a reader does perform. **Surfacing a number is what made an old
   inconsistency into a visible one** — the defect is upstream and the hero is the instrument.
 
-  **NOT FIXED HERE, AND THE CHOICE IS THE OWNER'S.** Three answers exist and they are different
-  products: refuse an empty kind at publish (a write-path change past this unit's scope), give the
-  schema a default, or add a fourth bucket for the unclassified — which is inventing a category, and
-  this record deletes those. **What must NOT happen is the fact row quietly excluding it to make the
-  sum work**, which would hide a real item to protect an arithmetic.
+  **⚠ THE GENERAL FORM, AND IT IS THE REASON THIS ENTRY EXISTS RATHER THAN A BUG REPORT: A DEFECT CAN
+  BE VISIBLE FOR ITS WHOLE LIFE AND ONLY BECOME LEGIBLE WHEN IT MOVES INTO A CONTEXT THAT INVITES
+  ARITHMETIC.** Nothing about the item changed. Nothing about the counts changed. The same four
+  numbers moved from a control row, where they are labels on buttons, into a fact row, where they are
+  a CLAIM ABOUT THE COLLECTION — and a reader sums a claim. **Legibility is a property of the
+  context, not of the data**, so "this was always on screen" is not evidence that anyone could have
+  seen it.
+
+  **⚠ AND THE FIX THE NEXT PERSON WILL REACH FOR IS THE WRONG ONE, SO IT IS NAMED HERE.** Excluding
+  the unkinded item from the fact row makes 5 become 4 and the sum work. **It would hide a real item
+  to protect a number, and the piece would STILL be reachable only through `All`** — the defect
+  intact, the instrument that revealed it destroyed. Same trade as shipping a Save button to close a
+  report about feedback, which this file already carries twice.
+
+  **NOT FIXED HERE, AND THE CHOICE IS THE OWNER'S. Three answers exist and they are three different
+  products:** refuse an empty kind at publish, give the schema a default, or add a fourth bucket for
+  the unclassified — **and the third invents a category**, which this record deletes on sight.
+
+  **⚠ THE OWNER'S LEAN IS REFUSE-AT-PUBLISH, AND THE ARGUMENT IS A CLASS RATHER THAN A PREFERENCE.**
+  `galleryPublishBlockers` already refuses an empty alt and a missing dimension, and **an unkinded
+  item is the same class of incomplete** — a field the reader's experience depends on, left blank.
+  **It waits because it is a ruling with a MIGRATION attached:** one item on main already fails it, so
+  the gate and the content have to move together or publish breaks on a piece that is live.
 
 - **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
   FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
@@ -1731,6 +1765,14 @@ build a gate for the limit and then believe it.
   than mismatched. **What it can produce is a false ABSENCE**: a real defect sitting unmeasured in a
   given run, with nothing saying so. `A1` through `A3a` catch a COLLAPSED subject — an error page, a
   dead viewport, a palette that never rendered — and none of them catches a 1% sample drift.
+
+  **⚠ AND THE ONE-LINE FORM, EARNED BY A SIXTH INSTRUMENT CONDITION IN ONE SESSION: A RATCHET THAT
+  DRIFTS BETWEEN RUNS ON AN UNCHANGED TREE IS MEASURING THE MACHINE AS MUCH AS THE SITE.** Four blog
+  pages flagged `A2` on one run and contributed 420, 505, 576 and 544 on the next, with nothing
+  between the two but a restarted dev server — and the totals moved 21,828 to 24,167. **A2 was right
+  both times**: it caught a collapsed subject, and the subject collapsed because the machine was
+  loaded. **Confirmed by re-measurement rather than dismissed as flake**, which is the only move that
+  separates the two.
 
   **SO A SITE COUNT FROM THIS SUITE IS AN ORDER OF MAGNITUDE, NEVER A FIGURE TO QUOTE.** Citing
   "15,031 sites" as the size of the public surface is the unattached-number defect waiting to happen,
