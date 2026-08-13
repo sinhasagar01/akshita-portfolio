@@ -322,13 +322,13 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                  harbour 0,126,91, orchid 153,63,148, cerise 209,45,107, fern 75,127,32 — so the two
                  columns are the same number and zero pixels change.
                  This site was missed when eight others were moved off the rung. */
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold"
+              className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold"
             >
               <span className="text-on-accent">See it on real components ↓</span>
             </a>
             <Link
               href="/oklch"
-              className="inline-flex items-center gap-2 rounded-lg border border-ink-950/8 px-4 py-2.5 text-sm font-medium"
+              className="inline-flex items-center gap-2 rounded-xl border border-ink-950/8 px-4 py-2.5 text-sm font-medium"
             >
               <span className="text-text-secondary">Learn OKLCH in four minutes ↗</span>
             </Link>
