@@ -207,5 +207,46 @@ t("F2 …and the blocks writer refuses it too",
   t("H7 …and through the blocks writer", bytes(serializeBlogBlocks(out, [])), out);
 }
 
+/* ---------------------------------------------- I. an unlisted key SURVIVES a save
+ *
+ * ⚠ THIS IS THE ROW `collection-readiness` C2 EXISTS TO MAKE UNNECESSARY. The head loop used to
+ * build from `BLOG_HEAD_KEYS` with nothing following, so a key added to the blog schema — or
+ * present in a hand-edited file — was silently dropped the next time the owner saved. Gallery's
+ * exact mechanism, in the collection with no browser run on record.
+ *
+ * The fixture carries `series`, which is in no list and no schema. If the fallthrough is deleted,
+ * I1 loses it and I3 loses its position. */
+{
+  const raw = [
+    "title: Kept",
+    "dek: a dek",
+    "date: '2026-08-14'",
+    "status: draft",
+    "series: field-notes",
+    "blocks: []",
+    "",
+  ].join("\n");
+  /* ⚠ THE FIXTURE MUST ROUND-TRIP OR THE SERIALIZER REFUSES AND EVERY ROW BELOW PASSES OVER AN
+     `unsupported_format` — an assertion that cannot fail for the reason it names. I0 is the
+     denominator: it proves the subject is a file this serializer will actually edit. */
+  const noop = serializeBlogEntry(raw, {});
+  t("I0 the fixture is in canonical form, so I1 to I4 are not asserting over a refusal",
+    noop.ok, true);
+  t("I1 ⚠ AN UNLISTED KEY SURVIVES A HEAD SAVE — the filtering loop dropped it silently",
+    load(bytes(serializeBlogEntry(raw, { dek: "edited" }))).series, "field-notes");
+  t("I2 …and the edited key still took the patch, so the fallthrough did not shadow the list",
+    load(bytes(serializeBlogEntry(raw, { dek: "edited" }))).dek, "edited");
+  /* ⚠ THE COST, ASSERTED RATHER THAN ONLY WRITTEN DOWN. An unlisted key is APPENDED, after every
+     key the list names — that is the trade for not losing it, and a future schema key wanting its
+     schema position must be added to `BLOG_HEAD_KEYS`.
+     `blocks` still comes LAST because it is spliced back as a tail rather than dumped with the
+     head, which is the property `splitAtBlocks` depends on — so the append cannot displace it. */
+  t("I3 …appended after every listed key, and still ahead of the spliced blocks tail",
+    Object.keys(load(bytes(serializeBlogEntry(raw, { dek: "edited" })))),
+    ["title", "dek", "date", "status", "series", "blocks"]);
+  t("I4 …and a no-op patch still reproduces the file byte-for-byte",
+    bytes(noop), raw);
+}
+
 console.log(`\nblog-serialize result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

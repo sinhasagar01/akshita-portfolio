@@ -55,7 +55,30 @@ const HEAD_DUMP_CANDIDATES: DumpOptions[] = [{ noRefs: true }];
 
 /** The head keys in canonical schema order (keystatic.config's blog collection). The
  *  head is rebuilt in THIS order, so a patch that adds a previously-absent optional key
- *  (e.g. a first `topic`) puts it in its schema position rather than appending it. */
+ *  (e.g. a first `topic`) puts it in its schema position rather than appending it.
+ *
+ *  ⚠ THIS IS AN ORDERING LIST AND NOT A FILTER, AND THE DIFFERENCE IS THE WHOLE REASON THE
+ *  FALLTHROUGH BELOW EXISTS. It used to filter — the head was built from these six keys and
+ *  nothing followed — so A KEY ADDED TO THE BLOG SCHEMA AND NOT TO THIS LINE WAS SILENTLY
+ *  DROPPED ON SAVE. That is gallery's exact mechanism, in the collection with no browser run
+ *  on record, and `collection-readiness` C2 is what found it.
+ *
+ *  ⚠ AND THE SECOND FILTER GUARDED NOTHING, WHICH IS WHY THE FIX IS A DELETION RATHER THAN A
+ *  GATE. `sanitizeBlogPatch` is a per-key allowlist that rejects `blocks` by name and ends
+ *  `return bad("unknown field …")` with a 400, and `PATCH_SANITIZERS[collection]` and
+ *  `commitCollectionEntry(collection, …)` are indexed by ONE variable — so the cast at
+ *  commit-collection-entry.ts:232 is guarded and `patch` provably carries only `BlogInput`
+ *  keys. `current` is head-only because `splitAtBlocks` cuts before `blocks:`. There was no
+ *  key for this list to stop.
+ *
+ *  ⚠ THE COST, NAMED BECAUSE A FILTERING LIST IS ALSO A FORMATTING DECISION: a FUTURE schema
+ *  key is APPENDED rather than placed. Add it to this line and it sits in schema position;
+ *  forget, and the file is correct with one key out of order. Before, forgetting lost the
+ *  value. A formatting cost for a data cost is the trade, and it is the right way round.
+ *
+ *  ⚠ AND IT RECOVERS THE HAND-EDIT ROUTE, WHICH THIS REPOSITORY HAS SEEN. Four project-shaped
+ *  files carrying a key the schema never had reached main by a path nobody expected. A post
+ *  hand-edited to hold an extra key used to lose it on the owner's next save, silently. */
 const BLOG_HEAD_KEYS = ["title", "dek", "date", "topic", "status", "heroImage"] as const;
 
 const unsupported = (message: string): SerializeResult => ({
@@ -117,6 +140,18 @@ export function serializeBlogEntry(raw: string, patch: Partial<BlogInput>): Seri
       // writes an absent image as null), not an absence, and must survive.
       head[key] = current[key];
     }
+  }
+
+  // ⚠ THE FALLTHROUGH — every key the list does not name, appended in the order the FILE
+  // already had it. Without this the loop above is a filter and an unlisted key is lost on
+  // save; `serializeExperience` has had this shape all along, which is why `experience`
+  // reports ORDERING ONLY where blog reported UNGUARDED.
+  //
+  // Same precedence as above and for the same reason: the patch wins, else the current file,
+  // and `hasOwnProperty` rather than truthiness so an explicit `null` survives.
+  for (const key of Object.keys({ ...current, ...patched })) {
+    if (key in head) continue;
+    head[key] = Object.prototype.hasOwnProperty.call(patched, key) ? patched[key] : current[key];
   }
 
   return { ok: true, bytes: dump(head, opts) + split.blocks };

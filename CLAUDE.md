@@ -213,6 +213,23 @@ gates.
 
 
 
+- **⚠ BOARDED: `projects` HAS NO SECOND KEY LIST BECAUSE ITS WRITER TAKES A DIFFERENT PATH, NOT
+  BECAUSE ANYBODY RULED IT SAFE — AND IT IS THE COLLECTION WHERE A DROPPED KEY COSTS MOST.** The
+  argument is written out so nobody re-derives it from the absence:
+
+      9 top-level schema keys      the largest of the four
+      the longest prose on the site outside blog
+      NO `status` FIELD            so an entry is PUBLIC the moment it is on main
+
+  **THE OTHER THREE ARE SETTLED AND IT IS NOT.** Gallery has a list and a both-directions
+  comparison, because it BROKE. Blog had one and it filtered, and now it orders. Experience orders
+  and always did. **`projects` was never in the population**, which is a different state from
+  passing — and `collection-readiness` C3 reports it by name for exactly that reason.
+
+  **⚠ AND THE FIX IS NOT "GIVE IT A KEY LIST".** Inventing one to satisfy a gate is the fixed-list
+  shape this record deletes on sight. The question is whether its serializer can drop a key, which
+  is answered by reading the writer rather than by counting lists.
+
 - **⚠ A DEPLOY STATUS IS A READING WITH A TIMESTAMP, NOT A FACT — AND SO IS "MAIN IS AHEAD OF
   PRODUCTION".** Production was reported as one merge behind `main`. It was, at that moment, and the
   build was IN FLIGHT: the deployment for that merge landed at `11:01:23Z`, minutes later, with a
@@ -619,6 +636,82 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ FIVE MATCHER ERRORS IN ONE EMITTER, AND THE EMITTER WAS THE ONE WRITTEN TO PREVENT THEM — WITH
+  ITS OWN DENOMINATOR REQUIREMENT WRITTEN INTO ITS HEADER BEFORE IT EVER RAN.** `collection-readiness`
+  was built because "I audited the hand-keyed lists" is a claim and "here are the eleven, ten
+  guarded, one not" is a measurement. Its header says a census with a broken subject is worse than
+  none. Then:
+
+      1  section D reported SIX defects, of which ZERO were defects — the guard was out of window
+         every time: a return type, the literal's own type, a DIFFERENT mapped type, or the
+         CALLEE'S PARAMETER in another file
+      2  two of those six were not collection tables at all — they key four collections PLUS
+         `skills`, a singleton. A table over a different key set, reported as an unguarded one
+         over this one
+      3  section C matched by NAME — `<COLLECTION>_SCHEMA_KEYS`, which is what gallery's happens
+         to be called — and reported blog ABSENT while `BLOG_HEAD_KEYS` sat in its serializer
+      4  the census READ ITS OWN COMMENT as evidence and reported blog COMPARED
+      5  the ordering detector's 900-character window was 21 short, because the COMMENT explaining
+         the fallthrough had pushed the fallthrough to 921
+
+  **⚠ THE NAME ONE IS THE WORST, AND PROXIMITY IS NOT PROTECTION — SECOND INSTANCE OF THAT EXACT
+  SENTENCE.** The name-blind then form-blind then fold-blind entry sits FOUR HUNDRED LINES from this
+  file, and was read before it was written. The first instance was a comment contradicting the rule
+  stated in its own file's header. **Reading the record does not transfer the record**, because
+  applying an entry requires noticing that THIS is an instance, and an instance does not announce
+  itself.
+
+  **⚠ THE SELF-READING ONE IS THE SECOND VERBATIM INSTANCE OF THE `[data-ground="dark"]` CASE**,
+  where an `indexOf` found the construct inside a comment written about it one turn earlier. **Four
+  tools deep now**, and the rule is general: a parser over source whose comments discuss its subject
+  must exclude itself, and must blank the comments of everything else.
+
+  **⚠ AND `compared` BEING A FALSE JOIN — some suite names the constant, some suite reads a schema,
+  the two tied by nothing — IS THIS ARC'S SHAPE IN A FIFTH INSTRUMENT.** Gallery's suite reading
+  gallery's schema satisfied the second half for every collection. Same lesson, fifth tool.
+
+  **⚠ AND THE FIFTH IS A NEW VARIANT WORTH ITS OWN NAME: THE EXPLANATION DISPLACED ITS OWN SUBJECT.**
+  Every earlier explaining-it-requires-writing-it instance was prose that BECAME the thing being
+  matched — a delimiter, a glob, an OKLCH literal, an ARIA role. This is prose that MOVED the thing
+  out of reach. **A fixed character window is a guess about how far apart two statements sit, and a
+  comment is precisely what changes that distance.** Bounded by the enclosing function now, with
+  `C4` asserting the slice is genuinely bounded — and C4 caught a sixth on its first run, an anchor
+  of `of <NAME>` that assumed every list is consumed by a for-of when gallery's is consumed by
+  `.includes`.
+
+  **THE HONEST CONCLUSION IS NOT "BE MORE CAREFUL", BECAUSE CARE IS WHAT WAS BEING EXERCISED.** Each
+  error was found by ONE thing: pointing the census at a question from outside it — a grep run for a
+  different reason, a mutation, a measured character distance. **The emitter cannot audit its own
+  subject**, which is this file's `A DOCUMENT CANNOT AUDIT ITSELF` entry arriving in a gate rather
+  than in a data file.
+
+- **⚠ CLOSED: BLOG'S SERIALIZER FILTERED, AND A KEY ADDED TO THE SCHEMA WAS DROPPED ON SAVE
+  SILENTLY.** `BLOG_HEAD_KEYS` named six of seven top-level keys and the loop built `head` from
+  those six with nothing following. **Gallery's exact mechanism, in the collection with no browser
+  run on record.** Found by `collection-readiness` C2 on its first honest run.
+
+  **THE FIX IS THE MECHANISM AND NOT A GATE, WHICH REMOVES THE SUBJECT RATHER THAN WATCHING IT.**
+  `serializeExperience` has had the shape all along — known keys first, then append the rest — so
+  the collection reporting ORDERING ONLY is the one that proved the answer. A gate would have left a
+  filtering serializer in place with a suite standing over it.
+
+  **⚠ AND THE SECOND FILTER GUARDED NOTHING, WHICH IS WHY THE FIX IS A DELETION.** The hazard raised
+  against the fallthrough was the cast at `commit-collection-entry.ts:232`, where `patch` is a union
+  of four input types. Measured: `PATCH_SANITIZERS[collection]` and `commitCollectionEntry(collection,
+  …)` are indexed by ONE variable, so the cast is guarded — the tenth-of-eleven shape
+  `unchecked-joins` records — and `sanitizeBlogPatch` is a per-key allowlist that rejects `blocks` by
+  name and ends `return bad("unknown field …")` with a 400. **There was no key for the list to stop.**
+
+  **THE COST IS NAMED BECAUSE A FILTERING LIST IS ALSO A FORMATTING DECISION: a FUTURE schema key is
+  APPENDED rather than placed in schema position.** Add it to the list and it sits where the schema
+  says; forget, and the file is correct with one key out of order. **Before, forgetting lost the
+  value.** A formatting cost traded for a data cost, and `blog-serialize` I3 asserts the trade rather
+  than only describing it.
+
+  **AND IT RECOVERS THE HAND-EDIT ROUTE THIS REPOSITORY HAS ALREADY SEEN** — four project-shaped
+  files carrying a key the schema never had reached main by a path nobody expected. A post
+  hand-edited to hold an extra key used to lose it on the owner's next save.
 
 - **⚠ CLOSED: AN UNKINDED ITEM IS REFUSED AT PUBLISH — AND THE MIGRATION THAT HELD THIS UNIT BACK
   DID NOT EXIST.** The gate was deferred because "the gate and the content move together or publish
@@ -3561,6 +3654,23 @@ build a gate for the limit and then believe it.
 - **A CANDIDATE PALETTE IS JUDGED BY THE INSTRUMENT AND THEN BY THE RENDER, IN THAT ORDER, AND NEITHER STEP IS OPTIONAL.** Run `ralph/tests/theme-contrast.mjs` first — it answers whether every token PAIR clears its floor, which is the narrow claim. Then set `theme:` in `content/site-settings.yaml`, render the FULL home page and the four signature components (the work card, the glass nav, the hero ground, the Pearl Smoke vessel), and look. Only then judge. **`SHIPPABLE` is not "the site looks right"** and never was. Two palettes have now found defects no gate could reach: the dark render found the glass nav and the vessel are structurally light-ground at 1.15 and 1.20, and Harbour found `SectionHeading`'s two `tone` branches disagreeing on the same page. The second was invisible on cream because both branches looked the same there, which is the general rule — **a single-theme site cannot reveal an inconsistency between two ways of producing the same colour.**
 
   **⚠ RESTORE `theme:` TO THE PUBLISHED VALUE BEFORE COMMITTING — READ IT FROM `git show main:content/site-settings.yaml`, DO NOT TYPE A NAME.** This line said "revert to `cream`" and was stale: the owner published harbour through /studio (`chore(studio): update site settings draft`), so following it would have silently un-published their choice while looking like tidying up. **A convention naming a specific theme is the fixed-list shape again** — the same defect as D12's hardcoded pair list and `SETTINGS_THEME_VALUES` before ralph tied it to `THEME_NAMES`. The published theme is CONTENT with an owner, so the only correct source is the file.
+
+- **⚠ A COLLECTION IS DONE WHEN SOMEBODY HAS DRIVEN IT, AND THAT CLAIM NOW HAS A FILE.** The rule
+  was written down for arcs and nothing recorded whether it was followed, so it was followed when
+  somebody remembered. `docs/collection-exercises.yaml` holds the driven runs and
+  `ralph/tests/collection-exercise.mjs` refuses a claim that has gone stale.
+
+  **AN ENTRY IS EVIDENCE RATHER THAN A TICK.** The messages are copied off the screen — a paraphrase
+  is refused, because "it showed an error" is what a real `Something went wrong` was reported as, and
+  it cost three prompts. The sha is what PRODUCTION WAS SERVING, read from the deployment list, and
+  it must resolve and be an ancestor of `main`, because a shape check cannot catch a fiction. The
+  widths must straddle `INSPECTOR_FOLD_PX`, since below it the shell passes no inspector and a
+  single-width run cannot see the fold defect whichever width it picks.
+
+  **⚠ AND AN ENTRY EXPIRES WHEN THE COLLECTION'S WRITE PATH MOVES.** A claim about a build that has
+  since changed reads exactly like coverage while being about a program nobody ran. **The record is
+  currently EMPTY of real entries and carries one fixture**, which is the honest state — writing four
+  from memory is the fabrication this file deletes on sight.
 
 - **Admin surfaces sit outside the `(portfolio)` route group.** `app/studio` lives outside it, so it carries no site chrome, sets page-level noindex plus a robots disallow, and is owner-gated in middleware. Any new internal or admin surface follows the same placement.
 
