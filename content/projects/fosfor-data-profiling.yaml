@@ -207,6 +207,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-time-saved
               title: Time on quality checks
               body: How much manual inspection time the feature removed.
@@ -221,6 +222,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-detection-rate
               title: Issue detection
               body: How reliably teams surfaced and resolved data quality problems.
@@ -235,6 +237,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-quality-lift
               title: Data quality lift
               body: Measurable gains in completeness, consistency, and accuracy.
@@ -246,6 +249,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-usage
               title: Frequency of use
               body: How often the feature became part of the daily workflow.
@@ -530,6 +534,9 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              screen:
+                discriminant: none
+                value: null
             - index: '02'
               category: Profiling
               title: Basic and advanced profiling
@@ -546,6 +553,9 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              screen:
+                discriminant: none
+                value: null
             - index: '03'
               category: Profiling
               title: Issue surfacing
@@ -562,6 +572,9 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              screen:
+                discriminant: none
+                value: null
   - variant: default
     id: screens
     index: ''
