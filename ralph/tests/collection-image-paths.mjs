@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 import {
   PROJECTS_IMAGE_BASE,
   BLOG_IMAGE_BASE,
+  GALLERY_IMAGE_BASE,
   imageBaseForCollection,
 } from "../../lib/studio/collection-image-base.ts";
 import { blockImageYamlValue, blockImageBlobPath, blockImageBlobPathFromValue } from "../../lib/studio/block-image-path.ts";
@@ -86,8 +87,44 @@ t("D3 block paths also separate by collection for the same slug + hash",
 /* ---- E. the route's collection→base mapping --------------------------------------- */
 t("E1 projects maps to the projects base", imageBaseForCollection("projects"), PROJECTS_IMAGE_BASE);
 t("E2 blog maps to the blog base", imageBaseForCollection("blog"), BLOG_IMAGE_BASE);
+t("E2a ⚠ GALLERY MAPS TO THE GALLERY BASE — the row this table was missing",
+  imageBaseForCollection("gallery"), GALLERY_IMAGE_BASE);
 t("E3 an unknown collection maps to null (the route rejects it)", imageBaseForCollection("settings"), null);
 t("E4 a non-string collection maps to null", imageBaseForCollection(undefined), null);
+
+/* ---- ⚠ E5. THIS IS A WRITE PATH, AND A WRONG BASE DOES NOT FAIL ----------------------
+ *
+ * `imageBaseForCollection` decides WHERE UPLOADED BYTES LAND. A wrong answer does not throw and
+ * does not report an error — it writes to a directory the reader never looks in, and the symptom
+ * is a broken image long after the upload said it worked.
+ *
+ * ⚠ #172's DEFECT WAS EXACTLY THIS, AND ITS CAUSE WAS A SILENT DEFAULT: a same-slug entry in one
+ * collection would have clobbered another's hero, because the helper fell through to a base
+ * instead of refusing. So the rows below assert the ABSENCE OF A DEFAULT as well as the mapping —
+ * the fix and the reason it was needed.
+ *
+ * THE SUBJECT IS DERIVED FROM `CollectionName`, so a fifth collection joins this check rather than
+ * inheriting whichever base the last `if` happened to return. */
+const COLLECTIONS = ["projects", "blog", "gallery", "experience"];
+t("E5 every collection answers — the denominator, against a literal",
+  COLLECTIONS.length, 4);
+t("E5a ⚠ NO COLLECTION FALLS BACK TO ANOTHER'S BASE — every answer is its own base or an explicit null",
+  COLLECTIONS.map((c) => {
+    const b = imageBaseForCollection(c);
+    return b === null ? null : b.directory;
+  }),
+  ["public/images/projects", "public/images/blog", "public/images/gallery", null]);
+/* ⚠ AND NO TWO COLLECTIONS SHARE A TREE, which is the property that makes a same-slug upload safe.
+ * Asserted as a SET SIZE rather than pairwise, so a fifth collection is covered automatically. */
+t("E5b ⚠ AND NO TWO SHARE A DIRECTORY — the same-slug clobber #172 found",
+  (() => {
+    const dirs = COLLECTIONS.map((c) => imageBaseForCollection(c)?.directory).filter(Boolean);
+    return [dirs.length, new Set(dirs).size];
+  })(), [3, 3]);
+/* Experience is an explicit null rather than an absent case: it has no image upload at all, and
+   saying so is what stops it silently acquiring one collection's tree later. */
+t("E5c …and experience refuses rather than defaulting, because it uploads nothing",
+  imageBaseForCollection("experience"), null);
 
 /* ---- F. fromValue matches ONLY its own collection's prefix ------------------------- */
 // A projects hero value is not a blog blob, and vice versa — so a per-collection GC or
