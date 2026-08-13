@@ -604,7 +604,14 @@ export default function HeroSection({
                     onClick={() => setActive(i)}
                     className="relative px-[15px] py-[9px] text-[10px] uppercase tracking-[0.15em] font-normal rounded-full transition-colors duration-[var(--duration-base)] select-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-500"
                     style={{
-                      color: i === active ? "var(--hx-cta-fg)" : "var(--hx-faint)",
+                      /* ⚠ `--hx-tab-faint`, NOT `--hx-faint` — see globals.css beside the token.
+                         The shared one is `text-subtle`, which measured 3.11 / 3.82 / 4.26 against
+                         this track on sapphire, ink-flare and nocturne, under the 4.5 floor. The
+                         tabs take `text-secondary`: 5.09 / 6.71 / 7.39 there, 7.12 to 8.66 light.
+                         ROLE TO ROLE — the hero already took a role, and what failed was the choice
+                         of rung. Scoped to a tab token so the hero's other three `--hx-faint`
+                         consumers, which nobody has measured, do not move with it. */
+                      color: i === active ? "var(--hx-cta-fg)" : "var(--hx-tab-faint)",
                     }}
                   >
                     {i === active && (

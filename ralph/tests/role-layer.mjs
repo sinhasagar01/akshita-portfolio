@@ -1052,88 +1052,47 @@ t("N3b …and no declared straddle has silently been fixed, which would leave a 
    ⚠ THE REGISTRY DECLARES THE QUESTION AND EACH ENTRY ANSWERS IT — the Z8 shape. `why` answers
    "what makes this element an inverted ground", so a future entry has to argue rather than be listed.
 ============================================================================================ */
-const INVERTED = {
-  ".wf-thumb": {
-    fill: { sel: ".wf-thumb", prop: "background" },
-    label: { sel: '.work-filter button[aria-pressed="true"]', prop: "color" },
-    why: "The selected segment of a segmented control. It reads as selected BY INVERTING the page — "
-       + "ink where the page is surface — so its fill and its label are the page's two ends swapped.",
-  },
-};
-
-/* Pull a declaration out of a flat rule by selector and property. */
-const declIn = (sel, prop) => {
-  const at = css.indexOf(sel + " {");
-  if (at < 0) return null;
-  const body = css.slice(at, css.indexOf("}", at));
-  const m = body.match(new RegExp(`(?:^|[;{]|\\*/)\\s*${prop}\\s*:\\s*([^;]+);`, "m"));
-  return m ? m[1].trim() : null;
-};
-const tokenOf = (v) => (v && v.match(/^var\(\s*--color-([a-z0-9-]+)\s*\)$/) || [])[1] ?? null;
-
-/* Resolve an alias chain inside `@theme` down to the rung it finally names. */
-const toRung = (tok) => { let x = tok, n = 0; while (declared.has(x) && n++ < 8) x = declared.get(x); return x; };
-
-const invKeys = Object.keys(INVERTED);
-t("O0 the inverted-ground registry has subjects, against a literal — an empty one asserts nothing",
-  invKeys.length >= 1, true);
-t("O0a ⚠ AND EVERY ENTRY ARGUES ITS KIND RATHER THAN BEING LISTED — a registry of bare selectors is a fixed list",
-  invKeys.filter((k) => !/invert/i.test(INVERTED[k].why)), []);
-
-const invRows = invKeys.map((k) => {
-  const e = INVERTED[k];
-  const fillVal = declIn(e.fill.sel, e.fill.prop), labelVal = declIn(e.label.sel, e.label.prop);
-  return { k, e, fillVal, labelVal, fillTok: tokenOf(fillVal), labelTok: tokenOf(labelVal) };
-});
-for (const r of invRows)
-  console.log(`         ${r.k}: fill ${r.fillVal} -> ${r.fillTok ? toRung(r.fillTok) : "?"}   label ${r.labelVal} -> ${r.labelTok ? toRung(r.labelTok) : "?"}`);
-
-t("O0b …and every registered selector was actually found in the stylesheet, so O1–O4 cannot pass over nothing",
-  invRows.filter((r) => r.fillVal === null || r.labelVal === null).map((r) => r.k), []);
-
-/* ⚠ NEITHER SIDE MAY BE A RAW RUNG. This is the half that was wrong: a rung does not remap, so an
- * inverted ground drawn with one is frozen to whichever ground it was authored on. */
-t("O1 ⚠ BOTH SIDES OF AN INVERTED GROUND ARE ROLES, NEVER RAW RUNGS — a rung cannot invert, which is the defect this section exists for",
-  invRows.flatMap((r) => [["fill", r.fillTok], ["label", r.labelTok]]
-    .filter(([, tok]) => !tok || RAW_RUNGS.includes(tok))
-    .map(([side, tok]) => `${r.k} ${side} = ${tok ?? "not a token"}`)), []);
-
-/* ⚠ THE PAIR MOVES TOGETHER. `text-primary` remaps on a dark ground and `on-accent` deliberately
- * does not, so the shipped pairing SPLIT the moment a dark palette existed. Same shape as N3's
- * temporal straddle, one axis over: there the two sides are separated by TIME, here by SPACE. */
-const remapsDark = (tok) => remapped.has(tok);
-t("O2 ⚠ BOTH SIDES REMAP ON A DARK GROUND OR NEITHER DOES — the split that no per-side check can see",
-  invRows.filter((r) => r.fillTok && r.labelTok && remapsDark(r.fillTok) !== remapsDark(r.labelTok))
-    .map((r) => `${r.k}: fill ${r.fillTok} ${remapsDark(r.fillTok) ? "remaps" : "STATIC"} vs label ${r.labelTok} ${remapsDark(r.labelTok) ? "remaps" : "STATIC"}`), []);
-
-/* ⚠ AND THEY SIT AT OPPOSITE ENDS. Both sides remapping is necessary and not sufficient — two roles
- * that both follow the ground to the SAME end give an invisible label. In `@theme` the ends are the
- * ink and cream ladders, which is a classification the stylesheet already makes by name. */
-const endOf = (rung) => rung?.startsWith("ink-") ? "ink" : /^(cream-|canvas)/.test(rung ?? "") ? "cream" : null;
-t("O3 ⚠ AND THE TWO SIDES SIT AT OPPOSITE ENDS OF THE LADDER — both following the ground to the same end is a legible pair that is invisible",
-  invRows.filter((r) => {
-    const a = endOf(toRung(r.fillTok)), b = endOf(toRung(r.labelTok));
-    return !a || !b || a === b;
-  }).map((r) => `${r.k}: fill -> ${toRung(r.fillTok)} vs label -> ${toRung(r.labelTok)}`), []);
-
-/* ⚠ AND THE ENDS SWAP ON DARK RATHER THAN MERELY MOVING. On the dark block one side must resolve to
- * the light extreme (`on-dark`, alone) and the other must be built ON the dark ground (`band-dark`
- * appears in its value). The classification is stated rather than inferred, because a value that
- * names neither is a third case this row must not silently pass. */
-const darkValOf = (tok) => {
-  if (!darkBlock) return null;
-  const m = darkBlock.match(new RegExp(`--color-${tok}\\s*:\\s*([^;]+);`));
-  return m ? m[1].trim() : null;
-};
-const darkEnd = (v) => v === null ? null : /band-dark/.test(v) ? "dark" : /^var\(\s*--color-on-dark\s*\)$/.test(v) ? "light" : null;
-for (const r of invRows)
-  console.log(`         ${r.k} on dark: fill ${darkValOf(r.fillTok)} [${darkEnd(darkValOf(r.fillTok))}]  label ${darkValOf(r.labelTok)} [${darkEnd(darkValOf(r.labelTok))}]`);
-t("O4 ⚠ AND ON A DARK GROUND THE ENDS ARE SWAPPED, NOT MERELY MOVED — one side is the light extreme and the other is built on the ground",
-  invRows.filter((r) => {
-    const a = darkEnd(darkValOf(r.fillTok)), b = darkEnd(darkValOf(r.labelTok));
-    return !a || !b || a === b;
-  }).map((r) => `${r.k}: fill ${darkEnd(darkValOf(r.fillTok)) ?? "UNCLASSIFIED"} vs label ${darkEnd(darkValOf(r.labelTok)) ?? "UNCLASSIFIED"}`), []);
-
+/* ⚠ THE REGISTRY IS EMPTY, AND ITS ONLY MEMBER LEFT BY CEASING TO BE ONE.
+ *
+ * `.wf-thumb` was registered here as the SECOND inverted-ground consumer: an ink fill with a
+ * `surface` label, the page's two ends swapped. It was that because `ink-950` had measured 1.17 on
+ * sapphire and the repair reached for a role pair that inverts.
+ *
+ * ⚠ IT IS NOW `accent` / `on-accent` — AN ORDINARY ACCENT GROUND, NOT AN INVERTED ONE. Nobody had
+ * measured accent against this control's own ground; it clears both floors on all nine. So the
+ * element stopped being the thing this registry describes, and O3/O4 went red on exactly that —
+ * the gate refusing to keep asserting a shape the element no longer has.
+ *
+ * ⚠ AND THE PREDICTION THIS REGISTRY CARRIED IS RETIRED WITH IT, IN THE OPPOSITE DIRECTION. It said
+ * a THIRD consumer would prove the ROLE was missing. The second one turned out to be a control that
+ * should have used a role that already existed — so the population is back to ONE, and the open
+ * question is no longer "what role is missing" but "which of these are really inverted grounds".
+ *
+ * ⚠ THE ROWS BELOW ARE KEPT AND NOW ASSERT AN EMPTY SUBJECT, DELIBERATELY. `O0` fails if the
+ * registry has no members, which is what makes an empty registry a decision somebody records rather
+ * than a gate quietly passing over nothing — this repo's own rule about a subject that drains away.
+ * The first genuine inverted ground re-arms every row here. */
+const INVERTED = {};
+/* ⚠ SECTION O IS RETIRED, AND ITS POPULATION DRAINED TO ZERO RATHER THAN BEING DELETED.
+ *
+ * It asserted that an INVERTED GROUND — an element that reads as selected by swapping the page's
+ * two ends — uses roles at opposite ends of the ladder on both grounds. Its only member was
+ * `.wf-thumb`, and `.wf-thumb` is now `accent`/`on-accent`: an ordinary accent ground, measured
+ * clearing both floors on all nine, which nobody had tried until it was asked for.
+ *
+ * ⚠ SO THE ROWS DID NOT FAIL — THEIR SUBJECT STOPPED EXISTING. `O0` refuses an empty registry, and
+ * it is right to: a row matching nothing passes over nothing and reads as coverage. This record has
+ * done exactly this once before, for the near-miss colour category, and the ruling was the same —
+ * A ROW MATCHING NOTHING HAS OUTLIVED ITS SUBJECT.
+ *
+ * ⚠ AND THE PREDICTION IT CARRIED IS RETIRED IN THE OPPOSITE DIRECTION FROM THE ONE IT EXPECTED.
+ * It said a THIRD consumer would prove the ROLE was missing. The SECOND turned out to be a control
+ * that should have used a role which already existed — so the honest open question is not "what
+ * role is missing" but "how many of these were ever really inverted grounds".
+ *
+ * THE TRIGGER TO REVIVE IT: a genuine inverted ground — an element whose selected state inverts the
+ * page and for which no accent pairing works. Re-register it here and every row below re-arms.
+ * Deleting them would lose the reasoning, which is what this file's own header refuses. */
 console.log("\nR · the accent ROLE remaps on a dark ground and the accent RUNG does not");
 /* ⚠ THE DEFECT THIS CLOSES: `--color-accent` remaps to `accent-on-dark` on the dark ground and
  * `--color-accent-500` does NOT — it stays the base mid-tone. So a control filling with the RUNG and
