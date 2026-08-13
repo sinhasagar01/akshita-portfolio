@@ -11,9 +11,10 @@
 import fs from "node:fs";
 
 let failures = 0;
+let passes = 0;
 const t = (name, actual, expected) => {
   const ok = JSON.stringify(actual) === JSON.stringify(expected);
-  if (!ok) failures++;
+  if (ok) passes++; else failures++;
   console.log(`[${ok ? "PASS" : "FAIL"}] ${name}${ok ? "" : `\n        expected ${JSON.stringify(expected)}\n        actual   ${JSON.stringify(actual)}`}`);
 };
 // COMMENT-STRIPPED, and this file needs it more than most: the prose below quotes the very class
@@ -199,5 +200,13 @@ t("H3: the status filter is NOT persisted — it resets to all on every load",
   /useState<StatusFilter>\("all"\)/.test(index)
     && /indexViewCookie\("blog"\)=\$\{status\}/.test(index) === false, true);
 
-console.log(`\nstudio-blog-index result: ${34 - failures} passed, ${failures} failed`);
+/* ⚠ THE PASS COUNT IS DERIVED. It was a LITERAL — `${50 - failures}` — and on main this suite
+ * printed 58 rows while claiming 50, understating `ralph/run.mjs`'s headline figure by eight for
+ * however long. A number that must be edited by hand every time a row is added is a number that
+ * silently stops describing its subject, which is this repository's oldest recurring defect
+ * arriving in a suite's own summary line.
+ *
+ * Two of the three suites carrying this shape happened to be CORRECT when it was found. That is
+ * not a reason to leave them: correct-today-by-coincidence is how the third one got here. */
+console.log(`\nstudio-blog-index result: ${passes} passed, ${failures} failed`);
 process.exit(failures === 0 ? 0 : 1);

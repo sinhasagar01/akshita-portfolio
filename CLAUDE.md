@@ -637,6 +637,60 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ EVERY RALPH FIGURE QUOTED THIS SESSION WAS LOW BY EIGHT, AND THE CAUSE WAS A LITERAL IN A
+  SUMMARY LINE.** `studio-index` ended with ``result: ${50 - failures} passed`` — a hand-maintained
+  constant. **On `main` it printed 58 rows and claimed 50**, and `ralph/run.mjs` reads that number,
+  so the headline every report in this session carried was understated. **3487 is the first honest
+  one.**
+
+  **⚠ AND A HAND COUNT COULD NEVER HAVE TRACKED IT, WHICH IS WHAT MAKES THIS A MECHANISM RATHER THAN
+  TIDINESS.** The file has **52 line-anchored `t("` call sites and prints 60 rows**, because some are
+  emitted from LOOPS. **The literal was not merely un-maintained — it was counting a different
+  quantity from the one it named.** Same shape as the `rich-markers` undercount, and the same
+  answer: derive it.
+
+  **⚠ TWO OF THE THREE SUITES CARRYING THE SHAPE WERE CORRECT TODAY, WHICH IS EXACTLY HOW THE THIRD
+  GOT THERE.** That is the argument for deriving all three rather than fixing the one that drifted —
+  a literal that happens to be right is a literal waiting for its next row.
+
+  **THE REACH IS BACKWARDS, WHICH IS THE PART WORTH REMEMBERING.** No gate was wrong and no assertion
+  failed. A reported TOTAL was wrong, quoted forward in every report, and **nothing in this
+  repository has a reported total as its subject.**
+
+- **⚠ AN EXTRACTION MUST CARRY ITS OLD COVERAGE FORWARD — AND THIS ONE DELETED IT SILENTLY, WHICH IS
+  THE FIFTH LEAF-PROVEN-CALL-UNASSERTED INSTANCE AND THE FIRST WHERE THE REFACTOR *CREATED* THE
+  GAP.** Six presence rows were replaced by calls to `lib/studio/studio-copy.ts`. The sentences moved
+  out of the components, **the old presence regexes went with them, and nothing replaced them.**
+
+      inverting `filtering: true` at the call site        caught by NOTHING, 0 rows red / 99 suites
+      inverting `collectionEmpty: true` at the call site  caught by NOTHING, likewise
+
+  **TWO CALL SITES, ONE EXTRACTION, BOTH UNCOVERED — so the gap is a property of the refactor rather
+  than of one careless line**, which is the argument for checking every call a new leaf gains rather
+  than the one that looks risky.
+
+  **THE SHARPER RULE: A PRESENCE ROW DELETED BY A REFACTOR IS COVERAGE REMOVED SILENTLY.** The four
+  earlier instances INHERITED a gap that was already there; this one made a suite weaker while every
+  row stayed green and the assertion total went UP.
+
+- **⚠ AND TWO PLAUSIBLE EXTRACTIONS IN THAT SAME UNIT WOULD HAVE CHANGED WHAT A READER SEES, BOTH
+  CAUGHT BY READING THE JSX RATHER THAN THE ASSERTION.** Byte-identical was the instruction and it
+  is why they were found before shipping:
+
+      the empty state    renders `No case studies match <b>{query}</b>.` — a finished sentence
+                         would have DROPPED THE QUERY ECHO
+      the autosave title is a PREFIX plus a PER-SURFACE TAIL. Measured, eleven surfaces carry FOUR
+                         tails — 6 "Publish from the Hero panel.", 3 "Publish from Site settings.",
+                         1 "…the bar below.", 1 "Preview to see it."
+
+  **A SINGLE CONSTANT WOULD HAVE TOLD SIX PANELS TO PUBLISH FROM A BAR THEY DO NOT HAVE.**
+
+  **⚠ THE ROW ONLY EVER MATCHED THE PREFIX, SO AN EXTRACTION SCOPED FROM IT INHERITED ITS
+  BLINDNESS.** `C2` asserted ``title="Auto-saves to draft on blur.`` and nothing more, and the shared
+  half read as the whole sentence. **An assertion that matches a PREFIX tells you nothing about the
+  rest of the string** — and the useful half was the part it never looked at, since each tail names
+  where that surface's publish control actually is.
+
 - **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `colour-census` TOO, AND THE COUNT DID NOT MOVE WHILE
   NINE ATTRIBUTIONS DID.** Route C had stripped comments since #362; route B and the `consumersOf`
   walk read raw. Measured **by identity rather than by count**, as the `cascade-public` strip taught:

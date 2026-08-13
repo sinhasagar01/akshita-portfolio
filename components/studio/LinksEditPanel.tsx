@@ -14,6 +14,7 @@
 // valid (its link is just omitted from the render); a non-empty value must parse.
 // The save is GATED while any url is invalid; the server 422 invalid_url stays the
 // github-mode backstop.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
 import SaveBar from "./SaveBar";
@@ -300,7 +301,7 @@ export default function LinksEditPanel({ itemId, email, links }: Props) {
         status={saveStatus}
         dirty={dirty}
         savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from the Hero panel."
+        title={autosaveTitle("Publish from the Hero panel.")}
         primary={{ label: "Save draft", onClick: saveDraft, disabled: !dirty || saveStatus === "saving" }}
       />
     </section>

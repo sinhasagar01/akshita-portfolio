@@ -9,6 +9,7 @@
 // The save posts a PARTIAL patch of only { aboutCopy, aboutNote } — DB-1 commits
 // on top of the existing draft, so this never clobbers the Hero form's edits.
 // (A shared useDraftForm hook is deferred to the third form — rule of three.)
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useDraftForm } from "./useDraftForm";
 import SaveBar from "./SaveBar";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -221,7 +222,7 @@ export default function AboutEditPanel({
         status={saveStatus}
         dirty={dirty}
         savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from the Hero panel."
+        title={autosaveTitle("Publish from the Hero panel.")}
         primary={{ label: "Save draft", onClick: saveDraft, disabled: !dirty || saveStatus === "saving" }}
       />
     </section>

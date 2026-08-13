@@ -13,12 +13,14 @@
 // widths, and the numbers are recorded in STATE. What this suite can do is pin the STRUCTURE
 // that measurement depends on: that the tracks are stated at all, and that nobody quietly
 // returns the row to nested flex once the measurement has scrolled out of memory.
+import { reorderSubline, caseStudyEmptyState } from "../../lib/studio/studio-copy.ts";
 import fs from "node:fs";
 
 let failures = 0;
+let passes = 0;
 const t = (name, actual, expected) => {
   const ok = JSON.stringify(actual) === JSON.stringify(expected);
-  if (!ok) failures++;
+  if (ok) passes++; else failures++;
   console.log(`[${ok ? "PASS" : "FAIL"}] ${name}${ok ? "" : `\n        expected ${JSON.stringify(expected)}\n        actual   ${JSON.stringify(actual)}`}`);
 };
 const read = (p) => fs.readFileSync(p, "utf8");
@@ -245,15 +247,55 @@ t("H4: …and neither view maps with an index parameter that could be mistaken f
 t("H5: reorder locks while a search is active, in both views",
   (index.match(/busy=\{reorderBusy \|\| filtering\}/g) ?? []).length, 2);
 
-t("H5: …and the subline says how to get the arrows back",
-  /Clear the search to change the order/.test(index), true);
+/* ⚠ CALLED, NOT GREPPED — AND THE ROW ABOVE IS WHY THIS ONE CHANGED SHAPE. A regex over the source
+ * proves the words are in the file and nothing about which branch produces them; setting the
+ * `filtering` binding to a constant would leave every word in place and three rows green. The
+ * SELECTION is the claim, so the selection is what gets asserted. */
+t("H5: …and the FILTERING state selects the recovery sentence",
+  reorderSubline({ filtering: true, view: "list" }), "Clear the search to change the order.");
+t("H5a: …and the idle state does NOT, which is the half a presence check cannot express",
+  reorderSubline({ filtering: false, view: "list" }).includes("Clear the search"), false);
+/* ⚠ AND THE CALL SITE, BECAUSE THE LEAF BEING RIGHT IS HALF THE CLAIM — MEASURED, NOT ASSUMED.
+ * Inverting `filtering: true` to `false` in the component was caught by NOTHING: zero rows red
+ * across all 99 suites. Fifth instance of the leaf-proven-call-unasserted shape, and the extraction
+ * had made it WORSE — it moved the sentence out of the component, so the old presence regex went
+ * away and nothing replaced it. A refactor can reduce coverage while every row stays green.
+ *
+ * The claim is STRUCTURAL — which argument each arm passes — so a source match is the right
+ * instrument here, unlike a reachability claim. Both arms are asserted and so is their ORDER, so
+ * inverting either one changes the counts or the ordering and this goes red. */
+{
+  const trues = (index.match(/reorderSubline\(\{ filtering: true,/g) ?? []).length;
+  const falses = (index.match(/reorderSubline\(\{ filtering: false,/g) ?? []).length;
+  t("H5b: the component calls the leaf once per arm — inverting either was caught by nothing before this",
+    [trues, falses], [1, 1]);
+  t("H5c: …and the FILTERING arm comes first, which is the ternary's consequent",
+    index.indexOf("filtering: true,") < index.indexOf("filtering: false,"), true);
+}
 
 /* TWO ZERO STATES, NOT ONE. #271 separated three of these in the sections rail after one sentence
  * had been answering three different questions; the trap is available again the moment a search
  * box arrives, so they are split at the source. */
+/* ⚠ THE TWO ARMS ARE COMPARED TO EACH OTHER, WHICH IS THE CLAIM THE TITLE MAKES. A presence check
+ * proved both sentences exist in the file and would have passed if one branch returned the other's
+ * text — "say different things" is a relation, and a relation needs both sides. */
 t("H6: an empty result and an empty collection say different things",
-  /No case studies yet\. Add one to get started\./.test(index)
-    && /No case studies match/.test(index), true);
+  caseStudyEmptyState({ collectionEmpty: true }) === caseStudyEmptyState({ collectionEmpty: false }), false);
+t("H6a: …and each says the right one",
+  [caseStudyEmptyState({ collectionEmpty: true }), caseStudyEmptyState({ collectionEmpty: false })],
+  ["No case studies yet. Add one to get started.", "No case studies match"]);
+/* ⚠ AND ITS CALL SITE TOO — CHECKED RATHER THAN ASSUMED TO DIFFER FROM H5's. Inverting
+ * `collectionEmpty: true` to `false` was ALSO caught by nothing: zero rows red across 99 suites,
+ * the same result as the reorder call. Two call sites, one extraction, both uncovered — so the gap
+ * is a property of the refactor rather than of one careless line, which is the argument for
+ * checking every call a leaf gains rather than the one that looked risky. */
+{
+  const trues = (index.match(/caseStudyEmptyState\(\{ collectionEmpty: true \}\)/g) ?? []).length;
+  const falses = (index.match(/caseStudyEmptyState\(\{ collectionEmpty: false \}\)/g) ?? []).length;
+  t("H6b: the component calls the empty state once per arm", [trues, falses], [1, 1]);
+  t("H6c: …and the COLLECTION-EMPTY arm comes first, matching the ternary",
+    index.indexOf("collectionEmpty: true") < index.indexOf("collectionEmpty: false"), true);
+}
 
 t("H6: …and the branch is on the COLLECTION being empty, not on the query",
   /items\.length === 0 \? \(/.test(index), true);
@@ -283,12 +325,25 @@ t("I1: …it sits beside the status it drives, so the strip reads as the answer"
   /type="search"[\s\S]{0,400}role="status"/.test(index), true);
 
 t("I2: it carries the sentence the page is about",
-  /in the order they appear on your homepage\./.test(index), true);
+  reorderSubline({ filtering: false, view: "grid" }), "in the order they appear on your homepage.");
 
 /* IT CHANGES UNDER THE AUTHOR — typing rewrites it from a count to a result count plus the reason
  * the arrows went quiet, and a status only sighted users receive is the half-fix. */
 t("I3: …and it announces, because the text changes as the author types",
   /role="status"\s*\n\s*aria-live="polite"/.test(index), true);
 
-console.log(`\nstudio-index result: ${50 - failures} passed, ${failures} failed`);
+/* ⚠ THE PASS COUNT IS DERIVED. It was a LITERAL — `${50 - failures}` — and on main this suite
+ * printed 58 rows while claiming 50, understating `ralph/run.mjs`'s headline figure by eight for
+ * however long. A number that must be edited by hand every time a row is added is a number that
+ * silently stops describing its subject, which is this repository's oldest recurring defect
+ * arriving in a suite's own summary line.
+ *
+ * Two of the three suites carrying this shape happened to be CORRECT when it was found. That is
+ * not a reason to leave them: correct-today-by-coincidence is how the third one got here.
+ *
+ * ⚠ AND A HAND COUNT COULD NEVER HAVE TRACKED IT ANYWAY, which is the part that makes this a
+ * mechanism rather than tidiness. This file has 52 line-anchored `t("` call sites and prints 60
+ * rows, because some are emitted from LOOPS — so the literal was not merely un-maintained, it was
+ * counting a different quantity from the one it claimed. */
+console.log(`\nstudio-index result: ${passes} passed, ${failures} failed`);
 process.exit(failures === 0 ? 0 : 1);

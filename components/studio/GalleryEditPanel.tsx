@@ -33,6 +33,7 @@
 // every one of them typed in good faith. They are DISPLAYED, prominently, because an author needs
 // to see that the upload completed; they are not typeable, and `sanitizeGalleryPatch` would refuse
 // a zero even if they were.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useMemo, useRef, useState } from "react";
 import ThreePaneShell from "./ThreePaneShell";
 import GalleryItemList from "./GalleryItemList";
@@ -188,7 +189,7 @@ export default function GalleryEditPanel({
       status={form.saveStatus}
       dirty={form.dirty}
       savedAt={form.savedAt}
-      title="Auto-saves to draft on blur. Publish from Site settings."
+      title={autosaveTitle("Publish from Site settings.")}
       primary={{
         label: "Save draft",
         onClick: form.saveDraft,

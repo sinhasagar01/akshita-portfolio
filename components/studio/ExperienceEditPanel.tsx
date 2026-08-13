@@ -9,6 +9,7 @@
 // company is the entry slug (editing it renames the file) and is shown read-only.
 // No in-studio preview yet (CE-1): the panel seeds from live and reflects the
 // edit in-session; a reload shows live until Publish.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useDraftForm } from "./useDraftForm";
 import SaveBar from "./SaveBar";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -212,7 +213,7 @@ export default function ExperienceEditPanel({
         status={saveStatus}
         dirty={dirty}
         savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from the Hero panel."
+        title={autosaveTitle("Publish from the Hero panel.")}
         primary={{ label: "Save draft", onClick: saveDraft, disabled: !dirty || saveStatus === "saving" }}
       />
     </section>

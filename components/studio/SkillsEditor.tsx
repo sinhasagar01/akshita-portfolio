@@ -12,6 +12,7 @@
 // remounts its panel. Only add/remove touch both arrays (kept in one batch).
 //
 // Rendered by /studio/skills (app/studio/(dashboard)/skills/page.tsx).
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useRef, useState } from "react";
 import { ListDetailLayout, useListItem } from "./ListDetailLayout";
 import SaveBar from "./SaveBar";
@@ -161,7 +162,7 @@ export default function SkillsEditor({ categories }: { categories: SkillsCategor
             status={saveStatus}
             dirty={dirty}
             savedAt={savedAt}
-            title="Auto-saves to draft on blur. Publish from the Hero panel."
+            title={autosaveTitle("Publish from the Hero panel.")}
             primary={{
               label: "Save draft",
               onClick: saveDraft,

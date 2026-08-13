@@ -3,10 +3,23 @@
 // destination; settings/experience/projects carry a ?item=<id> that
 // ListDetailLayout reads to pre-select the entry.
 //
-// Scope: settings sections + experience + projects + skills categories (SK-5 —
-// skills got a real /studio panel in SK-4). The code-managed Homepage cards are
-// excluded (Hero/About/Process/Work already deep-link to settings/projects;
-// Contact has no navigation destination).
+// ---- ⚠ SCOPE, AND THIS PARAGRAPH IS WHY BLOG AND GALLERY WERE MISSING FOR MONTHS ------------
+//
+// It read "Scope: settings sections + experience + projects + skills categories" — a description
+// written on 2026-07-07, when those WERE every collection. Blog landed 2026-07-26 and gallery
+// later, and neither was added. `git log -S "blog"` on this file returns NOTHING: the word had
+// never appeared in it.
+//
+// ⚠ SO IT WAS AN OMISSION AND NOT A DECISION, AND ONLY THE HISTORY COULD TELL THEM APART. A comment
+// describing a smaller scope reads as a boundary somebody chose — the `structural()` shape arriving
+// in prose rather than in a helper. Search worked the whole time; it simply could not find half the
+// content, and nothing said so.
+//
+// The scope is now DERIVED: `collections` is a `Record<CollectionName, …>`, so a fifth collection
+// fails to compile at the call site rather than being silently unsearchable.
+//
+// Still excluded, and these ARE decisions: the code-managed Homepage cards (Hero/About/Process/Work
+// already deep-link to settings/projects; Contact has no navigation destination).
 import type { SkillsEntry } from "@/lib/keystatic";
 import type { CollectionName } from "./commit-collection-entry";
 

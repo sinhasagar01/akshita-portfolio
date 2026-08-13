@@ -13,6 +13,7 @@
 // Vercel rebuild), maps typed publish errors, and clears the badge on success.
 // The client never holds the token; only publish writes main, and only on a
 // deliberate owner click when there is a differing draft.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useState } from "react";
 import { HERO_TAB_FALLBACK_NAMES } from "@/components/sections/HeroSection";
 import type { HeroTab } from "@/lib/studio/site-settings-format";
@@ -410,7 +411,7 @@ export default function HeroEditPanel({
         status={saveStatus}
         dirty={dirty}
         savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from the bar below."
+        title={autosaveTitle("Publish from the bar below.")}
         primary={{ label: "Save draft", onClick: saveDraft, disabled: !dirty || saveStatus === "saving" }}
       />
     </section>

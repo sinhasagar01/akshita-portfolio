@@ -9,6 +9,8 @@
 // P4-1 — heroImage is now editable HERE via a separate multipart upload route
 // (its own local state, NOT part of the useDraftForm text patch), committing the
 // normalized webp blob + the yaml path to the same draft branch.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
+import { SECTIONS_LOAD_ERROR, SECTIONS_RETRY_LABEL } from "@/lib/studio/studio-copy";
 import { useEffect, useRef, useState } from "react";
 import { useDraftForm } from "./useDraftForm";
 import SaveBar from "./SaveBar";
@@ -218,7 +220,7 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
       status={saveStatus}
       dirty={dirty}
       savedAt={savedAt}
-      title="Auto-saves to draft on blur. Publish from Site settings."
+      title={autosaveTitle("Publish from Site settings.")}
       onCancel={cancel}
       extra={
         /* ⚠ THE COLOUR SITS ON THE WRAPPER, NOT ON THE ANCHOR — HAZARD 22. An unlayered
@@ -478,13 +480,13 @@ export default function ProjectsEditPanel({ itemId, slug, title, summary, heroIm
           {/* ONLY ERROR REACHES THIS BRANCH NOW. Loading returns above, bespoke goes to the
               shell, so this panel exists for the one state that is persistent and actionable. */}
           <div className="rounded-[var(--studio-radius-card,8px)] border border-studio-ink-950/12 bg-studio-cream-200 px-4 py-8 text-center">
-            <p className="text-[14px] text-studio-accent-600">Could not load the sections.</p>
+            <p className="text-[14px] text-studio-accent-600">{SECTIONS_LOAD_ERROR}</p>
             <button
               type="button"
               onClick={() => void loadSections()}
               className="mt-2 rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 px-3 py-1.5 text-[12px] font-semibold text-studio-ink-600 transition-colors hover:bg-studio-cream-200 hover:text-studio-ink-950"
             >
-              Try again
+              {SECTIONS_RETRY_LABEL}
             </button>
           </div>
         </div>
