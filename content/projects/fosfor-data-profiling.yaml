@@ -324,6 +324,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-time-cost
               title: Time consuming analysis
               body: >-
