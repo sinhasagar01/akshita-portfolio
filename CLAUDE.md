@@ -213,6 +213,23 @@ is deploys rather than commits.
   **THE PATTERN: claims about the running system age faster than claims about code, and nothing in
   this repository instruments them.** Every gate here reads the working tree.
 
+  **⚠ BOARDED AS A GAP RATHER THAN LEFT AS A RULE ABOUT CARE, BECAUSE A RULE IS WHAT BOTH PEOPLE
+  ALREADY HAD.** No suite in this repository has the RUNNING SYSTEM as its subject. `upstream.mjs`
+  comes closest and is the exception that shows the shape — it is network-bound, so `run.mjs` skips
+  it BY NAME and it only runs from the pre-push hook. Everything else reads files.
+
+  **THE CHEAP FORM IS THREE READINGS NOBODY CAN TAKE SEPARATELY AND BELIEVE: local `main`,
+  `origin/main`, and the deployed sha, printed together with the time they were taken.** Each is
+  available today and each is individually misleading — the two errors above were both a correct
+  single reading reported as a state. Printing them as one stamped row is what makes "ahead" a
+  claim with a subject.
+
+  **⚠ AND IT IS A REPORT, NOT A GATE, WHICH IS THE DESIGN DECISION.** A gate that failed when
+  production lagged `main` would go red on every legitimate merge for the minutes a build takes —
+  the benign-common-failure shape `upstream`'s A1 was narrowed to avoid, and the argument
+  `.githooks/pre-push` already makes. **What is missing is not a refusal, it is a reading nobody
+  has to assemble by hand.**
+
 - **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
   GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
   `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
