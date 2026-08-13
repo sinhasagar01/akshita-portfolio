@@ -54,7 +54,11 @@ export const SCHEMA_IMAGE_BASES = { projects: PROJECTS_IMAGE_BASE, blog: BLOG_IM
 //
 // `translate: [number, number]` has no native Keystatic tuple, so it is split into
 // translateX/translateY here — the 3(c) adapter recombines them.
-function imgSpecFields(base: CollectionImageBase) {
+// ⚠ `preview` IS OPT-IN PER COLLECTION RATHER THAN ALWAYS PRESENT. Blog's only use of this helper
+// is a videoEmbed POSTER, and a "zoomable preview" checkbox on a video still is a knob with no
+// consequence — the control-that-cannot-do-anything shape this repo deletes. Case-study call sites
+// pass `true`; blog does not.
+function imgSpecFields(base: CollectionImageBase, { preview = false } = {}) {
   return {
     src: fields.image({
       label: "Image",
@@ -78,12 +82,28 @@ function imgSpecFields(base: CollectionImageBase) {
     // select-with-default, which the reader would inject into every image); the enum
     // is enforced strictly by the sanitizer.
     frame: fields.text({ label: "Frame (phone | browser | macbook, optional)" }),
+    // ⚠ LINE COMMENTS ONLY IN THIS FILE — a block comment re-pairs one of the three stray `path:`
+    // glob openers and deletes a region from every suite that decomments it.
+    //
+    // Whether THIS image opens a zoomable overlay when a reader clicks it. Per image, because the
+    // question is per image: a dashboard screenshot rewards inspection and a decorative crop does
+    // not, and a study-level switch could only answer for all of them at once.
+    //
+    // ⚠ IT REPLACES A PER-STUDY `imagePreview` FIELD SHIPPED ONE UNIT AGO, which sat beside
+    // Template and Category in the Details panel. That was the wrong grain and the wrong place —
+    // one control for thirty images, nowhere near any of them. Nothing had written it, so there is
+    // no content to migrate.
+    //
+    // ⚠ DEFAULTS TRUE, AND THE ADAPTER READS ABSENT AS TRUE TOO. Every image already on disk lacks
+    // the key; a false default would ship the feature disabled on all of them, which is the
+    // fail-closed posture applied where fail-open is correct — nothing here is a permission.
+    ...(preview ? { preview: fields.checkbox({ label: "Zoomable image preview", defaultValue: true }) } : {}),
   };
 }
 
 function deviceSpecFields(base: CollectionImageBase) {
   return {
-    ...imgSpecFields(base),
+    ...imgSpecFields(base, { preview: true }),
     label: fields.text({ label: "Theme label (optional)" }),
     dotColor: fields.text({ label: "Dot colour, hex (optional)" }),
   };
@@ -156,26 +176,6 @@ export default config({
         // Stored as text like `template` (empty default, so createReader never throws
         // on an entry lacking it); the enum is enforced strictly by the sanitizer.
         category: fields.text({ label: "Category (mobile | web)" }),
-        // ⚠ LINE COMMENTS ONLY IN THIS FILE — a block comment here re-pairs one of the three
-        // stray `path:` glob openers and deletes a region from every suite that decomments it.
-        //
-        // Whether this study's images open a zoomable preview on click, with a hover badge
-        // advertising it. A CHECKBOX rather than the text-plus-sanitizer shape `template` and
-        // `category` use, because those two carry an ENUM the reader must not guess at and this
-        // carries a boolean with two states and no third.
-        //
-        // ⚠ IT DEFAULTS TRUE AND THE READER TREATS ABSENT AS ON. Four studies predate the field
-        // and none of their content files carry it; a boolean whose absent state meant OFF would
-        // have shipped the feature silently disabled on every existing study, which is the
-        // fail-closed posture applied where fail-open is correct — nothing here is a permission.
-        imagePreview: fields.checkbox({
-          label: "Zoomable image preview",
-          description:
-            "Readers can click any image on this case study to open it larger and zoom in. "
-            + "A hint appears on hover. Turn it off for a study whose images are not worth "
-            + "inspecting closely.",
-          defaultValue: true,
-        }),
         body: fields.blocks(
           {
             heroBlock: {
@@ -540,7 +540,7 @@ export default config({
                     heading: fields.text({ label: "Heading (optional)" }),
                     items: fields.array(
                       fields.object({
-                        image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
+                        image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "Image" }),
                         // An inline illustration id. Free text here rather than a select because
                         // the ids live in component code and this config is schema-only; the
                         // studio form offers the real list and a gate asserts they agree.
@@ -568,7 +568,7 @@ export default config({
                         category: fields.text({ label: "Category" }),
                         title: fields.text({ label: "Title" }),
                         body: fields.text({ label: "Body — supports **bold**", multiline: true }),
-                        image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
+                        image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "Image" }),
                         // ⚠ A REAL CONDITIONAL, NOT FLAT FIELDS. Unlike beforeAfterStory's
                         // rating/after — where the flat pair is genuinely two values — these arms
                         // are MUTUALLY EXCLUSIVE. Flattening them would put a `screenFull` beside a
@@ -586,14 +586,14 @@ export default config({
                           }),
                           {
                             none: fields.empty(),
-                            full: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Screen" }),
+                            full: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "Screen" }),
                             split: fields.object({
                               body: fields.object(
-                                { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                                { ...imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
                                 { label: "Scrolling body" }
                               ),
                               footer: fields.object(
-                                { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                                { ...imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
                                 { label: "Pinned footer" }
                               ),
                             }),
@@ -612,8 +612,8 @@ export default config({
                       fields.object({
                         title: fields.text({ label: "Title" }),
                         tag: fields.text({ label: "Tag" }),
-                        before: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Before image" }),
-                        after: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "After image" }),
+                        before: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "Before image" }),
+                        after: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "After image" }),
                         changes: fields.array(
                           fields.object({
                             emphasis: fields.text({ label: "Emphasis" }),
@@ -649,13 +649,13 @@ export default config({
                       fields.object({
                         title: fields.text({ label: "Screen name" }),
                         tag: fields.text({ label: "Tag" }),
-                        before: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Before screen" }),
+                        before: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "Before screen" }),
                         afterBody: fields.object(
-                          { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                          { ...imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
                           { label: "After — scrolling body" }
                         ),
                         afterFooter: fields.object(
-                          { ...imgSpecFields(PROJECTS_IMAGE_BASE), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
+                          { ...imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), intrinsicHeight: fields.number({ label: "Intrinsic height (px)" }) },
                           { label: "After — pinned footer" }
                         ),
                         changes: fields.array(
@@ -709,7 +709,7 @@ export default config({
                 annotatedImage: {
                   label: "Annotated image",
                   schema: fields.object({
-                    image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Image" }),
+                    image: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "Image" }),
                     scrawl: fields.object(
                       {
                         text: fields.text({ label: "Text", multiline: true }),
@@ -763,7 +763,7 @@ export default config({
                   label: "Video embed",
                   schema: fields.object({
                     src: fields.text({ label: "Video URL (https://…) — externally hosted" }),
-                    poster: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE), { label: "Poster still (optional)" }),
+                    poster: fields.object(imgSpecFields(PROJECTS_IMAGE_BASE, { preview: true }), { label: "Poster still (optional)" }),
                     caption: fields.text({
                       label: "Caption (optional) — supports **bold**, *italic*, [links](url)",
                       multiline: true,

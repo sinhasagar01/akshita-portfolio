@@ -53,6 +53,11 @@ export type ImgSpec = {
    *  CS-5, so emitting it changes no rendered markup. Optional because hand-authored
    *  ImgSpecs (boat-crest) omit it and default to phone. */
   frame?: "phone" | "browser" | "macbook";
+  /** Whether THIS image opens a zoomable overlay on click, with a hover hint.
+   *
+   *  ⚠ ABSENT MEANS TRUE. Every image on disk predates the field, so a `?? false` read would ship
+   *  the feature disabled on all of them. The adapter coalesces; nothing downstream guesses. */
+  preview?: boolean;
   /** Skip next/image optimization. Set by the adapter ONLY when it rewrote the
    *  src to the owner-gated draft-image proxy, which the optimizer cannot fetch
    *  (it refetches server-side without the owner cookie). Never set on the
@@ -292,12 +297,5 @@ export type CaseStudy = {
    *  existing (mobile) composition; only "web" opts in. Threaded from the page down
    *  through CaseStudyView; blocks receive a derived `web` boolean. */
   template?: string;
-  /** Whether the case study's images open a zoomable preview on click, with a hover badge
-   *  advertising it. Editable per case study in /studio.
-   *
-   *  ⚠ IT IS OPTIONAL AND UNDEFINED MEANS ON. Every study that predates the field should get the
-   *  feature without a content migration, and a boolean whose absent state means OFF would have
-   *  shipped it silently disabled everywhere. The reader coalesces; nothing here guesses. */
-  imagePreview?: boolean;
 };
 

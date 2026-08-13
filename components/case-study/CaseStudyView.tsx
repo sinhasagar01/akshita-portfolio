@@ -40,23 +40,23 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
   // the hero keeps the generic cursor-follow glow. Public hero only; the studio canvas
   // renders sections without this, so it stays un-themed like CursorGlow.
   const heroGlow = HERO_GLOW[study.slug];
-  /* Undefined means ON — see the note on `CaseStudy.imagePreview`. */
-  const previewEnabled = study.imagePreview !== false;
   return (
     <>
       {/* Route-scoped warm sand background (spec A1) — see .case-study-bg in globals.css. */}
       <div aria-hidden className="case-study-bg" />
-      {/* ⚠ ONE PROVIDER FOR THE WHOLE PAGE, and it renders null until something is clicked. The
-          alternative — a client wrapper per image — would put a new element into the layout chain
-          of every frame, which is the parity failure `DeviceImage`'s header records. Images opt in
-          with ATTRIBUTES; this listens.
+{/* ⚠ ONE PROVIDER FOR THE WHOLE PAGE, mounted unconditionally. It renders null until
+          something is clicked, and the per-image switch lives on the images: an image with the
+          preview off emits no `data-preview-src`, so it is neither clickable nor badged.
 
-          ⚠ AND IT IS GATED HERE RATHER THAN INSIDE THE PROVIDER. With the toggle off, no listener
-          is attached and no dialog code ships to the client for that study — an internal `if` would
-          mount the component and have it decline, which costs the same bytes and reads as enabled
-          to anything measuring. `sections-preview` asserts the attributes and the mount move
-          together, since either alone is a feature that half-works. */}
-      {previewEnabled && <ImagePreview />}
+          ⚠ IT WAS GATED ON A PER-STUDY FLAG FOR ONE UNIT AND THAT WAS THE WRONG GRAIN. One control
+          for thirty images can only answer for all of them at once, and it sat in the Details panel
+          beside Template and Category — nowhere near any image it governed. The gate is gone rather
+          than kept alongside, because two controls for one question is the shape that leaves nobody
+          able to say which one won.
+
+          The alternative — a prop threaded through `SectionRenderer` and every block — would have
+          been six files of plumbing for a boolean, with six chances to miss one. */}
+      <ImagePreview />
       {heroSection && (
         <SectionRenderer section={heroSection} web={web} asGround heroGlow={heroGlow} />
       )}

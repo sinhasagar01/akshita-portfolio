@@ -254,6 +254,7 @@ const imageObj =
         !Object.prototype.hasOwnProperty.call(base, k) &&
         !Object.prototype.hasOwnProperty.call(extra, k) &&
         k !== "frame" &&
+        k !== "preview" &&
         !INTRINSIC.includes(k)
       ) {
         return invalid(`${at}: unknown field ${k}`, at);
@@ -264,6 +265,14 @@ const imageObj =
       const res = base[k](raw[k], `${at}.${k}`);
       if (!res.ok) return res;
       out[k] = res.value;
+    }
+    /* ⚠ WRITTEN ONLY WHEN FALSE, which is the omit-when-empty posture `frame` and the intrinsics
+       use, applied to a boolean whose DEFAULT is true. An image left previewable therefore gains
+       no `preview:` line and every file already on disk stays byte-identical; only turning it off
+       writes anything. The reader and the adapter both read absent as true, so the three agree. */
+    if (raw.preview === false) out.preview = false;
+    else if (raw.preview !== undefined && typeof raw.preview !== "boolean") {
+      return invalid(`${at}.preview must be a boolean`, at);
     }
     if (raw.frame !== undefined && raw.frame !== "") {
       if (typeof raw.frame !== "string" || !(FRAMES as readonly string[]).includes(raw.frame)) {

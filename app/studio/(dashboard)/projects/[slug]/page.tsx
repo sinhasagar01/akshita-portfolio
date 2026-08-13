@@ -62,7 +62,6 @@ export default async function CaseStudyEditorPage({ params }: Props) {
       facts={project.facts}
       template={project.template}
       category={project.category}
-      imagePreview={project.imagePreview}
       // Resolved HERE, on the server. `lib/site.ts` imports node:fs at module scope, so a
       // client component importing projectPath would pull fs into the client bundle — the
       // same reason the blog route resolves livePath rather than passing the slug.

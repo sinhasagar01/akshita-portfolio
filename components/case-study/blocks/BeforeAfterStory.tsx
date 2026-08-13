@@ -158,8 +158,12 @@ function BeforePhone({ before, w, fluid, maxW }: { before: ImgSpec; w: number; f
     <div
       className="relative shrink-0"
       style={boxStyle}
-      data-preview-src={typeof before.src === "string" ? before.src : before.src.src}
-      data-preview-alt={before.alt}
+      {...(before.preview === false
+        ? {}
+        : {
+            "data-preview-src": typeof before.src === "string" ? before.src : before.src.src,
+            "data-preview-alt": before.alt,
+          })}
     >
       <span aria-hidden="true" className="cs-preview-hint">Click to zoom</span>
       <Image

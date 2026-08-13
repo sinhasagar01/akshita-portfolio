@@ -418,6 +418,25 @@ function ImgSpecFields<T extends RawImg>({
           // know where the bytes come from.
           onChange={(src, file) => set({ ...value, src }, src && file ? { src, file } : undefined)}
         />
+        {/* ⚠ DIRECTLY BELOW THE IMAGE IT GOVERNS, AND THAT PLACEMENT IS THE POINT OF THE CHANGE.
+            This shipped one unit ago as a single per-STUDY switch in the Details panel, sitting
+            beside Template and Category — one control for thirty images, nowhere near any of them,
+            and unable to say "this dashboard rewards a zoom and that decorative crop does not".
+
+            ⚠ AND IT IS ONE EDIT FOR ELEVEN CALL SITES. `ImgSpecFields` is the shared form behind
+            every image-bearing case-study block — annotatedImage, figureGrid, deviceShelf,
+            featureRows, beforeAfter, beforeAfterStory's three panels, heroCover and videoEmbed's
+            poster — so the checkbox lands under every image in every section without eleven
+            near-identical edits that could each be missed.
+
+            It reads `!== false` because absent means TRUE: every image on disk predates the field
+            and must stay previewable without a content migration. */}
+        <CheckField
+          label="Zoomable image preview"
+          value={value.preview !== false}
+          onChange={(preview) => set({ ...value, preview })}
+          onBlur={onBlur}
+        />
         <TextField
           label="Alt text"
           value={value.alt}
