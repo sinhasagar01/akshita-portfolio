@@ -15,6 +15,7 @@ import {
   classifyFile,
   changedLines,
   buildPreview,
+  buildTitleIndex,
   COLLECTION_FILE_RE,
   SKILLS_FILE,
   SETTINGS_FILE,
@@ -349,6 +350,42 @@ t("C6: an empty compare is an empty preview, not an error",
    * one side fails as loudly as one omitted — a count would let a swap through. */
   t("H3: ⚠ THE PATTERN NAMES EXACTLY THE COLLECTIONS THE COMMIT LAYER DECLARES",
     named, union);
+}
+
+console.log("\nI · the title index names every collection, because four loops did not");
+/* ⚠ THE SECOND HAND-KEYED LIST IN THIS PAIR OF FILES, AFTER `entry[1] as PreviewGroup`. The route
+ * built its slug->title index with four `for` loops and GALLERY WAS NOT ONE OF THEM, so every
+ * gallery entry in a preview fell back to its slug. Invisible until somebody read a preview
+ * containing one, which is why it survived the collection's entire build.
+ *
+ * ⚠ THE COMPILE ERROR IS THE REAL GUARD AND A SUITE CANNOT SEE IT, which is why the exhaustiveness
+ * is ALSO returned as data. Verified by hand that removing `gallery` from the route's object fails
+ * `tsc` with TS2345 naming the missing key; these rows drive the half that runs. */
+{
+  const full = buildTitleIndex({
+    projects: [["p", "A study"]], blog: [["b", "A post"]],
+    experience: [["e", "Role, Co"]], gallery: [["g", "A photo"]],
+  });
+  /* ⚠ COMPARED AS SORTED PAIRS, BECAUSE KEY ORDER IS NOT PART OF THE CLAIM. The harness compares
+   * `JSON.stringify` of both sides, so an object literal makes insertion order load-bearing — and
+   * this index is built by iterating `COLLECTION_GROUPS`, whose order is the union's rather than
+   * the call site's. The first version of this row failed on that and said nothing about titles.
+   * A comparator's contract shaping an assertion is the `rich-markers` finding; here it shaped an
+   * expectation instead of an implementation. */
+  t("I1 every collection's titles reach the index",
+    Object.entries(full.titles).sort(), [["b", "A post"], ["e", "Role, Co"], ["g", "A photo"], ["p", "A study"]]);
+  t("I1a …and a complete call reports nothing missing", full.missing, []);
+  /* ⚠ THE ROW THAT WOULD HAVE CAUGHT THE DEFECT. A collection absent from the sources is named,
+   * rather than silently contributing no titles — which is exactly what the four loops did. */
+  const partial = buildTitleIndex({ projects: [["p", "A study"]], blog: [], experience: [] });
+  t("I2 ⚠ A COLLECTION THAT CONTRIBUTED NOTHING IS NAMED — the four loops just left gallery out",
+    partial.missing, ["gallery"]);
+  t("I2a …and the collections that did contribute still land, so a miss degrades rather than voids",
+    partial.titles, { p: "A study" });
+  /* ⚠ AND AN EMPTY COLLECTION IS NOT A MISSING ONE. A gallery with no items contributes no titles
+   * and is present — collapsing those two would make the guard fire on an ordinary empty site. */
+  const empty = buildTitleIndex({ projects: [], blog: [], experience: [], gallery: [] });
+  t("I3 …and an EMPTY collection is not a MISSING one", [empty.missing, empty.titles], [[], {}]);
 }
 
 console.log(`\n  ${pass} passed, ${fail} failed`);
