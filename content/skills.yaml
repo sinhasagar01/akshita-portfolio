@@ -46,6 +46,6 @@ categories:
   - category: Artificial intelligence (AI)
     items:
       - name: Claude Design
-        glow: 
+        glow: AI
       - name: Claude Code
-        glow: 
+        glow: LLM
