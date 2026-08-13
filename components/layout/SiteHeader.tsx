@@ -43,8 +43,19 @@ const NAV = [
   { id: "gallery", label: "Gallery", href: "/gallery" },
   /* ⚠ A ROUTE ENTRY, LIKE `blog` — it has an `href` and NO section on the home page, so the
      scroll-spy and the scroll handlers must never see it. `isRoute` derives that from the presence
-     of `href` and every consumer guards on it (four sites, lines 87, 277, 350 and 462), which is
-     why adding this line is the whole change.
+     of `href` and every consumer guards on it, which is why adding this line is the whole change.
+
+     ⚠ THIS SENTENCE SAID "four sites, lines 87, 277, 350 and 462". COUNTED: SEVEN, and not one of
+     the four line numbers was right. Line numbers in prose are the most decay-prone claim a comment
+     can carry — every edit above them moves them, and nothing re-reads the number.
+
+     THE COUNT IS DELETED RATHER THAN CORRECTED. A fresh one would be wrong again by the next
+     commit, and what a reader needs is the PROPERTY — a route entry has an `href`, so guard on
+     `isRoute` — not a census of where it is enforced. `git grep isRoute` is exact and never stale.
+
+     ⚠ AND THE PARAGRAPH DIRECTLY BELOW IS THIS COMMENT CORRECTING ITSELF FOR THE SAME KIND OF
+     ERROR. It was wrong about a symbol; this was wrong about a count and four line numbers. A
+     comment that has already been caught making a precise mechanical claim made another one.
 
      ⚠ THE COMMENT HERE FIRST NAMED A `SECTION_IDS` CONSTANT THAT DOES NOT EXIST. It read as a
      precise mechanical claim, and nothing reads prose — the exact defect this repo has recorded
