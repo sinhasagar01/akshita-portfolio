@@ -174,7 +174,32 @@ export async function mergeBranch(opts: {
   if (res.status === 201) return { status: "merged", oid: (await res.json()).sha as string };
   if (res.status === 204) return { status: "noop" };
   if (res.status === 409) return { status: "conflict" };
-  throw new Error(`merge failed: ${res.status} ${await res.text()}`);
+
+  /* ⚠ THE SAME ASSUMPTION AS THE GRAPHQL SITES ABOVE, ON THE HIGHEST-STAKES WRITE THERE IS. This
+     threw outright, so an unexpected status reported a FAILED PUBLISH — and a publish is the one
+     write whose result an author acts on immediately, by publishing again.
+
+     A non-2xx is not evidence the merge did not land. So before reporting failure this ASKS: does
+     `base` now contain `head`? If it does, the merge happened and the status was the only thing
+     that went wrong.
+
+     ⚠ THE CONFIRMATION IS A COMPARE, NOT A GUESS. `compareBranches(base, head)` reports `ahead_by`
+     for head relative to base; zero means base already carries every commit head has, which is
+     exactly what a completed merge produces. A second publish would return 204 `noop` anyway, so
+     this does not change what a retry does — it changes what the author is TOLD the first time.
+
+     ⚠ AND IF THE CONFIRMATION ITSELF FAILS, THE ORIGINAL ERROR IS THROWN. A read that cannot run is
+     not permission to claim success; this repository's oldest failure mode is an instrument that
+     reports the shape of success when it could not look. */
+  const status = res.status;
+  const text = await res.text();
+  try {
+    const cmp = await compareBranches(opts.base, opts.head);
+    if (cmp && cmp.aheadBy === 0) return { status: "noop" };
+  } catch {
+    /* fall through to the original error — see the note above */
+  }
+  throw new Error(`merge failed: ${status} ${text}`);
 }
 
 // GitHub's per-file change status in a compare response. F-2 keeps this alongside
@@ -329,9 +354,29 @@ export async function commitFileToBranch(opts: {
   });
   if (!res.ok) throw new Error(`graphql http ${res.status}: ${await res.text()}`);
   const json = await res.json();
-  if (json.errors) throw new Error(`graphql errors: ${JSON.stringify(json.errors)}`);
+  /* ⚠ AN ERROR IS NOT EVIDENCE THAT NOTHING HAPPENED, AND THIS THREW BEFORE LOOKING.
+
+     `if (json.errors) throw` fired AHEAD of reading `json.data`, so a response carrying BOTH a
+     committed oid and a non-fatal error was discarded and the caller was told "nothing was
+     written". An author who retries then gets a duplicate — or `slug_taken` for their own
+     successful create.
+
+     ⚠ AND THIS API REALLY DOES RETURN BOTH, MEASURED ON THE REAL ENDPOINT rather than read off the
+     spec, because a documented behaviour and a measured one have been different things twice this
+     week. One query asking for `viewer` and a bogus node id returns
+     `data: {viewer: {…}, bogus: null}` AND `errors: […]` in the same response.
+
+     SO THE DATA IS READ FIRST AND THE ERROR ONLY DECIDES THE MESSAGE. A REFUSED commit — STALE_DATA,
+     say — carries no `commit` node, so the check below still throws and a genuine race is still
+     reported as the failure it is. ⚠ THAT CASE IS UNFORCED: producing one needs a live branch and a
+     deliberate bad write, so it follows from a refused commit having no commit node rather than
+     from an observation. */
   const commit = json.data?.createCommitOnBranch?.commit;
-  if (!commit?.oid) throw new Error("no commit oid returned");
+  if (!commit?.oid) {
+    throw new Error(
+      json.errors ? `graphql errors: ${JSON.stringify(json.errors)}` : "no commit oid returned"
+    );
+  }
   return { oid: commit.oid as string, url: commit.url as string };
 }
 
@@ -376,9 +421,13 @@ export async function commitFilesToBranch(opts: {
   });
   if (!res.ok) throw new Error(`graphql http ${res.status}: ${await res.text()}`);
   const json = await res.json();
-  if (json.errors) throw new Error(`graphql errors: ${JSON.stringify(json.errors)}`);
+  /* Same handling as `commitFileToBranch` above, and for the same reason — see the note there. */
   const commit = json.data?.createCommitOnBranch?.commit;
-  if (!commit?.oid) throw new Error("no commit oid returned");
+  if (!commit?.oid) {
+    throw new Error(
+      json.errors ? `graphql errors: ${JSON.stringify(json.errors)}` : "no commit oid returned"
+    );
+  }
   return { oid: commit.oid as string, url: commit.url as string };
 }
 
