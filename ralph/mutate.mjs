@@ -2,30 +2,41 @@
 // Run: node ralph/mutate.mjs <suite-name>
 //
 // ═════════════════════════════════════════════════════════════════════════════════════════════
-// ⚠ NEXT UNIT ON THIS FILE: THE TOOL OWNS THE WHOLE EDIT. RAISED FROM BOARDED, ON THE COUNT.
+// ⚠ THE DEFECT LEDGER, RE-DERIVED FROM THE CODE — AND THIS BLOCK USED TO ADVERTISE WORK THAT WAS
+// ALREADY DONE.
 //
-// EIGHT DEFECTS HAVE NOW BEEN FOUND IN THIS ONE MECHANISM, AND THREE OF THEM ARE THE SAME GAP:
-// the tool does not own the operation end to end, so the operator supplies the missing half and
-// the missing half is where the damage happens.
+// It read "NEXT UNIT ON THIS FILE: THE TOOL OWNS THE WHOLE EDIT. RAISED FROM BOARDED, ON THE
+// COUNT" and listed EIGHT defects with three open. The tool has owned the edit since `--edit`
+// began recording the file's exact `before` bytes; the count reached ten. So the file's own header
+// described a plan whose implementation was two hundred lines below it.
 //
-//   the `git checkout` incident   the operator reverted by hand and DESTROYED UNCOMMITTED WORK
-//   the empty replacement          the operator chose a mutation shape the revert cannot locate
-//   the phantom manifest           a restore left edit records describing damage that was gone
+// ⚠ TENTH INSTANCE IN THIS REPOSITORY OF PROSE AND CODE MOVING APART, AND THE FIRST IN A HEADER
+// THAT NAMES THE NEXT UNIT. A stale comment misleads a reader; a stale NEXT UNIT misleads whoever
+// picks the work, which is worse — this one was carried into a session as "four of nine remain".
 //
-// THREE OF EIGHT, ONE MECHANISM. Every one is prevented by the same change: the tool applies the
-// edit, records where it landed by POSITION rather than by searching for its own output, and
-// reverts from that record. `--edit` and `--revert-edit` were the first half of it and stopped
-// short — they own the apply, and the revert still works by string search, which is why an empty
-// replacement is unrevertable at all.
+// MEASURED AGAINST THE CODE, ONE BY ONE, rather than carried:
 //
-// ⚠ THE FIVE REFUSALS ARE NOT THAT CHANGE AND SHOULD NOT BE MISTAKEN FOR IT. Each closes a state
-// the tool cannot recover from, which is the right posture and is still a guard rather than a
-// mechanism — this repo's own rule is that ONLY A MECHANISM PREVENTS A FAILURE MODE, and the
-// refusals exist precisely because the mechanism is missing.
+//   1  the `git checkout` incident      CLOSED — `--edit`/`--revert-edit` exist
+//   2  the SNAPSHOT AT RUN TIME         CLOSED — "NO SNAPSHOT IS TAKEN HERE"; the step is explicit
+//   3  the SNAPSHOT MISSING CLEAN FILES CLOSED — `.clean-at-snapshot` is written and reverted
+//   4  `--restore` CONSUMING ITS SNAP   CLOSED AS A SILENT FAILURE — it still consumes, by design,
+//                                       and a second restore now REFUSES loudly rather than
+//                                       reporting success over a mutated tree
+//   5  the SYNTAX ERROR under 3,100     CLOSED — `node --check` in `mutate-harness`
+//   6  the TDZ in that repair           CLOSED — by RUNNING the branch
+//   7  `SNAP` not created on a clean tree  CLOSED — created unconditionally
+//   8  the EMPTY REPLACEMENT            CLOSED — the revert restores recorded bytes
+//   9  the NON-UNIQUE REPLACEMENT       CLOSED — same removal, same reason
+//  10  A REFUSAL WHOSE LAST LINE IS BLANK   CLOSED HERE — see `bail` below
 //
-// The counter-argument is real and is why this was boarded rather than built: position-based
-// records shift under any other edit to the same file, so the tool would need to refuse a second
-// edit to a file it has already touched, or re-anchor. That is the design question to answer.
+//   •  the PHANTOM MANIFEST is NARROWED and not closed, deliberately: a revert can still refuse on
+//      the fingerprint, and that refusal LEAVES the records because the edits really are
+//      outstanding. `mutate-harness` C3 is the detector and its header names the recovery.
+//
+// ⚠ SO "FOUR OF NINE REMAIN IN THE SNAPSHOT MECHANISM" WAS A CARRIED FIGURE THAT HAD EXPIRED, and
+// the ledger below listed defect 3 as NOT CLOSED after #379 closed it. Two stale claims about this
+// file's own state, in this file, both written by people fixing it. RE-DERIVE BEFORE SCOPING WORK
+// FROM A COUNT — especially a count of your own defects.
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 // ---- WHY THIS EXISTS -------------------------------------------------------------------------
@@ -59,6 +70,47 @@ import { existsSync, mkdirSync, copyFileSync, readdirSync, rmSync, writeFileSync
 import { dirname, join } from "node:path";
 import { createHash } from "node:crypto";
 import { countAssertions } from "./count.mjs";
+
+/* ---- ⚠ THE TENTH DEFECT: A LOUD REFUSAL WHOSE LAST LINE IS BLANK IS A SILENT ONE -------------
+ *
+ * Every refusal below prints a clear multi-line message and exits non-zero. That was true today,
+ * and an operator still read an unrun mutation as a result — because the command was piped to
+ * `tail -1`, which is this repository's standing habit for keeping tool output short, and the
+ * refusal's last line was EMPTY.
+ *
+ *     $ node ralph/mutate.mjs --edit … 2>&1 | tail -1
+ *     $                                              <- 264 bytes of refusal, shown as nothing
+ *
+ * The suite was then run and PASSED — because the mutation had never been applied — and that pass
+ * read as evidence the gate survived. THE EXACT FALSE NEGATIVE THIS TOOL EXISTS TO MAKE
+ * IMPOSSIBLE, arriving through the FORMATTING of a correct refusal rather than through its logic.
+ *
+ * ⚠ THE OPERATOR'S HABIT IS NOT THE THING TO FIX, WHICH IS WHY THIS IS A MECHANISM AND NOT A NOTE.
+ * "Capture the exit code" is already written down here and was written down before today. It has
+ * now failed three times, and this file's own rule is that only a mechanism prevents a failure
+ * mode. So the LAST LINE of every refusal is a single self-contained sentence: whatever slice of
+ * the output an operator looks at, the final line says the tool did nothing.
+ *
+ * A trailing blank line is a formatting choice with a verdict riding on it.
+ *
+ * ⚠ AND IT IS DECLARED HERE, ABOVE EVERY USE, BECAUSE THE FIRST DRAFT WAS NOT. It sat beside the
+ * edit machinery three hundred lines down while `--restore` called it at the top — a TEMPORAL DEAD
+ * ZONE, which `node --check` PARSES PERFECTLY. `--restore` with no snapshot crashed with a
+ * ReferenceError instead of refusing.
+ *
+ * FOURTH TDZ IN THIS FILE'S HISTORY, arriving inside the repair for the tenth defect, and caught
+ * only by RUNNING the branch — the specific state that reaches the new code, which is the rule this
+ * file already states about guards added to branches.
+ */
+const bail = (code, headline, ...detail) => {
+  console.error(`⚠ ${code === 2 ? "REFUSED" : "FAILED"} — ${headline}`);
+  for (const d of detail) console.error(d);
+  console.error(code === 2
+    ? `REFUSED, nothing was changed: ${headline}`
+    : `FAILED, the tree may be mutated: ${headline}`);
+  process.exit(code);
+};
+
 
 /* ---- ⚠ THE FIFTH DEFECT, AND THE ONLY ONE THAT DESTROYED WORK -------------------------------
  *
@@ -150,8 +202,7 @@ if (process.argv[2] === "--snapshot") {
 
 if (process.argv[2] === "--restore") {
   if (!existsSync(SNAP)) {
-    console.error("no snapshot to restore from — nothing was run, or it was already cleaned");
-    process.exit(2);
+    bail(2, "no snapshot to restore from — nothing was run, or it was already cleaned");
   }
   const walk = (d, base = "") => readdirSync(d, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? walk(join(d, e.name), join(base, e.name)) : [join(base, e.name)]);
@@ -209,10 +260,9 @@ if (process.argv[2] === "--restore") {
   const dirtyAfter = new Set(dirtyFiles());
   for (const f of mutated) if (dirtyAfter.has(f)) stillWrong.push(`${f} (still differs from HEAD)`);
   if (stillWrong.length) {
-    console.error("⚠ RESTORE FAILED — the tree does not match the snapshot. Do NOT trust any mutation");
-    console.error("  result from this run; a survivor may have been measured against a mutated tree.");
-    for (const f of stillWrong) console.error(`  ${f}`);
-    process.exit(1);
+    bail(1, "restore did not put the tree back — do NOT trust any mutation result from this run",
+      "  A survivor may have been measured against a mutated tree.",
+      ...stillWrong.map((f) => `  ${f}`));
   }
   console.log("verified: every file this run touched matches its pre-mutation state");
   rmSync(SNAP, { recursive: true, force: true });
@@ -291,10 +341,17 @@ if (process.argv[2] === "--restore") {
 
        1  the `git checkout` INCIDENT. Closed earlier, by `--edit`/`--revert-edit` existing at all.
           This change makes hand-reverting unnecessary in more cases; it did not cause that.
-       2  the SNAPSHOT TAKEN AT RUN TIME — `--snapshot`/`--restore`, untouched here.
+       2  the SNAPSHOT TAKEN AT RUN TIME — `--snapshot`/`--restore`, untouched by THIS change.
        3  the SNAPSHOT COVERING FILES ALREADY EDITED rather than the ones a mutation will dirty —
           same mechanism, same distance.
        4  `--restore` CONSUMING ITS SNAPSHOT — same.
+
+     ⚠ AND 2, 3 AND 4 WERE ALREADY CLOSED WHEN THIS LIST WAS WRITTEN, WHICH IS THE POINT OF LEAVING
+     IT HERE. The list is accurate about what the OWNERSHIP CHANGE reached and was read as a list of
+     what remained OPEN — so "four of nine remain" was carried into a later session and scoped work
+     from. #379 closed 3, the explicit-snapshot step closed 2, and 4 is closed as a silent failure.
+     A list scoped to one change reads as a list of the whole subject to everybody who arrives
+     later; the header above is now the derived ledger and this one is kept for its reasoning.
        5  the SYNTAX ERROR that shipped under 3,100 green assertions — closed by `node --check` in
           the harness, which is a parse and has nothing to do with edits.
        6  the TEMPORAL DEAD ZONE in that repair — closed by RUNNING the branch, likewise.
@@ -323,17 +380,14 @@ const readEdits = () => (existsSync(EDITS) ? JSON.parse(readFileSync(EDITS, "utf
 if (process.argv[2] === "--edit") {
   const [, , , rel, anchorArg, replacementArg] = process.argv;
   if (!rel || anchorArg === undefined || replacementArg === undefined) {
-    console.error("usage: node ralph/mutate.mjs --edit <file> <anchor> <replacement>");
-    process.exit(2);
+    bail(2, "usage: node ralph/mutate.mjs --edit <file> <anchor> <replacement>");
   }
   if (!existsSync(rel)) {
-    console.error(`no such file: ${rel}`);
-    process.exit(2);
+    bail(2, `no such file: ${rel}`);
   }
   if (anchorArg === replacementArg) {
-    console.error("⚠ REFUSED — the replacement is identical to the anchor.");
-    console.error("  A no-op mutation always reports SURVIVED and says nothing about the gate.");
-    process.exit(2);
+    bail(2, "the replacement is identical to the anchor",
+      "  A no-op mutation always reports SURVIVED and says nothing about the gate.");
   }
   /* ⚠ THE EMPTY-REPLACEMENT REFUSAL IS RETIRED, AND ITS CAUSE IS WHAT WENT — NOT THE RULE'S NERVE.
    *
@@ -369,21 +423,21 @@ if (process.argv[2] === "--edit") {
     && priorForFile[priorForFile.length - 1].afterSha
        === createHash("sha256").update(readFileSync(rel, "utf8")).digest("hex");
   if (dirtyNow.has(rel) && !snapshotHasIt && !toolOwnsTheDirt) {
-    console.error(`⚠ REFUSED — ${rel} has uncommitted changes and is not in a snapshot.`);
-    console.error("  Nothing but the working tree knows what those changes were, so this edit");
-    console.error("  would not be revertible. Take a snapshot first:");
-    console.error("\n    node ralph/mutate.mjs --snapshot\n");
-    process.exit(2);
+    bail(2, `${rel} has uncommitted changes and is not in a snapshot`,
+      "  Nothing but the working tree knows what those changes were, so this edit",
+      "  would not be revertible. Take a snapshot first:",
+      "",
+      "    node ralph/mutate.mjs --snapshot",
+      "");
   }
 
   const before = readFileSync(rel, "utf8");
   const hits = before.split(anchorArg).length - 1;
   if (hits !== 1) {
-    console.error(`⚠ REFUSED — the anchor occurs ${hits} time(s) in ${rel}; it must occur exactly once.`);
-    console.error(hits === 0
-      ? "  Zero matches is a mutation that never runs, and an unrun mutation reports SURVIVED."
-      : "  Several matches means the edit would land somewhere the operator did not name.");
-    process.exit(2);
+    bail(2, `the anchor occurs ${hits} time(s) in ${rel}; it must occur exactly once`,
+      hits === 0
+        ? "  Zero matches is a mutation that never runs, and an unrun mutation reports SURVIVED."
+        : "  Several matches means the edit would land somewhere the operator did not name.");
   }
 
   /* ⚠ THE TOOL OWNS THE EDIT, WHICH MEANS IT RECORDS WHAT IT REPLACED RATHER THAN HOW TO FIND ITS
@@ -416,8 +470,7 @@ if (process.argv[2] === "--edit") {
 if (process.argv[2] === "--revert-edit") {
   const edits = readEdits();
   if (!edits.length) {
-    console.error("no recorded edits to revert — nothing was applied through `--edit`");
-    process.exit(2);
+    bail(2, "no recorded edits to revert — nothing was applied through `--edit`");
   }
   const failed = [];
   /* ⚠ NEWEST FIRST, AND EACH STEP PROVES IT IS STANDING WHERE IT THINKS IT IS BEFORE IT WRITES.
@@ -466,9 +519,8 @@ if (process.argv[2] === "--revert-edit") {
     }
   }
   if (failed.length) {
-    console.error("⚠ REVERT FAILED — do NOT trust any verdict from this run:");
-    for (const f of failed) console.error(`  ${f}`);
-    process.exit(1);
+    bail(1, "revert did not restore the recorded bytes — do NOT trust any verdict from this run",
+      ...failed.map((f) => `  ${f}`));
   }
   console.log(`reverted ${edits.length} edit(s); every mutation this run applied is gone:`);
   for (const e of edits) console.log(`  ${e.file}`);

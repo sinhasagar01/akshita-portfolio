@@ -86,6 +86,7 @@
 // with an alpha — A COLOUR THAT ALREADY HAS A NAME, SPELLED OUT WHERE THE NAME CANNOT REACH IT.
 // No name-based gate can see that, because the property is not called `--color-anything`.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { blankCommentBodies } from "../strip-comments.mjs";
 import { load } from "js-yaml";
 /* ⚠ IMPORTED RATHER THAN RE-DECLARED, AND THIS SUITE IS ITS OWN EXHIBIT. It owned a private COLOUR
  * regex until now — the same instinct that produced #338's narrower one-off, in a STANDING gate. */
@@ -530,7 +531,19 @@ const walkSrc = (rel) => {
     if (e.name.startsWith(".") || e.name === "node_modules") continue;
     const child = `${rel}/${e.name}`;
     if (e.isDirectory()) walkSrc(child);
-    else if (/\.tsx?$/.test(e.name)) sourceFiles.push({ rel: child, src: read(child) });
+    /* ⚠ COMMENTS BLANKED, AND `consumersOf` BELOW IS WHY. A class NAMED IN A COMMENT is not a
+       consumer of it — `.includes(cls)` cannot tell the difference, so prose describing a utility
+       credited the file that describes it.
+       MEASURED BEFORE THE CHANGE, BY IDENTITY RATHER THAN BY COUNT: 410 arbitrary utilities across
+       303 source files, NINE change their consumer set, and NONE becomes an orphan. So no verdict
+       moves and nine ATTRIBUTIONS were wrong — which a total could never have shown, and which is
+       the lesson the `.tsx` strip on `cascade-public` left behind.
+       ⚠ AND FOUR OF THE NINE CREDITED A STUDIO FILE FOR A PUBLIC UTILITY. `max-w-[68ch]` was
+       attributed to `BlogBlocksEditPanel.tsx` by a comment while every real consumer is public;
+       `aspect-[16/9]`, `min-h-[520px]` and `mt-[44px]` are the same shape. This census's own rule
+       is that COST IS AN EMISSION QUESTION AND THEMEABILITY A CONSUMPTION ONE — and the
+       consumption side was reading prose. */
+    else if (/\.tsx?$/.test(e.name)) sourceFiles.push({ rel: child, src: blankCommentBodies(read(child)) });
   }
 };
 ["components", "app", "lib"].forEach(walkSrc);
@@ -539,6 +552,24 @@ const walkSrc = (rel) => {
 /** A Tailwind-escaped selector back to the class an author typed. */
 const unescapeClass = (sel) => sel.replace(/^\./, "").replace(/\\/g, "");
 const consumersOf = (cls) => sourceFiles.filter((f) => f.src.includes(cls)).map((f) => f.rel);
+
+/* ⚠ THE BLANKING IS ASSERTED, BECAUSE WITHOUT A ROW IT IS A FIX NOTHING PROTECTS. Removing it
+ * changes no total — 410 utilities before and after — so the census would go on passing 69 while
+ * nine attributions silently went wrong again. A change whose only evidence is a measurement taken
+ * once is a change the next author reverts by accident. */
+{
+  /* A file that mentions a class ONLY inside a comment. Named rather than derived, and guarded by
+     the row below so it cannot rot into a vacuous pass. */
+  const CLS = "mt-[44px]";
+  const COMMENT_ONLY = "app/(portfolio)/blog/[slug]/page.tsx";
+  const rawSrc = read(COMMENT_ONLY);
+  t("A0a the fixture still holds — the file mentions the class, and only in a comment",
+    [rawSrc.includes(CLS), blankCommentBodies(rawSrc).includes(CLS)], [true, false]);
+  t("A0b ⚠ SO IT IS NOT COUNTED AS A CONSUMER — prose describing a utility is not a use of it",
+    consumersOf(CLS).includes(COMMENT_ONLY), false);
+  t("A0c …and the class still has real consumers, so A0b is not passing on an empty set",
+    consumersOf(CLS).length > 0, true);
+}
 
 /* Only COLOUR-bearing utilities — this census is about colour. The wider population (122 of 342
  * arbitrary utilities are studio-only, including spacing and position) is #274's 23.4% seam at full
@@ -599,7 +630,13 @@ t("B0 the instrument itself is not scanned as a page — its fixture is evidence
 const srcPairs = new Set();          // the join's left side for populations B and C
 const svgAttrs = new Map();
 for (const rel of files) {
-  const src = read(rel);
+  /* ⚠ BLANKED FOR CONSISTENCY WITH ROUTE C, AND THE MEASUREMENT IS THAT IT CHANGES NOTHING TODAY:
+     80 attributes before, 80 after, IDENTICAL PAIRS — no comment in a public file carries an SVG
+     colour attribute. It is done anyway because route C strips and this did not, and a suite
+     carrying two scanners over one language with different comment handling is exactly the
+     asymmetry `cascade-public` was repaired for. A latent trap with zero current instances is
+     still the trap; the honest claim is that the population is empty, not that the risk is. */
+  const src = blankCommentBodies(read(rel));
   for (const m of src.matchAll(/\b(fill|stroke|stopColor|floodColor|lightingColor)\s*=\s*["'{]?\s*["']?(#[0-9a-fA-F]{3,8}|rgba?\([^)]*\)|oklch\([^)]*\))/g)) {
     svgAttrs.set(rel, (svgAttrs.get(rel) ?? 0) + 1);
     srcPairs.add({ v: m[2].replace(/\s+/g, ""), file: rel });

@@ -31,15 +31,38 @@
 // mutation. And read `git status` afterwards either way — this file's own subject is a tool whose
 // reported success is not evidence the tree is right.
 //
-// ---- WHAT IT ASSERTS, AND WHY IT STOPS AT THE REFUSALS -----------------------------------------
+// ---- WHAT IT ASSERTS, AND WHAT IT WRITES ------------------------------------------------------
 //
-// Parsing, and the four refusals. Those are PURE: each one exits before touching a file, so this
-// suite can exercise the real binary without mutating the tree. The apply-and-revert round trip is
-// deliberately NOT here — proving it means writing to a tracked file, and a suite that fails midway
-// would leave the repo dirty for every later gate. That round trip is proved by hand and recorded
-// in #513; what belongs in CI is the half that cannot damage anything.
+// Parsing, the refusals, and a real apply-and-revert round trip. IT WRITES NOTHING INSIDE THE
+// REPOSITORY, and both halves of that took a correction.
+//
+// ⚠ THIS USED TO SAY THE ROUND TRIP WAS "DELIBERATELY NOT HERE" AND THAT "what belongs in CI is the
+// half that cannot damage anything". Both were FALSE of section B, which performed the round trip
+// on a real TRACKED file. True when written, false from the moment B5 to B7 arrived — the aged-out
+// variety of prose-and-code drift.
+//
+// THE TWO BOUNDS, AS THEY NOW STAND:
+//
+//   the MANIFEST  had NO bound. `mutate.mjs` keys its edit log off `TMPDIR`, section B's `finally`
+//                 deleted it, and `ralph/run.mjs` runs this suite — so a full gate run DESTROYED an
+//                 operator's pending mutation record. Every invocation now runs against a sandbox
+//                 `TMPDIR`; `D6` asserts the operator's was untouched.
+//   the FILE      was bounded by this suite holding the original bytes and rewriting them in a
+//                 `finally` — which is only as good as the `finally`, and a `finally` is exactly
+//                 what a row throwing early defeats. The fixture now lives OUTSIDE the repository,
+//                 so a crash at any point leaves the tree clean by construction rather than by
+//                 cleanup. `B4a` asserts it.
+//
+// A file git has never heard of is not in `dirtyFiles()`, so `--edit`'s dirty-and-unsnapshotted
+// check has nothing to object to. A temp file INSIDE the repo would be refused, correctly, and the
+// rows would fail on the tool being right.
+//
+// B1, B2 and C1 still use a derived clean TRACKED file, because they REFUSE before writing.
+//
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, rmSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -49,8 +72,32 @@ const t = (name, got, want) => {
 };
 const root = new URL("../../", import.meta.url).pathname;
 const TOOL = "ralph/mutate.mjs";
+/* ⚠ EVERY INVOCATION RUNS AGAINST AN ISOLATED `TMPDIR`, AND UNTIL THIS EXISTED THIS SUITE DELETED
+ * THE OPERATOR'S PENDING MUTATIONS ON EVERY FULL RALPH RUN.
+ *
+ * `mutate.mjs` keys its edit manifest and its snapshot off `TMPDIR`. Section B applies real edits
+ * and reverts them, and its `finally` ran `rmSync` on `$TMPDIR/ralph-mutate-edits.json` — the
+ * operator's file. `ralph/run.mjs` runs this suite, so an operator who ran the full gate while
+ * holding a mutation lost the record of it, leaving the mutation in the tree with nothing able to
+ * revert it precisely. The tool's own worst outcome, produced by the suite that tests the tool.
+ *
+ * ⚠ FOUND BY IT HAPPENING TWICE IN ONE SESSION. A mutation to `mutate.mjs` was applied, this suite
+ * was run to watch the new rows go red, and they passed — because the suite had reverted and then
+ * forgotten the mutation before they could see it. Read as a weak assertion the first time.
+ *
+ * ⚠ AND THE HEADER ABOVE SAYS "what belongs in CI is the half that cannot damage anything", WHICH
+ * WAS FALSE OF SECTION B WHEN IT WAS WRITTEN. B5, B6 and B7 perform the apply-and-revert round trip
+ * the header says is deliberately absent. They bound their blast radius on the FILE — holding the
+ * original bytes and restoring them in a `finally` — and nothing bounded it on the MANIFEST.
+ * Whether they should write to a tracked file at all is a larger question and is not settled here.
+ *
+ * The sandbox is one directory for the whole suite, because B6 and B7 depend on the manifest
+ * PERSISTING between calls — isolation must not become amnesia. */
+const SANDBOX = mkdtempSync(join(tmpdir(), "ralph-mutate-harness-"));
 const run = (...args) => {
-  const r = spawnSync("node", [TOOL, ...args], { cwd: root, encoding: "utf8" });
+  const r = spawnSync("node", [TOOL, ...args], {
+    cwd: root, encoding: "utf8", env: { ...process.env, TMPDIR: SANDBOX },
+  });
   return { status: r.status, out: `${r.stdout ?? ""}${r.stderr ?? ""}` };
 };
 
@@ -134,64 +181,65 @@ t("B4 a missing file is refused rather than created",
  * suite holds the original bytes itself and restores them unconditionally, whatever happens: the
  * worst case is the file it read, written back. That is the only row here that touches a file, and
  * it bounds its own blast radius rather than trusting the thing it is testing. */
-if (TARGET) {
-  const url = new URL(`../../${TARGET}`, import.meta.url);
-  const original = readFileSync(url, "utf8");
-  /* An anchor that occurs exactly once, derived rather than named — a hardcoded one is a fixture
-     that goes stale the moment anybody edits the file, which is how this suite reddened before. */
-  const unique = original.split("\n").find((l) => l.trim().length > 12 && original.split(l).length === 2);
-  let applied = { status: 99 }, mutatedGone = false, reverted = { status: 99 }, exact = false;
-  try {
-    if (unique) {
-      applied = run("--edit", TARGET, `${unique}\n`, "");
-      mutatedGone = !readFileSync(url, "utf8").includes(unique);
-      reverted = run("--revert-edit");
-      exact = readFileSync(url, "utf8") === original;
-    }
-  } finally {
-    /* Unconditional, and BEFORE the assertions run, so a failing row cannot leave the tree dirty. */
-    writeFileSync(url, original);
-  }
+/* ⚠ THE ROUND-TRIP FIXTURE LIVES OUTSIDE THE REPOSITORY, AND THAT IS THE WHOLE BOUND.
+ *
+ * B5 to B7 used a real TRACKED file, holding its original bytes and rewriting them in a `finally`.
+ * That bound is only as good as the `finally` — and a `finally` is exactly what a row throwing
+ * early defeats. A suite that writes to a tracked path is one crash away from a dirty tree that
+ * every later gate then measures, and this one does not need to: nothing about the round trip
+ * requires the file be in git.
+ *
+ * ⚠ AND A TEMP FILE INSIDE THE REPO WOULD NOT WORK, WHICH IS WHY IT IS OUTSIDE. An untracked file
+ * in the tree IS dirty-and-unsnapshotted — nothing but the working tree knows what it holds — so
+ * `--edit` refuses it, correctly, and the rows would fail on the tool being right. A file git has
+ * never heard of is not in `dirtyFiles()` at all, so the check has nothing to object to. Measured
+ * end to end before this shipped: edit applied, revert exact, repo tree clean.
+ *
+ * The TRACKED-file derivation above stays for B1, B2 and C1, which REFUSE before writing. */
+const FIXTURE = join(SANDBOX, "fixture.ts");
+const FIXTURE_SRC = [
+  "export const alpha = 1;",
+  "export const beta = 2;   // a line long enough to anchor on",
+  "export const gamma = 3;",
+  "export function delta() { return alpha + beta + gamma; }",
+  "",
+].join("\n");
+{
+  writeFileSync(FIXTURE, FIXTURE_SRC);
+  const readFix = () => readFileSync(FIXTURE, "utf8");
+  const unique = "export const beta = 2;   // a line long enough to anchor on";
+  t("B4a the fixture is outside the repository, so no row below can dirty the tree",
+    [FIXTURE.startsWith(SANDBOX), existsSync(FIXTURE)], [true, true]);
+
+  const applied = run("--edit", FIXTURE, `${unique}\n`, "");
+  const mutatedGone = !readFix().includes(unique);
+  const reverted = run("--revert-edit");
+  const exact = readFix() === FIXTURE_SRC;
   t("B5 ⚠ AN EMPTY REPLACEMENT IS NOW ACCEPTED — a deletion is a legitimate mutation and the revert no longer has to find it",
-    [Boolean(unique), applied.status, mutatedGone], [true, 0, true]);
+    [applied.status, mutatedGone], [0, true]);
   t("B5a …and the round trip returns the EXACT bytes, which is what retired the refusal rather than weakening it",
     [reverted.status, exact], [0, true]);
-}
 
-/* ⚠ THE TWO PROPERTIES THE OWNERSHIP CHANGE RESTS ON, DRIVEN RATHER THAN READ. Both write, so both
- * hold the original and restore it unconditionally, the same bound as B5. */
-if (TARGET) {
-  const url = new URL(`../../${TARGET}`, import.meta.url);
-  const original = readFileSync(url, "utf8");
-  const unique = original.split("\n").find((l) => l.trim().length > 12 && original.split(l).length === 2);
-  let second = { status: 99 }, exact = false, refusedHandEdit = false, handEditSurvived = false;
-  try {
-    if (unique) {
-      /* ⚠ A SECOND EDIT TO A FILE THIS TOOL ALREADY MUTATED. Before the content record this was
-         impossible without a snapshot — the dirty check could not tell the tool's own dirt from an
-         operator's, so it refused work it had itself created. */
-      run("--edit", TARGET, unique, "// M1");
-      second = run("--edit", TARGET, "// M1", "// M2");
-      run("--revert-edit");
-      exact = readFileSync(url, "utf8") === original;
-
-      /* ⚠ AND THE ONE STATE THE FINGERPRINT EXISTS FOR: the operator edits a mutated file. Restoring
-         recorded bytes would destroy that edit — the `git checkout` incident's shape inside the
-         mechanism built to replace it — so the revert must REFUSE and leave the edit alone. */
-      run("--edit", TARGET, unique, "// M3");
-      writeFileSync(url, readFileSync(url, "utf8") + "\n// a hand edit after the mutation\n");
-      const r = run("--revert-edit");
-      refusedHandEdit = r.status !== 0 && /changed since the mutation/.test(r.out);
-      handEditSurvived = readFileSync(url, "utf8").includes("a hand edit after the mutation");
-    }
-  } finally {
-    writeFileSync(url, original);
-    rmSync(new URL(`file://${process.env.TMPDIR ?? "/tmp"}/ralph-mutate-edits.json`), { force: true });
-  }
+  /* ⚠ A SECOND EDIT TO A FILE THIS TOOL ALREADY MUTATED. Before the content record this was
+     impossible without a snapshot — the dirty check could not tell the tool's own dirt from an
+     operator's, so it refused work it had itself created. */
+  run("--edit", FIXTURE, unique, "// M1");
+  const second = run("--edit", FIXTURE, "// M1", "// M2");
+  run("--revert-edit");
   t("B6 ⚠ A SECOND EDIT TO A FILE THIS TOOL ALREADY MUTATED IS ALLOWED — it refused its own dirt before the content record",
-    [second.status, exact], [0, true]);
+    [second.status, readFix() === FIXTURE_SRC], [0, true]);
+
+  /* ⚠ AND THE ONE STATE THE FINGERPRINT EXISTS FOR: the operator edits a mutated file. Restoring
+     recorded bytes would destroy that edit — the `git checkout` incident's shape inside the
+     mechanism built to replace it — so the revert must REFUSE and leave the edit alone. */
+  run("--edit", FIXTURE, unique, "// M3");
+  writeFileSync(FIXTURE, readFix() + "\n// a hand edit after the mutation\n");
+  const r = run("--revert-edit");
   t("B7 ⚠ AND IF THE OPERATOR EDITS A MUTATED FILE THE REVERT REFUSES RATHER THAN RESTORING OVER IT",
-    [refusedHandEdit, handEditSurvived], [true, true]);
+    [r.status !== 0 && /changed since the mutation/.test(r.out),
+     readFix().includes("a hand edit after the mutation")], [true, true]);
+  rmSync(join(SANDBOX, "ralph-mutate-edits.json"), { force: true });
+  writeFileSync(FIXTURE, FIXTURE_SRC);
 }
 
 console.log("\nC · the refusals NAME the way out, because a refusal nobody can satisfy is an obstacle");
@@ -212,6 +260,62 @@ t("C3 ⚠ `--revert-edit` WITH NOTHING RECORDED REFUSES — silent success is th
 t("C4 ⚠ THE REVERT NEVER SEARCHES FOR ITS OWN OUTPUT — the ninth defect was a locate step, and absence is the sound direction",
   /cur\.split\(e\.replacement\)|cur\.replace\(e\.replacement/.test(
     readFileSync(new URL(`../../${TOOL}`, import.meta.url), "utf8")), false);
+
+console.log("\nD · a refusal's LAST LINE stands alone, because an operator pipes to `tail -1`");
+/* ⚠ THE TENTH DEFECT, AND IT WAS A FORMATTING CHOICE WITH A VERDICT RIDING ON IT. Every refusal
+ * printed a clear multi-line message and exited non-zero — and an operator still read an unrun
+ * mutation as a result, because the command was piped to `tail -1` (this repository's standing
+ * habit) and the refusal's last line was BLANK. The suite was then run, PASSED because nothing had
+ * been applied, and that pass read as the gate surviving.
+ *
+ * ⚠ THESE ROWS RUN THE REAL BINARY AND ASSERT THE LAST LINE, NOT THE MESSAGE. Asserting the
+ * message would pass over the exact defect: the words were always there. What was wrong was which
+ * of them came last, and only slicing the output the way an operator does can see that. */
+{
+  const lastLine = (o) => o.trimEnd().split("\n").at(-1) ?? "";
+  /* ⚠ `--revert-edit` RUNS AGAINST AN ISOLATED TMPDIR, AND THE FIRST VERSION DID NOT — IT REVERTED
+   * A REAL MUTATION MID-SUITE. The tool keys its edit manifest off `TMPDIR`, so invoking
+   * `--revert-edit` with the operator's environment acts on the operator's PENDING EDITS. Proved by
+   * accident: a mutation to `mutate.mjs` was applied, this suite was run to confirm the D rows went
+   * red, and D4 reverted the mutation before they could — so they reported PASS over a tree that
+   * had been silently restored, and `git status` came back clean.
+   *
+   * ⚠ THAT IS THE HARNESS MUTATING THE TREE THROUGH ITS OWN TOOL, which this repository has already
+   * recorded once when a stale manifest made a routine green ralph rewrite two files. The earlier
+   * instance needed a stale manifest to fire; THIS ONE FIRES ON A CORRECT ONE, on every run, and it
+   * would have destroyed exactly the operator who was mid-mutation.
+   *
+   * An isolated TMPDIR gives the tool its own empty manifest, so the refusal being tested is a real
+   * refusal and nothing outside this suite can be reached. D1 to D3 exit before touching any state,
+   * so only D4 needs it — and it is applied to all four rather than reasoned about per row, because
+   * "this one happens not to write" is the assumption that produced the defect. */
+  /* Uses the suite-wide SANDBOX declared at the top — see the note there. D4 invokes
+     `--revert-edit`, which is NOT pure: it reads and clears the manifest. */
+  const runIsolated = run;
+  const cases = [
+    ["D1 no arguments", () => runIsolated("--edit")],
+    ["D2 a file that does not exist", () => runIsolated("--edit", "no/such/file.ts", "a", "b")],
+    ["D3 a replacement identical to the anchor", () => runIsolated("--edit", TOOL, "zzz-not-present", "zzz-not-present")],
+    ["D4 nothing recorded to revert", () => runIsolated("--revert-edit")],
+  ];
+  for (const [name, fn] of cases) {
+    const r = fn();
+    /* Each refusal must exit 2 AND have a self-contained final line. Both halves: an exit code
+       nobody reads is what made the last line matter in the first place. */
+    t(`${name} — exits 2 and its LAST line says nothing was changed`,
+      [r.status, /^REFUSED, nothing was changed: /.test(lastLine(r.out))], [2, true]);
+  }
+  /* ⚠ AND THE FINAL LINE MUST NOT BE BLANK, ASSERTED SEPARATELY. The regex above already implies
+     it, and stating it directly is what fails loudly if the format is ever changed to something
+     that happens to end in whitespace — which is precisely how this defect existed. */
+  t("D5 …and no refusal ends in a blank line, which is the defect this section is named for",
+    cases.map(([, fn]) => fn().out.endsWith("\n\n")), [false, false, false, false]);
+  /* ⚠ AND THE SANDBOX IS PROVEN EMPTY RATHER THAN ASSUMED. If TMPDIR were not honoured the rows
+     above would have run against the operator's manifest and passed exactly the same — which is
+     precisely how the defect hid. An isolation claim that cannot fail is not an isolation claim. */
+  t("D6 …and the operator's own manifest was never touched, which is what makes this suite safe to run mid-mutation",
+    [SANDBOX.includes("ralph-mutate-harness-"), SANDBOX !== (process.env.TMPDIR ?? "/tmp")], [true, true]);
+}
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
