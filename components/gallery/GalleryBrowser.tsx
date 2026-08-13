@@ -118,7 +118,7 @@ export default function GalleryBrowser({ items }: { items: readonly GalleryItem[
                    cannot check, because no cascade walk reaches a ground painted by a sibling. */
                 className={`rounded-full px-3.5 py-2 font-mono text-[9.5px] uppercase tracking-[0.13em] transition-colors ${
                   on
-                    ? "bg-accent-500 font-medium text-on-accent"
+                    ? "bg-accent font-medium text-on-accent"
                     : "text-text-subtle hover:text-text-lead"
                 } ${disabled ? "cursor-not-allowed opacity-40 hover:text-text-subtle" : ""}`}
               >

@@ -416,7 +416,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                     aria-pressed={dark === isDark}
                     onClick={() => setDark(Boolean(isDark))}
                     className={`rounded-full px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.13em] ${
-                      dark === isDark ? "bg-accent-500 font-medium text-on-accent" : "text-text-subtle"
+                      dark === isDark ? "bg-accent font-medium text-on-accent" : "text-text-subtle"
                     }`}
                   >
                     {label}

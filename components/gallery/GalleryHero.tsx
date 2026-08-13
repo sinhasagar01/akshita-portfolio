@@ -136,7 +136,7 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
               are asserted unlayered in `globals.css` beside this note's other half. */}
           <a
             href="#gallery-grid"
-            className="gallery-hero-cta inline-flex items-center gap-2 rounded-full bg-accent-500 px-5 py-3 text-[13px] font-semibold transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+            className="gallery-hero-cta inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-[13px] font-semibold transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
           >
             Browse everything <span aria-hidden>↓</span>
           </a>

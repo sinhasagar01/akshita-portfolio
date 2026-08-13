@@ -529,7 +529,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               startPreview(active.name, active.groundClass === "dark", Date.now());
               say(`${active.name} applied across the site`);
             }}
-            className="ml-auto rounded-full bg-accent-500 px-4 py-2.5 text-sm font-medium text-on-accent"
+            className="ml-auto rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-on-accent"
           >
             Try {active.name} across the portfolio
           </button>
@@ -569,7 +569,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                 aria-pressed={g === group}
                 onClick={() => setGroup(g)}
                 className={`rounded-full px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.13em] ${
-                  g === group ? "bg-accent-500 font-medium text-on-accent" : "text-text-subtle"
+                  g === group ? "bg-accent font-medium text-on-accent" : "text-text-subtle"
                 }`}
               >
                 {g}
@@ -719,7 +719,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                     aria-pressed={f.id === fmt}
                     onClick={() => setFmt(f.id)}
                     className={`rounded-full px-3 py-1.5 text-eyebrow uppercase tracking-eyebrow ${
-                      f.id === fmt ? "bg-accent-500 text-on-accent" : "text-text-subtle"
+                      f.id === fmt ? "bg-accent text-on-accent" : "text-text-subtle"
                     }`}
                   >
                     {f.label}
@@ -744,7 +744,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               <button
                 type="button"
                 onClick={() => copy(block, `${active.name} copied as ${fmt}`)}
-                className="rounded-full bg-accent-500 px-4 py-2 text-sm font-medium text-on-accent"
+                className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent"
               >
                 Copy
               </button>

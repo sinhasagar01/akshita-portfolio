@@ -183,7 +183,7 @@ export default function PaletteSwitcher({ palettes, active, onPick, heroRef, onP
             startPreview(current.name, current.groundClass === "dark", Date.now());
             onPreview?.(`${current.name} applied across the portfolio`);
           }}
-          className="w-full rounded-full bg-accent-500 px-2.5 py-2 text-[11px] font-semibold text-on-accent"
+          className="w-full rounded-full bg-accent px-2.5 py-2 text-[11px] font-semibold text-on-accent"
         >
           Try across the portfolio ↗
         </button>
