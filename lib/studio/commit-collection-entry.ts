@@ -10,7 +10,12 @@
 // intent: `edit` (the file MUST exist) and `create` (the file must NOT exist).
 // Create derives its own slug from the input's slug field, so a client value can
 // never become the create identity. Delete is a sibling deleteCollectionEntry.
-import { serializeGalleryEntry } from "./gallery-serialize";
+import {
+  serializeGalleryEntry,
+  serializeNewGalleryEntry,
+  serializeGalleryOrder,
+} from "./gallery-serialize";
+import { sanitizeGalleryCreate } from "./gallery-format";
 import type { GalleryInput } from "./gallery-format";
 import { load, dump } from "js-yaml";
 import {
@@ -237,33 +242,88 @@ function editEntry(
 // --- CREATE: sanitize the untrusted input, DERIVE the slug from its slug field,
 // assign orderIndex = max+1, then commit only if the file does NOT already exist
 // (slug_taken). The slug is never taken from a client value. ---
+/**
+ * Everything a create needs to know about a collection, in one place: how to validate the input,
+ * what to derive the slug from, and how to serialize the first file.
+ *
+ * ⚠ THREE FACTS PER COLLECTION IN ONE TABLE, NOT THREE BRANCHES IN THREE PLACES. The slug seed is
+ * the interesting one — experience seeds from `company` and everything else from `title` — and it
+ * was the kind of per-collection detail that makes a ternary look reasonable right up until the
+ * `else` arm silently acquires a member.
+ *
+ * `any` IS DELIBERATE AND IS CONFINED TO THIS TABLE'S INTERNALS. Each collection's sanitizer
+ * produces its own value type and each serializer consumes that same type, so the pairs are sound;
+ * what TypeScript cannot express here is that the two halves of a ROW share a type parameter. The
+ * alternative is a generic per row, which is a large amount of machinery to state a fact that four
+ * literal rows already make obvious to a reader. The unsoundness cannot escape: `sanitized.value`
+ * is never returned, only handed straight back to the row it came from.
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type CreateSpec = {
+  sanitize: (raw: unknown) => { ok: true; value: any } | { ok: false; error: SaveError };
+  slugSeed: (value: any) => string;
+  bytes: (value: any, orderIndex: number) => Serialized;
+};
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+/** The route's mode-independent 400 gate, reading the SAME table the create path serializes from.
+ *  Exported so there is one registry rather than one here and a second in the route — which is the
+ *  arrangement that let the two disagree about which sanitizer a collection gets. */
+export function sanitizeCreateInput(collection: CollectionName, raw: unknown) {
+  return CREATE_SPECS[collection].sanitize(raw);
+}
+
+const CREATE_SPECS: Record<CollectionName, CreateSpec> = {
+  experience: {
+    sanitize: sanitizeExperienceCreate,
+    slugSeed: (v) => v.company,
+    bytes: (v, orderIndex) => serializeExperienceCreate(v, orderIndex),
+  },
+  projects: {
+    sanitize: sanitizeProjectCreate,
+    slugSeed: (v) => v.title,
+    bytes: (v, orderIndex) => serializeNewProject(v, orderIndex),
+  },
+  blog: {
+    sanitize: sanitizeBlogCreate,
+    slugSeed: (v) => v.title,
+    /* orderIndex is IGNORED: blog has no such field (COLLECTION_HAS_ORDER is false for it), and
+       `scanCollection` therefore never computed a real one. Posts order by `date`. */
+    bytes: (v) => serializeNewBlogPost(v),
+  },
+  gallery: {
+    sanitize: sanitizeGalleryCreate,
+    slugSeed: (v) => v.title,
+    bytes: (v, orderIndex) => serializeNewGalleryEntry(v, orderIndex),
+  },
+};
+
 async function createEntry(
   collection: CollectionName,
   input: unknown,
   opts: { branch: string; message?: string }
 ): Promise<CommitResult> {
-  let slugSeed: string;
-  let buildBytes: (orderIndex: number) => Serialized;
+  /* ⚠ THIS WAS A TERNARY CHAIN WHOSE `else` ARM WAS PROJECTS, AND GALLERY FELL INTO IT. That is the
+     404: a project-shaped file — `summary`, `facts`, `body` — written to `content/gallery/<slug>.yaml`
+     by a create that reported success. The comment above it read "Explicit per-collection arms",
+     which is the identical false claim `save-draft`'s dispatch carried: the arms ARE explicit and
+     THE LAST ONE IS NOT.
 
-  // Explicit per-collection arms (see editEntry's note on the widened union).
-  if (collection === "experience") {
-    const sanitized = sanitizeExperienceCreate(input);
-    if (!sanitized.ok) return { ok: false, error: sanitized.error };
-    slugSeed = sanitized.value.company;
-    buildBytes = (orderIndex) => serializeExperienceCreate(sanitized.value, orderIndex);
-  } else if (collection === "blog") {
-    const sanitized = sanitizeBlogCreate(input);
-    if (!sanitized.ok) return { ok: false, error: sanitized.error };
-    slugSeed = sanitized.value.title;
-    // orderIndex is IGNORED: blog has no such field (COLLECTION_HAS_ORDER), and
-    // scanCollection therefore never computed a real one. Posts order by `date`.
-    buildBytes = () => serializeNewBlogPost(sanitized.value);
-  } else {
-    const sanitized = sanitizeProjectCreate(input);
-    if (!sanitized.ok) return { ok: false, error: sanitized.error };
-    slugSeed = sanitized.value.title;
-    buildBytes = (orderIndex) => serializeNewProject(sanitized.value, orderIndex);
-  }
+     ⚠ AND `editEntry` IN THIS SAME FILE IS A `switch` WITH A REAL `case "gallery"` AND IS CORRECT.
+     One file, four dispatches, one written as a switch and three as ternaries — and the switch is
+     the one that has never been wrong. Adding a collection makes a switch's gap VISIBLE at the
+     point of the gap; a ternary's `else` absorbs it silently and keeps compiling. Three ternaries
+     hid what one switch made obvious.
+
+     A `Record<CollectionName, …>` goes further than the switch: a fifth collection stops the BUILD
+     rather than waiting to be noticed. */
+  /* ⚠ `input` IS ALREADY SANITIZED, AND THE ROUTE IS WHERE THAT HAPPENS — the EDIT path's exact
+     arrangement, where `save-draft` sanitizes and this file serializes. It used to sanitize here
+     too, so the route's collection-correct result was discarded and these bytes came from whichever
+     arm the second dispatch chose. Both halves now read one table through `sanitizeCreateInput`. */
+  const spec = CREATE_SPECS[collection];
+  const slugSeed: string = spec.slugSeed(input);
+  const buildBytes: (orderIndex: number) => Serialized = (orderIndex) => spec.bytes(input, orderIndex);
 
   const derived = slugify(slugSeed);
   if (!derived.ok) return { ok: false, error: derived.error };
@@ -496,10 +556,39 @@ export async function commitEntryHeroImage(
 // --- REORDER: set orderIndex from a position in the given slug order. Separate
 // serializers from the edit path, because the edit sanitizers refuse orderIndex
 // outright (a client must not be able to smuggle a position into a content save).
+/**
+ * ⚠ AN INDEPENDENT LIVE DEFECT, NOT FALLOUT FROM THE CREATE BUG — AND IT HAD SHIPPED.
+ *
+ * This was `collection === "projects" ? projectOrder : experienceOrder`, so a gallery reorder would
+ * have written through the EXPERIENCE serializer: a different key order, a different dump, and a
+ * file rebuilt to another collection's schema. Nothing about it depends on the create fallthrough.
+ * It is unhit for one reason only — the gallery is empty, so there is nothing to arrange.
+ *
+ * IT WAS REACHABLE THE WHOLE TIME. `COLLECTION_HAS_ORDER` declares gallery orderable and
+ * `isOrderedCollection` admits it at the route, so the index's arrows reach exactly here.
+ *
+ * ⚠ AND BLOG IS AN EXPLICIT REFUSAL RATHER THAN AN ABSENT ROW. A `Record` demands every member, so
+ * the collection that must NOT be reordered has to say so in its own words instead of being the
+ * arm nobody wrote — which is the difference between this shape and the ternary it replaces.
+ */
+const ORDER_SERIALIZERS: Record<CollectionName, ((raw: string, orderIndex: number) => Serialized) | null> = {
+  projects: serializeProjectOrder,
+  experience: serializeExperienceOrder,
+  gallery: serializeGalleryOrder,
+  /* Blog orders by `date` and has no `orderIndex` field. `commitCollectionOrder` refuses it before
+     reaching here, and this null is that refusal restated where a reader is looking for the arm. */
+  blog: null,
+};
+
 function serializeOrder(collection: CollectionName, raw: string, orderIndex: number): Serialized {
-  return collection === "projects"
-    ? serializeProjectOrder(raw, orderIndex)
-    : serializeExperienceOrder(raw, orderIndex);
+  const fn = ORDER_SERIALIZERS[collection];
+  if (!fn) {
+    return {
+      ok: false,
+      error: { code: "unsupported_format", message: `${collection} entries carry no orderIndex` },
+    };
+  }
+  return fn(raw, orderIndex);
 }
 
 /**
@@ -596,6 +685,24 @@ export async function commitCollectionOrder(
  * enumerated here, matching the standing orphans-are-accepted decision (block images are
  * content-addressed and may be shared, so a naive delete could break another entry).
  */
+/**
+ * What a collection's entry IS on disk, which is the only thing the delete path needs to know.
+ *
+ * ⚠ THE DISCRIMINATOR IS THE SHAPE, NOT THE NAME. The delete branched on a list of collection
+ * names, so a new collection joined whichever arm the `else` happened to be — and gallery joined
+ * the directory walk, which enumerates a body subdir it has no concept of.
+ */
+const ENTRY_ON_DISK: Record<CollectionName, "flat-file" | "directory"> = {
+  experience: "flat-file",
+  blog: "flat-file",
+  /* One yaml and nothing else. Its images live under `public/images/gallery/<slug>/` and are
+     deliberately not enumerated, matching the standing orphans-are-accepted decision that blog's
+     own note records — block images are content-addressed and may be shared. */
+  gallery: "flat-file",
+  /* `<slug>.yaml` PLUS `content/projects/<slug>/body/**`, removed in one atomic commit. */
+  projects: "directory",
+};
+
 export async function deleteCollectionEntry(
   collection: CollectionName,
   slug: string,
@@ -603,7 +710,18 @@ export async function deleteCollectionEntry(
 ): Promise<FilesCommitResult> {
   const message = opts.message ?? `chore(studio): delete ${collection}/${slug} draft`;
 
-  if (collection === "experience" || collection === "blog") {
+  /* ⚠ THE SECOND INDEPENDENT LIVE DEFECT, AND IT ALSO HAD SHIPPED. This read
+     `collection === "experience" || collection === "blog"` for the flat-file path, so GALLERY fell
+     into the `else` — the PROJECTS path, which enumerates `content/projects/<slug>/body/**` from
+     the git tree. A gallery entry has no body subdirectory and no such concept, so a delete would
+     have gone looking for a directory that cannot exist. Nothing about it depends on the create
+     bug; it is unhit only because there is nothing to delete.
+
+     ⚠ IT IS A `Record` NOW, KEYED BY THE SHAPE OF THE ENTRY ON DISK, because that is the actual
+     discriminator and "is it experience or blog" never was. A flat file is one deletion; a
+     directory is a tree walk. Naming the property rather than the members is what stops the next
+     collection joining the wrong branch by default. */
+  if (ENTRY_ON_DISK[collection] === "flat-file") {
     // Existence check so a delete of nothing is not reported as a false success.
     let raw: string;
     try {

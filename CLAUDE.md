@@ -189,6 +189,57 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ A GATE ON A COMPONENT PROVES NOTHING ABOUT A FLOW THAT DOES NOT CALL IT — AND THE SECOND HALF
+  IS THE ONE THAT SHOULD CHANGE BEHAVIOUR.** `gallery-format` G1 to G3 proved `sanitizeGalleryCreate`
+  correctly, and **the create path did not call it.** The route computed a sanitized value for its
+  400 check and passed the RAW one on; the commit layer re-sanitized through a ternary whose `else`
+  arm was projects, so the bytes that reached disk came from `sanitizeProjectCreate`. Three green
+  rows about a function with no caller on the path they described.
+
+  **⚠ AND THE SAME DEFECT WAS THEN COMMITTED INSIDE THE SUITE WRITTEN TO CATCH IT.**
+  `collection-dispatch` section D drove the gallery serializer directly and asserted the exact bytes.
+  Pointing the dispatch table's gallery row back at the projects serializer — reinstating the precise
+  404 — left **every row green**, because those rows call the serializer and never touch the table
+  that chooses it. Caught by mutation, not by reading, in a suite whose header claims to test the
+  join.
+
+  **THE ONLY THING THAT HAS EVER FOUND THIS CLASS IS A PERSON USING THE FEATURE. FOUR COLLECTIONS,
+  FOUR FOR FOUR:** the blog's dropped status save, the canvas image that 404s before publish, the
+  ambiguous publish refusal, and now a create that 404s. **Not one was visible to a gate**, and each
+  arrived on the first browser run.
+
+  **⚠ SO THE CONCLUSION IS NOT ANOTHER SUITE.** Suites verified every part of the gallery write path
+  and the path was broken end to end. **The rule is that a collection is not done until a create has
+  been driven through a browser** — create, upload, save, reorder, delete, publish — and that step
+  is owed BEFORE the collection is called finished rather than after an owner reports a 404.
+
+  **⚠ AND FOUR FOR FOUR IS A PREDICTION, NOT A TALLY.** The fifth collection will do this too. The
+  cost of the browser run is minutes; the cost of skipping it has now been one production 404 and a
+  silent draft-overlay degrade that nothing on screen named.
+
+- **⚠ A SOURCE REGEX CANNOT SEE REACHABILITY, AND THE STANDING ANSWER FOR ANY ASSERTION ABOUT COPY
+  IS TO EXTRACT AND CALL.** `PublishBar`'s status sentence was a ternary chain guarded by regexes
+  over that component. Setting the first-failure binding to `null` makes the per-entry sentence
+  **unreachable while leaving every word of it in the file** — three rows stayed green.
+
+  **PRESENCE AND RESOLUTION ARE DIFFERENT QUANTITIES**, which this file already records against a
+  bundle grep that "verified" two shadowed CSS values by proving both present when the question was
+  which one resolved. **A string in a file and a string on screen are not the same claim.**
+
+  **THE REPAIR IS `bar-clearance.ts`'s AND IT IS NOW THE DEFAULT:** move the branching into a pure
+  function, call it with real inputs, assert the returned string. `lib/studio/draft-status-text.ts`
+  is the second instance, and the identical mutation now turns three rows red.
+
+  **⚠ AND THE SAME QUESTION IS OWED OF EVERY OTHER MESSAGE-PRESENCE ROW. COUNTED, NOT FIXED: SIX
+  ROWS ACROSS THREE SUITES** assert that a user-facing sentence exists in a source file —
+  `studio-index` (four: the reorder hint, two empty states, the homepage-order line), `studio-ink`
+  (the sections error and its retry), and `studio-save-bar` (the autosave title, per surface). Each
+  proves the words are in the file and none proves a reader can reach them.
+
+  **⚠ THE ASYMMETRY IS THE USEFUL PART: ABSENCE-BY-REGEX IS SOUND AND PRESENCE-BY-REGEX IS NOT.**
+  `hero-contract-copy` asserts two strings are GONE, and that direction holds — if the words are not
+  in the file, nothing can render them. Only the presence direction needs the extraction.
+
 - **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`, AND THE HEADLINE IS THE ASYMMETRY
   RATHER THAN THE SEVEN INSTANCES.** One suite carried TWO scanners over two languages. The CSS side
   blanked comments before parsing and its own note called the order load-bearing, because a construct

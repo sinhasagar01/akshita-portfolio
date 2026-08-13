@@ -103,3 +103,57 @@ export function serializeGalleryEntry(raw: string, patch: Partial<GalleryInput>)
 
   return { ok: true, bytes: dump(out, opts) };
 }
+
+/**
+ * A NEW gallery entry, from the title alone.
+ *
+ * ⚠ THIS DID NOT EXIST, AND ITS ABSENCE IS WHY CREATING THE FIRST GALLERY ITEM 404'd. `createEntry`
+ * dispatched with a ternary whose `else` arm was projects, so gallery fell into it and a
+ * PROJECT-shaped file — `summary`, `facts`, `body` — was written to `content/gallery/<slug>.yaml`.
+ * The create reported success. The Keystatic reader then THREW on the malformed file, the draft
+ * overlay caught it and degraded, and the editor page found no item and called `notFound()`.
+ *
+ * EVERY OPTIONAL FIELD IS WRITTEN EXPLICITLY RATHER THAN OMITTED, and that is the publish gate's
+ * requirement rather than tidiness. `galleryPublishBlockers` refuses a zero dimension and an empty
+ * alt, and it reads the FIELD — an absent key and a zero are the same defect wearing different
+ * clothes, and only one of them is visible to a reader of the file.
+ *
+ * The key order is `GALLERY_KEYS`, so a create and a later save produce the same shape and the
+ * first edit of a new item is a one-line diff rather than a reordering.
+ */
+export function serializeNewGalleryEntry(
+  input: { title: string },
+  orderIndex: number
+): SerializeResult {
+  const entry: Record<string, unknown> = {
+    title: input.title,
+    kind: "",
+    image: null,
+    width: 0,
+    height: 0,
+    alt: "",
+    description: "",
+    tags: [],
+    caseStudy: "",
+    orderIndex,
+  };
+  /* The same dump options `detectHeadOptions` prefers for this collection, so the file this writes
+     round-trips through `serializeGalleryEntry` unchanged on the very next save. */
+  return { ok: true, bytes: dump(entry, HEAD_DUMP_CANDIDATES[0]) };
+}
+
+/**
+ * A REORDER — only `orderIndex` moves.
+ *
+ * ⚠ SEPARATE FROM THE EDIT PATH, AND FOR THE REASON THE OTHER TWO ORDER SERIALIZERS ARE: the edit
+ * sanitizer accepts `orderIndex`, but a reorder must not go through a content save, because the
+ * arrangement is a different write with a different message and a different one-writer claim.
+ *
+ * IT REBUILDS THROUGH `serializeGalleryEntry`, so a reordered file is byte-identical to a saved one
+ * — the declared key order, the same dump options, and a no-op reorder producing a no-op diff. That
+ * is what the projects and experience order serializers each achieve their own way, and doing it by
+ * delegation rather than by a second rebuild means there is one place the key order lives.
+ */
+export function serializeGalleryOrder(raw: string, orderIndex: number): SerializeResult {
+  return serializeGalleryEntry(raw, { orderIndex });
+}
