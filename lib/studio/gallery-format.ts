@@ -17,13 +17,51 @@
 // and reflows on load unless every intrinsic size is known before decode. A zero or a negative is
 // not a smaller image, it is a layout shift — so it is refused here rather than rendered.
 import { load } from "js-yaml";
-import type { GalleryItem } from "@/lib/keystatic";
 import type { SaveError } from "./site-settings-format";
 
 /** The three buckets the public filter offers. The enum lives here, at the write boundary, for the
  *  reason `theme` states in the schema: the config is schema-only, so a select there would give the
  *  reader a second opinion about validity. */
 export const GALLERY_KINDS = ["photo", "illus", "proj"] as const;
+
+export type GalleryItem = {
+  slug: string;
+  title: string;
+  kind: string;
+  image: string | null;
+  width: number;
+  height: number;
+  alt: string;
+  description: string;
+  tags: string[];
+  /** Optional, one-way. A gallery item may point at a case study; a case study never points back. */
+  caseStudy: string | null;
+  orderIndex: number;
+};
+
+/** Map one gallery reader entry. Absent numbers coalesce to 0, which the page reads as
+ *  "unrenderable" rather than as a default aspect.
+ *
+ *  ⚠ ONE MAPPER FOR THE PUBLIC READ AND THE PUBLISH GATE. It lived in `lib/keystatic.ts`, which the
+ *  gate cannot import — that module reaches the config through an alias, so no suite can load it —
+ *  and so the validator below carried a `readEntry` doing the identical work. Moving it HERE rather
+ *  than importing it THERE is the leaf discipline choosing the direction: a leaf may only
+ *  value-import packages, so the thing that must be reachable moves to the reachable file. */
+export function mapGalleryItem(slug: string, entry: Record<string, unknown>): GalleryItem {
+  return {
+    slug,
+    title: (entry.title ?? "") as string,
+    kind: (entry.kind ?? "") as string,
+    image: (entry.image as string | null) ?? null,
+    width: Number(entry.width ?? 0) || 0,
+    height: Number(entry.height ?? 0) || 0,
+    alt: (entry.alt ?? "") as string,
+    description: (entry.description ?? "") as string,
+    tags: ((entry.tags as readonly unknown[]) ?? []).map((t) => String(t)),
+    caseStudy: ((entry.caseStudy ?? "") as string) || null,
+    orderIndex: Number(entry.orderIndex ?? 0) || 0,
+  };
+}
 
 /** What a gallery CREATE carries. The title alone — see `sanitizeGalleryCreate`. */
 export type GalleryCreateInput = { title: string };
@@ -247,33 +285,6 @@ export const GALLERY_SCHEMA_KEYS = [
 
 export type GalleryEntryValidation = { ok: true } | { ok: false; error: SaveError };
 
-/**
- * ⚠ THE FIELD LIST IS READ HERE RATHER THAN THROUGH `mapGalleryItem`, AND THAT IS A SECOND SPELLING
- * THIS FILE DECLARES RATHER THAN HIDES. `mapGalleryItem` lives in `lib/keystatic.ts`, which imports
- * the Keystatic config through an alias and cannot be loaded by a leaf runner — the property that
- * makes this file testable is the property that forbids the import, the `INSPECTOR_BOUNDS` shape
- * one more time.
- *
- * SO IT IS A COPY, AND HOP 3 IS WHERE IT STOPS BEING ONE. The standing gap is that the sanitizer's
- * key set, this reader and the schema are three hand-maintained lists; deriving them from the
- * schema is its own unit and is not smuggled in here.
- */
-function readEntry(slug: string, raw: string): GalleryItem {
-  const doc = (load(raw) ?? {}) as Record<string, unknown>;
-  return {
-    slug,
-    title: typeof doc.title === "string" ? doc.title : "",
-    kind: typeof doc.kind === "string" ? doc.kind : "",
-    image: typeof doc.image === "string" ? doc.image : null,
-    width: typeof doc.width === "number" ? doc.width : 0,
-    height: typeof doc.height === "number" ? doc.height : 0,
-    alt: typeof doc.alt === "string" ? doc.alt : "",
-    description: typeof doc.description === "string" ? doc.description : "",
-    tags: Array.isArray(doc.tags) ? doc.tags.filter((t): t is string => typeof t === "string") : [],
-    caseStudy: typeof doc.caseStudy === "string" && doc.caseStudy !== "" ? doc.caseStudy : null,
-    orderIndex: typeof doc.orderIndex === "number" ? doc.orderIndex : 0,
-  };
-}
 
 /**
  * May this entry reach main?
@@ -313,7 +324,7 @@ export function validateGalleryEntry(slug: string, raw: string): GalleryEntryVal
     };
   }
 
-  const blockers = galleryPublishBlockers([readEntry(slug, raw)]);
+  const blockers = galleryPublishBlockers([mapGalleryItem(slug, doc)]);
   if (blockers.length === 0) return { ok: true };
   return { ok: false, error: { code: "invalid_sections", field: path, message: blockers.join("; ") } };
 }

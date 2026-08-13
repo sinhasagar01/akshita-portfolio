@@ -189,6 +189,50 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ KNOWING DOES NOT PREVENT — THE RULE WAS WRITTEN, THEN BROKEN TWO UNITS LATER BY THE HAND THAT
+  WROTE IT, AND ONLY MUTATION CAUGHT IT.** `ralph/run.mjs`'s header now states that a source regex
+  cannot see reachability. Two units on, the gallery publish check was asserted with a regex over
+  `publish-site-settings.ts` — a module that reaches GitHub and therefore cannot be loaded — and
+  **replacing the whole arm with a pass-through left that regex matching the orphaned body and the
+  suite fully green.**
+
+  **THAT IS THE NINTH INSTANCE OF THIS SHAPE IN THIS PROJECT AND IT IS THE ARGUMENT FOR THE MUTATION
+  STEP EXISTING.** Every earlier one was found the same way: the mutation, never the reading. A rule
+  in a header is a thing the author agrees with and then does not apply, because applying it requires
+  noticing that THIS row is an instance — and the whole difficulty is that an instance does not
+  announce itself.
+
+  **THE DURABLE HALF IS STRUCTURAL RATHER THAN A REMINDER: A MODULE THAT REACHES THE NETWORK CANNOT
+  BE LOADED, SO ANY ASSERTION ABOUT IT IS A REGEX, AND A REGEX CANNOT SEE REACHABILITY. THE ANSWER IS
+  ALWAYS EXTRACTION.** What is not free is the DIRECTION, and the leaf discipline decides it: a leaf
+  may value-import PACKAGES ONLY, so the blockers could not move to the validator and the validator
+  moved to the blockers.
+
+- **⚠ SIX PARALLEL KEY LISTS BECAME FIVE, AND THE HONEST NUMBER IS FIVE RATHER THAN THE FOUR I
+  AIMED AT.** The gallery's field names were written down six times: the Keystatic schema, the
+  sanitizer's per-key arms, `GALLERY_SCHEMA_KEYS`, the serializer's `GALLERY_KEYS`, the `GalleryItem`
+  type, and a `readEntry` I added knowingly in the publish gate. **The success condition was that
+  the count go DOWN, not that a gate watch six lists agree.**
+
+  **WHAT ACTUALLY CAME OUT: `mapGalleryItem` MOVED INTO THE LEAF**, which deleted `readEntry` — one
+  function now serves the public read and the publish gate.
+
+  **⚠ AND THE SECOND COLLAPSE WAS TRIED AND REVERTED, WITH THE MEASUREMENT.** Importing the key list
+  into the serializer made that file value-import another relative module, and **Node cannot resolve
+  an extensionless `.ts` while `tsc` rejects the extension** — so two leaves cannot share a runtime
+  value, and both must stay loadable because suites drive them. The copy is restored with a gate
+  rather than a promise, the third forced copy in this codebase after `INSPECTOR_BOUNDS` and
+  `COLLECTION_FILE_RE`.
+
+  **⚠ DERIVATION WAS MEASURED BEFORE THE COMPARISON WAS ACCEPTED.**
+  `Object.keys(config.collections.gallery.schema)` enumerates cleanly, in declaration order, ten
+  keys. **The schema CAN be the source and cannot be the runtime source**, for the same leaf reason.
+  So the comparison is a considered second-best with its cause recorded, rather than the default.
+
+  **AND BOTH DIRECTIONS ARE GATED, BECAUSE THEY ARE DIFFERENT DEFECTS.** A key in the schema and not
+  the list is **silently dropped on save**; a key in the list and not the schema is **the red build**.
+  One check catches one of them, and mutation confirms each fires on its own.
+
 - **⚠ FOUR JOINS, FOUR DEFECTS, ZERO FOUND BY A SUITE. A COLLECTION IS NOT DONE WHEN ITS SUITES ARE
   GREEN — IT IS DONE WHEN A PERSON HAS DRIVEN CREATE-TO-PUBLISH AND A FAILURE PATH IN A BROWSER.**
   Creating the first gallery item took three PRs and then broke production. Every one of its defects

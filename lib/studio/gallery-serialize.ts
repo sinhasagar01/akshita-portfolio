@@ -61,9 +61,21 @@ type SerializeResult = { ok: true; bytes: string } | { ok: false; error: SaveErr
 /**
  * The schema's key order, mirrored.
  *
- * ⚠ A LIST RATHER THAN `Object.keys(patch)`, and the difference is the whole function. Taking the
- * client's key order would make the file's shape depend on what a form happened to send, so two
- * saves of the same values could produce different bytes and every diff would be noise.
+ * ⚠ A LIST RATHER THAN `Object.keys(patch)` IS THE WHOLE FUNCTION. Taking the client's key order
+ * would make the file's shape depend on what a form happened to send, so two saves of the same
+ * values could produce different bytes and every diff would be noise.
+ *
+ * ⚠ AND THIS IS A FORCED SECOND COPY OF `GALLERY_SCHEMA_KEYS`, NOT AN OVERSIGHT — IT WAS COLLAPSED
+ * AND THE COLLAPSE WAS REVERTED, WITH THE MEASUREMENT. Importing it made this file value-import
+ * another relative module, and Node's ESM cannot resolve an extensionless `.ts` while `tsc` rejects
+ * the extension without `allowImportingTsExtensions`. So a leaf may value-import PACKAGES ONLY —
+ * two leaves cannot share a runtime value, and both files must stay loadable because suites drive
+ * the serializer directly.
+ *
+ * THE COPY IS ALLOWED BECAUSE SOMETHING COMPARES IT. `collection-dispatch` G5 asserts these two
+ * arrays are identical in membership AND order, and G1/G2 tie the pair to the schema in both
+ * directions. Same shape as `INSPECTOR_BOUNDS`' canvas floors and `COLLECTION_FILE_RE`'s
+ * alternation — the third forced copy in this codebase, each with a gate rather than a promise.
  */
 const GALLERY_KEYS = [
   "title",
