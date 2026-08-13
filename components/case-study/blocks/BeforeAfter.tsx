@@ -55,7 +55,6 @@ export default function BeforeAfter({
                 Before
               </figcaption>
               <DeviceImage
-          preview
                 image={p.before}
                 className="grayscale-[0.2]"
                 editable={editable}
@@ -77,7 +76,6 @@ export default function BeforeAfter({
                 After
               </figcaption>
               <DeviceImage
-          preview
                 image={p.after}
                 editable={editable}
                 blockIndex={blockIndex}

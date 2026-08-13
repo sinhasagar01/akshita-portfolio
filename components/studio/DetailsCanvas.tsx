@@ -149,9 +149,6 @@ export default function DetailsCanvas({
     slug,
     title,
     summary,
-    /* Not rendered by the card — present because `ProjectListItem` is the whole type and a
-       partial would be a second shape to keep in step, which is what the note above says. */
-    imagePreview: true,
     orderIndex: 0,
     heroImage: src,
     facts: { role: "", type: "", platform, timeline: "" },

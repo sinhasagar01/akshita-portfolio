@@ -312,6 +312,10 @@ function adaptImgSpec(v: unknown, at: string, ctx: AdaptCtx): ImgSpec {
   const translateX = num(o.translateX);
   const translateY = num(o.translateY);
   const spec: ImgSpec = { src, alt };
+  /* ⚠ ABSENT MEANS TRUE, which is why this is `!== false` rather than a truthiness test. Every
+     image already on disk lacks the key; reading it as falsy would ship the preview disabled on
+     all of them. Only an explicit `false` from the editor turns it off. */
+  if (o.preview === false) spec.preview = false;
   // A rewritten src points at the owner-gated draft-image proxy, which the Next
   // image optimizer would refetch WITHOUT the owner cookie and get a 401 for. So
   // a rewritten image opts out of optimization; an untouched one never sets the

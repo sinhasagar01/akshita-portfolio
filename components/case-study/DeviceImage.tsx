@@ -41,7 +41,6 @@ export default function DeviceImage({
   blockIndex,
   editPath,
   priority = false,
-  preview = false,
 }: {
   image: ImgSpec;
   className?: string;
@@ -56,9 +55,6 @@ export default function DeviceImage({
    *  preloads it instead of lazy-loading. Off by default (below-the-fold images stay
    *  lazy). */
   priority?: boolean;
-  /** Opt this image into the click-to-zoom preview. Off by default, so any consumer that has not
-   *  been considered renders exactly as before. */
-  preview?: boolean;
 }) {
   // ADDITIVE ONLY. The Replace affordance used to live in a wrapper span around the
   // image, which inserted a new box into the layout chain: a frame sized as a
@@ -78,7 +74,11 @@ export default function DeviceImage({
      ⚠ AND NOT IN THE CANVAS. `editable` is the studio inline canvas, where a click already means
      "replace this image"; opening a zoom overlay on top of that would put two meanings on one
      gesture. The public page previews, the canvas edits. */
-  const previewSrc = !editable && preview ? srcOf(image.src) : null;
+  /* ⚠ THE IMAGE CARRIES ITS OWN ANSWER NOW, so the `preview` prop is gone and no call site opts
+     in. Eleven `<DeviceImage preview />` sites said "this block's images are previewable", which
+     could never express "this one is and that one is not" — the grain the editor actually needs.
+     Absent means true; only an explicit false from the editor turns it off. */
+  const previewSrc = !editable && image.preview !== false ? srcOf(image.src) : null;
   const previewProps = previewSrc
     ? { "data-preview-src": previewSrc, "data-preview-alt": image.alt }
     : undefined;

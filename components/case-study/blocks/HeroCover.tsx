@@ -215,8 +215,7 @@ export default function HeroCover({
         {/* Visual — the framed browser dashboard, masked so it dissolves into the ground
             before the fold; the first card rides up over the faded tail (the seam). */}
         <motion.div {...mp} variants={stackV} className="hero-visual mt-[30px] flex w-full justify-center">
-          <DeviceImage
-          preview image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
+          <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
         </motion.div>
       </div>
     );
@@ -375,12 +374,10 @@ export default function HeroCover({
         {heroGlow && <HeroAura theme={heroGlow} />}
         {data.glow && <GlowWord word={data.glow} />}
         <motion.div {...mp} variants={backV} className="relative z-[1] origin-bottom">
-          <DeviceImage
-          preview image={backPhone} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
+          <DeviceImage image={backPhone} editable={editable} blockIndex={blockIndex} editPath="devices.0" priority />
         </motion.div>
         <motion.div {...mp} variants={frontV} className="relative z-[2] -ml-[54px] origin-bottom">
-          <DeviceImage
-          preview image={frontPhone} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
+          <DeviceImage image={frontPhone} editable={editable} blockIndex={blockIndex} editPath="devices.1" priority />
         </motion.div>
       </motion.div>
     </div>

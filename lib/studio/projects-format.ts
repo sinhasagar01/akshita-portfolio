@@ -31,9 +31,6 @@ export type ProjectsInput = {
   // omit-when-empty contract as `template`, enum enforced below. A separate axis
   // from `template` on purpose — see keystatic.config.ts.
   category?: "mobile" | "web";
-  // Whether readers can click this study's images to zoom them. A BOOLEAN, so unlike the two
-  // above it has no "unset" spelling and is written on both values — see the sanitizer.
-  imagePreview?: boolean;
 };
 
 /** CS-4 — the case-study template enum. The template->frame MAPPING is the
@@ -147,16 +144,6 @@ export function sanitizeProjectsPatch(
       if (value !== "") patch.category = value as ProjectsInput["category"];
       continue;
     }
-    if (key === "imagePreview") {
-      /* ⚠ A BOOLEAN, AND IT IS ACCEPTED WHEN FALSE — which is why it does NOT follow the
-         omit-when-empty contract `template` and `category` use. Those two drop "" because an empty
-         enum means "unset"; here BOTH states are meaningful and `false` is the one the owner is
-         actually reaching for. Dropping it would make the off switch silently do nothing, which is
-         the shape this studio has already shipped once in its blog status control. */
-      if (typeof value !== "boolean") return invalid("imagePreview must be a boolean", key);
-      patch.imagePreview = value;
-      continue;
-    }
     return invalid(`unknown field ${key}`, key);
   }
   return { ok: true, patch };
@@ -174,9 +161,6 @@ export type ProjectCreateInput = {
   // Optional editorial taxonomy (PR 1). Omit-when-empty like the patch path, so a
   // create that does not send it produces a project with no `category` key.
   category?: "mobile" | "web";
-  // Whether readers can click this study's images to zoom them. A BOOLEAN, so unlike the two
-  // above it has no "unset" spelling and is written on both values — see the sanitizer.
-  imagePreview?: boolean;
 };
 
 /**
