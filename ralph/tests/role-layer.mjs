@@ -1133,5 +1133,47 @@ t("O4 ⚠ AND ON A DARK GROUND THE ENDS ARE SWAPPED, NOT MERELY MOVED — one si
     return !a || !b || a === b;
   }).map((r) => `${r.k}: fill ${darkEnd(darkValOf(r.fillTok)) ?? "UNCLASSIFIED"} vs label ${darkEnd(darkValOf(r.labelTok)) ?? "UNCLASSIFIED"}`), []);
 
+console.log("\nR · the accent ROLE remaps on a dark ground and the accent RUNG does not");
+/* ⚠ THE DEFECT THIS CLOSES: `--color-accent` remaps to `accent-on-dark` on the dark ground and
+ * `--color-accent-500` does NOT — it stays the base mid-tone. So a control filling with the RUNG and
+ * labelling with `on-accent` measured 3.24 to 3.65 on the four dark palettes against a 4.5 floor,
+ * while the identical pair on the ROLE measured 6.75 to 7.52.
+ *
+ * ⚠ THE ROLE WAS NEVER WRONG. Eight elements reached past it to a raw ladder rung the dark ground
+ * never moves — and the token's own comment already recorded the conflict, naming `bg-accent-500` as
+ * the consumer that fails while three others pass. It shipped anyway, because nothing asserted the
+ * pairing.
+ *
+ * ⚠ ABSENCE IS THE SOUND DIRECTION. If no class string carries both, nothing can render the failing
+ * pair; a row asserting the ROLE is present would prove only that the words exist. And the scan
+ * crosses LINE BOUNDARIES deliberately: long Tailwind strings wrap, and a line-based census of this
+ * exact question reported six false "inherited" sites because `bg-accent` and `text-on-accent` sat
+ * on different lines of one string. */
+{
+  const tsx = [];
+  const walk = (d) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      if (e.name.startsWith(".") || e.name === "node_modules") continue;
+      const c = `${d}/${e.name}`;
+      if (e.isDirectory()) walk(c);
+      else if (c.endsWith(".tsx")) tsx.push(c);
+    }
+  };
+  for (const r of ["app", "components"]) walk(join(root, r));
+  const offenders = [];
+  let withRole = 0;
+  for (const f of tsx) {
+    const flat = readFileSync(f, "utf8").replace(/\s+/g, " ");
+    for (const m of flat.matchAll(/[`"]([^`"]{0,400}?text-on-accent[^`"]{0,400}?)[`"]/g)) {
+      if (/\bbg-accent-500\b/.test(m[1])) offenders.push(f.slice(root.length));
+      else if (/\bbg-accent\b/.test(m[1])) withRole++;
+    }
+  }
+  t("R1 the walk found markup and real pairings, so R2 cannot pass over nothing",
+    [tsx.length > 50, withRole > 3], [true, true]);
+  t("R2 ⚠ NO ELEMENT PAIRS `text-on-accent` WITH THE RUNG — the rung does not remap on a dark ground and that pair measures 3.24 there",
+    [...new Set(offenders)].sort(), []);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

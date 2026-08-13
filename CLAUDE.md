@@ -270,6 +270,39 @@ gates.
   push fails, is the whole remedy. The reading is available today; nobody takes it because a branch
   cut an hour ago feels current, and **"feels current" is exactly the state this entry is about.**
 
+- **⚠ CLOSED: THE ROLE WAS NEVER WRONG — THE RUNG DOES NOT REMAP, AND EIGHT ELEMENTS REACHED PAST
+  THE ROLE TO IT.** On the dark ground `--color-accent` becomes `accent-on-dark` and
+  `--color-accent-500` stays the base mid-tone. Measured through a canvas pixel, sanity 21.000 first:
+
+      on-accent / accent (ROLE)   4.63 – 7.52 on all nine        <- clears everywhere
+      on-accent / accent-500      4.63 – 5.76 light, 3.24 – 3.65 dark
+      white     / accent (ROLE)   4.82 – 6.01 light, 2.55 – 2.85 dark
+
+  **⚠ AND `.nav-cta` IS NOT A CONTROL THAT WORKS BY NOT USING THE SYSTEM.** It fills with the RUNG
+  and labels with white, and that pairing happens to clear. **White on the ROLE fails on all four
+  dark palettes at 2.55 to 2.85** — so it can drop white only by moving to the role at the same
+  time, and then it clears at 6.75 to 7.52. Both halves or neither, which is the opposite of what
+  "a working control that bypasses the vocabulary" implied.
+
+  **THE FIX MOVED EIGHT ELEMENTS FROM THE RUNG TO THE ROLE AND CHANGED NO TOKEN.** On the five light
+  palettes `accent` IS `accent-500`, so the two columns above are identical there — **zero pixels
+  moved on the light half, measured rather than argued.** The four dark palettes improved by 3.4 to
+  3.9 and nothing regressed.
+
+  **⚠ THE PROPOSED FIX WAS WRONG AND WOULD HAVE BROKEN THREE WORKING CONSUMERS TO FIX SEVEN.** Both
+  parties had said "four dark values". The token's own comment already recorded the conflict —
+  band-dark measures 6.75 to 7.52 against `accent` and `accent-text` and 3.24 to 3.65 against
+  `accent-500` — and named `bg-accent-500` as the consumer that fails. **It shipped anyway, because
+  nothing asserted the pairing.** `role-layer` R2 is that assertion, in the absence direction.
+
+  **⚠ AND TWO CENSUSES OF THE SAME QUESTION DISAGREED BECAUSE ONE READ LINES.** A line-based scan
+  reported six sites "inheriting" their ground; long Tailwind strings WRAP, so `bg-accent` and
+  `text-on-accent` sat on different lines of one string. **The line was the boundary, not the
+  markup** — the file-type-boundary defect arriving inside a single file. R2 flattens whitespace
+  before matching for exactly that reason.
+
+  **THE SUPERSEDED FRAMING, KEPT BECAUSE THE MEASUREMENT IS SOUND AND ONLY ITS CONCLUSION WAS NOT:**
+
 - **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
   FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
   paint through a canvas pixel, sanity pair 21.000 first:
