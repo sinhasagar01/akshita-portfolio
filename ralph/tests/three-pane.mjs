@@ -685,5 +685,63 @@ t("I: at the widest sidebar the reference laptop keeps 9px of headroom, and the 
     /transformOrigin: "top center"/.test(cs), false);
 }
 
+/* ================================================= AA. THE FOLD HAS TWO HALVES, PER CONSUMER
+ *
+ * ⚠ GALLERY SHIPPED WITH ONLY THE FIRST HALF AND IT READ FROM THE OUTSIDE AS "THE EDITOR DOES NOT
+ * SAVE". It passed `inspector={inspectorFits ? inspector : null}` — correct — and gave the canvas
+ * NO FALLBACK, so below the fold the author saw the overlay and nothing else: no title, no alt, no
+ * tags, no upload, no indicator. Saves were wired the whole time. THE REPORT NAMED A MISSING
+ * BUTTON; THE DEFECT WAS A MISSING COMPOSITION.
+ *
+ * ⚠ AND THERE IS A SECOND STATE WITH THE SAME SYMPTOM. A dragged-shut inspector is zero-width and
+ * `inert`, so a save control nested inside it goes off screen with the pane. Blog docks one to the
+ * canvas foot; gallery passed no `canvasDock`.
+ *
+ * SO THE SUBJECT IS EVERY CONSUMER, NOT BLOG. `E` already asserts each passes `null` below the
+ * fold — the half that was right. These assert the half that was missing, over the derived set, so
+ * a fourth consumer cannot ship with a folded-away form either. */
+{
+  const CONSUMERS = [
+    ["components/studio/BlogBlocksEditPanel.tsx", "blog"],
+    ["components/studio/SectionsEditPanel.tsx", "case study"],
+    ["components/studio/GalleryEditPanel.tsx", "gallery"],
+  ];
+  /* ⚠ DERIVED, AND ASSERTED AGAINST A LITERAL. A consumer list that silently lost a member would
+   * make every row below pass over a smaller set — the empty-subject shape one door along. */
+  const found = code("components/studio/ThreePaneShell.tsx").length > 0
+    ? CONSUMERS.filter(([f]) => /<ThreePaneShell/.test(code(f)))
+    : [];
+  t("AA0 every known consumer still mounts the shell — three, against a literal",
+    found.length, 3);
+
+  for (const [file, name] of CONSUMERS) {
+    const src = code(file);
+    /* The fold is only a hazard for a consumer that HAS one. A panel that always renders its
+       inspector needs no fallback, and asserting one would be a rule about nothing. */
+    /* ⚠ THE NODE'S NAME IS THE CONSUMER'S, NOT THE SUITE'S — AND THE FIRST VERSION OF THIS GUARD
+     * SPELLED IT `inspector` AND SILENTLY SKIPPED THE CASE STUDY, which calls its node
+     * `inspectorNode`. Three consumers, two checked, and the skip looked exactly like a consumer
+     * that legitimately has no fold. A matcher narrower than its concept, in the row written to
+     * catch a consumer missing its fold. */
+    if (!/inspectorFits \? \w+ : null/.test(src)) continue;
+    t(`AA1 ${name}: the canvas renders the inspector below the fold, or the form does not exist`,
+      /canvas=\{[\s\S]{0,120}?!inspectorFits && view === "inspector"/.test(src), true);
+    /* ⚠ WIDENED TWICE, BOTH TIMES BECAUSE THE MATCHER WAS NARROWER THAN THE CONCEPT AND BOTH TIMES
+     * IN THIS BLOCK. It first required `<ViewToggle`, and the case study carries its OWN INLINE
+     * toggle — same control, fourth spelling — so a real control read as a missing one.
+     * The concept is "below the fold, something switches the view", and both spellings satisfy it. */
+    t(`AA2 ${name}: …and a control exists to reach it, or it is unreachable`,
+      /!inspectorFits\s*(\?|&&)[\s\S]{0,320}?(<ViewToggle|aria-label="(Editor view|View)")/.test(src), true);
+    /* ⚠ THE COLLAPSED STATE IS NOT THE FOLD AND NEEDS ITS OWN ANSWER. Both end with no visible
+     * save control, and only one of them is about width. */
+    /* ⚠ AND THE SAME AGAIN: this required blog's exact `ins.collapsed ? x : null` shape, and the
+     * case study passes a dock that is always mounted and hides its contents instead — a different
+     * and deliberate answer, recorded at its own line. The concept is that the canvas foot HAS a
+     * dock, not that it is spelled one way. */
+    t(`AA3 ${name}: …and a save control docks to the canvas foot when the pane is dragged shut`,
+      /canvasDock=\{/.test(src), true);
+  }
+}
+
 console.log(`\nthree-pane result: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

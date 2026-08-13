@@ -194,11 +194,28 @@ is deploys rather than commits.
   header now states that a source regex cannot see reachability"*. **It did not.** The rule existed
   only in #526, approved and unmerged, and three PRs were built on top of it citing it as standing.
 
-  **THE COST WAS ONE `grep` AND IT WAS NEVER RUN.** Every other claim in those bodies was measured —
-  assertion counts, byte figures, mutation results — and the one taken on trust was the one about
-  the repository itself. Same family as *nothing reported is evidence*, where ten merges were
-  reported into a local `main` that had never been pushed: **an instrument was available and the
-  claim felt too obvious to instrument.**
+  **⚠ THE MEASURED THINGS GOT MEASURED AND THE RECORD GOT ASSUMED — AND THAT IS THE SHARP FORM.**
+  Every other claim in those bodies was instrumented: assertion counts run, byte figures read off a
+  build, mutation results produced by mutating. **Nobody skipped a check.** They checked everything
+  except the SUBSTRATE — the claim about what the repository already contains, which is the one that
+  reads as background rather than as an assertion.
+
+  **THAT IS WHY IT SURVIVED THREE PRs.** A skipped check leaves a gap somebody notices; this leaves a
+  body full of verified figures with one sentence among them that nothing produced. The verified
+  figures are what make it credible.
+
+  **⚠ AND IT HAPPENED AGAIN WHILE THIS VERY ENTRY WAS BEING WRITTEN, WHICH IS THE INSTANCE WORTH
+  KEEPING.** The commit carrying this sharpening was reported to the owner as *"record sharpened"*.
+  **The push had been refused by the pre-push hook** — ralph was red against a dev `.next` — and the
+  branch was later deleted on merge, so the text existed nowhere but a reflog entry. It was
+  recovered by `git cherry-pick` from a dangling commit.
+
+  **THE REPORT WAS MADE FROM THE WORKING TREE.** The file said what it should say, so the claim felt
+  observed rather than assumed — and the exit code that would have refuted it had been printed one
+  command earlier and read as a push retry rather than as a lost commit. **A `git commit` is not a
+  claim about the repository; a push that returns zero is.** Same family as *nothing reported is evidence*, where ten merges
+  were reported into a local `main` that had never been pushed — **an instrument was available and
+  the claim felt too obvious to instrument.**
 
   **⚠ AND IT COMPOUNDED WITH A SECOND MISS, WHICH IS WHY IT IS RECORDED AS A SHAPE RATHER THAN A
   SLIP.** The owner approved three PRs on top of the open one without noticing it was open. **Two
@@ -207,6 +224,46 @@ is deploys rather than commits.
 
   **THE CHECK: before citing a rule, a constant or a gate as recorded, grep it on `main`.** Not on
   the working tree, which carries whatever the current branch added.
+
+- **⚠ A COMMENT IS WRITTEN WHEN THE INTENT IS FRESHEST AND CHECKED NEVER — FOUR INSTANCES IN ONE
+  COLLECTION, WHICH MAKES IT A PATTERN RATHER THAN A FOURTH ANECDOTE.** Every one described correct
+  behaviour beside code that did not do it, and every one was written by the author of the code, in
+  the same sitting, believing it:
+
+      the publish loop's "explicit per-collection arms"   the last arm was a fallthrough
+      "the only thing between an unlabelled image and     `galleryPublishBlockers` had zero callers
+       a reader"
+      `createEntry`'s "explicit per-collection arms"      same false claim, second file
+      `GalleryOverlay`'s "a plain <img> … the optimizer   its own image is `next/image`, and the
+       refetches without the owner cookie"                 header states the rule it breaks
+
+  **THE MECHANISM IS THE TIMING.** A comment is written at the moment the intent is clearest, which
+  is BEFORE the code has been driven — so it records what the author meant. Nothing re-reads it
+  against what shipped, because prose is not a subject any gate has. **The claim ages into being
+  false and reads as verification the whole time.**
+
+  **⚠ AND THE FOURTH IS THE SHARPEST: THE RULE IT BROKE WAS STATED IN ITS OWN HEADER.** Proximity is
+  not protection. Reading the file does not surface the contradiction, because the comment and the
+  code are read as one thing by whoever wrote both.
+
+  **WHAT ACTUALLY CATCHES THESE: grep the callers, run the branch, drive the flow.** Three of the
+  four were found by a person using the feature and the fourth by a browser measurement. None was
+  found by reading, including by re-reading.
+
+- **⚠ "NO SAVE DRAFT" WAS THE OUTSIDE VIEW OF A FORM THAT DOES NOT EXIST IN TWO STATES, AND THE
+  REPORT NAMED A MISSING BUTTON.** Saves were wired throughout: blur called `saveDraft` on every
+  field, `SaveIndicator` rendered, structural ops posted their own bodies. **The defect was a
+  missing composition.** `inspector={inspectorFits ? inspector : null}` is correct and is half a
+  fold — the canvas needs the other half, and gallery gave it none, so below 1100px the author saw
+  a preview and no form at all. A dragged-shut inspector produced the same symptom by a different
+  route, because a save control nested in a zero-width `inert` pane goes off screen with it.
+
+  **THE LESSON IS ABOUT REPORTS RATHER THAN ABOUT FOLDS: AN OWNER REPORTS THE MISSING AFFORDANCE,
+  NOT THE MISSING MECHANISM.** "No save draft" and "the image needs a refresh" are both descriptions
+  of a SURFACE, and both had causes one layer down that the wording pointed away from. **Establish
+  whether the thing is happening before adding a control for it** — the alternative here would have
+  been shipping a Save button into a panel that already saved, leaving the real defect intact and
+  the report closed.
 
 - **⚠ KNOWING DOES NOT PREVENT — THE RULE WAS WRITTEN, THEN BROKEN TWO UNITS LATER BY THE HAND THAT
   WROTE IT, AND ONLY MUTATION CAUGHT IT.** `ralph/run.mjs`'s header now states that a source regex
