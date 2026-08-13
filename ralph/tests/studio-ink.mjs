@@ -17,6 +17,7 @@
 // scrolls horizontally, so the ink pill is the primary wayfinding cue at 19.04:1 and the wash
 // that replaces it at `lg` would be 1.25:1. An unprefixed ink utility here would silently
 // repaint the phone layout this PR deliberately left alone.
+import { SECTIONS_LOAD_ERROR, SECTIONS_RETRY_LABEL } from "../../lib/studio/studio-copy.ts";
 import { readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
@@ -1915,7 +1916,12 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
    * load is none of those. It is also what keeps E1b's subject alive honestly. */
   t("C14: the error state still gets the framed panel, with its retry and the details form",
     /sectionsStatus !== "error"/.test(projects)
-      && /Could not load the sections\./.test(projects) && /Try again/.test(projects), true);
+      /* ⚠ THE SENTENCES ARE CALLED, NOT GREPPED. Presence proved the words are in the file; it
+         could not prove the panel renders THESE rather than two other literals, and it could not
+         notice the retry label being removed while the message stayed. The message and its action
+         are asserted together because a failure without a way out is an obstacle. */
+      && projects.includes("SECTIONS_LOAD_ERROR") && projects.includes("SECTIONS_RETRY_LABEL")
+      && [SECTIONS_LOAD_ERROR, SECTIONS_RETRY_LABEL].every((x) => typeof x === "string" && x.length > 3), true);
   t("C14: …and the loading copy is gone from that panel, since only error reaches it now",
     (projects.match(/Loading sections…/g) ?? []).length, 1);
 }

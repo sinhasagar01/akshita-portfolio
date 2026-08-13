@@ -12,6 +12,7 @@
 // it proves a string is present and nothing about what renders. That is stated rather than
 // implied, because a suite that looks behavioural and is not is worse than one that admits it —
 // the live measurements are in the PR body, and they are where the rendered claims are settled.
+import { autosaveTitle } from "../../lib/studio/studio-copy.ts";
 import { readFileSync } from "node:fs";
 import {
   deriveSaveState,
@@ -219,8 +220,20 @@ const bar = code("components/studio/SaveBar.tsx");
   /* THE INSTRUCTION MOVED, IT DID NOT DIE. #255 shipped the opposite — a suffix left a label,
    * was aria-hidden, and a screen reader heard less than before. Every instruction that left the
    * screen is a `title` on the bar it left. */
-  const untitled = SURFACES.filter((n) => !/title="Auto-saves to draft on blur\./.test(code(`components/studio/${n}.tsx`)));
-  t("C2: every bar carries its old instruction as the `title`, so nothing was merely deleted", untitled, []);
+  /* ⚠ THE PREFIX WAS THE ONLY THING THIS EVER CHECKED, AND THE SENTENCE HAS TWO HALVES. Measured on
+     main, the eleven surfaces carry FOUR different tails — "Publish from the Hero panel." on six,
+     "Publish from Site settings." on three, "Publish from the bar below." and "Preview to see it."
+     on one each — and each names where THAT surface's publish control is. A row matching the prefix
+     tells you nothing about the rest of the string, and an extraction scoped from it would have
+     told six panels to publish from a bar they do not have. */
+  const untitled = SURFACES.filter((n) => !/title=\{autosaveTitle\("/.test(code(`components/studio/${n}.tsx`)));
+  t("C2: every bar carries its instruction as the `title`, composed from the shared prefix", untitled, []);
+  /* The prefix is asserted by VALUE, so renaming it in the leaf cannot silently reword every bar. */
+  t("C2a: …and the composed title still begins with the prefix every surface shares",
+    autosaveTitle("Publish from Site settings."), "Auto-saves to draft on blur. Publish from Site settings.");
+  /* ⚠ AND THE TAILS ARE NOT ONE STRING, ASSERTED — the claim the old row could not make. */
+  t("C2b: …while the tails DIFFER across surfaces, which is why this is not one constant",
+    new Set(SURFACES.map((n) => (code(`components/studio/${n}.tsx`).match(/autosaveTitle\("([^"]+)"\)/) ?? [])[1])).size > 1, true);
 }
 
 /* ---- C3 · #200, WHICH THIS CHANGE COULD HAVE UNDONE BY UNIFYING THE VERB --------------------

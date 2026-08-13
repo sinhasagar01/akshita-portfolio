@@ -23,6 +23,7 @@
 // THE VIEW IS SERVER-KNOWN. `initialView` arrives already resolved from the cookie, so the first
 // HTML is the right view and there is no hydration correction to animate away — see
 // `lib/studio/index-view.ts` for why that rules out localStorage.
+import { reorderSubline, caseStudyEmptyState } from "@/lib/studio/studio-copy";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectListItem } from "@/lib/keystatic";
@@ -278,15 +279,14 @@ export default function CaseStudyIndex({
               <strong className="font-semibold text-studio-ink-950">
                 {shown.length} of {items.length} {items.length === 1 ? "study" : "studies"}.
               </strong>{" "}
-              Clear the search to change the order.
+              {reorderSubline({ filtering: true, view })}
             </>
           ) : (
             <>
               <strong className="font-semibold text-studio-ink-950">
                 {items.length} {items.length === 1 ? "study" : "studies"},
               </strong>{" "}
-              in the order they appear on your homepage.
-              {view === "list" ? " Use the arrows to change it." : ""}
+              {reorderSubline({ filtering: false, view })}
             </>
           )}
         </span>
@@ -312,11 +312,12 @@ export default function CaseStudyIndex({
         <div className="grid min-h-[30vh] place-items-center rounded-[var(--studio-radius-card,8px)] bg-studio-cream-100 px-4 py-10 text-center">
           {items.length === 0 ? (
             <p className="text-[13px] text-studio-text-subtle">
-              No case studies yet. Add one to get started.
+              {caseStudyEmptyState({ collectionEmpty: true })}
             </p>
           ) : (
             <p className="text-[13px] text-studio-text-subtle">
-              No case studies match <b className="text-studio-ink-950">{query.trim()}</b>.
+              {caseStudyEmptyState({ collectionEmpty: false })}{" "}
+              <b className="text-studio-ink-950">{query.trim()}</b>.
             </p>
           )}
         </div>

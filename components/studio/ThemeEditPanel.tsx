@@ -17,6 +17,7 @@
 // case-study and blog canvases carry `data-theme` from it, so a saved-but-unpublished theme is
 // already rendering on real content one route away. The swatches below are a legend for that, not
 // a substitute — a nine-square grid cannot tell you whether the hero band still works.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useState } from "react";
 import { useDraftForm } from "./useDraftForm";
 import SaveBar from "./SaveBar";
@@ -149,7 +150,7 @@ export default function ThemeEditPanel({ itemId, theme }: { itemId: string; them
         status={saveStatus}
         dirty={dirty}
         savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from the Hero panel."
+        title={autosaveTitle("Publish from the Hero panel.")}
         primary={{ label: "Save draft", onClick: saveDraft, disabled: !dirty || saveStatus === "saving" }}
       />
     </section>

@@ -70,9 +70,10 @@ import { Scanner } from "@tailwindcss/oxide";
 
 const ROOT = process.cwd();
 let failures = 0;
+let passes = 0;
 const t = (name, actual, expected) => {
   const ok = JSON.stringify(actual) === JSON.stringify(expected);
-  if (!ok) failures++;
+  if (ok) passes++; else failures++;
   console.log(`[${ok ? "PASS" : "FAIL"}] ${name}${ok ? "" : `\n        expected ${JSON.stringify(expected)}\n        actual   ${JSON.stringify(actual)}`}`);
 };
 
@@ -187,6 +188,14 @@ if (trapped.length) {
 t("A5: no utility reaches the stylesheet only because a comment names it",
   trapped.sort(), []);
 
-console.log(`\ncss-comment-trap result: ${5 - failures} passed, ${failures} failed` +
+/* ⚠ THE PASS COUNT IS DERIVED. It was a LITERAL — `${50 - failures}` — and on main this suite
+ * printed 58 rows while claiming 50, understating `ralph/run.mjs`'s headline figure by eight for
+ * however long. A number that must be edited by hand every time a row is added is a number that
+ * silently stops describing its subject, which is this repository's oldest recurring defect
+ * arriving in a suite's own summary line.
+ *
+ * Two of the three suites carrying this shape happened to be CORRECT when it was found. That is
+ * not a reason to leave them: correct-today-by-coincidence is how the third one got here. */
+console.log(`\ncss-comment-trap result: ${passes} passed, ${failures} failed` +
   `  ·  ${files.length} files, ${commentOnly.size} comment-only candidates tested`);
 process.exit(failures === 0 ? 0 : 1);

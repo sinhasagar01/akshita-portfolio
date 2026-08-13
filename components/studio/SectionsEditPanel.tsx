@@ -24,6 +24,7 @@
 // substring in onRemoveItem) and is a URL-driven page shell keyed to `?item=`, so
 // two nested instances would fight over one param. The composition that works here
 // is useItemList's primitives, already proven two levels deep in 4(b)-ii.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import CaseStudySwitcher from "./CaseStudySwitcher";
@@ -2060,7 +2061,7 @@ export default function SectionsEditPanel({
       status={saveStatus}
       dirty={dirty}
       savedAt={savedAt}
-      title="Auto-saves to draft on blur. Preview to see it."
+      title={autosaveTitle("Preview to see it.")}
       validation={hasBadVideoSrc ? "A video URL must be http:// or https://." : null}
       onCancel={handleCancel}
       extra={

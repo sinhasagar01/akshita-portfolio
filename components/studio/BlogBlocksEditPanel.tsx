@@ -79,6 +79,7 @@
 //
 // Today, unchanged: structural changes mark the panel dirty, and the save happens on the next
 // field blur or via the explicit Save control.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import ViewToggle from "./ViewToggle";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useDraftForm } from "./useDraftForm";
@@ -718,7 +719,7 @@ export default function BlogBlocksEditPanel({
       status={saveStatus}
       dirty={dirty}
       savedAt={savedAt}
-      title="Auto-saves to draft on blur. Publish from Site settings."
+      title={autosaveTitle("Publish from Site settings.")}
       primary={{
         label: "Save draft",
         onClick: saveDraft,

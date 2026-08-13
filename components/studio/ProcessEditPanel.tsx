@@ -9,6 +9,7 @@
 // A fixed four stages (the Process section owns four bespoke artifacts, so there
 // is no add/remove-stage control). Each stage has a name, a description, and a
 // tags array. Tags are trimmed and de-blanked at the save boundary.
+import { autosaveTitle } from "@/lib/studio/studio-copy";
 import { useDraftForm } from "./useDraftForm";
 import SaveBar from "./SaveBar";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -159,7 +160,7 @@ export default function ProcessEditPanel({ itemId, processStages }: Props) {
         status={saveStatus}
         dirty={dirty}
         savedAt={savedAt}
-        title="Auto-saves to draft on blur. Publish from the Hero panel."
+        title={autosaveTitle("Publish from the Hero panel.")}
         primary={{ label: "Save draft", onClick: saveDraft, disabled: !dirty || saveStatus === "saving" }}
       />
     </section>
