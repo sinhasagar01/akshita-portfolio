@@ -309,6 +309,39 @@ gates.
 
   **THE SUPERSEDED FRAMING, KEPT BECAUSE THE MEASUREMENT IS SOUND AND ONLY ITS CONCLUSION WAS NOT:**
 
+- **⚠ BOARDED: U2's SUBJECT IS NOT ESTABLISHED, AND THREE CENSUSES OF IT INVERTED THE ANSWER EACH
+  TIME.** An author looked for a Save button on the gallery panel. What that means has been derived
+  three times and been wrong three times:
+
+      1st  "the indicator is not communicating"     — a FEEDBACK defect
+      2nd  "9 surfaces show a button, 3 do not"     — a CONSISTENCY defect, opposite to the report
+      3rd  counted the wrong column entirely        — 11 of 12 already render `<SaveBar>`
+
+  **THE THIRD KILLED A RULING THAT HAD ALREADY BEEN MADE.** "The three outliers move to the SaveBar
+  shape" was ruled on the second census; measured properly, only ONE panel lacks a `SaveBar`, so the
+  fix would have moved eleven panels onto a shape ten already had — **work for a subject that does
+  not exist.**
+
+  **THE HONEST STATEMENT OF WHAT WAS OBSERVED**, which is smaller than any of the three: gallery has
+  ONE save control that renders in one of TWO DOCKS depending on inspector state — inside the
+  inspector when expanded, docked to the canvas foot when collapsed, exclusive by design. At the
+  author's width it was in the dock they were not looking at. **That is neither missing feedback nor
+  missing consistency. It is one control, correctly placed twice, and an author who does not know it
+  moves.**
+
+  **⚠ NOTHING IS BUILT UNTIL SOMEBODY OPENS THE PANEL AT BOTH WIDTHS.** One browser observation
+  settles whether the dock move is findable, and therefore whether there is a unit here at all —
+  and this record already carries four collections' worth of evidence that only a person at a
+  browser finds this class.
+
+  **THE THREE INVERSIONS ARE NAMED SO NOBODY RE-DERIVES THE FIRST ONE.** A census that has been
+  wrong three times is not a census anyone should read the top line of.
+
+- **⚠ AND ONE PANEL OF TWELVE HAS NO `SaveBar`, WHICH IS A SEPARATE AND SMALLER FACT.**
+  `BlogEditPanel` renders a `SaveIndicator` and no save bar; the other eleven render one. **Whether
+  it wants one is its own question**, and stating it inside U2 is what produced the second census's
+  wrong shape — a small true fact absorbed into a large false one.
+
 - **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
   FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
   paint through a canvas pixel, sanity pair 21.000 first:
@@ -887,6 +920,48 @@ moment it grows an action again.
   seconds before a create and 30 before another. **It fits and it is not evidence.** Recording the
   mechanism as established and the instance as unknown is the whole discipline; a plausible
   attribution written down becomes a fact the next reader inherits.
+
+- **⚠ SIX INSTANCES OF PROSE THAT WAS CORRECT AND UNENFORCED, AND THE SIXTH INVERTS THE PATTERN —
+  WHICH IS WHAT MAKES IT A CLAIM ABOUT THIS CODEBASE RATHER THAN ABOUT SIX COMMENTS.**
+
+      SaveIndicator's header   "two unlabelled `Saved` strings a few hundred pixels apart"
+      SaveBar's header         `Saved` truncating to `S…` in a 34px track
+      the on-accent token      names `bg-accent-500` as the consumer that FAILS while three pass
+      createFromMain's cleanup "an existing draft is never deleted, so prior saves survive"
+      the create-navigates comment  "the bar is re-rendered from fresh server data"
+
+  **FIVE PROBLEMS WRITTEN DOWN BEFORE THEY WERE ENCOUNTERED, AND EVERY ONE HAPPENED ANYWAY.** Two of
+  the five were false and three were TRUE — the `on-accent` comment described the exact failing pair
+  and shipped, because describing a defect is not the same act as refusing it.
+
+  **⚠ AND THE SIXTH IS THE CONTROL CASE THE OTHER FIVE LACK.** `GalleryEditPanel:376` says the save
+  bar must not render inside a collapsed pane "or it would be clipped into a zero-width pane along
+  with the only save control on the surface" — and the `canvasDock` on the very next lines DOES
+  something about it. **That comment is correct AND enforced, and nothing went wrong.**
+
+  **SO THE DIFFERENCE IS NOT THE QUALITY OF THE PROSE. IT IS WHETHER ANYTHING BESIDE IT ACTS.** All
+  six were written by people who understood the hazard; the five that failed had no mechanism beside
+  them and the one that held did. **In every one of the five, the eventual fix was a gate rather
+  than a better comment** — which is the actionable half, because the instinct on meeting a stale
+  comment is to rewrite it.
+
+- **⚠ A STAMPED ROW LOOKS LIKE A FACT AND IS A READING, AND THE REMEDY MADE THE ERROR EASIER TO
+  MAKE.** The three-reading row was built so "production is behind" would carry its time. It was
+  then **quoted forward through four reports over ninety minutes**, by both parties, while
+  production deployed three more times — and the timestamp was in the row each time and neither
+  person read it.
+
+  **⚠ A FORMATTED ROW READS AS AUTHORITATIVE IN A WAY A SENTENCE DOES NOT.** "Production is at X as
+  of 14:40Z" invites the question; a monospaced block of aligned readings looks like state. The
+  remedy for a stale claim became a better vehicle for one.
+
+  **THE ACTIONABLE HALF IS THE WATCH.** It was armed on one sha, fired correctly, exited — and
+  nothing re-armed it, so every later quotation cited an instrument that had stopped. **A ONE-SHOT
+  WATCH QUOTED AFTER IT FIRES IS A DEAD INSTRUMENT REPORTING LIVE.**
+
+  **AND THE FIX IS AT THE QUOTATION, NOT THE WATCH — the watch was not wrong.** The row carries the
+  AGE OF ITS SOURCE, so a copied row visibly ages and a re-read one says so. `re-read, not copied`
+  is the form.
 
 - **⚠ A COMMENT THAT JUSTIFIES AN OMISSION IS THE MOST DANGEROUS KIND, AND IT IS THE FIFTH INSTANCE
   OF PROSE AND CODE MOVING APART — BUT THE FIRST WHERE THE PROSE CAUSED THE DEFECT.** The other four
