@@ -38,6 +38,33 @@
 // thumbnail has always worked while the canvas showed nothing — same upload, different
 // strategy. Unifying them means breaking one of the three.
 //
+// ---- ⚠ GALLERY IS A FOURTH ROW IN THIS TABLE, NOT A FOURTH STRATEGY -------------------
+//
+// It shipped with one anyway, and the symptom was "the uploaded image does not appear until
+// refresh". Its rail and index passed a RAW draft path to `next/image`, which 404s until publish;
+// its canvas held an object URL and passed THAT to `next/image`, which cannot fetch a `blob:` at
+// all. Two different failures behind one blank frame, which is why it read as a refresh problem
+// rather than as never working.
+//
+// ALL THREE SURFACES NOW TAKE STRATEGY 1, AND THE TWO REASONS ARE DIFFERENT — which is the part
+// worth reading, because taking the same answer for the same reason everywhere is how a fourth
+// strategy gets invented next time:
+//
+//   RAIL AND INDEX   the size class this strategy was written for. The index is genuinely the
+//                    MANY case named above — forty items is forty round trips — and it is taken
+//                    anyway because strategy 2 needs a snapshot AND strategy 3 beside it to
+//                    resolve a same-session upload. Its comment carries a count as the trigger to
+//                    revisit rather than a feeling.
+//   CANVAS           the COUNT, not the size. The overlay shows exactly ONE image, so the
+//                    many-images objection that sends the case-study canvas to strategy 2 is not
+//                    in play. Strategy 2's failure mode IS the reported defect: a page-load
+//                    snapshot cannot see a file uploaded after the page loaded.
+//
+// AND THE OPTIMIZER IS OFF ON ALL THREE, which is this file's own rule applied rather than
+// restated: `next/image` refetches from the server WITHOUT the owner cookie, so a proxied path
+// 401s. `GalleryOverlay` took an `unoptimizedImage` prop for it, so the public page keeps the
+// optimizer and its `sizes` ladder on a published static path.
+//
 // Shared by BlockImageField and SettingsPhotoField because it is purely
 // presentational — unlike their commit models, which genuinely differ and stay
 // separate.

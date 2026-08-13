@@ -22,7 +22,6 @@
 // The arrangement IS the authoring, so the index is where it happens.
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { StudioModal, modalGhostBtn, modalAccentBtn, modalInkBtn } from "./StudioModal";
 import { useReportCount } from "./StudioCountsProvider";
 import { usePublishSignal } from "./PublishProvider";
@@ -31,6 +30,7 @@ import { useListReorder } from "./useListReorder";
 import { IconPlus, IconInfo, IconChevronUp, IconChevronDown, IconX } from "./icons";
 import AreaHeader from "./AreaHeader";
 import { inputCls } from "./blocks/fields";
+import { draftImageUrl } from "@/lib/studio/draft-image";
 import type { GalleryItem } from "@/lib/keystatic";
 
 export default function GalleryIndex({ items: initial }: { items: GalleryItem[] }) {
@@ -239,13 +239,26 @@ export default function GalleryIndex({ items: initial }: { items: GalleryItem[] 
                     harder to scan, and this grid's job is finding an item rather than previewing
                     the page. */}
                 <span className="relative block aspect-[4/3] w-full overflow-hidden bg-studio-cream-200">
+                  {/* ⚠ STRATEGY 1, AND THIS IS THE SURFACE WHERE ITS COST IS REAL — SAID RATHER
+                      THAN GLOSSED. `ImageThumb`'s header names what changes the calculus: "proxying
+                      MANY images at once". An index of forty items is forty round trips, which is
+                      the many case, not the thumbnail case.
+
+                      IT IS TAKEN ANYWAY, AND THE ALTERNATIVE IS WHY. Strategy 2 needs a page-load
+                      snapshot wired to this route and STILL cannot resolve an upload from the
+                      current session — the exact defect being fixed — so it would need strategy 3
+                      beside it. Two mechanisms, on an index, to avoid N round trips on a surface an
+                      author opens between edits.
+
+                      THE TRIGGER TO REVISIT IS A COUNT, NOT A FEELING: if this grid routinely holds
+                      more than about thirty items, the snapshot plus a session map earns its
+                      complexity, and this comment is the place that says so. Today it holds one. */}
                   {item.image ? (
-                    <Image
-                      src={item.image}
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={draftImageUrl(item.image)}
                       alt=""
-                      fill
-                      sizes="(max-width: 1024px) 50vw, 190px"
-                      className="object-cover"
+                      className="absolute inset-0 size-full object-cover"
                     />
                   ) : (
                     <span className="grid h-full place-items-center font-mono text-[10px] uppercase tracking-[0.16em] text-studio-text-subtle">
