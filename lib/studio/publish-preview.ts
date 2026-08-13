@@ -170,6 +170,41 @@ export type PreviewEntry = {
   imageCount: number;
 };
 
+/**
+ * FLATTEN EVERY COLLECTION'S TITLES INTO ONE SLUG INDEX, AND REFUSE ONE THAT DID NOT CONTRIBUTE.
+ *
+ * ⚠ THIS EXISTS BECAUSE THE ROUTE BUILT THAT INDEX WITH FOUR HAND-WRITTEN LOOPS AND GALLERY WAS NOT
+ * ONE OF THEM. Every gallery entry in a publish preview fell back to its slug — invisible until
+ * somebody read a preview containing one, which is why it survived the collection's entire build.
+ * It is the SECOND hand-keyed list in this file's pair after `entry[1] as PreviewGroup`, and the
+ * cast at least had a compiler willing to complain; a `for` loop nobody wrote has nothing to say.
+ *
+ * ⚠ THE PARAMETER IS A `Record<CollectionName, …>`, SO A FIFTH COLLECTION IS A COMPILE ERROR AT THE
+ * CALL SITE — which is the route, where the sources actually live. The per-collection LABEL stays
+ * there too, because `experience` reads "Role, Company" and the others read a title; that is
+ * formatting, not membership, and only membership is what went wrong.
+ *
+ * ⚠ AND IT ALSO CHECKS AT RUNTIME, BECAUSE THE ROUTE CANNOT BE LOADED BY A SUITE. A module that
+ * reaches the network is assertable only by regex, and a regex cannot see reachability — so the
+ * exhaustiveness that `tsc` enforces for real code is ALSO returned as data here, where a row can
+ * drive it with a deliberately partial object.
+ */
+export function buildTitleIndex(
+  sources: Record<CollectionName, ReadonlyArray<readonly [slug: string, title: string]>>,
+): { titles: Record<string, string>; missing: string[] } {
+  const titles: Record<string, string> = {};
+  const missing: string[] = [];
+  /* The known set comes from `COLLECTION_GROUPS` above rather than a second list — it is already
+     the `Record<CollectionName, true>` this file uses to narrow, and section H already compares it
+     to the authoritative union. */
+  for (const name of Object.keys(COLLECTION_GROUPS)) {
+    const rows = sources[name as CollectionName];
+    if (!rows) { missing.push(name); continue; }
+    for (const [slug, title] of rows) titles[slug] = title;
+  }
+  return { titles, missing };
+}
+
 const KIND: Record<PreviewGroup, string> = {
   projects: "Case study",
   experience: "Experience",

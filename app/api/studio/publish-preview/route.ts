@@ -15,7 +15,7 @@ import { compareBranches } from "@/lib/studio/github-commit";
 import { BASE_BRANCH } from "@/lib/studio/github-commit";
 import { DRAFT_BRANCH } from "@/lib/studio/draft-site-settings";
 import { getStudioData } from "@/lib/studio/data";
-import { buildPreview } from "@/lib/studio/publish-preview";
+import { buildPreview, buildTitleIndex } from "@/lib/studio/publish-preview";
 
 export async function GET() {
   // Owner gate — reject before any GitHub call.
@@ -52,15 +52,20 @@ export async function GET() {
     // its slug is the fallback. Stated here rather than papered over, because the alternative is a
     // second read against the live branch to resolve a name for something being removed.
     const data = await getStudioData();
-    const titles: Record<string, string> = {};
-    for (const p of data.projects) titles[p.slug] = p.title;
-    for (const b of data.blog) titles[b.slug] = b.title;
-    for (const e of data.experience) titles[e.slug] = `${e.title}, ${e.company}`;
-    /* ⚠ GALLERY WAS MISSING FROM THIS MAP, so every gallery entry in the preview fell back to its
-       slug — the fix-once-per-collection shape, in a map that names three of four collections. It
-       is invisible until somebody reads a preview containing a gallery item, which is why it
-       survived the collection's whole build. */
-    for (const g of data.gallery) titles[g.slug] = g.title;
+    /* ⚠ A `Record<CollectionName, …>`, NOT FOUR LOOPS. It was four loops and gallery was not one of
+       them, so every gallery entry in a preview fell back to its slug — invisible until somebody
+       read a preview containing one, which is why it survived the collection's entire build.
+
+       The annotation is the guard: a fifth collection fails to compile HERE, where the sources are,
+       rather than shipping a preview that silently under-names one of them. The per-collection
+       LABEL stays here too — `experience` reads "Role, Company" and the others read a title — because
+       that is formatting, and only MEMBERSHIP is what went wrong. */
+    const { titles } = buildTitleIndex({
+      projects: data.projects.map((p) => [p.slug, p.title] as const),
+      blog: data.blog.map((b) => [b.slug, b.title] as const),
+      experience: data.experience.map((e) => [e.slug, `${e.title}, ${e.company}`] as const),
+      gallery: data.gallery.map((g) => [g.slug, g.title] as const),
+    });
 
     return NextResponse.json({
       ok: true,
