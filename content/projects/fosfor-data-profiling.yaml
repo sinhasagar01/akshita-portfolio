@@ -207,6 +207,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-time-saved
               title: Time on quality checks
               body: How much manual inspection time the feature removed.
@@ -530,6 +531,9 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              screen:
+                discriminant: none
+                value: null
             - index: '02'
               category: Profiling
               title: Basic and advanced profiling
@@ -546,6 +550,9 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              screen:
+                discriminant: none
+                value: null
             - index: '03'
               category: Profiling
               title: Issue surfacing
@@ -562,6 +569,9 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+              screen:
+                discriminant: none
+                value: null
   - variant: default
     id: screens
     index: ''
