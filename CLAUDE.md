@@ -125,6 +125,22 @@ the first two each read as obviously right at the time.
 it was read, a refusal costs the wait to the next success rather than a day, and **the number to watch
 is the latest production deployment rather than any commit status.**
 
+**⚠ AND THE STATED FIGURE HAS NOW BEEN WRONG EVERY TIME IT HAS BEEN MEASURED — WITH THE NUMBERS,
+BECAUSE AN IMPRESSION IS WHAT LET IT STAND THIS LONG.** Two days, every refusal recovered inside
+the hour-and-a-half:
+
+    2026-08-10   refused 13:54  ->  carried by the 14:28 success           34 min
+                 refused 14:29  ->  next success the same afternoon
+    2026-08-13   refused 13:53  ->  production deploy succeeded 14:40:57Z  85 min
+
+**Zero observations at or near 24 hours, across every refusal anyone has timed.** The 85-minute wait
+is also inside that same day's own range — it already contained a 97-minute gap between two
+SUCCESSES — so a long wait is not evidence of the stated interval either.
+
+**⚠ THE PRACTICAL COST OF BELIEVING THE MESSAGE IS A DAY OF NOT SHIPPING**, which is why this is
+worth numbers rather than a note. Read the deployment list; the message is a constant, not a
+measurement.
+
 **⚠ AND THAT LAST SENTENCE NOW HAS AN OWNER RATHER THAN BEING ADVICE.** `ralph/tests/upstream.mjs`
 section C reads the deployment list, walks back to the newest deployment reporting `success`, and
 asserts **what production serves is on `origin/main`**. It deliberately does NOT assert that main is
@@ -419,6 +435,13 @@ is deploys rather than commits.
   a delete that enumerates assets — THE SUBJECT IS THE FULL PATH.** The boarded image-GC item is the
   one most likely to meet this, and a GC that matched on hashes would delete a file another
   collection is using.
+
+  **⚠ AND RECOVERY RESTORES THE ENTRY, NOT ITS DURABILITY — A RECOVERED ITEM LIVES ON THE DRAFT
+  BRANCH, SO THE NEXT DISCARD TAKES IT.** `camera` was recovered onto the draft branch and went out
+  with the next discard 29 minutes later, as designed. **Discard does not distinguish recovered work
+  from any other unpublished change**, and nothing warns an author that discarding one collection's
+  edits also drops work somebody just restored for them. Recovery buys the bytes back; it does not
+  buy them a different lifetime.
 
   **AND THE GOOD HALF OF THE SAME PROPERTY: RECOVERY COSTS NO STORAGE.** Re-uploading an orphaned
   image yields the same path and commits no new blob; the entry is simply pointed at bytes already
@@ -930,8 +953,34 @@ is deploys rather than commits.
   BATTERY.** HEAD held the intent, so `git checkout` on the two files was precise rather than
   destructive — the exact condition under which this file permits it.
 
-- **⚠ THE UNIT AFTER THE DRIVE: `mutate.mjs` OWNS THE WHOLE EDIT. NINE DEFECTS, AND THE FIX WOULD
-  HAVE PREVENTED FOUR OF THEM — THAT RATIO IS WHY THIS IS NO LONGER A BOARD ENTRY.** Three of the
+- **⚠ CLOSED: `mutate.mjs` OWNS THE EDIT — AND THE "FOUR OF NINE" ESTIMATE WAS WRONG. IT IS TWO
+  CLOSED AND ONE NARROWED.** Derived one by one in the tool's own header rather than estimated
+  again: the empty replacement and the non-unique replacement are gone, because both were the
+  *locate step* and there is no locate step now. The phantom manifest is NARROWED — a revert can no
+  longer fail to locate, but it can still refuse on the fingerprint, and that refusal still leaves
+  entries recorded. **The other six belong to the snapshot mechanism or to parsing, and this change
+  does not reach them.**
+
+  **⚠ A FIX CREDITED WITH MORE THAN IT DID IS HOW THE NEXT READER STOPS LOOKING**, which is why the
+  not-closed list is written out beside the closed one. The snapshot mechanism still carries four of
+  the nine.
+
+  **⚠ AND THE OPEN DESIGN QUESTION DISSOLVED RATHER THAN BEING ANSWERED.** It was: a position record
+  shifts under a later edit to the same file, so refuse a second edit or re-anchor. A CONTENT record
+  makes the question disappear — each edit stores the state it found. **The verify loop is the
+  argument**: two edits to one file record A→B and B→C, and after unwinding the file holds the FIRST
+  edit's `before`. A per-edit check compares the settled file against B and fails a revert that
+  worked; a position record cannot express which state is correct at all. That bug was in the first
+  draft and was caught by driving two edits through, not by reading.
+
+  **⚠ AND DRIVING IT FOUND A FOURTH SAFE STATE NOTHING HAD NAMED.** The dirty-and-unsnapshotted
+  refusal fired on a file the tool had mutated ITSELF, so a second edit was impossible without a
+  snapshot — the tool refusing to touch its own dirt. Its premise was "nothing but the working tree
+  knows what those changes were", and after the ownership change the tool knows. The check is the
+  fingerprint rather than the filename, so a file the tool mutated AND the operator then edited still
+  falls through to the refusal.
+
+  **THE SUPERSEDED FRAMING, KEPT BECAUSE THE COUNT WAS THE ARGUMENT FOR DOING IT:** Three of the
   nine are data loss or silent damage, and **the ninth rewrites lines nobody mutated on a LATER
   run**, applied by a routine green ralph rather than by an operator.
 

@@ -39,7 +39,7 @@
 // would leave the repo dirty for every later gate. That round trip is proved by hand and recorded
 // in #513; what belongs in CI is the half that cannot damage anything.
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -115,18 +115,84 @@ if (TARGET) t("B3 ⚠ A NO-OP MUTATION IS REFUSED — it always reports SURVIVED
 const missing = run("--edit", "lib/palettes/does-not-exist.ts", "a", "b");
 t("B4 a missing file is refused rather than created",
   missing.status === 2 && /no such file/.test(missing.out), true);
-/* ⚠ THE FIFTH REFUSAL, ADDED AFTER AN EMPTY REPLACEMENT LEFT THIS SUITE'S OWN C3 RED.
+/* ⚠ THE FIFTH REFUSAL IS RETIRED AND THIS ROW IS ITS INVERSE, WHICH IS THE POINT.
  *
- * `--revert-edit` locates what it applied by searching for the REPLACEMENT, and the empty string
- * matches at every character — a 15,788-character file reported 15,787 hits. The revert refused
- * correctly, which meant the mutation stayed in the tree AND the manifest stayed un-cleared, so
- * `C3` below then found recorded edits where it expects none.
+ * It refused an empty replacement because `--revert-edit` located what it had applied by SEARCHING
+ * FOR THE REPLACEMENT, and the empty string matches at every character. The revert no longer
+ * searches — `--edit` records the file's exact bytes before writing and the revert restores them —
+ * so the state the refusal protected against does not exist.
  *
- * ⚠ THE TOOL WAS RIGHT AND UNHEARD: the operator had piped its output to /dev/null. That is why
- * the refusal moved to the EDIT, where it is knowable — the same posture as the other four. */
-const emptyRepl = TARGET ? run("--edit", TARGET, "cream", "") : { status: 0, out: "" };
-if (TARGET) t("B5 ⚠ AN EMPTY REPLACEMENT IS REFUSED — the revert searches for it and the empty string matches everywhere",
-  emptyRepl.status === 2 && /empty replacement cannot be reverted/.test(emptyRepl.out), true);
+ * ⚠ A GUARD WHOSE CAUSE IS GONE IS NOT WEAKENED BY REMOVAL, IT IS UNNECESSARY, and the difference
+ * is checkable rather than asserted: this row drives a deletion mutation END TO END and requires the
+ * bytes back. If the revert ever regains a locate step, the round trip breaks here.
+ *
+ * ⚠ AND IT USES THE DERIVED CLEAN TARGET RATHER THAN A SCRATCH FILE, WHICH THE FIRST VERSION GOT
+ * WRONG. An untracked temp file IS dirty-and-unsnapshotted — nothing but the working tree knows
+ * what it holds — so `--edit` refused it, correctly, and the row failed on the tool being right.
+ *
+ * ⚠ THIS SECTION'S HEADER FORBIDS ROWS THAT CAN DAMAGE THE TREE, and a round trip WRITES. So the
+ * suite holds the original bytes itself and restores them unconditionally, whatever happens: the
+ * worst case is the file it read, written back. That is the only row here that touches a file, and
+ * it bounds its own blast radius rather than trusting the thing it is testing. */
+if (TARGET) {
+  const url = new URL(`../../${TARGET}`, import.meta.url);
+  const original = readFileSync(url, "utf8");
+  /* An anchor that occurs exactly once, derived rather than named — a hardcoded one is a fixture
+     that goes stale the moment anybody edits the file, which is how this suite reddened before. */
+  const unique = original.split("\n").find((l) => l.trim().length > 12 && original.split(l).length === 2);
+  let applied = { status: 99 }, mutatedGone = false, reverted = { status: 99 }, exact = false;
+  try {
+    if (unique) {
+      applied = run("--edit", TARGET, `${unique}\n`, "");
+      mutatedGone = !readFileSync(url, "utf8").includes(unique);
+      reverted = run("--revert-edit");
+      exact = readFileSync(url, "utf8") === original;
+    }
+  } finally {
+    /* Unconditional, and BEFORE the assertions run, so a failing row cannot leave the tree dirty. */
+    writeFileSync(url, original);
+  }
+  t("B5 ⚠ AN EMPTY REPLACEMENT IS NOW ACCEPTED — a deletion is a legitimate mutation and the revert no longer has to find it",
+    [Boolean(unique), applied.status, mutatedGone], [true, 0, true]);
+  t("B5a …and the round trip returns the EXACT bytes, which is what retired the refusal rather than weakening it",
+    [reverted.status, exact], [0, true]);
+}
+
+/* ⚠ THE TWO PROPERTIES THE OWNERSHIP CHANGE RESTS ON, DRIVEN RATHER THAN READ. Both write, so both
+ * hold the original and restore it unconditionally, the same bound as B5. */
+if (TARGET) {
+  const url = new URL(`../../${TARGET}`, import.meta.url);
+  const original = readFileSync(url, "utf8");
+  const unique = original.split("\n").find((l) => l.trim().length > 12 && original.split(l).length === 2);
+  let second = { status: 99 }, exact = false, refusedHandEdit = false, handEditSurvived = false;
+  try {
+    if (unique) {
+      /* ⚠ A SECOND EDIT TO A FILE THIS TOOL ALREADY MUTATED. Before the content record this was
+         impossible without a snapshot — the dirty check could not tell the tool's own dirt from an
+         operator's, so it refused work it had itself created. */
+      run("--edit", TARGET, unique, "// M1");
+      second = run("--edit", TARGET, "// M1", "// M2");
+      run("--revert-edit");
+      exact = readFileSync(url, "utf8") === original;
+
+      /* ⚠ AND THE ONE STATE THE FINGERPRINT EXISTS FOR: the operator edits a mutated file. Restoring
+         recorded bytes would destroy that edit — the `git checkout` incident's shape inside the
+         mechanism built to replace it — so the revert must REFUSE and leave the edit alone. */
+      run("--edit", TARGET, unique, "// M3");
+      writeFileSync(url, readFileSync(url, "utf8") + "\n// a hand edit after the mutation\n");
+      const r = run("--revert-edit");
+      refusedHandEdit = r.status !== 0 && /changed since the mutation/.test(r.out);
+      handEditSurvived = readFileSync(url, "utf8").includes("a hand edit after the mutation");
+    }
+  } finally {
+    writeFileSync(url, original);
+    rmSync(new URL(`file://${process.env.TMPDIR ?? "/tmp"}/ralph-mutate-edits.json`), { force: true });
+  }
+  t("B6 ⚠ A SECOND EDIT TO A FILE THIS TOOL ALREADY MUTATED IS ALLOWED — it refused its own dirt before the content record",
+    [second.status, exact], [0, true]);
+  t("B7 ⚠ AND IF THE OPERATOR EDITS A MUTATED FILE THE REVERT REFUSES RATHER THAN RESTORING OVER IT",
+    [refusedHandEdit, handEditSurvived], [true, true]);
+}
 
 console.log("\nC · the refusals NAME the way out, because a refusal nobody can satisfy is an obstacle");
 if (TARGET) t("C1 the absent-anchor refusal says why zero matches is the dangerous case",
@@ -139,8 +205,13 @@ t("C2 ⚠ AND THE DIRTY-AND-UNSNAPSHOTTED REFUSAL PRINTS THE SNAPSHOT COMMAND �
 const emptyRevert = run("--revert-edit");
 t("C3 ⚠ `--revert-edit` WITH NOTHING RECORDED REFUSES — silent success is this file's oldest failure mode",
   emptyRevert.status === 2 && /no recorded edits/.test(emptyRevert.out), true);
-if (TARGET) t("C4 …and the empty-replacement refusal names a findable alternative, so a deletion mutation is still expressible",
-  /mutated away/.test(emptyRepl.out), true);
+/* ⚠ THE ROW THAT USED TO ASSERT THE RETIRED REFUSAL'S HINT IS REPLACED, NOT DELETED — the same
+ * discipline as `gallery-format`'s B1c. What it protected was that a deletion stays expressible;
+ * B5 above now proves that directly by performing one, which is a stronger claim than checking that
+ * a refusal names a workaround. */
+t("C4 ⚠ THE REVERT NEVER SEARCHES FOR ITS OWN OUTPUT — the ninth defect was a locate step, and absence is the sound direction",
+  /cur\.split\(e\.replacement\)|cur\.replace\(e\.replacement/.test(
+    readFileSync(new URL(`../../${TOOL}`, import.meta.url), "utf8")), false);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

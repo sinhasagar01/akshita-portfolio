@@ -57,6 +57,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, copyFileSync, readdirSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { createHash } from "node:crypto";
 import { countAssertions } from "./count.mjs";
 
 /* ---- ⚠ THE FIFTH DEFECT, AND THE ONLY ONE THAT DESTROYED WORK -------------------------------
@@ -261,6 +262,62 @@ if (process.argv[2] === "--restore") {
    operator's uncommitted work comes back with the work intact. The edits are recorded outside the
    snapshot so a clean-tree mutation is revertible without one.
 ============================================================================================ */
+/* ============================================================================================
+   ⚠ WHICH OF THE NINE THE OWNERSHIP CHANGE ACTUALLY CLOSES — DERIVED, ONE BY ONE.
+
+   The estimate carried into this unit was "four of nine", stated as unmeasured. Measured, it is
+   TWO CLOSED AND ONE NARROWED, and the seven it does not touch are listed because a fix credited
+   with more than it did is how the next reader stops looking.
+
+     CLOSED — the locate step was their whole cause, and there is no locate step now
+
+       8  the EMPTY REPLACEMENT. `--revert-edit` searched for the replacement; the empty string
+          matches at every character, so a deletion mutation could never be found again. The revert
+          restores recorded bytes, so an empty replacement is ordinary — the refusal that guarded
+          this is retired above, with its cause stated.
+       9  the NON-UNIQUE REPLACEMENT. `--edit` checked the ANCHOR's uniqueness while the revert
+          searched for the REPLACEMENT, which nothing checked. Same removal, same reason.
+
+     NARROWED, NOT CLOSED — say which half
+
+       •  the PHANTOM MANIFEST. Entries went stale because a refused revert left them recorded, and
+          a later run acted on them. The common trigger is gone (a revert can no longer fail to
+          LOCATE), but a revert can still refuse when the fingerprint says the operator edited a
+          mutated file — and that refusal still leaves the manifest populated, by design, because
+          the edits really are outstanding. `mutate-harness` C3 remains the detector and its header
+          still names the recovery.
+
+     NOT CLOSED — a different mechanism, and this change does not reach them
+
+       1  the `git checkout` INCIDENT. Closed earlier, by `--edit`/`--revert-edit` existing at all.
+          This change makes hand-reverting unnecessary in more cases; it did not cause that.
+       2  the SNAPSHOT TAKEN AT RUN TIME — `--snapshot`/`--restore`, untouched here.
+       3  the SNAPSHOT COVERING FILES ALREADY EDITED rather than the ones a mutation will dirty —
+          same mechanism, same distance.
+       4  `--restore` CONSUMING ITS SNAPSHOT — same.
+       5  the SYNTAX ERROR that shipped under 3,100 green assertions — closed by `node --check` in
+          the harness, which is a parse and has nothing to do with edits.
+       6  the TEMPORAL DEAD ZONE in that repair — closed by RUNNING the branch, likewise.
+       7  the CLEAN-FILE NO-OP, where `--restore` reported success over files it had never copied.
+
+   ⚠ SO THE SNAPSHOT MECHANISM STILL CARRIES FOUR OF THE NINE, and this change does not relieve it.
+   `--snapshot` before a batch is still the rule, and it is now the rule for a NARROWER reason: it
+   covers the operator's whole tree, where `--edit` covers only what the tool wrote.
+
+   ---- ⚠ WHY THE RECORD IS CONTENT AND NOT POSITION, WHICH WAS THE OPEN DESIGN QUESTION ---------
+
+   This stayed boarded on one question: a position record shifts under any later edit to the same
+   file, so the tool must either refuse a second edit or re-anchor. A CONTENT record dissolves it —
+   each edit stores the state it found, so unwinding newest-first walks back through states that
+   actually existed.
+
+   ⚠ AND THE VERIFY LOOP IS THE ARGUMENT, BECAUSE IT IS WHERE POSITION WOULD HAVE FAILED SILENTLY.
+   Two edits to one file record A→B and B→C. After unwinding, the file holds A — the FIRST edit's
+   `before`, not the second's. A per-edit check compares the settled file against B and reports a
+   failure on a revert that worked; a position record cannot even express which state is correct.
+   The first draft of the verify loop had exactly that bug and it was caught by driving two edits
+   through, not by reading it.
+============================================================================================ */
 const readEdits = () => (existsSync(EDITS) ? JSON.parse(readFileSync(EDITS, "utf8")) : []);
 
 if (process.argv[2] === "--edit") {
@@ -278,36 +335,40 @@ if (process.argv[2] === "--edit") {
     console.error("  A no-op mutation always reports SURVIVED and says nothing about the gate.");
     process.exit(2);
   }
-  /* ⚠ THE FIFTH REFUSAL, AND IT IS KNOWABLE HERE RATHER THAN AT REVERT TIME.
+  /* ⚠ THE EMPTY-REPLACEMENT REFUSAL IS RETIRED, AND ITS CAUSE IS WHAT WENT — NOT THE RULE'S NERVE.
    *
-   * `--revert-edit` locates what it applied by SEARCHING FOR THE REPLACEMENT, and the empty string
-   * occurs once per character — `"abc".split("")` is three parts, so a 15,788-character file
-   * reports 15,787 hits and the revert refuses. It refuses CORRECTLY and the mutation stays in the
-   * tree with the manifest un-cleared, so the next `--revert-edit` fails on it too and the harness
-   * suite's own C3 row goes red on contaminated state.
+   * It existed because `--revert-edit` located what it had applied by SEARCHING FOR THE REPLACEMENT,
+   * and the empty string matches at every character, so a deletion mutation could never be found
+   * again. The revert below no longer searches for anything: `--edit` records the file's exact
+   * bytes BEFORE it writes, and the revert restores them. An empty replacement is now as revertible
+   * as any other, so a deletion mutation is expressible directly rather than through the
+   * `// mutated away` workaround the refusal used to recommend.
    *
-   * That is exactly what happened: a deletion mutation was applied with an empty replacement, the
-   * refusal was printed, and the operator had piped this tool's output to /dev/null. The tool was
-   * right and unheard.
-   *
-   * ⚠ SO IT IS REFUSED AT THE EDIT, WHICH IS THE POSTURE OF THE OTHER FOUR — refuse the state you
-   * cannot recover from rather than discovering it during recovery. A deletion is a legitimate
-   * mutation; express it as something LOCATABLE, which is what the hint below says. */
-  if (replacementArg === "") {
-    console.error("⚠ REFUSED — an empty replacement cannot be reverted.");
-    console.error("  `--revert-edit` finds what it applied by searching for the replacement, and the");
-    console.error("  empty string matches at every character, so the revert can never locate it.");
-    console.error("  Delete by replacing the anchor with something findable instead, e.g.\n");
-    console.error("    node ralph/mutate.mjs --edit <file> '<the line>' '// mutated away'\n");
-    process.exit(2);
-  }
+   * ⚠ A REFUSAL WHOSE CAUSE IS GONE IS A ROW MATCHING NOTHING, which this repository deletes on
+   * sight. It is recorded here rather than silently dropped because the NEXT reader will meet an
+   * eighth-defect entry that says empty replacements are unrevertable, and that entry is now history
+   * rather than a live hazard. */
 
   /* ⚠ THE REFUSAL THE INCIDENT ASKED FOR. Clean is safe because HEAD holds the intent, and
    * snapshotted is safe because the copy does. Dirty-and-unsnapshotted is the one state where
-   * nothing but the working tree knows what the operator meant. */
+   * nothing but the working tree knows what the operator meant.
+   *
+   * ⚠ AND THERE IS NOW A FOURTH SAFE STATE, FOUND BY DRIVING THE TOOL RATHER THAN READING IT: the
+   * file is dirty BECAUSE OF THIS TOOL'S OWN RECORDED EDIT. Before the ownership change that was
+   * indistinguishable from an operator's work; now the manifest holds the bytes and a fingerprint of
+   * what was written, so "did I do this" is a question with an answer. Without this clause a SECOND
+   * edit to the same file is impossible without a snapshot — the tool refusing to touch dirt it
+   * created itself, which is the workflow the content record exists to support.
+   *
+   * THE CHECK IS THE FINGERPRINT, NOT THE FILENAME. A file this tool mutated AND the operator then
+   * edited hashes to neither state, so it falls through to the refusal exactly as it should. */
   const dirtyNow = new Set(dirtyFiles());
   const snapshotHasIt = existsSync(join(SNAP, rel));
-  if (dirtyNow.has(rel) && !snapshotHasIt) {
+  const priorForFile = readEdits().filter((e) => e.file === rel && typeof e.afterSha === "string");
+  const toolOwnsTheDirt = priorForFile.length > 0
+    && priorForFile[priorForFile.length - 1].afterSha
+       === createHash("sha256").update(readFileSync(rel, "utf8")).digest("hex");
+  if (dirtyNow.has(rel) && !snapshotHasIt && !toolOwnsTheDirt) {
     console.error(`⚠ REFUSED — ${rel} has uncommitted changes and is not in a snapshot.`);
     console.error("  Nothing but the working tree knows what those changes were, so this edit");
     console.error("  would not be revertible. Take a snapshot first:");
@@ -325,9 +386,28 @@ if (process.argv[2] === "--edit") {
     process.exit(2);
   }
 
-  writeFileSync(rel, before.replace(anchorArg, replacementArg));
+  /* ⚠ THE TOOL OWNS THE EDIT, WHICH MEANS IT RECORDS WHAT IT REPLACED RATHER THAN HOW TO FIND ITS
+   * OWN OUTPUT AGAIN. `before` is the file's exact bytes at the moment of writing and `afterSha`
+   * fingerprints what this tool then wrote. The revert restores `before` — it searches for nothing,
+   * so a replacement that is empty, non-unique, or identical to text elsewhere in the file is
+   * simply not a category any more.
+   *
+   * ⚠ AND THIS IS WHY A SECOND EDIT TO THE SAME FILE NEEDS NO RE-ANCHORING, which was the open
+   * design question that kept this boarded. A position record shifts under any later edit; a
+   * CONTENT record does not. Each edit stores the state it found, so unwinding newest-first walks
+   * back through exactly the states that existed, and the `afterSha` check below proves each step
+   * is standing where it thinks it is. */
+  const after = before.replace(anchorArg, replacementArg);
+  writeFileSync(rel, after);
   const edits = readEdits();
-  edits.push({ file: rel, anchor: anchorArg, replacement: replacementArg, wasClean: !dirtyNow.has(rel) });
+  edits.push({
+    file: rel,
+    anchor: anchorArg,
+    replacement: replacementArg,
+    wasClean: !dirtyNow.has(rel),
+    before,
+    afterSha: createHash("sha256").update(after).digest("hex"),
+  });
   writeFileSync(EDITS, JSON.stringify(edits, null, 2));
   console.log(`edited ${rel} — 1 site. Revert with \`node ralph/mutate.mjs --revert-edit\``);
   process.exit(0);
@@ -340,22 +420,49 @@ if (process.argv[2] === "--revert-edit") {
     process.exit(2);
   }
   const failed = [];
-  /* Newest first, so overlapping edits to one file unwind in the order they were made. */
+  /* ⚠ NEWEST FIRST, AND EACH STEP PROVES IT IS STANDING WHERE IT THINKS IT IS BEFORE IT WRITES.
+   *
+   * The revert no longer SEARCHES for the replacement. That search was the ninth defect: `--edit`
+   * validated the ANCHOR's uniqueness while the revert looked for the REPLACEMENT, whose uniqueness
+   * nothing ever checked — so a replacement occurring twice made the edit unrevertable, the entry
+   * stayed in the manifest, and a later run found the string by coincidence and REWROTE LINES NOBODY
+   * MUTATED. It restores recorded bytes instead, which has no locate step to get wrong.
+   *
+   * ⚠ THE FINGERPRINT ENFORCES "THE OPERATOR NEVER EDITS A MUTATED FILE" RATHER THAN TRUSTING IT.
+   * If the file no longer hashes to what this tool wrote, something else changed it and restoring
+   * `before` would destroy that change — the `git checkout` incident's shape, arriving inside the
+   * mechanism built to replace it. So it REFUSES and names the file, which is the one state where
+   * only a human knows what was meant. */
   for (const e of [...edits].reverse()) {
     if (!existsSync(e.file)) { failed.push(`${e.file} (gone)`); continue; }
+    if (typeof e.before !== "string" || typeof e.afterSha !== "string") {
+      failed.push(`${e.file} (recorded by an older version of this tool, without the bytes it replaced)`);
+      continue;
+    }
     const cur = readFileSync(e.file, "utf8");
-    const hits = cur.split(e.replacement).length - 1;
-    if (hits !== 1) { failed.push(`${e.file} (replacement found ${hits} times, expected 1)`); continue; }
-    writeFileSync(e.file, cur.replace(e.replacement, e.anchor));
+    const curSha = createHash("sha256").update(cur).digest("hex");
+    if (curSha !== e.afterSha) {
+      failed.push(`${e.file} (changed since the mutation — restoring would destroy that change)`);
+      continue;
+    }
+    writeFileSync(e.file, e.before);
   }
-  /* ⚠ VERIFIED, BECAUSE THE FAILURE MODE IN THIS FILE HAS ALWAYS BEEN SILENT SUCCESS. Seven defects
+  /* ⚠ VERIFIED, BECAUSE THE FAILURE MODE IN THIS FILE HAS ALWAYS BEEN SILENT SUCCESS. Eight defects
    * above each reported a restore that had not happened. A revert that cannot confirm its own effect
-   * is the same instrument again. */
-  for (const e of edits) {
-    if (!existsSync(e.file)) continue;
-    const cur = readFileSync(e.file, "utf8");
-    if (cur.includes(e.replacement) && e.replacement !== e.anchor) {
-      failed.push(`${e.file} (the mutation is still present)`);
+   * is the same instrument again — so the check is that the file now holds the recorded bytes, which
+   * is the whole claim rather than a proxy for it. */
+  /* ⚠ THE ORIGINAL STATE OF A FILE IS THE **FIRST** EDIT'S `before`, NOT EVERY EDIT'S. Two edits to
+   * one file record A→B and B→C; unwinding restores B then A, so the finished file holds A. Checking
+   * each edit's own `before` would compare the settled file against B and report a failure on a
+   * revert that worked perfectly — an assertion that cannot pass for the reason it names, which is
+   * the shape this session found twice in one suite. Verified once per FILE, against the earliest
+   * state recorded for it. */
+  const original = new Map();
+  for (const e of edits) if (typeof e.before === "string" && !original.has(e.file)) original.set(e.file, e.before);
+  for (const [file, before] of original) {
+    if (!existsSync(file)) continue;
+    if (readFileSync(file, "utf8") !== before) {
+      failed.push(`${file} (the file does not hold the bytes this tool replaced)`);
     }
   }
   if (failed.length) {
