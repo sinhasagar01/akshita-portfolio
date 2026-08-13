@@ -14,10 +14,11 @@
 // SHIFT: the masonry is CSS `columns` and cannot place a tile before its aspect is known, and
 // boat-crest is the recorded cost of treating those as optional — 19 of 25 images in the wrong box.
 import {
-  sanitizeGalleryPatch, sanitizeGalleryCreate, galleryPublishBlockers, GALLERY_KINDS,
+  sanitizeGalleryPatch, sanitizeGalleryCreate, galleryPublishBlockers, GALLERY_KINDS, mapGalleryItem,
 } from "../../lib/studio/gallery-format.ts";
 import { serializeGalleryEntry } from "../../lib/studio/gallery-serialize.ts";
 import { load } from "js-yaml";
+import { readdirSync, readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -124,9 +125,42 @@ t("E3 ⚠ AND A ZERO DIMENSION BLOCKS PUBLISH — machine-written, so a zero is 
    galleryPublishBlockers([item({ height: 0 })]).length], [1, 1]);
 t("E4 …and the blocker names the slug, so an owner knows which item to fix",
   galleryPublishBlockers([item({ alt: "" })])[0].startsWith("x:"), true);
+/* ⚠ AN UNKINDED ITEM IS THE SAME CLASS OF INCOMPLETE AS AN EMPTY ALT, AND THE REASON IS
+ * REACHABILITY RATHER THAN TIDINESS. Every filter chip selects by kind, so a published item without
+ * one can be SEEN in the unfiltered grid and never narrowed to. Two reached main by ordinary
+ * authoring before this row existed. */
+t("E6 ⚠ AN EMPTY KIND BLOCKS PUBLISH — the item would be reachable only through All",
+  galleryPublishBlockers([item({ kind: "" })]).length, 1);
+t("E6a …and the refusal says what to do rather than naming the field",
+  /choose a kind/.test(galleryPublishBlockers([item({ kind: "" })])[0]), true);
+/* ⚠ AND AN UNKNOWN KIND TOO, WHICH IS THE HAND-EDIT ROUTE. `sanitizeGalleryPatch` refuses anything
+ * outside the enum at SAVE, so scoping this to the empty string would assume the editor is the only
+ * writer — and four project-shaped files carrying a key the schema never had reached main by a path
+ * nobody expected and took the production build down. */
+t("E6b ⚠ AND A KIND OUTSIDE THE ENUM BLOCKS PUBLISH — the editor is not the only writer",
+  galleryPublishBlockers([item({ kind: "sketch" })]).length, 1);
+t("E6c …and that refusal names the value AND the allowed set, so it is actionable from the message",
+  /"sketch" is not one of photo, illus, proj/.test(galleryPublishBlockers([item({ kind: "sketch" })])[0]), true);
+/* ⚠ THE COMPLEMENT, so E6 cannot pass by refusing everything — the gate that refuses every item is a
+ * shape this record carries, and it read as broken until someone checked the passing state existed. */
+t("E6d …and every kind the enum declares is accepted, derived from the enum rather than listed",
+  GALLERY_KINDS.filter((k) => galleryPublishBlockers([item({ kind: k })]).length > 0), []);
+
 /* The empty subject. A gate over an empty list must not read as a pass for a full one. */
 t("E5 an empty gallery blocks nothing, and that is not the same as a gallery that passed",
   galleryPublishBlockers([]), []);
+
+/* ⚠ AND THE CORPUS, BECAUSE A FIXTURE PASSING SAYS NOTHING ABOUT WHAT IS ON DISK. `blog-registry`
+ * M5 exists for exactly this: the validator runs at publish, so an item already on main is never
+ * re-asked, and two unkinded items sat published for as long as nothing walked the directory. */
+{
+  const dir = new URL("../../content/gallery/", import.meta.url);
+  const files = readdirSync(dir).filter((f) => f.endsWith(".yaml"));
+  const live = files.map((f) => mapGalleryItem(f.replace(/\.yaml$/, ""), load(readFileSync(new URL(f, dir), "utf8"))));
+  t("E7 the corpus walk found items, so E7a is not passing over an empty directory", live.length > 3, true);
+  t("E7a ⚠ NO PUBLISHED GALLERY ITEM BLOCKS PUBLISH — the corpus, not a fixture",
+    galleryPublishBlockers(live), []);
+}
 
 console.log("\nF · the serializer rebuilds in declared order and refuses to reformat");
 const RAW = "title: Low tide\nkind: photo\nimage: /images/gallery/a.webp\nwidth: 1600\nheight: 2000\nalt: A beach\ndescription: ''\ntags: []\norderIndex: 0\n";

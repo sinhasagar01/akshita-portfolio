@@ -330,6 +330,25 @@ export function galleryPublishBlockers(items: readonly GalleryItem[]): string[] 
     if (item.width <= 0 || item.height <= 0) {
       blockers.push(`${item.slug}: image dimensions are missing — re-upload the image`);
     }
+    /* ⚠ AN UNKINDED ITEM IS REACHABLE ONLY THROUGH `All`, WHICH IS THE SAME CLASS OF INCOMPLETE AS
+       AN EMPTY ALT. Every filter chip selects by kind, so a published item without one can be SEEN
+       in the unfiltered grid and never narrowed to — a reader can look straight at a piece and have
+       no way to ask for more like it. It also makes the fact row's arithmetic disagree with itself:
+       the total counts it and no bucket does.
+
+       ⚠ AND UNKNOWN IS REFUSED ALONGSIDE EMPTY, WHICH IS ONE LINE AND CLOSES THE HAND-EDIT ROUTE.
+       `sanitizeGalleryPatch` already refuses anything outside the enum at SAVE, so scoping this to
+       the empty string would assume the editor is the only writer — and this collection has already
+       disproved that: four project-shaped files carrying a `summary` key the schema never had
+       reached main by a path nobody expected and took the production build down. The cost of the
+       wider check is nothing and the cost of omitting it is a red build. */
+    if (!GALLERY_KINDS.includes(item.kind as (typeof GALLERY_KINDS)[number])) {
+      blockers.push(
+        item.kind.trim() === ""
+          ? `${item.slug}: choose a kind — an unkinded item is reachable only through All`
+          : `${item.slug}: kind "${item.kind}" is not one of ${GALLERY_KINDS.join(", ")}`
+      );
+    }
   }
   return blockers;
 }

@@ -262,6 +262,35 @@ is deploys rather than commits.
   push fails, is the whole remedy. The reading is available today; nobody takes it because a branch
   cut an hour ago feels current, and **"feels current" is exactly the state this entry is about.**
 
+- **⚠ CLOSED: AN UNKINDED ITEM IS REFUSED AT PUBLISH — AND THE MIGRATION THAT HELD THIS UNIT BACK
+  DID NOT EXIST.** The gate was deferred because "the gate and the content move together or publish
+  breaks on live pieces". **Measured, `publish-site-settings.ts:192` iterates `cmp.files`** — the
+  files changed on the draft branch — so it judges what is being PUBLISHED, not everything on main.
+  An unkinded item already on main blocks nothing until somebody edits it.
+
+  **⚠ SO THE UNIT COULD HAVE LANDED AS SOON AS IT WAS PROPOSED, AND THE REASON IT DID NOT WAS A
+  PREMISE NOBODY CHECKED.** Both parties held it, neither read the loop. The cost was one arc of
+  deferral on a one-line gate — cheap this time, and the shape is the expensive one: **a constraint
+  asserted about a mechanism, believed by everyone, blocking work that was never blocked.**
+
+  **⚠ THE HONEST REASON TO KIND THE LIVE ITEM ANYWAY IS THE TRAP, WHICH IS A BETTER ARGUMENT THAN
+  THE ONE THAT DEFERRED IT.** It is not about correctness — the gate is correct either way. It is
+  that the next person editing `light-through-leaves` for an unrelated reason gets refused for
+  something they did not cause, and **that is how a good gate earns a reputation for being in the
+  way.** A refusal an author cannot connect to their own action is the shape this record already
+  carries from `galleryPublishBlockers` firing on every item.
+
+  **UNKNOWN IS REFUSED ALONGSIDE EMPTY, AND THE HAND-EDIT ROUTE IS WHY.** Scoping the gate to the
+  state the editor can produce assumes the editor is the only writer — and this collection has
+  disproved that: four project-shaped files carrying a `summary` key the schema never had reached
+  main by a path nobody expected and took the production build down.
+
+  **⚠ AND `sony-camera` IS THE FIRST EVIDENCE THE EDITOR PRODUCES VALID ITEMS UNASSISTED**, authored
+  during the drive with a real kind and a real alt. The unkinded population was **one, not two**, and
+  it predates every fix this week.
+
+  **THE ORIGINAL FINDING, KEPT BECAUSE THE OBSERVATION IS THE DURABLE PART:**
+
 - **⚠ A GALLERY ITEM WITH AN EMPTY `kind` PASSES BOTH GATES AND NO FILTER CAN REACH IT — LIVE ON
   MAIN, AND THE HERO IS ONLY WHAT MADE IT VISIBLE.** `light-through-leaves` carries `kind: ''`.
   Measured against the collection as it stands:
