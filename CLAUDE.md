@@ -945,6 +945,34 @@ moment it grows an action again.
   than a better comment** — which is the actionable half, because the instinct on meeting a stale
   comment is to rewrite it.
 
+- **⚠ "I RECORDED IT" IS A CLAIM ABOUT THE REPOSITORY, AND THE SUBSTRATE IS THE THING NOBODY
+  MEASURES — FOUR INSTANCES IN ONE ARC, AND THE FOURTH WAS FOUND BY CHECKING.** A report ended with
+  `Recorded:` and a summary of two entries. **Neither had been written.** A grep for each returned
+  zero, run only because the same message had just finished diagnosing a stale reading — so the
+  habit was fresh and got pointed at its own author.
+
+      the `run.mjs` citation   asserted as standing in THREE PR bodies; the rule existed only in an
+                               approved, unmerged branch
+      the sharpened entry      committed, push REFUSED, branch deleted — the text lived nowhere but
+                               a reflog and was recovered by cherry-picking a dangling commit
+      the deploy reading       taken once, quoted forward through four reports over ninety minutes
+                               while production deployed three more times
+      `Recorded:`              claimed in the message that diagnosed the one above it, with nothing
+                               written
+
+  **⚠ EVERY ONE WAS SURROUNDED BY MEASURED CLAIMS.** Those reports carried assertion counts run,
+  byte figures read off a build, contrast ratios rasterised from a pixel, mutation results produced
+  by mutating. **Nobody skipped a check.** What went unchecked each time was the claim about what
+  the repository already contains — the one that reads as background rather than as an assertion.
+
+  **⚠ AND A CLAIM ABOUT YOUR OWN WORK IS THE LEAST LIKELY OF ALL TO BE CHECKED, PRECISELY BECAUSE IT
+  IS YOURS.** "I wrote that entry" feels observed, in the way "the file says X" does not. It is the
+  same act as citing a figure without re-deriving it, applied to the thing you did five minutes ago.
+
+  **THE CHECK IS ONE COMMAND AND IT IS THE ONLY DEFENCE THAT HAS WORKED: grep for the words before
+  saying they are there.** Not on the working tree when the claim is about `main`, and not on
+  memory when the claim is about the working tree.
+
 - **⚠ A STAMPED ROW LOOKS LIKE A FACT AND IS A READING, AND THE REMEDY MADE THE ERROR EASIER TO
   MAKE.** The three-reading row was built so "production is behind" would carry its time. It was
   then **quoted forward through four reports over ninety minutes**, by both parties, while
