@@ -189,6 +189,47 @@ is deploys rather than commits.
 
 ## Open items
 
+- **⚠ A DEPLOY STATUS IS A READING WITH A TIMESTAMP, NOT A FACT — AND SO IS "MAIN IS AHEAD OF
+  PRODUCTION".** Production was reported as one merge behind `main`. It was, at that moment, and the
+  build was IN FLIGHT: the deployment for that merge landed at `11:01:23Z`, minutes later, with a
+  success status. **The reading was correct and the claim was a state.**
+
+  **THE HONEST FORM CARRIES THE TIME.** "Production is at X as of 10:58Z, main is at Y" is checkable
+  and invites the obvious next question; "production is one merge behind" is a fact about a system
+  that changes while the sentence is being written. Same defect as the deploy-throttle counts that
+  carry `14:45Z` for exactly this reason — and this one was committed by someone who had just
+  re-read that entry.
+
+  **⚠ AND IT NEARLY COST A TEST RUN, WHICH IS WHY IT IS NOT MERELY PEDANTRY.** The owner was about
+  to choose where to drive a seven-case failure suite on the strength of it. Driving production on
+  a stale reading would have exercised the previous build and reported the results as current —
+  **the wrong-subject shape arriving in a test run rather than in an assertion.**
+
+  **TWO INSTANCES, TWO PEOPLE, ONE HOUR, BOTH ABOUT THE SUBSTRATE RATHER THAN ANY CODE.** The other
+  was a local write-mode assumption: `STUDIO_WRITE_MODE=fs` no-ops EVERY write route, so the honest
+  count of editor paths drivable on localhost is **zero**, not the four that reading the routes
+  suggested. Measuring the GUARDS rather than the routes is what produced the right number.
+
+  **THE PATTERN: claims about the running system age faster than claims about code, and nothing in
+  this repository instruments them.** Every gate here reads the working tree.
+
+  **⚠ BOARDED AS A GAP RATHER THAN LEFT AS A RULE ABOUT CARE, BECAUSE A RULE IS WHAT BOTH PEOPLE
+  ALREADY HAD.** No suite in this repository has the RUNNING SYSTEM as its subject. `upstream.mjs`
+  comes closest and is the exception that shows the shape — it is network-bound, so `run.mjs` skips
+  it BY NAME and it only runs from the pre-push hook. Everything else reads files.
+
+  **THE CHEAP FORM IS THREE READINGS NOBODY CAN TAKE SEPARATELY AND BELIEVE: local `main`,
+  `origin/main`, and the deployed sha, printed together with the time they were taken.** Each is
+  available today and each is individually misleading — the two errors above were both a correct
+  single reading reported as a state. Printing them as one stamped row is what makes "ahead" a
+  claim with a subject.
+
+  **⚠ AND IT IS A REPORT, NOT A GATE, WHICH IS THE DESIGN DECISION.** A gate that failed when
+  production lagged `main` would go red on every legitimate merge for the minutes a build takes —
+  the benign-common-failure shape `upstream`'s A1 was narrowed to avoid, and the argument
+  `.githooks/pre-push` already makes. **What is missing is not a refusal, it is a reading nobody
+  has to assemble by hand.**
+
 - **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
   GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
   `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
