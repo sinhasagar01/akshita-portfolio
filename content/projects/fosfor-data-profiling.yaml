@@ -340,6 +340,7 @@ sections:
                 translateX: null
                 translateY: null
                 z: null
+                preview: false
               illustration: fdp-insights
               title: No actionable insights
               body: >-
