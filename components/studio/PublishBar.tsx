@@ -24,6 +24,8 @@ import PublishToaster from "./PublishToaster";
 import { deployPatch, DEPLOY_DEADLINE_MS } from "@/lib/studio/toast-machine";
 import { usePublishSignal } from "./PublishProvider";
 import PublishPreviewDialog, { type PreviewState } from "./PublishPreviewDialog";
+import type { PreviewEntry } from "@/lib/studio/publish-preview";
+import { disclosureState } from "@/lib/studio/unpublished-changes";
 
 type PublishStatus = "idle" | "publishing" | "published" | "error";
 type DiscardStatus = "idle" | "discarding" | "error";
@@ -116,6 +118,56 @@ export default function PublishBar() {
   // the local edits are already saved to that draft. Gating on differs alone
   // would let a click publish a stale draft that omits unsaved keystrokes, and
   // would race the click-triggered blur-save. anyPending covers EVERY panel.
+  /* ============================================================================================
+     ⚠ THE UNPUBLISHED-CHANGES DISCLOSURE — AND IT FETCHES, WHICH REVERSES THE FIRST DESIGN.
+
+     The placement derivation said the list could render from `StudioData`, because the per-entry
+     draft records are already computed on every studio page load. THAT IS TRUE AND IT IS NOT
+     ENOUGH: `useDraftForm` calls `onSaved` and never `router.refresh()`, so a field save does not
+     re-render the layout. The publish PILL is fixed client-side because a boolean can be set
+     optimistically; A LIST CANNOT BE. Rendering membership from layout props would omit the entry
+     the author just saved, at the exact moment they asked what changed — and a list that omits
+     what you just did is worse than no list.
+
+     ⚠ SO THE ROUND TRIP IS NOT BEHIND A QUESTION ALREADY ANSWERED IN MEMORY. What memory answers
+     is "is there anything unpublished", which is the boolean the bar already shows. "Exactly what"
+     is a different question and its answer goes stale on every save.
+
+     ⚠ AND IT REUSES `publish-preview` RATHER THAN GROWING A SECOND ROUTE. That route already
+     compares the branches, already classifies each file through `classifyFile`, and already names
+     each entry through `KIND` — a second endpoint would be a second spelling of one classification,
+     which is the shape this repository keeps deleting. The two callers differ in MOMENT, not in
+     data: the disclosure asks before deciding, the confirm dialog asks at the point of commitment
+     and must never reuse a cached answer.
+  ============================================================================================ */
+  const [changesOpen, setChangesOpen] = useState(false);
+  const [changes, setChanges] = useState<PreviewEntry[] | null>(null);
+  const [changesState, setChangesState] = useState<"idle" | "loading" | "failed">("idle");
+
+  async function toggleChanges() {
+    if (changesOpen) { setChangesOpen(false); return; }
+    setChangesOpen(true);
+    setChangesState("loading");
+    try {
+      const res = await fetch("/api/studio/publish-preview");
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.ok && json.preview) {
+        setChanges(json.preview.entries as PreviewEntry[]);
+        setChangesState("idle");
+        return;
+      }
+      /* `not_applicable` is dev mode, where there is no branch to read. Not a failure. */
+      if (res.ok && json.ok && json.reason === "not_applicable") {
+        setChanges([]);
+        setChangesState("idle");
+        return;
+      }
+      setChangesState("failed");
+    } catch {
+      setChangesState("failed");
+    }
+  }
+
   const canPublish = unpublished && !anyPending && publishStatus !== "publishing";
   // Discard is gated the same way: only when there's a draft to throw away, and
   // never while a panel save is in flight (which could re-create the branch just
@@ -539,6 +591,83 @@ export default function PublishBar() {
             }
           : {})}
       >
+        {/* ⚠ THE FOUR STATES, AND A NAIVE IMPLEMENTATION COLLAPSES THEM TO TWO.
+
+            `draftReadError` and "nothing unpublished" are BYTE-IDENTICAL in `DraftBranchState`
+            but for one flag — `{ ...EMPTY_DRAFT_STATE, readError: true }` — so "nothing to publish"
+            and "I could not look" must never render the same. That type's own comment records the
+            incident where they did: an owner saw published content with the bar dark and no
+            indication their draft had failed to load.
+
+            ⚠ AND THE FOURTH IS THE ONE A SPECIFICATION OMITS: `draftReadFailures` non-empty with
+            `draftReadError` FALSE. The branch read fine and specific files did not parse, so EVERY
+            OTHER ENTRY IS A REAL DRAFT. Collapsing that into the failure case tells an author their
+            work is unreadable when one file is.
+
+            ⚠ AND "BEHIND" IS NEVER SHOWN. A draft branch routinely falls behind main — measured at
+            12 commits behind while carrying one unpublished entry — and only AHEAD is unpublished
+            work. "Your draft is 12 behind" is the kind of true, useless, alarming line a surface
+            like this grows. */}
+        {changesOpen && !confirmOpen && (
+          <div
+            id="unpublished-changes"
+            className="absolute bottom-full right-0 mb-2 max-h-[52vh] w-[min(30rem,calc(100vw-2rem))] overflow-y-auto rounded-[var(--studio-radius-panel,12px)] border border-studio-ink-950/12 bg-studio-cream-50 p-3 text-left shadow-lg"
+          >
+            {(() => {
+              /* ⚠ THE STATE IS CHOSEN BY A FUNCTION A SUITE CAN CALL, not by a ternary chain only a
+                 browser can reach. `/studio` is owner-gated and every write route no-ops under
+                 `fs`, so this panel cannot be driven outside a real production session — which is
+                 exactly the condition under which a source regex proves the words exist and nothing
+                 about which arm runs. */
+              const state = disclosureState({
+                draftReadError,
+                readFailureCount: draftReadFailures.length,
+                fetchState: changesState,
+                entryCount: changes === null ? null : changes.length,
+              });
+              return state.kind === "unreadable" ? (
+              <p className="text-[12.5px] text-studio-ink-600">
+                The draft could not be read, so this list is unavailable. Your unpublished work is
+                still on the draft branch — nothing has been lost.
+              </p>
+            ) : state.kind === "loading" ? (
+              <p className="text-[12.5px] text-studio-ink-600">Reading the draft branch…</p>
+            ) : state.kind === "failed" ? (
+              <p className="text-[12.5px] text-studio-ink-600">
+                Couldn&rsquo;t list the changes. Publish still works — this is the list failing, not
+                the draft.
+              </p>
+            ) : state.kind === "listing" ? (
+              <>
+                <ul className="flex flex-col gap-1.5">
+                  {(changes ?? []).map((e, i) => (
+                    <li key={`${e.group}-${e.title}-${i}`} className="flex items-baseline gap-2 text-[12.5px]">
+                      <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-studio-ink-600">
+                        {e.change}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-studio-ink-950">{e.title}</span>
+                      <span className="shrink-0 text-[11px] text-studio-ink-600">{e.kind}</span>
+                    </li>
+                  ))}
+                </ul>
+                {state.unparsed > 0 && (
+                  /* ⚠ THE FOURTH STATE, RENDERED BESIDE THE LIST RATHER THAN INSTEAD OF IT. */
+                  <p className="mt-2.5 border-t border-studio-ink-950/12 pt-2 text-[12px] text-studio-ink-600">
+                    {state.unparsed === 1 ? "One entry" : `${state.unparsed} entries`}{" "}
+                    could not be parsed and {state.unparsed === 1 ? "is" : "are"} not listed
+                    above. Everything else here is a real draft.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-[12.5px] text-studio-ink-600">
+                Nothing unpublished. Your site matches what is on the draft branch.
+              </p>
+            );
+            })()}
+          </div>
+        )}
+
         {confirmOpen ? (
           <>
             <span id="discard-confirm-msg" className="min-w-0 flex-1 text-[12.5px]">
@@ -570,6 +699,21 @@ export default function PublishBar() {
             >
               {statusText}
             </span>
+            {/* ⚠ A DISCLOSURE, NOT A PERMANENT LIST. The bar's standing state is a boolean, and an
+                author with nothing unpublished must see the bar they see today — a list that is
+                always open changes the chrome on every studio page to answer a question most
+                visits do not ask. */}
+            {unpublished && (
+              <button
+                type="button"
+                onClick={toggleChanges}
+                aria-expanded={changesOpen}
+                aria-controls="unpublished-changes"
+                className="shrink-0 rounded-full px-2 py-[11px] text-[12.5px] text-studio-ink-600 transition-colors hover:text-studio-accent-500"
+              >
+                {changesOpen ? "Hide changes" : "What changed?"}
+              </button>
+            )}
             {unpublished && (
               <button
                 type="button"

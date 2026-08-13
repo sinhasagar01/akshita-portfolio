@@ -387,6 +387,50 @@ is deploys rather than commits.
   paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
   against hashes would have deleted the blog's copy while "collecting" the gallery's.
 
+- **⚠ SHIPPED: THE UNPUBLISHED-CHANGES DISCLOSURE, AND THE PLACEMENT DERIVATION REVERSED ITSELF ON
+  A CACHE.** It lives in the publish bar as a disclosure under the pill — the bar's standing state is
+  a boolean, and a permanently open list would change the chrome on every studio page to answer a
+  question most visits do not ask.
+
+  **⚠ PER-INDEX WAS REFUSED FOR A STRONGER REASON THAN FIX-ONCE-PER-COLLECTION: IT CANNOT REPRESENT
+  THE SUBJECT.** `readDraftBranchStateCached` returns `skills` and the settings singleton, and
+  **those belong to no collection index at all** — so four per-index sections would each be silent
+  about the parts they do not own, while claiming to show unpublished work.
+
+  **⚠ AND THE FIRST DESIGN WAS WRONG IN A WAY ONLY A SECOND MEASUREMENT FOUND.** The derivation said
+  the list could render from `StudioData`, because the per-entry draft records are already computed
+  on every page load. True, and not enough: **`useDraftForm` calls `onSaved` and never
+  `router.refresh()`**, so a field save does not re-render the layout. The publish PILL is fixed
+  client-side because a boolean can be set optimistically; **a list cannot be.** Rendering membership
+  from layout props would omit the entry the author just saved, at the exact moment they asked what
+  changed.
+
+  **SO THE ROUND TRIP IS NOT BEHIND A QUESTION ALREADY ANSWERED IN MEMORY.** Memory answers *is there
+  anything unpublished* — the boolean. *Exactly what* is a different question whose answer goes stale
+  on every save. It reuses `publish-preview` rather than growing a second route: the two callers
+  differ in MOMENT, not in data.
+
+  **⚠ AND THE FOURTH STATE IS THE ONE A SPECIFICATION OMITS.** `readFailures` non-empty with
+  `readError` FALSE — the branch read fine and specific files did not parse, so every other entry is
+  a real draft. Collapsing it into the failure case tells an author their work is unreadable when one
+  file is. **States A and C are byte-identical but for one flag** (`{ ...EMPTY_DRAFT_STATE,
+  readError: true }`), so "nothing to publish" and "I could not look" must never render the same.
+
+  **THE SELECTION IS A LEAF FUNCTION BECAUSE THE PANEL CANNOT BE DRIVEN.** `/studio` is owner-gated
+  and `STUDIO_WRITE_MODE=fs` no-ops every write route, so a ternary chain there could only be
+  asserted by a source regex — which proves the words exist and nothing about which arm runs.
+
+  **⚠ AND ONE OF ITS OWN ROWS COULD NOT FAIL FOR THE REASON IT NAMED.** `C2` asserted the read error
+  *outranks* everything and tested it against a LIST alone, so reordering it below the LOADING check
+  survived. **A precedence claim has to name every competitor**; "outranks" with one example is a
+  claim about one example. Thirteenth unfalsifiable row this session, found by mutation.
+
+  **AND `behind` IS NEVER SHOWN** — measured at 12 commits behind while carrying one unpublished
+  entry. Only AHEAD is unpublished work, and "your draft is 12 behind" is the kind of true, useless,
+  alarming line a surface like this grows.
+
+  **THE BOARDED FRAMING, KEPT BECAUSE THE NAMING ARGUMENT IS THE DURABLE PART:**
+
 - **⚠ BOARDED: A STUDIO-WIDE "UNPUBLISHED CHANGES" SURFACE, AND IT MUST NOT BE CALLED DRAFTS.** An
   owner asked for a drafts section on the gallery index "like blog's". **The premise does not
   transfer, and deriving that is the whole entry.**
