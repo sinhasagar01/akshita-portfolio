@@ -637,6 +637,112 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `colour-census` TOO, AND THE COUNT DID NOT MOVE WHILE
+  NINE ATTRIBUTIONS DID.** Route C had stripped comments since #362; route B and the `consumersOf`
+  walk read raw. Measured **by identity rather than by count**, as the `cascade-public` strip taught:
+
+      route B (SVG colour attributes)   80 before, 80 after, IDENTICAL PAIRS — no comment in a
+                                        public file carries one. A latent trap with an empty
+                                        population, closed anyway because a suite carrying two
+                                        scanners over one language with different comment handling
+                                        is the asymmetry that arc was repaired for
+      consumersOf                       410 utilities, 303 files, NINE change their consumer set,
+                                        and NONE becomes an orphan
+
+  **SO NO VERDICT MOVED AND NINE ATTRIBUTIONS WERE WRONG** — which a total could never have shown,
+  and which is why the identity comparison was the instruction rather than the totals.
+
+  **⚠ AND FOUR OF THE NINE CREDITED A STUDIO FILE FOR A PUBLIC UTILITY.** `max-w-[68ch]` was
+  attributed to `BlogBlocksEditPanel.tsx` by a comment while every real consumer is public;
+  `aspect-[16/9]`, `min-h-[520px]` and `mt-[44px]` are the same shape. **This census's own rule is
+  that cost is an emission question and themeability a consumption one — and the consumption side
+  was reading prose.**
+
+  **THE BLANKING IS ASSERTED, BECAUSE A CHANGE THAT MOVES NO TOTAL IS ONE THE NEXT AUTHOR REVERTS BY
+  ACCIDENT.** `A0a` proves the fixture still holds, `A0b` that the comment-only file is not a
+  consumer, `A0c` that the class still has real ones — so the row cannot pass on an empty set.
+
+- **⚠ A LOUD REFUSAL WHOSE LAST LINE IS BLANK IS A SILENT ONE — THE TENTH DEFECT IN `mutate.mjs`,
+  AND IT IS A FORMATTING CHOICE WITH A VERDICT RIDING ON IT.** Every refusal printed a clear
+  multi-line message and exited 2. Measured: **264 bytes.** An operator still read an unrun mutation
+  as a result, because the command was piped to `tail -1` — this repository's standing habit — and
+  the refusal's last line was **empty**.
+
+  **THE SUITE WAS THEN RUN AND PASSED, BECAUSE NOTHING HAD BEEN APPLIED, AND THAT PASS READ AS THE
+  GATE SURVIVING.** The exact false negative this tool exists to make impossible, arriving through
+  the FORMATTING of a correct refusal rather than through its logic.
+
+  **⚠ THE OPERATOR'S HABIT IS NOT THE THING TO FIX.** *"Capture the exit code"* is written down here
+  and was written down before today; it has now failed three times. **Only a mechanism prevents a
+  failure mode** — so the LAST LINE of every refusal is a self-contained sentence, and whatever
+  slice of the output anyone looks at, the final line says the tool did nothing.
+
+  **⚠ AND THE REPAIR NEARLY SHIPPED A TEMPORAL DEAD ZONE, THE FOURTH IN THIS FILE'S HISTORY.**
+  `bail` was declared beside the edit machinery and called by `--restore` three hundred lines above.
+  `node --check` **parses that perfectly**; `--restore` with no snapshot crashed with a
+  `ReferenceError` instead of refusing. Caught by RUNNING the branch — the specific state that
+  reaches the new code, which is the rule this file already states about guards added to branches.
+
+  **⚠ AND THE FILE'S OWN HEADER ADVERTISED WORK THAT WAS ALREADY DONE.** It read *"NEXT UNIT ON THIS
+  FILE: THE TOOL OWNS THE WHOLE EDIT. RAISED FROM BOARDED, ON THE COUNT"* and listed EIGHT defects.
+  The tool has owned the edit since `--edit` began recording `before` bytes. **Re-derived one by one
+  against the code: 2, 3 and 4 were all closed** — the explicit-snapshot step, `.clean-at-snapshot`,
+  and a second restore refusing loudly. **So "four of nine remain in the snapshot mechanism" was a
+  carried figure that had expired**, and it had already scoped a session's work.
+
+  **⚠ A STALE COMMENT MISLEADS A READER; A STALE `NEXT UNIT` MISLEADS WHOEVER PICKS THE WORK.** And
+  the inner ledger listing defect 3 as NOT CLOSED was accurate about **what one change reached** and
+  was read as **what remained open** — a list scoped to one change reads as a list of the whole
+  subject to everybody who arrives later. It is kept, with that named.
+
+- **⚠ THE SUITE THAT TESTS THE MUTATION TOOL DELETED THE OPERATOR'S PENDING MUTATIONS, ON EVERY
+  FULL RALPH RUN — ELEVENTH DEFECT IN THIS MECHANISM AND THE FIRST WHERE THE HARNESS WAS THE
+  AGENT.** `mutate.mjs` keys its edit manifest off `TMPDIR`; `mutate-harness` section B applies real
+  edits and its `finally` ran `rmSync` on that exact file; `ralph/run.mjs` runs the suite. **So an
+  operator who ran the gate while holding a mutation lost the record of it — the mutation staying in
+  the tree with nothing able to revert it precisely.** The tool's own worst outcome, produced by its
+  test.
+
+  **⚠ FOUND BY IT HAPPENING TWICE IN ONE SESSION, AND MISREAD THE FIRST TIME.** A mutation was
+  applied to `mutate.mjs`, the harness was run to watch the new rows go red, and **they passed** —
+  because the suite had reverted and forgotten the mutation before they could see it. That reads
+  exactly like a weak assertion. **The second occurrence is what made it a mechanism rather than a
+  fluke**, and the tell was `--revert-edit` reporting *no recorded edits* seconds after a successful
+  `--edit`.
+
+  **⚠ AND THE HEADER SAID THE OPPOSITE, IN THE AGED-OUT VARIETY.** *"The apply-and-revert round trip
+  is deliberately NOT here … what belongs in CI is the half that cannot damage anything."* True when
+  written; false from the moment B5 to B7 arrived. **Second aged-out instance this week**, after
+  `splitAtBody`.
+
+  **THE BOUNDS ARE NOW STATED RATHER THAN THE ABSENCE CLAIMED.** The FILE was always bounded —
+  section B holds the original bytes and rewrites them in a `finally`. **The MANIFEST had no bound
+  at all**, which is the half nobody wrote down because nobody had thought of it as state. Every
+  invocation now runs against a sandbox `TMPDIR` and `D6` asserts the operator's was untouched.
+
+  **⚠ AN ISOLATION CLAIM THAT CANNOT FAIL IS NOT AN ISOLATION CLAIM.** Had `TMPDIR` not been
+  honoured, every row would have passed identically against the operator's manifest — which is
+  precisely how this hid. `D6` names the sandbox rather than asserting an outcome that both worlds
+  produce.
+
+  **⚠ RULED: B5 TO B7 DO NOT WRITE TO A TRACKED FILE, AND THE ARGUMENT IS THE `finally` ITSELF.**
+  The file bound was the suite holding the original bytes and rewriting them in a `finally` — which
+  is only as good as the `finally`, **and a `finally` is exactly what a row throwing early
+  defeats.** A suite that writes to a tracked path is one crash away from a dirty tree that every
+  later gate then measures.
+
+  **THE FIXTURE LIVES OUTSIDE THE REPOSITORY, so a crash at any point leaves the tree clean BY
+  CONSTRUCTION rather than by cleanup.** `B4a` asserts it.
+
+  **⚠ AND A TEMP FILE INSIDE THE REPO WOULD NOT HAVE WORKED, WHICH IS THE NON-OBVIOUS HALF.** An
+  untracked file in the tree IS dirty-and-unsnapshotted, so `--edit` refuses it — correctly — and
+  the rows would fail on the tool being right. **A file git has never heard of is not in
+  `dirtyFiles()` at all**, so the check has nothing to object to. Measured end to end before it
+  shipped rather than reasoned about: edit applied, revert exact, repo tree clean.
+
+  **B1, B2 AND C1 KEEP THE DERIVED TRACKED FILE, because they REFUSE before writing.** Moving them
+  would be widening a fix past its subject.
+
 - **⚠ THE PRE-PUSH HOOK CAUGHT A BRANCH CUT FROM AN UNPUSHED `main` — THIRD INSTANCE OF THAT SHAPE
   AND THE FIRST MECHANICAL CATCH. EVERY OTHER ENTRY IN THIS FAMILY IS A FAILURE, WHICH IS WHY THIS
   ONE IS WRITTEN DOWN.** A wip commit went onto local `main`, a branch was cut from it, and the push
