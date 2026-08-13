@@ -161,6 +161,17 @@ export type DraftBranchState = {
    * content" on the strength of it. That distinction is the entire point of the split; see the
    * read loop for the incident that forced it. */
   readFailures: DraftReadFailure[];
+  /**
+   * ⚠ THE DRAFT BRANCH WAS DELETED WHILE THIS READ WAS IN FLIGHT — a fact about the DRAFT, not about
+   * the entries. Distinct from `readError` (the read itself failed and nothing is known) and from
+   * `readFailures` (the branch read fine and specific files did not parse).
+   *
+   * Without it, a discard in another tab surfaces as N per-entry `Failed to fetch tree: 404`
+   * messages — every one true about a tree read and every one false about the author's work. The
+   * three states must never render alike, which is the same requirement the publish disclosure's
+   * fourth state carries.
+   */
+  draftGone: boolean;
   // Added + modified draft entries, read from the draft branch and keyed by slug.
   projects: Record<string, ProjectListItem>;
   experience: Record<string, ExperienceListItem>;
@@ -185,6 +196,7 @@ export type DraftBranchState = {
 const EMPTY_DRAFT_STATE: DraftBranchState = {
   differs: false,
   readError: false,
+  draftGone: false,
   readFailures: [],
   projects: {},
   experience: {},
@@ -269,7 +281,7 @@ const readDraftBranchStateCached = unstable_cache(
       gallerySlugs.length === 0 &&
       !skillsChanged
     ) {
-      return { differs, readError: false, readFailures: [], projects: {}, experience: {}, blog: {}, gallery: {}, removedProjects, removedExperience, removedBlog, removedGallery, skills: null };
+      return { differs, readError: false, draftGone: false, readFailures: [], projects: {}, experience: {}, blog: {}, gallery: {}, removedProjects, removedExperience, removedBlog, removedGallery, skills: null };
     }
 
     const token = process.env.STUDIO_GITHUB_TOKEN as string;
@@ -307,8 +319,11 @@ const readDraftBranchStateCached = unstable_cache(
      * A RECORD RATHER THAN A COUNT, because "one entry failed" cannot tell an author which file to
      * fix, and this failure's whole character is that it is invisible. */
     const readFailures: DraftReadFailure[] = [];
+    /* The denominator for the all-failed test below. Counted rather than inferred from the arrays,
+       because a read that succeeds and finds nothing leaves no entry either. */
+    let totalReads = 0;
     const guarded = <T>(collection: DraftReadFailure["collection"], slug: string, run: () => Promise<T>) =>
-      run().catch((e: unknown) => {
+      (totalReads++, run()).catch((e: unknown) => {
         readFailures.push({
           collection,
           slug,
@@ -347,7 +362,31 @@ const readDraftBranchStateCached = unstable_cache(
           ]
         : []),
     ]);
-    return { differs, readError: false, readFailures, projects, experience, blog, gallery, removedProjects, removedExperience, removedBlog, removedGallery, skills };
+    /* ⚠ A BRANCH THAT VANISHED BETWEEN THE COMPARE AND THE READS IS ONE FACT, NOT N FAILURES.
+     *
+     * `compareBranches` above returns null for an absent branch and this function returns
+     * `EMPTY_DRAFT_STATE` — so the branch-gone case IS handled, at the top. What is not handled is
+     * the branch disappearing AFTER that check: every per-entry read then fails with Keystatic's
+     * `Failed to fetch tree: 404`, and an author is told their entries are unreadable when what
+     * actually happened is that somebody discarded the draft, possibly in another tab.
+     *
+     * An owner saw exactly that: "Couldn't read gallery/sony · Failed to fetch tree: 404 …
+     * Everything else is your draft." The second sentence is the per-entry degrade working
+     * correctly; the first is a true statement about a tree read and a false one about their work.
+     *
+     * ⚠ SO IT RE-ASKS BEFORE REPORTING, and only when every read failed — which is what a vanished
+     * branch produces and what a single malformed file cannot. One extra request in the one case
+     * that is already an error, and none on the happy path.
+     *
+     * ⚠ AND IF THE RE-ASK ITSELF FAILS, THE PER-ENTRY FAILURES STAND. A read that cannot run is not
+     * permission to claim a different cause — the same guard-on-the-guard as `mergeBranch`'s
+     * confirmation, and for the same reason. */
+    if (readFailures.length > 0 && readFailures.length === totalReads) {
+      const stillThere = await branchExists(DRAFT_BRANCH).catch(() => true);
+      if (!stillThere) return { ...EMPTY_DRAFT_STATE, draftGone: true };
+    }
+
+    return { differs, readError: false, draftGone: false, readFailures, projects, experience, blog, gallery, removedProjects, removedExperience, removedBlog, removedGallery, skills };
   },
   ["studio-draft-branch-state"],
   { revalidate: DRAFT_STATE_TTL_SECONDS, tags: [DRAFT_STATE_TAG] }

@@ -32,6 +32,7 @@
 export type ChangesFetch = "idle" | "loading" | "failed";
 
 export type DisclosureState =
+  | { kind: "gone" }
   | { kind: "unreadable" }
   | { kind: "loading" }
   | { kind: "failed" }
@@ -41,6 +42,8 @@ export type DisclosureState =
 export function disclosureState(input: {
   /** The whole draft read failed and the studio is showing live as a fail-safe. */
   draftReadError: boolean;
+  /** The draft branch was deleted while the read was in flight — a discard, usually in another tab. */
+  draftGone: boolean;
   /** Entries that parsed but could not be read as content. */
   readFailureCount: number;
   fetchState: ChangesFetch;
@@ -51,6 +54,11 @@ export function disclosureState(input: {
      read the draft it is showing LIVE content, so any list built beside that is describing a state
      the author is not looking at. Ordering this below the fetch would let a working compare paint
      a confident list over a failed read. */
+  /* ⚠ `gone` OUTRANKS `unreadable`, BECAUSE IT IS THE MORE SPECIFIC TRUE STATEMENT. Both mean the
+     list cannot be built; only one of them tells the author what happened. Ordering it below would
+     let "I could not read the draft" stand in for "somebody discarded it", which is the same
+     collapse this function exists to prevent one level up. */
+  if (input.draftGone) return { kind: "gone" };
   if (input.draftReadError) return { kind: "unreadable" };
   if (input.fetchState === "loading") return { kind: "loading" };
   if (input.fetchState === "failed") return { kind: "failed" };
