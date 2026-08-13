@@ -32,7 +32,7 @@
 // ROLE tokens (`band-dark`, `on-dark`, `on-dark-muted`) rather than raw values, so a dark palette
 // still resolves it through the ground layer instead of painting a second hard-coded black.
 import Image from "next/image";
-import { GALLERY_OVERLAY_STACK_PX } from "@/lib/studio/three-pane";
+import { GALLERY_OVERLAY_CHROME_PX, GALLERY_OVERLAY_STACK_PX } from "@/lib/studio/three-pane";
 
 /** What the overlay draws. A structural subset of `GalleryItem`, declared here rather than
  *  imported whole, so this component cannot quietly start depending on a field it does not
@@ -76,12 +76,24 @@ export default function GalleryOverlay({
   onPrev,
   onNext,
   indexLabel,
+  filmstrip,
 }: {
   item: GalleryOverlayItem;
   staticView?: boolean;
   onPrev?: () => void;
   onNext?: () => void;
   indexLabel?: string;
+  /** The browse rail across the foot, supplied by whatever owns the SET. A slot rather than a
+   *  built-in, because this component knows about one item and a filmstrip is a fact about many.
+   *
+   *  ⚠ THE STUDIO CANVAS PASSES NOTHING, AND THAT IS A REAL DIFFERENCE FROM THE PUBLIC OVERLAY —
+   *  SAID PLAINLY RATHER THAN GLOSSED. The canvas claims to show "the overlay as it will appear
+   *  open", and without a filmstrip the stage is taller there than a reader's. What the canvas
+   *  reproduces exactly is the ITEM composition: every field the inspector edits, at the width the
+   *  reader gets. The filmstrip is a browse control over a set, and the editor edits one item and
+   *  already has a list pane for that job — so reproducing it would be drawing a second navigator
+   *  beside the real one. The parity claim is about the item, and this is where its edge is. */
+  filmstrip?: React.ReactNode;
 }) {
   const specs: [string, string][] = [
     ["KIND", KIND_LABEL[item.kind] ?? "Unset"],
@@ -130,11 +142,23 @@ export default function GalleryOverlay({
               alt={item.alt}
               width={item.width || 1600}
               height={item.height || 1200}
+              /* ⚠ WITHOUT THIS THE OPTIMISER SERVES THE TOP OF THE LADDER. `next/image` defaults to
+                 `100vw`, and measured on the harness the overlay requested `w=3840` while the tiles
+                 behind it correctly took `w=640` — the stage is never the full viewport, because
+                 the rail and the arrow columns take a fixed 468px out of it at the desktop form.
+                 So the widths are declared from the same chrome constant the reflow uses, and the
+                 stacked form below the boundary genuinely is full width. */
+              sizes={`(max-width: ${GALLERY_OVERLAY_STACK_PX - 1}px) 100vw, calc(100vw - ${GALLERY_OVERLAY_CHROME_PX}px)`}
               /* ⚠ `next/image` HERE AND A PLAIN `<img>` IN THE CASE-STUDY PREVIEW, and the
                  difference is who chooses the scale. That overlay zooms, so an optimiser sizing to
                  a layout slot works against it. This one fits a slot and never zooms, which is
                  exactly the case the optimiser is for. */
-              className="h-auto max-h-full w-auto max-w-full rounded-[10px] object-contain"
+              /* ⚠ NO `h-auto` AND NO `max-w-full` — the unlayered `img, video` reset already draws
+                 both, so those utilities ask for what the element has and `cascade-public` counts
+                 them inert. `max-h-full` and the width are NOT in that reset and are doing real
+                 work, which is why only two of the four went. Same finding `ImagePreview` records
+                 against the same reset. */
+              className="max-h-full w-auto rounded-[10px] object-contain"
             />
           ) : (
             <p className="rounded-[10px] border border-dashed border-on-dark/25 px-6 py-10 text-center font-mono text-[11px] text-on-dark-muted">
@@ -211,6 +235,8 @@ export default function GalleryOverlay({
           ) : null}
         </div>
       </div>
+
+      {filmstrip ? <div className="flex-none">{filmstrip}</div> : null}
 
       {/* ⚠ A CONTAINER QUERY, BECAUSE THIS IS ONE COMPONENT IN TWO CONTEXTS. That is the whole
           reason, and it is a stronger one than the site's breakpoint convention it might look like

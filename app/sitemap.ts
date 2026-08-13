@@ -55,6 +55,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     ...blogPosts,
+    /* Listed on the same terms as `/blog` above: a real page that renders an empty state, so it is
+       a destination whether or not anything has been authored into it yet. There is no
+       `/gallery/<slug>` route to guard — the overlay is a dialog on this page, not a URL — so
+       unlike blog posts there is nothing here that can 404. */
+    {
+      url: absoluteUrl("/gallery"),
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
     /* ⚠ THE PLAYGROUND WAS MISSING TOO, WHICH IS THE THIRD INSTANCE OF THE DECAY THIS FILE'S OWN
        HEADER RECORDS TWICE. `/palettes` shipped with a nav link, has been public and indexed since,
        and was never listed here — exactly what the paragraph above says happened to the blog, in

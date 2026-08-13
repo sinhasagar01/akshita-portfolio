@@ -88,6 +88,18 @@ const PAGES = [
      being in the nav; `/oklch` has no nav entry by design. */
   ["/palettes", "palettes"],
   ["/oklch", "oklch primer"],
+  /* ⚠ THE GALLERY IS HERE ON ITS FIRST DAY, WHICH IS THE POINT OF THE NOTE ABOVE. Every other entry
+     in this list arrived late — the two extra blog posts, both playground routes — because a route
+     list is only ever read by somebody adding to it, so a route that ships without an edit here
+     stays invisible until the next route ships. `route-coverage` C1 now fails on the omission, and
+     it failed on this one, which is the mechanism working rather than a habit holding.
+
+     ⚠ AND IT WILL MEASURE ALMOST NOTHING UNTIL THE COLLECTION HAS CONTENT — SAID, BECAUSE A LOW
+     SITE COUNT HERE READS AS A THIN PAGE. `content/gallery` is empty, so this visits a masthead and
+     an empty state. The masthead is real themed chrome and is worth the visit; the masonry, the
+     filter chips and the overlay are NOT under the ratchet until an item exists. That is a stated
+     gap rather than coverage, and the trigger to re-read this note is the first authored item. */
+  ["/gallery", "gallery"],
 ];
 
 /* ⚠ THE PRIMER REPORTS ~96 SITES THAT DO NOT MOVE, AND THEY ARE CORRECT. A future reader seeing
