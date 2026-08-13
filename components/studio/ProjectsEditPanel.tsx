@@ -714,13 +714,26 @@ export function HeroImageField({
             <img
               src={shownSrc!}
               alt=""
-              // HEIGHT COMES FROM THE INSETS, NOT FROM `h-full`. The unlayered
-              // `img, video { height: auto }` reset beats any layered height utility, so
-              // `h-full` here rendered `auto` and the image never filled its 21/9 box — it
-              // was merely clipped by the parent's overflow-hidden, which looks close enough
-              // to hide the bug. `absolute inset-0` sizes the box without the height
-              // property, so nothing the reset owns is contested. Same mechanism the
-              // canvas-hero suite pins. Found by ralph's studio-cascade suite.
+              // HEIGHT COMES FROM THE INSETS, AND THE TRAP THAT FORCED THAT IS NOW CLOSED.
+              // This was written because the unlayered image reset beat any layered height
+              // utility, so a full-height class here rendered `auto` and the image never
+              // filled its 21/9 box — it was merely clipped by the parent's overflow-hidden,
+              // which looks close enough to hide the bug. `absolute inset-0` sizes the box
+              // without touching the property the reset owned.
+              //
+              // ⚠ THAT PROPERTY HAS SINCE BEEN LIFTED INTO `@layer base`, so the reason above
+              // is history rather than a live constraint. The comment is amended rather than
+              // left, because a fixed hazard kept in the present tense is worse than one never
+              // recorded — nobody re-derives a hazard, and the caution it buys reads as rigour.
+              //
+              // ⚠ AND THIS SITE IS WHY THE LIFT WAS WORTH TAKING. It is one of two places where
+              // an author could not simply write a class and had to author around the reset
+              // instead; the blog's video poster is the other. Those two are workarounds that
+              // SHIPPED, which is a different and worse cost than the dead classes elsewhere.
+              //
+              // THE MARKUP IS UNCHANGED ON PURPOSE. Insets still size this box correctly, and
+              // rewriting working studio markup inside a public cascade change would be two
+              // edits under one justification. Found by ralph's studio-cascade suite.
               className="absolute inset-0 w-full object-cover"
               onError={() => setBrokenSrc(true)}
             />

@@ -1549,6 +1549,27 @@ h6 {
     max-width: 68ch;
   }
 
+  /* ⚠ THE IMAGE HEIGHT — LIFTED WITH ITS BLAST RADIUS ENUMERATED FIRST, WHICH IS WHAT THE FOUR
+     TYPE LIFTS TAUGHT. `cascade-public` lists every element carrying a height utility on an `img`
+     or `video`, so the set that changes behaviour was knowable BEFORE the edit rather than after:
+
+         8 sites, every one `h-auto`, every one want=auto got=auto
+         0 collisions — nothing is currently asking for a height the reset refuses
+
+     SO NOT ONE RENDERED BOX MOVES. Every consumer of this property already agrees with the value
+     the reset gave; the utility simply starts being the thing that supplies it. That is unusual
+     among these lifts — the four type ones each changed real type — and it is why this one is safe
+     to take whole rather than in halves.
+
+     ⚠ WHAT IT BUYS IS FUTURE CORRECTNESS, NOT A PRESENT REPAIR, AND SAYING SO IS THE POINT. There
+     is nothing broken on screen today. What was broken is that a height utility on an image COULD
+     NOT WORK, silently, and five authors found that out one at a time. After this a wrong height is
+     a visible mistake instead of an invisible one. */
+  img,
+  video {
+    height: auto;
+  }
+
   /* ⚠ THE LEADING — 58 UTILITIES, THE LARGEST GROUP, AND THE THIRD PROPERTY LIFTED ONE AT A TIME.
      The families and the heading tracking stay unlayered and stay in force; only the leading moves.
 
@@ -1594,10 +1615,24 @@ h6 {
   }
 }
 
+/* ⚠ `height` HAS LEFT THIS RULE — THE FIFTH PROPERTY LIFTED ONE AT A TIME, AND THE FIRST OUTSIDE
+   THE TYPE SCALE. `max-width` and `display` stay unlayered and stay in force; only the height moves,
+   into `@layer base` below. The sequence is #350's, for #350's reason: one diff containing every
+   property is a diff where nothing can be attributed.
+
+   ⚠ HAZARD 11 FIRED FIVE TIMES ON THIS ONE RULE BEFORE ANYONE ASKED WHETHER IT SHOULD BE LAYERED.
+   A `max-w-full` on the case-study preview, a full-height class on a gallery tile that drew nothing,
+   and three more inert classes — every one written by an author with no way to see it was dead. An
+   instance list that long is a question nobody has asked.
+
+   THE COUNT ARGUES FOR THE LIFT RATHER THAN AGAINST IT. Of 50 `<Image>`/`<img>` elements in the
+   tree, 12 already bypass this rule entirely through `next/image`'s `fill`, which Next writes as an
+   INLINE style — the one thing that outranks an unlayered rule — and 23 more carry an inline
+   `height` or `aspectRatio`. When 35 of 50 elements already carry an escape hatch, the reset is not
+   protecting anything; it is a default that everything works around. */
 img,
 video {
   max-width: 100%;
-  height: auto;
   display: block;
 }
 
@@ -5006,13 +5041,28 @@ a {
   margin-inline: -17%;
 }
 /* The video poster, which fills its fixed-aspect frame behind the embed.
-   AUTHORED RATHER THAN UTILITY-CLASSED, AND THE REASON IS A REAL TRAP. globals.css:271
-   carries an UNLAYERED `img, video { height: auto }`. Unlayered rules beat
-   `@layer utilities`, so `h-full` SILENTLY LOSES on every <img> in this project — the
-   poster rendered 927.9px tall inside a 392.6px frame, overflowing by 535px and getting
-   clipped by the frame's overflow-hidden. It looked like a cropped image rather than a
-   broken one, which is why review rather than a test found it. This rule outranks the
-   global by specificity. The inline figure above is unaffected: it WANTS height:auto. */
+   AUTHORED RATHER THAN UTILITY-CLASSED, AND THE REASON WAS A REAL TRAP THAT NO LONGER EXISTS.
+   This rule was written because `img, video { height: auto }` sat UNLAYERED and beat
+   `@layer utilities`, so a full-height utility silently lost on every image in the project —
+   the poster rendered 927.9px tall inside a 392.6px frame, overflowing by 535px and being
+   clipped by the frame's overflow-hidden. It looked like a cropped image rather than a broken
+   one, which is why review rather than a test found it.
+
+   ⚠ THE HEIGHT HAS SINCE BEEN LIFTED INTO `@layer base`, so that trap is closed and this
+   comment is amended rather than left standing. A fixed hazard kept in the present tense is
+   worse than one never recorded, because nobody re-derives a hazard and the caution it buys
+   reads as rigour.
+
+   ⚠ AND THIS SITE IS THE SIXTH INSTANCE OF THAT HAZARD AND THE STRONGEST ARGUMENT FOR THE LIFT,
+   because here the author could not simply write a class — they had to author a whole rule to
+   get a value the utility layer was already offering. The other five were dead classes; this one
+   is a workaround that shipped.
+
+   THE RULE STAYS, AND ITS JUSTIFICATION IS NOW THE OTHER FOUR DECLARATIONS. Position, inset,
+   width and object-fit are what make a poster fill a frame; the height is no longer the reason
+   it exists. Replacing it with utilities is a separate unit and is not taken here, because a
+   working rule rewritten inside a cascade change is two edits under one justification.
+   The inline figure above is unaffected: it WANTS height:auto. */
 .blog-prose .blog-video-poster {
   position: absolute;
   inset: 0;

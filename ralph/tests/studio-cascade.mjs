@@ -17,7 +17,9 @@
 // Four instances of this have now shipped to main:
 //
 //   1. `a { color: inherit }`            beat `text-*` on anchors        (hazard 22)
-//   2. `img, video { height: auto }`     beat `h-*` on the canvas hero
+//   2. `img, video { height: auto }`     beat `h-*` on the canvas hero   (CAUSE REMOVED — the
+//      height was lifted into `@layer base`, so a height utility on an image now lands. The
+//      instance is kept because the list is a record of what shipped, not of what is still live.)
 //   3. `h3..h6 { font-family }`          beat `.font-display`            (fixed for .case-study only)
 //   4. `h1, h2 { font-family/weight/ls }` beat `font-bold`+`tracking-*`  (#205's ink bands)
 //
@@ -187,8 +189,20 @@ t("A0: the unlayered `h1, h2` reset still sets font-weight — #205's bands lost
   RULES.get("h2")?.has("font-weight"), true);
 t("A0: the unlayered `h3..h6` reset still sets font-family — the trap .case-study re-asserts against",
   RULES.get("h4")?.has("font-family"), true);
-t("A0: the unlayered `img, video` reset still sets height — the canvas-hero case",
-  RULES.get("img")?.has("height"), true);
+/* ⚠ `max-width`, NOT `height`, AND THE SWAP IS A DELIBERATE CHANGE RATHER THAN A REPAIR. This row
+ * read `has("height")` and was correct for as long as that property sat unlayered. It has been
+ * lifted into `@layer base`, so a height utility on an image now WINS — which is the whole point of
+ * the lift and makes the old premise false rather than broken.
+ *
+ * THE ROW STILL HAS A JOB, because two of the three properties stayed unlayered. `max-width` is the
+ * one this guard now watches, and it fails the day that leaves too — which is what keeps the
+ * collision detector below from silently having nothing to detect. */
+t("A0: the unlayered `img, video` reset still sets max-width — height was lifted, this was not",
+  RULES.get("img")?.has("max-width"), true);
+/* ⚠ AND THE COMPLEMENT IS ASSERTED, because a lift that silently reverted would leave this suite
+ * passing on a premise nobody re-checked. The height must be ABSENT from the unlayered map. */
+t("A0: …and the height is GONE from the unlayered map, so the lift cannot silently revert",
+  RULES.get("img")?.has("height") ?? false, false);
 /* ⚠ THE PARSER REPAIR, PINNED, because a fix with no assertion regresses the moment someone
  * reorders this file. `html` sits behind a banner comment and was dropped by the old split for
  * the whole life of this suite; `h1, h2` joined it the day a comment was written above it. Both
