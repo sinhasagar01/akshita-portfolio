@@ -958,7 +958,14 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
     // the count moves by two rather than by five. That is the shape this count protects: a status
     // dot and a rounded chip, the same family as the save bar's state dot and BlogPostList's
     // published marker. F5j names them.
-    t("F5: the 36 full pills survive (37 before #293 retired the Hand-built chip) — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 36);
+    // REVALUED 36 -> 37 IN THE UNPUBLISHED-CHANGES PR, ONE ARRIVAL AND NO DEPARTURES. The publish
+    // bar's disclosure toggle — "What changed?" — is a pill because every other control in that bar
+    // is one: Discard and Publish site sit beside it, and a square button between two pills would
+    // read as a different kind of thing. F5k names it.
+    t("F5: the 37 full pills survive — the shape carries meaning", (all.match(/rounded-full/g) ?? []).length, 37);
+    /* ⚠ NAMED, BECAUSE A COUNT THAT MOVES WITHOUT A NAMED ARRIVAL IS A COUNT NOBODY CAN AUDIT. */
+    t("F5k: …and the arrival is the publish bar's disclosure toggle, asserted by its own copy",
+      /What changed\?/.test(readFileSync(new URL("../../components/studio/PublishBar.tsx", import.meta.url), "utf8")), true);
     t("F5j: …and both arrivals are the resize grip's mark and its dots, in one component",
       (code("components/studio/StudioResizeGrip.tsx").match(/rounded-full/g) ?? []).length, 2);
     t("F5i: …and the arrival is the save bar's state dot, which no consumer can restyle",

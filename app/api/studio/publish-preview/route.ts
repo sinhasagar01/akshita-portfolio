@@ -56,6 +56,11 @@ export async function GET() {
     for (const p of data.projects) titles[p.slug] = p.title;
     for (const b of data.blog) titles[b.slug] = b.title;
     for (const e of data.experience) titles[e.slug] = `${e.title}, ${e.company}`;
+    /* ⚠ GALLERY WAS MISSING FROM THIS MAP, so every gallery entry in the preview fell back to its
+       slug — the fix-once-per-collection shape, in a map that names three of four collections. It
+       is invisible until somebody reads a preview containing a gallery item, which is why it
+       survived the collection's whole build. */
+    for (const g of data.gallery) titles[g.slug] = g.title;
 
     return NextResponse.json({
       ok: true,
