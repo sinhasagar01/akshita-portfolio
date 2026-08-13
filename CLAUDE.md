@@ -252,7 +252,23 @@ is deploys rather than commits.
   **THE REPORT WAS MADE FROM THE WORKING TREE.** The file said what it should say, so the claim felt
   observed rather than assumed — and the exit code that would have refuted it had been printed one
   command earlier and read as a push retry rather than as a lost commit. **A `git commit` is not a
-  claim about the repository; a push that returns zero is.** Same family as *nothing reported is evidence*, where ten merges
+  claim about the repository; a push that returns zero is.**
+
+  **⚠ AND THE OPPOSITE ERROR FOLLOWED WITHIN THE HOUR, WHICH IS WHY THE RULE IS NOT "TRUST THE
+  RECORD LESS".** Checking whether this entry had landed, a `grep` for a phrase containing a
+  backtick returned **0** — and the entry was there. **The zero was the MATCHER.** Reported as a
+  loss, it would have been a second false claim about the record, in the opposite direction, inside
+  the entry about false claims regarding the record.
+
+  **SO THE INSTRUMENT AND THE SUBSTRATE CAN EACH BE THE WRONG ONE.** The first instance measured the
+  working tree and reported it as `main`; the second measured `main` correctly with a broken pattern
+  and nearly reported an absence. Distrusting the record harder would have produced the second error
+  faster.
+
+  **THE ONLY DEFENCE THAT COVERS BOTH IS NAMING WHICH ONE YOU MEASURED.** "0 on `main` via grep" is
+  checkable and would have prompted the obvious next question; "it is not in the record" is not.
+  Same discipline as stating the subject beside a number, arriving in a claim about the repository
+  rather than in a measurement of a colour. Same family as *nothing reported is evidence*, where ten merges
   were reported into a local `main` that had never been pushed — **an instrument was available and
   the claim felt too obvious to instrument.**
 
