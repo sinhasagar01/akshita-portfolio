@@ -213,6 +213,30 @@ gates.
 
 
 
+- **⚠ BOARDED: THE MEASUREMENT AND THE GATES CANNOT SHARE `.next`, AND THAT IS STRUCTURAL RATHER
+  THAN A DISCIPLINE PROBLEM.** A dev server was needed to measure nine palettes from the paint; the
+  bundle-reading suites need a PRODUCTION build; both use `.next`. The dev server overwrote it and
+  three suites went red with **20 failed assertions** — `colour-census`, and two others reading the
+  built CSS.
+
+  **⚠ SEVENTH INSTRUMENT CONDITION IN ONE SESSION AND THE ONLY ONE WITH A MECHANICAL ANSWER.** The
+  other six were a probe, a matcher, a stale manifest, a self-read comment, a suite reverting its
+  own mutation, and a slice bound. Each was fixed where it happened. **This one recurs by
+  construction: two consumers, one path, and no amount of remembering changes that.**
+
+  **THE MEMORY ALREADY SAYS "stop the dev server before building".** It is correct, it was written
+  down before today, and it did not help — the same shape as `git checkout` being reached for while
+  applying the rule that names it. **Only a mechanism prevents a failure mode.**
+
+  **THE CHEAP FORM IS A SEPARATE `distDir` FOR THE MEASUREMENT SERVER**, so a dev run cannot touch
+  what the suites read. Whether Next's config makes that clean is the open question and is why this
+  is boarded rather than done — it is a build-config change with its own blast radius, and it must
+  not ride inside an unrelated unit.
+
+  **⚠ AND THE FAILURE IS LOUD, WHICH IS THE ONLY REASON IT IS BOARDED RATHER THAN URGENT.** Twenty
+  red assertions naming a missing bundle is not a silent wrong answer. **A gate that goes red for an
+  environmental reason is still a gate people learn to skip**, and that is the cost being paid.
+
 - **⚠ BOARDED: A LOCAL `github` WRITE MODE AGAINST A FORK, AND TWO PENDING DRIVES ARE THE ARGUMENT.**
   Every write route no-ops unless `STUDIO_WRITE_MODE=github`, so the drivable editor paths on
   localhost number **zero** — measured as ten routes carrying the guard, not inferred.
@@ -287,44 +311,6 @@ gates.
   push fails, is the whole remedy. The reading is available today; nobody takes it because a branch
   cut an hour ago feels current, and **"feels current" is exactly the state this entry is about.**
 
-- **⚠ CLOSED: THE ROLE WAS NEVER WRONG — THE RUNG DOES NOT REMAP, AND EIGHT ELEMENTS REACHED PAST
-  THE ROLE TO IT.** On the dark ground `--color-accent` becomes `accent-on-dark` and
-  `--color-accent-500` stays the base mid-tone. Measured through a canvas pixel, sanity 21.000 first:
-
-      on-accent / accent (ROLE)   4.63 – 7.52 on all nine        <- clears everywhere
-      on-accent / accent-500      4.63 – 5.76 light, 3.24 – 3.65 dark
-      white     / accent (ROLE)   4.82 – 6.01 light, 2.55 – 2.85 dark
-
-  **⚠ AND `.nav-cta` IS NOT A CONTROL THAT WORKS BY NOT USING THE SYSTEM.** It fills with the RUNG
-  and labels with white, and that pairing happens to clear. **White on the ROLE fails on all four
-  dark palettes at 2.55 to 2.85** — so it can drop white only by moving to the role at the same
-  time, and then it clears at 6.75 to 7.52. Both halves or neither, which is the opposite of what
-  "a working control that bypasses the vocabulary" implied.
-
-  **THE FIX MOVED EIGHT ELEMENTS FROM THE RUNG TO THE ROLE AND CHANGED NO TOKEN.** On the five light
-  palettes `accent` IS `accent-500`, so the two columns above are identical there — **zero pixels
-  moved on the light half, measured rather than argued.** The four dark palettes improved by 3.4 to
-  3.9 and nothing regressed.
-
-  **⚠ THE PROPOSED FIX WAS WRONG AND WOULD HAVE BROKEN THREE WORKING CONSUMERS TO FIX SEVEN.** Both
-  parties had said "four dark values". The token's own comment already recorded the conflict —
-  band-dark measures 6.75 to 7.52 against `accent` and `accent-text` and 3.24 to 3.65 against
-  `accent-500` — and named `bg-accent-500` as the consumer that fails. **It shipped anyway, because
-  nothing asserted the pairing.** `role-layer` R2 is that assertion, in the absence direction.
-
-  **⚠ AND TWO CENSUSES OF THE SAME QUESTION DISAGREED BECAUSE ONE READ LINES.** A line-based scan
-  reported six sites "inheriting" their ground; long Tailwind strings WRAP, so `bg-accent` and
-  `text-on-accent` sat on different lines of one string. **The line was the boundary, not the
-  markup** — the file-type-boundary defect arriving inside a single file. R2 flattens whitespace
-  before matching for exactly that reason.
-
-  **⚠ AND THE TWELVE REMAINING RUNG SITES ARE SAFE FOR A REASON THAT EXPIRES.** They carry no
-  foreground at all — a 3px rule, a 2px dash, three dots — so there is no pair to fail. **The rung
-  is still unremapped on the dark ground**, so the next author who puts a label on one inherits the
-  defect exactly as the eight did. "None is a latent seventh" states the absence of a SUBJECT, not
-  the presence of safety, and `role-layer` R2 is what catches it the moment one grows text.
-
-  **THE SUPERSEDED FRAMING, KEPT BECAUSE THE MEASUREMENT IS SOUND AND ONLY ITS CONCLUSION WAS NOT:**
 
 - **⚠ BOARDED: REPLACE AS ONE COMMIT — AND IT IS BLOB-PLUS-YAML, NOT DELETE-PLUS-WRITE, WHICH IS
   WHAT MAKES IT A UNIT RATHER THAN A FLAG.** Replacing a gallery image issues TWO commits from one
@@ -388,75 +374,7 @@ gates.
   it wants one is its own question**, and stating it inside U2 is what produced the second census's
   wrong shape — a small true fact absorbed into a large false one.
 
-- **⚠ CLOSED: THREE LIVE SITES WERE STILL ON THE RUNG, ON TWO PUBLIC PAGES, AND `role-layer` R2 WAS
-  GREEN THE WHOLE TIME.** The boarded item said the fix was four dark values. **It was not** —
-  `--color-on-accent` already remaps to `band-dark`, and the fix was the same role move the other
-  eight got. Measured from the paint on all nine, sanity 21.000 first:
 
-      BEFORE   dark  sapphire 3.32  ink-flare 3.32  nocturne 3.24  basalt 3.65   <- all fail 4.5
-      AFTER    dark  sapphire 6.99  ink-flare 6.84  nocturne 6.75  basalt 7.52
-      LIGHT    cream 4.70  harbour 4.87  orchid 5.76  cerise 4.66  fern 4.63 — IDENTICAL BEFORE
-               AND AFTER, because the role and the rung resolve to THE SAME PAINT on all five
-               (cream 182,83,41 · harbour 0,126,91 · orchid 153,63,148 · cerise 209,45,107 ·
-               fern 75,127,32). **Improvements on four, regressions on none, zero pixels moved on
-               the light half** — the constraint the ruling set, met by construction rather than by
-               luck.
-
-  **⚠ AND R2 MISSED THEM FOR A REASON THAT WILL RECUR, WHICH IS THE FINDING RATHER THAN THE FIX.**
-  R2 matches one QUOTED STRING containing both classes. These three put the ground on an anchor and
-  the foreground on a child span —
-
-      <a className="… bg-accent-500 …"><span className="text-on-accent">…</span></a>
-
-  — and **that split is FORCED, not stylistic**: `a { color: inherit }` is unlayered, so
-  `text-on-accent` on the anchor draws nothing. **THE CASCADE RULE THAT FORCES THE SPLIT IS WHAT
-  MADE THEM INVISIBLE TO THE GATE.** Two documented facts, each correct, each recorded in this file,
-  combining into a blind spot neither predicted.
-
-  **R2's CONCEPT WAS "NO ELEMENT PAIRS THEM"; ITS VOCABULARY WAS "NO ONE CLASS STRING CONTAINS
-  BOTH".** Narrower-than-its-concept, inside the gate written for this exact defect — and it caught
-  eight of eleven, which is why nobody looked. `R2b` covers the nested form and **the mutation is the
-  proof: putting one site back leaves R2 GREEN and R2b RED.**
-
-  **⚠ SEVENTH CARRIED ITEM TO EXPIRE THIS SESSION, AND THE BOARD IS NOW THE THING DECAYING.** The
-  seven: the experience descriptions, the published-post count, the three status claims, the search
-  index, `mutate.mjs`'s "four of nine", the `img` height reset, and this. **Three of the seven scoped
-  work before anyone re-derived them.** Six or seven in one session is not bad luck — **a board entry
-  is a claim about the present, and nothing in this repository has the board as its subject.**
-
-  **THE BOARDED FRAMING, KEPT BECAUSE ITS MEASUREMENT WAS SOUND AND ONLY ITS PROPOSED FIX WAS NOT:**
-
-- **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
-  FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
-  paint through a canvas pixel, sanity pair 21.000 first:
-
-      sapphire   10,16,22  on  73,91,203    3.32        cream     254,249,241 on 182,83,41   4.70
-      ink-flare  20,13,10  on  162,78,2     3.32        harbour   245,251,255 on 0,126,91    4.87
-      nocturne   13,14,25  on  115,79,185   3.24        orchid    252,249,253 on 153,63,148  5.76
-      basalt     15,15,15  on  82,119,0     3.65        cerise/fern                    4.66 / 4.63
-
-  **THE PAIR IS THE TOKENS THEMSELVES**, not any one consumer — read straight off
-  `--color-on-accent` against `--color-accent-500` it gives the identical figures. The shipped
-  gallery filter chip measures exactly the same, so this predates the hero.
-
-  **⚠ AND `.nav-cta` CLEARS ON ALL NINE — 4.93 TO 5.92 — BECAUSE IT USES WHITE RATHER THAN THE
-  ROLE.** That is the tell: the one accent-filled control that passes is the one not using the
-  vocabulary. `paint-sites`' own ALLOW entry records its figures and never asked the role the same
-  question.
-
-  **⚠ AND `.nav-cta` BYPASSING THE ROLE IS ITSELF THE FINDING, NOT THE ESCAPE HATCH.** A working
-  control that works BY NOT USING THE SYSTEM is evidence about the system rather than about the
-  control. Its white is defended in `paint-sites`' ALLOW as ground-independent by argument, which is
-  true — and the argument was never turned around to ask why the ROLE built for that exact job could
-  not make it. **The one accent-filled control that passes on all nine is the one not using the
-  vocabulary.** Any repair should make `on-accent` able to replace that white, or admit the role does
-  not cover its own case.
-
-  **THE HERO'S CTA KEEPS `on-accent` DELIBERATELY.** Pointing it at white would fix one element,
-  hide a token defect behind it and make the vocabulary wrong — the trade this project has spent
-  twelve sessions removing. **Denominator: 17 `text-on-accent` sites across 9 components, plus 3
-  `var(--color-on-accent)` readers in the stylesheet.** The fix is four dark values, which is a
-  palette change and not a component one.
 
 - **⚠ THE GALLERY HERO TOOK `/gallery` FROM 4 ABOVE-THE-FOLD IMAGE REQUESTS TO 9, AND NO `sizes`
   FIXES THAT — BOARDED WITH THE MEASUREMENT.** The strip's five frames and the masonry's four eager
@@ -518,7 +436,19 @@ gates.
   paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
   against hashes would have deleted the blog's copy while "collecting" the gallery's.
 
-- **⚠ BLOG AND GALLERY ARE ABSENT FROM STUDIO SEARCH, AND IT IS AN OMISSION RATHER THAN A DECISION —
+- **⚠ CLOSED, AND IT WAS A FALSE CLAIM SITTING ON `main` UNTIL THE BOARD CENSUS FOUND IT.** This read
+  *"blog and gallery are ABSENT from studio search"*. Measured: `buildStudioSearchIndex` takes a
+  `Record<CollectionName, readonly SearchSource[]>` and the layout passes all four, so a fifth
+  collection is a compile error rather than a silent omission. **The header comment was the last
+  thing carrying the old scope and it was corrected in #558.**
+
+  **⚠ EIGHTH CARRIED ITEM TO EXPIRE, AND THE FIRST FOUND BY AN INSTRUMENT RATHER THAN BY SOMEBODY
+  READING.** The other seven were noticed while doing adjacent work. **This is the argument for the
+  board gate stated as a result rather than as a prediction.**
+
+  **THE ORIGINAL FINDING, KEPT BECAUSE `git log -S` IS WHAT SETTLED IT:**
+
+- **⚠ BLOG AND GALLERY WERE ABSENT FROM STUDIO SEARCH, AND IT WAS AN OMISSION RATHER THAN A DECISION —
   SETTLED BY `git log -S` RATHER THAN BY READING THE HEADER.** `buildStudioSearchIndex` takes
   `{projects, experience, skills}`.
 
@@ -536,7 +466,32 @@ gates.
   missing and the fix is one change to a shared index; scoping it to gallery would fix it once per
   collection, which is the boarding this file already carries for `useDraftForm`'s feedback.
 
-- **⚠ BOARDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
+- **⚠ CLOSED BY THE BOARD GATE ON ITS FIRST RUN, AND THE PREMISE WAS FALSE WHEN IT WAS WRITTEN.**
+  This entry said *"There is no Save draft button on the gallery panel and none is planned — blur
+  saves, per the locked convention, and blog's post panel has none either"*, and ruled **DO NOT SHIP
+  A BUTTON**. Measured:
+
+      GalleryEditPanel   renders `primary={{ label: "Save draft", onClick: form.saveDraft }}`
+      arrived in         b64ec2e — #532, THE PR THIS ENTRY CITES AS THE CORRECT FIX
+      panels with one    NINE, including blog's blocks panel
+
+  **⚠ THE RULING FORBADE SHIPPING A CONTROL THAT WAS ALREADY SHIPPED, BY THE CHANGE THE ENTRY
+  ITSELF HELD UP AS THE RIGHT ONE.** The convention is not blur-alone — it is a `SaveBar` carrying a
+  Save draft primary AND blur saves, on nine of twelve panels. The entry described a studio that did
+  not exist.
+
+  **WHAT SURVIVES IS THE QUESTION, WHICH IS U2's AND NOT THIS ENTRY'S:** an author went looking for
+  something that was on screen, which is a discoverability finding rather than a missing affordance.
+  U2 already owns it, already records three inverted censuses of it, and already says the answer
+  needs one person at a browser.
+
+  **⚠ AND THIS IS THE ARGUMENT FOR THE GATE STATED AS A RESULT.** Two people read this entry
+  repeatedly across an arc, one of them wrote it, and its central factual claim was refutable by a
+  single grep the whole time. **Nothing had the board as its subject, so nobody ran that grep.**
+
+  **THE ORIGINAL FRAMING, KEPT BECAUSE THE FEEDBACK ARGUMENT IS SOUND AND ONLY ITS PREMISE WAS NOT:**
+
+- **⚠ SUPERSEDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
   FEEDBACK, IT IS STUDIO-WIDE, AND IT IS NOT GALLERY'S.** There is no Save draft button on the
   gallery panel and none is planned — blur saves, per the locked convention, and blog's post panel
   has none either. **The convention is right and is not the question.**
@@ -611,42 +566,7 @@ gates.
   five assertions that read string contents. **That half is still open and is the trigger for the
   next look: a comment naming a colour is still counted as a colour.**
 
-- **⚠ CLOSED, AND IT WAS ALREADY CLOSED WHEN THIS ITEM WAS LAST READ: `height` IS LIFTED.** The
-  unlayered rule now declares `max-width: 100%` and `display: block` and nothing else —
-  `img, video { height: auto }` sits in `@layer base` with its blast radius enumerated first: **8
-  sites, every one `h-auto`, 0 collisions, not one rendered box moved.** `max-width` and `display`
-  stay boarded as separate questions with separate blast radii, which is what the item asked for.
 
-  **⚠ SIXTH CARRIED ITEM TO EXPIRE THIS SESSION, and the second to have had work scoped from it.**
-  The others were the experience descriptions, the published-post count, the three status claims,
-  the search index, and `mutate.mjs`'s "four of nine". **The entries most likely to be wrong are
-  still the ones nobody has touched**, and a board is a claim about the present.
-
-  **THE SUPERSEDED FRAMING, KEPT FOR ITS MEASUREMENT:**
-
-- **⚠ NEXT UNIT: THE UNLAYERED `img` RESET HAS FIRED FIVE TIMES — ASK WHETHER IT CAN BE LAYERED,
-  RATHER THAN LOGGING A SIXTH.** `img, video { max-width: 100%; height: auto; display: block }` sits
-  unlayered, so all three properties beat any utility in `@layer utilities`. Hazard 11's instances:
-  a `max-w-full` on the case-study preview, a full-height class on the gallery tile, and three inert
-  classes on the gallery overlay and tile. **An instance list this long is a question nobody has
-  asked.**
-
-  **THE MEASUREMENT THAT DECIDES IT, AND IT POINTS AT "ALWAYS AUTHORED".** Of 50 `<Image>`/`<img>`
-  elements in the tree, **12 already bypass the reset entirely** through `next/image`'s `fill`, which
-  Next writes as an INLINE style — the one thing that outranks an unlayered rule. Another 23 elements
-  carry an inline `height` or `aspectRatio`. **So the escape hatch is already the majority
-  mechanism**, and the reset is mostly serving elements that never argue with it.
-
-  **⚠ THE ANSWER IS PROBABLY NOT "LAYER ALL THREE", AND THE PRECEDENT SAYS WHY.** The dead-utilities
-  arc lifted 92 utilities across four properties and shipped it as **four PRs, one property at a
-  time**, because one diff containing 92 changes is a diff where nothing can be attributed. Lifting
-  `height` alone is the first unit; `max-width` and `display` are separate questions with separate
-  blast radii.
-
-  **THE OPEN QUESTION TO ANSWER FIRST:** whether lifting `height` changes any rendered box. Every
-  consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
-  only visible where a utility currently loses. **That set is exactly what `cascade-public` already
-  enumerates**, which means the blast radius is knowable before the edit rather than after it.
 
 - **Content. Writing posts through /studio, AND THE EXERCISE HAS NOW PAID FOR ITSELF TWICE IN ONE
   SESSION.** It was ranked highest on the argument that three defects came from an author using the
@@ -725,6 +645,12 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ MOVED FROM `Open` BY THE BOARD'S OWN MEMBERSHIP RULE — CLOSED FINDINGS SITTING IN THE ACTION
+  LIST.** Three entries were marked CLOSED and left under `Open`, each with the superseded framing it
+  replaced kept beneath it. **The rule says an entry belongs in `Open` only if it carries an action**,
+  and the pairing convention made them read as live work. Found by the board census, which is the
+  first thing to have the board as its subject.
 
 - **⚠ EVERY RALPH FIGURE QUOTED THIS SESSION WAS LOW BY EIGHT, AND THE CAUSE WAS A LITERAL IN A
   SUMMARY LINE.** `studio-index` ended with ``result: ${50 - failures} passed`` — a hand-maintained
@@ -987,6 +913,148 @@ moment it grows an action again.
   LOOKUP rather than in a count — and the three instances this session were a scan, a slice and now
   a map, which is the argument that the shape is about DERIVED SUBJECTS generally rather than about
   counting.
+
+- **⚠ CLOSED: THE ROLE WAS NEVER WRONG — THE RUNG DOES NOT REMAP, AND EIGHT ELEMENTS REACHED PAST
+  THE ROLE TO IT.** On the dark ground `--color-accent` becomes `accent-on-dark` and
+  `--color-accent-500` stays the base mid-tone. Measured through a canvas pixel, sanity 21.000 first:
+
+      on-accent / accent (ROLE)   4.63 – 7.52 on all nine        <- clears everywhere
+      on-accent / accent-500      4.63 – 5.76 light, 3.24 – 3.65 dark
+      white     / accent (ROLE)   4.82 – 6.01 light, 2.55 – 2.85 dark
+
+  **⚠ AND `.nav-cta` IS NOT A CONTROL THAT WORKS BY NOT USING THE SYSTEM.** It fills with the RUNG
+  and labels with white, and that pairing happens to clear. **White on the ROLE fails on all four
+  dark palettes at 2.55 to 2.85** — so it can drop white only by moving to the role at the same
+  time, and then it clears at 6.75 to 7.52. Both halves or neither, which is the opposite of what
+  "a working control that bypasses the vocabulary" implied.
+
+  **THE FIX MOVED EIGHT ELEMENTS FROM THE RUNG TO THE ROLE AND CHANGED NO TOKEN.** On the five light
+  palettes `accent` IS `accent-500`, so the two columns above are identical there — **zero pixels
+  moved on the light half, measured rather than argued.** The four dark palettes improved by 3.4 to
+  3.9 and nothing regressed.
+
+  **⚠ THE PROPOSED FIX WAS WRONG AND WOULD HAVE BROKEN THREE WORKING CONSUMERS TO FIX SEVEN.** Both
+  parties had said "four dark values". The token's own comment already recorded the conflict —
+  band-dark measures 6.75 to 7.52 against `accent` and `accent-text` and 3.24 to 3.65 against
+  `accent-500` — and named `bg-accent-500` as the consumer that fails. **It shipped anyway, because
+  nothing asserted the pairing.** `role-layer` R2 is that assertion, in the absence direction.
+
+  **⚠ AND TWO CENSUSES OF THE SAME QUESTION DISAGREED BECAUSE ONE READ LINES.** A line-based scan
+  reported six sites "inheriting" their ground; long Tailwind strings WRAP, so `bg-accent` and
+  `text-on-accent` sat on different lines of one string. **The line was the boundary, not the
+  markup** — the file-type-boundary defect arriving inside a single file. R2 flattens whitespace
+  before matching for exactly that reason.
+
+  **⚠ AND THE TWELVE REMAINING RUNG SITES ARE SAFE FOR A REASON THAT EXPIRES.** They carry no
+  foreground at all — a 3px rule, a 2px dash, three dots — so there is no pair to fail. **The rung
+  is still unremapped on the dark ground**, so the next author who puts a label on one inherits the
+  defect exactly as the eight did. "None is a latent seventh" states the absence of a SUBJECT, not
+  the presence of safety, and `role-layer` R2 is what catches it the moment one grows text.
+
+  **THE SUPERSEDED FRAMING, KEPT BECAUSE THE MEASUREMENT IS SOUND AND ONLY ITS CONCLUSION WAS NOT:**
+- **⚠ CLOSED: THREE LIVE SITES WERE STILL ON THE RUNG, ON TWO PUBLIC PAGES, AND `role-layer` R2 WAS
+  GREEN THE WHOLE TIME.** The boarded item said the fix was four dark values. **It was not** —
+  `--color-on-accent` already remaps to `band-dark`, and the fix was the same role move the other
+  eight got. Measured from the paint on all nine, sanity 21.000 first:
+
+      BEFORE   dark  sapphire 3.32  ink-flare 3.32  nocturne 3.24  basalt 3.65   <- all fail 4.5
+      AFTER    dark  sapphire 6.99  ink-flare 6.84  nocturne 6.75  basalt 7.52
+      LIGHT    cream 4.70  harbour 4.87  orchid 5.76  cerise 4.66  fern 4.63 — IDENTICAL BEFORE
+               AND AFTER, because the role and the rung resolve to THE SAME PAINT on all five
+               (cream 182,83,41 · harbour 0,126,91 · orchid 153,63,148 · cerise 209,45,107 ·
+               fern 75,127,32). **Improvements on four, regressions on none, zero pixels moved on
+               the light half** — the constraint the ruling set, met by construction rather than by
+               luck.
+
+  **⚠ AND R2 MISSED THEM FOR A REASON THAT WILL RECUR, WHICH IS THE FINDING RATHER THAN THE FIX.**
+  R2 matches one QUOTED STRING containing both classes. These three put the ground on an anchor and
+  the foreground on a child span —
+
+      <a className="… bg-accent-500 …"><span className="text-on-accent">…</span></a>
+
+  — and **that split is FORCED, not stylistic**: `a { color: inherit }` is unlayered, so
+  `text-on-accent` on the anchor draws nothing. **THE CASCADE RULE THAT FORCES THE SPLIT IS WHAT
+  MADE THEM INVISIBLE TO THE GATE.** Two documented facts, each correct, each recorded in this file,
+  combining into a blind spot neither predicted.
+
+  **R2's CONCEPT WAS "NO ELEMENT PAIRS THEM"; ITS VOCABULARY WAS "NO ONE CLASS STRING CONTAINS
+  BOTH".** Narrower-than-its-concept, inside the gate written for this exact defect — and it caught
+  eight of eleven, which is why nobody looked. `R2b` covers the nested form and **the mutation is the
+  proof: putting one site back leaves R2 GREEN and R2b RED.**
+
+  **⚠ SEVENTH CARRIED ITEM TO EXPIRE THIS SESSION, AND THE BOARD IS NOW THE THING DECAYING.** The
+  seven: the experience descriptions, the published-post count, the three status claims, the search
+  index, `mutate.mjs`'s "four of nine", the `img` height reset, and this. **Three of the seven scoped
+  work before anyone re-derived them.** Six or seven in one session is not bad luck — **a board entry
+  is a claim about the present, and nothing in this repository has the board as its subject.**
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS MEASUREMENT WAS SOUND AND ONLY ITS PROPOSED FIX WAS NOT:**
+- **⚠ `on-accent` ON `accent-500` MEASURES 3.24 TO 3.65 ON THE FOUR DARK PALETTES, AGAINST A 4.5
+  FLOOR — PRE-EXISTING, TOKEN-LEVEL, AND FOUND BY A HERO THAT MERELY JOINED IT.** Measured from the
+  paint through a canvas pixel, sanity pair 21.000 first:
+
+      sapphire   10,16,22  on  73,91,203    3.32        cream     254,249,241 on 182,83,41   4.70
+      ink-flare  20,13,10  on  162,78,2     3.32        harbour   245,251,255 on 0,126,91    4.87
+      nocturne   13,14,25  on  115,79,185   3.24        orchid    252,249,253 on 153,63,148  5.76
+      basalt     15,15,15  on  82,119,0     3.65        cerise/fern                    4.66 / 4.63
+
+  **THE PAIR IS THE TOKENS THEMSELVES**, not any one consumer — read straight off
+  `--color-on-accent` against `--color-accent-500` it gives the identical figures. The shipped
+  gallery filter chip measures exactly the same, so this predates the hero.
+
+  **⚠ AND `.nav-cta` CLEARS ON ALL NINE — 4.93 TO 5.92 — BECAUSE IT USES WHITE RATHER THAN THE
+  ROLE.** That is the tell: the one accent-filled control that passes is the one not using the
+  vocabulary. `paint-sites`' own ALLOW entry records its figures and never asked the role the same
+  question.
+
+  **⚠ AND `.nav-cta` BYPASSING THE ROLE IS ITSELF THE FINDING, NOT THE ESCAPE HATCH.** A working
+  control that works BY NOT USING THE SYSTEM is evidence about the system rather than about the
+  control. Its white is defended in `paint-sites`' ALLOW as ground-independent by argument, which is
+  true — and the argument was never turned around to ask why the ROLE built for that exact job could
+  not make it. **The one accent-filled control that passes on all nine is the one not using the
+  vocabulary.** Any repair should make `on-accent` able to replace that white, or admit the role does
+  not cover its own case.
+
+  **THE HERO'S CTA KEEPS `on-accent` DELIBERATELY.** Pointing it at white would fix one element,
+  hide a token defect behind it and make the vocabulary wrong — the trade this project has spent
+  twelve sessions removing. **Denominator: 17 `text-on-accent` sites across 9 components, plus 3
+  `var(--color-on-accent)` readers in the stylesheet.** The fix is four dark values, which is a
+  palette change and not a component one.
+- **⚠ CLOSED, AND IT WAS ALREADY CLOSED WHEN THIS ITEM WAS LAST READ: `height` IS LIFTED.** The
+  unlayered rule now declares `max-width: 100%` and `display: block` and nothing else —
+  `img, video { height: auto }` sits in `@layer base` with its blast radius enumerated first: **8
+  sites, every one `h-auto`, 0 collisions, not one rendered box moved.** `max-width` and `display`
+  stay boarded as separate questions with separate blast radii, which is what the item asked for.
+
+  **⚠ SIXTH CARRIED ITEM TO EXPIRE THIS SESSION, and the second to have had work scoped from it.**
+  The others were the experience descriptions, the published-post count, the three status claims,
+  the search index, and `mutate.mjs`'s "four of nine". **The entries most likely to be wrong are
+  still the ones nobody has touched**, and a board is a claim about the present.
+
+  **THE SUPERSEDED FRAMING, KEPT FOR ITS MEASUREMENT:**
+- **⚠ NEXT UNIT: THE UNLAYERED `img` RESET HAS FIRED FIVE TIMES — ASK WHETHER IT CAN BE LAYERED,
+  RATHER THAN LOGGING A SIXTH.** `img, video { max-width: 100%; height: auto; display: block }` sits
+  unlayered, so all three properties beat any utility in `@layer utilities`. Hazard 11's instances:
+  a `max-w-full` on the case-study preview, a full-height class on the gallery tile, and three inert
+  classes on the gallery overlay and tile. **An instance list this long is a question nobody has
+  asked.**
+
+  **THE MEASUREMENT THAT DECIDES IT, AND IT POINTS AT "ALWAYS AUTHORED".** Of 50 `<Image>`/`<img>`
+  elements in the tree, **12 already bypass the reset entirely** through `next/image`'s `fill`, which
+  Next writes as an INLINE style — the one thing that outranks an unlayered rule. Another 23 elements
+  carry an inline `height` or `aspectRatio`. **So the escape hatch is already the majority
+  mechanism**, and the reset is mostly serving elements that never argue with it.
+
+  **⚠ THE ANSWER IS PROBABLY NOT "LAYER ALL THREE", AND THE PRECEDENT SAYS WHY.** The dead-utilities
+  arc lifted 92 utilities across four properties and shipped it as **four PRs, one property at a
+  time**, because one diff containing 92 changes is a diff where nothing can be attributed. Lifting
+  `height` alone is the first unit; `max-width` and `display` are separate questions with separate
+  blast radii.
+
+  **THE OPEN QUESTION TO ANSWER FIRST:** whether lifting `height` changes any rendered box. Every
+  consumer relying on `height: auto` would keep it — nothing else sets a default — so the change is
+  only visible where a utility currently loses. **That set is exactly what `cascade-public` already
+  enumerates**, which means the blast radius is knowable before the edit rather than after it.
 
 - **⚠ FIVE MATCHER ERRORS IN ONE EMITTER, AND THE EMITTER WAS THE ONE WRITTEN TO PREVENT THEM — WITH
   ITS OWN DENOMINATOR REQUIREMENT WRITTEN INTO ITS HEADER BEFORE IT EVER RAN.** `collection-readiness`
