@@ -208,6 +208,46 @@ is deploys rather than commits.
   **THE CHECK: before citing a rule, a constant or a gate as recorded, grep it on `main`.** Not on
   the working tree, which carries whatever the current branch added.
 
+- **⚠ A COMMENT IS WRITTEN WHEN THE INTENT IS FRESHEST AND CHECKED NEVER — FOUR INSTANCES IN ONE
+  COLLECTION, WHICH MAKES IT A PATTERN RATHER THAN A FOURTH ANECDOTE.** Every one described correct
+  behaviour beside code that did not do it, and every one was written by the author of the code, in
+  the same sitting, believing it:
+
+      the publish loop's "explicit per-collection arms"   the last arm was a fallthrough
+      "the only thing between an unlabelled image and     `galleryPublishBlockers` had zero callers
+       a reader"
+      `createEntry`'s "explicit per-collection arms"      same false claim, second file
+      `GalleryOverlay`'s "a plain <img> … the optimizer   its own image is `next/image`, and the
+       refetches without the owner cookie"                 header states the rule it breaks
+
+  **THE MECHANISM IS THE TIMING.** A comment is written at the moment the intent is clearest, which
+  is BEFORE the code has been driven — so it records what the author meant. Nothing re-reads it
+  against what shipped, because prose is not a subject any gate has. **The claim ages into being
+  false and reads as verification the whole time.**
+
+  **⚠ AND THE FOURTH IS THE SHARPEST: THE RULE IT BROKE WAS STATED IN ITS OWN HEADER.** Proximity is
+  not protection. Reading the file does not surface the contradiction, because the comment and the
+  code are read as one thing by whoever wrote both.
+
+  **WHAT ACTUALLY CATCHES THESE: grep the callers, run the branch, drive the flow.** Three of the
+  four were found by a person using the feature and the fourth by a browser measurement. None was
+  found by reading, including by re-reading.
+
+- **⚠ "NO SAVE DRAFT" WAS THE OUTSIDE VIEW OF A FORM THAT DOES NOT EXIST IN TWO STATES, AND THE
+  REPORT NAMED A MISSING BUTTON.** Saves were wired throughout: blur called `saveDraft` on every
+  field, `SaveIndicator` rendered, structural ops posted their own bodies. **The defect was a
+  missing composition.** `inspector={inspectorFits ? inspector : null}` is correct and is half a
+  fold — the canvas needs the other half, and gallery gave it none, so below 1100px the author saw
+  a preview and no form at all. A dragged-shut inspector produced the same symptom by a different
+  route, because a save control nested in a zero-width `inert` pane goes off screen with it.
+
+  **THE LESSON IS ABOUT REPORTS RATHER THAN ABOUT FOLDS: AN OWNER REPORTS THE MISSING AFFORDANCE,
+  NOT THE MISSING MECHANISM.** "No save draft" and "the image needs a refresh" are both descriptions
+  of a SURFACE, and both had causes one layer down that the wording pointed away from. **Establish
+  whether the thing is happening before adding a control for it** — the alternative here would have
+  been shipping a Save button into a panel that already saved, leaving the real defect intact and
+  the report closed.
+
 - **⚠ KNOWING DOES NOT PREVENT — THE RULE WAS WRITTEN, THEN BROKEN TWO UNITS LATER BY THE HAND THAT
   WROTE IT, AND ONLY MUTATION CAUGHT IT.** `ralph/run.mjs`'s header now states that a source regex
   cannot see reachability. Two units on, the gallery publish check was asserted with a regex over

@@ -38,6 +38,8 @@ import ThreePaneShell from "./ThreePaneShell";
 import GalleryItemList from "./GalleryItemList";
 import GalleryOverlay from "@/components/gallery/GalleryOverlay";
 import SaveIndicator from "./SaveIndicator";
+import SaveBar from "./SaveBar";
+import ViewToggle from "./ViewToggle";
 import ChipListEditor from "./ChipListEditor";
 import { ListboxField } from "./ListboxField";
 import InspectorResizer from "./InspectorResizer";
@@ -136,6 +138,38 @@ export default function GalleryEditPanel({
 
   const inspectorFits = usePageWidthMin(INSPECTOR_FOLD_PX);
 
+  /* ⚠ THE FOLD'S OTHER HALF, AND ITS ABSENCE IS WHAT WAS REPORTED AS "NO SAVE DRAFT".
+     Below `INSPECTOR_FOLD_PX` the shell is handed `inspector={null}`, and this panel gave the
+     canvas no fallback — so the author saw the overlay and NOTHING ELSE. No title, no alt, no
+     tags, no upload, no indicator. Saves were wired the whole time: blur calls `saveDraft` on
+     every field, the indicator renders, and the structural ops post their own bodies. THE REPORT
+     NAMED A MISSING BUTTON; THE DEFECT WAS A MISSING COMPOSITION.
+
+     BLOG'S SHAPE, NOT A NEW ONE. The canvas swaps to the inspector below the fold and a
+     `ViewToggle` moves between them — the same three lines `BlogBlocksEditPanel` carries, now
+     imported from a seam because gallery is the second consumer. */
+  const [view, setView] = useState<"canvas" | "inspector">("canvas");
+
+  /* ⚠ AND THE COLLAPSED STATE IS A SECOND WAY TO HAVE NO FORM, WHICH IS WHY THIS BAR EXISTS. A
+     dragged-shut inspector is zero-width and `inert`, so a bar nested inside it takes the save AND
+     its state line off screen with it. It docks to the canvas foot instead — a seam that
+     COMPRESSES the canvas rather than covering it. Blog's exact reasoning, at its own line. */
+  const gallerySaveBar = (
+    <SaveBar
+      className="sticky bottom-0 z-10 mt-auto"
+      status={form.saveStatus}
+      dirty={form.dirty}
+      savedAt={form.savedAt}
+      title="Auto-saves to draft on blur. Publish from Site settings."
+      primary={{
+        label: "Save draft",
+        onClick: form.saveDraft,
+        disabled: !form.dirty || form.saveStatus === "saving",
+        title: "Commits this item's fields.",
+      }}
+    />
+  );
+
   /** What the canvas draws. Built from the FORM's live values rather than from the item prop, so
    *  a keystroke in the rail moves the preview before any save lands — which is the whole reason
    *  the canvas is the overlay. */
@@ -155,7 +189,9 @@ export default function GalleryEditPanel({
   );
 
   const inspector = (
-    <div className="flex min-h-0 flex-1 flex-col">
+    /* `min-h-full` SO THE BAR HAS FREE SPACE TO CONSUME — `sticky bottom-0` is inert when nothing
+       scrolls, so a short form would leave the bar floating mid-pane. Blog's finding, same shape. */
+    <div className="flex min-h-full flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
         <div className="flex flex-col gap-4">
           <BlockImageField
@@ -281,6 +317,9 @@ export default function GalleryEditPanel({
       <div className="flex-none border-t border-studio-ink-950/12 px-4 py-3">
         <SaveIndicator label="Item" saving={form.saveStatus === "saving"} dirty={form.dirty} />
       </div>
+      {/* NOT WHEN COLLAPSED — it docks to the canvas foot there instead, or it would be clipped
+          into a zero-width pane along with the only save control on the surface. */}
+      {ins.collapsed ? null : gallerySaveBar}
     </div>
   );
 
@@ -310,18 +349,35 @@ export default function GalleryEditPanel({
       listNoun="items"
       list={<GalleryItemList items={items} currentSlug={slug} />}
       canvasBar={
-        <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-studio-ink-950">
-          {form.values.title || slug}
-        </span>
+        <>
+          <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-studio-ink-950">
+            {form.values.title || slug}
+          </span>
+          {/* A CONTROL THAT EXISTS ONLY WHERE IT DOES SOMETHING. Above the fold both panes are on
+              screen and a switch between them would be inert. */}
+          {!inspectorFits ? (
+            <ViewToggle
+              value={view}
+              onChange={setView}
+              options={["canvas", "inspector"] as const}
+              label="View"
+            />
+          ) : null}
+        </>
       }
+      canvasDock={ins.collapsed ? gallerySaveBar : null}
       /* THE PANE'S GROUND IS THE OVERLAY'S OWN DARK BAND, not the studio cream. The overlay paints
          its own full-bleed ground; leaving the pane cream would draw a cream hairline frame around
          a component that has no frame on the public page. */
       canvasGround="bg-band-dark"
       canvas={
-        <div className="flex min-h-0 flex-1 flex-col">
-          <GalleryOverlay item={preview} staticView />
-        </div>
+        !inspectorFits && view === "inspector" ? (
+          inspector
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col">
+            <GalleryOverlay item={preview} staticView />
+          </div>
+        )
       }
       inspector={inspectorFits ? inspector : null}
     />

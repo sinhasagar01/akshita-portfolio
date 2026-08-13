@@ -79,6 +79,7 @@
 //
 // Today, unchanged: structural changes mark the panel dirty, and the save happens on the next
 // field blur or via the explicit Save control.
+import ViewToggle from "./ViewToggle";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useDraftForm } from "./useDraftForm";
 import { usePublishSignal, useReportPending } from "./PublishProvider";
@@ -123,38 +124,6 @@ type BlogFields = { blocks: readonly BlogRawBlock[] };
 const iconBtn =
   "grid size-6 shrink-0 place-items-center rounded-[var(--studio-radius-control,4px)] border border-studio-ink-950/12 text-studio-ink-400 transition-colors enabled:hover:bg-studio-cream-200 enabled:hover:text-studio-ink-950 disabled:opacity-30 [&>svg]:size-3";
 
-/** A local two-option toggle. SegmentedToggle is deliberately NOT reused: despite the name
- *  it is a projects-specific control that POSTS a template/category patch on change
- *  ({ slug, patchKey, onSaved }), not a presentational switch. */
-function ViewToggle<T extends string>({
-  value,
-  onChange,
-  options,
-  label,
-}: {
-  value: T;
-  onChange: (v: T) => void;
-  options: readonly T[];
-  label: string;
-}) {
-  return (
-    <div role="group" aria-label={label} className="flex items-center gap-0.5 rounded-[var(--studio-radius-control,4px)] bg-studio-cream-200 p-0.5">
-      {options.map((o) => (
-        <button
-          key={o}
-          type="button"
-          aria-pressed={value === o}
-          onClick={() => onChange(o)}
-          className={`rounded-[var(--studio-radius-control,4px)] px-2.5 py-1 text-[12px] font-semibold capitalize transition-colors ${
-            value === o ? "bg-studio-cream-50 text-studio-ink-950 shadow-sm" : "text-studio-ink-600 hover:text-studio-ink-950"
-          }`}
-        >
-          {o}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export default function BlogBlocksEditPanel({
   slug,
