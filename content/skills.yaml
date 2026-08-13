@@ -48,4 +48,4 @@ categories:
       - name: Claude Design
         glow: AI
       - name: Claude Code
-        glow: ''
+        glow: LLM
