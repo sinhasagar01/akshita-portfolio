@@ -34,7 +34,7 @@ import { useReducedMotion } from "motion/react";
 
    ---- WHAT IS DELIBERATELY NOT HERE ----------------------------------------------------------
 
-   No next/previous, no filmstrip, no gallery. `docs/gallery-lightbox.html` specifies those for a
+   No next/previous, no filmstrip, no gallery. `docs/gallery-contract.html` specifies those for a
    separate `/gallery` page with its own collection and its own three open questions. This is a
    reader inspecting the image in front of them, and a browse control would imply a set that this
    feature does not have.
