@@ -16,6 +16,7 @@
 // ⚠ AND THEY ARE REQUIRED TO BE POSITIVE, WHICH IS THE WHOLE POINT. The masonry is CSS `columns`
 // and reflows on load unless every intrinsic size is known before decode. A zero or a negative is
 // not a smaller image, it is a layout shift — so it is refused here rather than rendered.
+import { load } from "js-yaml";
 import type { GalleryItem } from "@/lib/keystatic";
 import type { SaveError } from "./site-settings-format";
 
@@ -214,4 +215,105 @@ export function galleryPublishBlockers(items: readonly GalleryItem[]): string[] 
     }
   }
   return blockers;
+}
+
+/* ============================================================================================
+   ⚠ THE PUBLISH GATE LIVES HERE RATHER THAN IN ITS OWN FILE, AND THE LEAF RULE IS WHY.
+
+   It was written as `validate-gallery-entry.ts` so a suite could call it with real inputs — the
+   remedy `ralph/run.mjs` now states for any assertion about behaviour. That file could not load:
+   a leaf may only VALUE-IMPORT PACKAGES, and it needed `galleryPublishBlockers` from here. The
+   property that makes a file testable is the property that forbids the import, which is the
+   `INSPECTOR_BOUNDS` shape for the third time in this arc.
+
+   SO IT MOVED TO THE BLOCKERS RATHER THAN THE BLOCKERS MOVING TO IT. This file is already a leaf,
+   already owns the publish rule, and `js-yaml` is a package. One file, no second spelling, and
+   `collection-dispatch` section E can call the function instead of grepping for its call site.
+============================================================================================ */
+/** The schema's keys, in declaration order. See `readEntry` for why this is a declared copy and
+ *  where it stops being one. */
+export const GALLERY_SCHEMA_KEYS = [
+  "title",
+  "kind",
+  "image",
+  "width",
+  "height",
+  "alt",
+  "description",
+  "tags",
+  "caseStudy",
+  "orderIndex",
+] as const as readonly string[];
+
+export type GalleryEntryValidation = { ok: true } | { ok: false; error: SaveError };
+
+/**
+ * ⚠ THE FIELD LIST IS READ HERE RATHER THAN THROUGH `mapGalleryItem`, AND THAT IS A SECOND SPELLING
+ * THIS FILE DECLARES RATHER THAN HIDES. `mapGalleryItem` lives in `lib/keystatic.ts`, which imports
+ * the Keystatic config through an alias and cannot be loaded by a leaf runner — the property that
+ * makes this file testable is the property that forbids the import, the `INSPECTOR_BOUNDS` shape
+ * one more time.
+ *
+ * SO IT IS A COPY, AND HOP 3 IS WHERE IT STOPS BEING ONE. The standing gap is that the sanitizer's
+ * key set, this reader and the schema are three hand-maintained lists; deriving them from the
+ * schema is its own unit and is not smuggled in here.
+ */
+function readEntry(slug: string, raw: string): GalleryItem {
+  const doc = (load(raw) ?? {}) as Record<string, unknown>;
+  return {
+    slug,
+    title: typeof doc.title === "string" ? doc.title : "",
+    kind: typeof doc.kind === "string" ? doc.kind : "",
+    image: typeof doc.image === "string" ? doc.image : null,
+    width: typeof doc.width === "number" ? doc.width : 0,
+    height: typeof doc.height === "number" ? doc.height : 0,
+    alt: typeof doc.alt === "string" ? doc.alt : "",
+    description: typeof doc.description === "string" ? doc.description : "",
+    tags: Array.isArray(doc.tags) ? doc.tags.filter((t): t is string => typeof t === "string") : [],
+    caseStudy: typeof doc.caseStudy === "string" && doc.caseStudy !== "" ? doc.caseStudy : null,
+    orderIndex: typeof doc.orderIndex === "number" ? doc.orderIndex : 0,
+  };
+}
+
+/**
+ * May this entry reach main?
+ *
+ * ⚠ THE KEYS ARE CHECKED AGAINST THE SCHEMA'S OWN SET, and this is the row that would have stopped
+ * the incident. A project-shaped file carries `summary`, `facts` and `body`; every one is a key the
+ * gallery schema does not declare, and the reader THROWS on the first of them at build time. Here
+ * it is a named refusal at publish, which is the last point an author can still act.
+ */
+export function validateGalleryEntry(slug: string, raw: string): GalleryEntryValidation {
+  const path = `content/gallery/${slug}.yaml`;
+  let doc: Record<string, unknown>;
+  try {
+    doc = (load(raw) ?? {}) as Record<string, unknown>;
+  } catch (e) {
+    return {
+      ok: false,
+      error: {
+        code: "invalid_sections",
+        field: path,
+        message: `${path} is not valid YAML: ${e instanceof Error ? e.message : String(e)}`,
+      },
+    };
+  }
+
+  const unknown = Object.keys(doc).filter((k) => !GALLERY_SCHEMA_KEYS.includes(k));
+  if (unknown.length > 0) {
+    return {
+      ok: false,
+      error: {
+        code: "invalid_sections",
+        field: path,
+        /* NAMES THE KEYS. The build's own error names one of them and nothing else, which is how a
+           red build turns into a hunt through five files for which one is wrong. */
+        message: `${path} carries ${unknown.length === 1 ? "a key" : "keys"} the gallery schema does not declare: ${unknown.join(", ")}. This is what fails the production build — re-create the item, or remove the keys.`,
+      },
+    };
+  }
+
+  const blockers = galleryPublishBlockers([readEntry(slug, raw)]);
+  if (blockers.length === 0) return { ok: true };
+  return { ok: false, error: { code: "invalid_sections", field: path, message: blockers.join("; ") } };
 }

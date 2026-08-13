@@ -117,21 +117,28 @@ console.log("\nC · the two failure states stay distinct, because they mean oppo
     /collection: CollectionName \| "skills";\s*\n\s*slug: string;/.test(src), true);
 }
 
-console.log("\nD · the screen reads the failure list at all");
+console.log("\nD · the failure reaches a surface that persists and names the file");
 {
   const bar = readFileSync(join(root, "components/studio/PublishBar.tsx"), "utf8");
-  /* ⚠ WHAT IS LEFT HERE IS THE WIRING, NOT THE WORDS. The words were regexes over this file, and a
-   * mutation proved that useless: making the per-entry sentence unreachable left every word of it
-   * in the source and the rows passed. The sentence is a pure function now and section E calls it.
-   * These two rows only assert that the component still hands it the real inputs. */
+  const prov = readFileSync(join(root, "components/studio/PublishProvider.tsx"), "utf8");
   t("D1 the bar builds its status from the shared function rather than a local ternary",
     /draftStatusText\(statusInput\)/.test(bar), true);
-  t("D2 …and feeds it the live failure list, which is the binding the mutation cut",
+  t("D2 …and feeds it the live failure list, which is the binding a mutation once cut",
     /failures: draftReadFailures,/.test(bar), true);
-  /* The tone and the words come from ONE input object, so a future edit cannot make the pill say
-     something is wrong and paint it as though nothing is. */
   t("D3 …and the tone is derived from the same input, so words and colour cannot disagree",
     /draftStatusIsProblem\(statusInput\)/.test(bar), true);
+  /* ⚠ THE ROUTING, WHICH IS THE OWNER'S RULING MADE CHECKABLE. A malformed entry is an error, so it
+   * must reach the surface that PERSISTS and carries an action. `drains()` is `ok && !sha`, so a
+   * refusal never auto-dismisses — that is the property being relied on. */
+  t("D4 ⚠ A PER-ENTRY FAILURE IS RAISED AS A REFUSAL, which is the kind that never drains",
+    /kind: "refusal"[\s\S]{0,200}?Couldn\\u2019t read \$\{f\.collection\}\/\$\{f\.slug\}/.test(prov), true);
+  t("D5 …and it carries the reader's own sentence, which names the offending key",
+    /message: `\$\{f\.message\}/.test(prov), true);
+  /* ⚠ RAISED ONCE. The provider re-renders on every toast change, and an array dependency is a new
+   * reference each time — which would re-raise the same refusal forever. The dependency is the
+   * failure IDENTITY, and this row is what stops that regressing into a loop. */
+  t("D6 …and it is raised once, keyed on the failure identity rather than the array",
+    /raisedFailures\.current/.test(prov), true);
 }
 
 console.log("\nE · the sentence itself, called with real inputs and read as a real answer");
@@ -148,22 +155,26 @@ console.log("\nE · the sentence itself, called with real inputs and read as a r
   t("E2 …and an unpublished draft says that instead",
     draftStatusText({ ...base, unpublished: true }), "Unpublished changes");
 
-  /* ⚠ THE INCIDENT'S OWN STATE. One malformed gallery entry, branch read fine. The sentence must
-   * NAME the file and must NOT claim the studio fell back to published content. */
-  t("E3 ⚠ ONE UNREADABLE ENTRY NAMES ITS FILE",
-    draftStatusText({ ...base, failures: one }),
-    "Couldn't read gallery/low-tide. Everything else is your draft.");
-  t("E3a …and does NOT claim a fallback to published content, which would be false",
+  /* ⚠ THE INCIDENT'S OWN STATE MOVED SURFACE, AND THESE ROWS MOVED WITH IT RATHER THAN BEING
+   * DELETED. E3, E3a, E3b and E4 asserted that ONE unparseable entry produced a named sentence on
+   * the publish LINE. On the owner's ruling a malformed entry is an ERROR rather than standing
+   * state, so it is now a non-draining refusal toast and the line says nothing about it.
+   *
+   * THE CLAIM SURVIVES AND ITS SUBJECT CHANGED. What must still hold is that the line does NOT
+   * claim a fallback that did not happen — the reader IS looking at their draft everywhere except
+   * one file — so the row that mattered most is kept and pointed at the new behaviour. */
+  t("E3 ⚠ A PER-ENTRY FAILURE NO LONGER CLAIMS THE STUDIO FELL BACK TO PUBLISHED CONTENT",
     draftStatusText({ ...base, failures: one }).includes("Showing published content"), false);
-  t("E3b …and says the rest is the draft, which is what stops a needless re-edit",
-    draftStatusText({ ...base, failures: one }).includes("Everything else is your draft"), true);
+  /* ⚠ AND IT DOES NOT SILENTLY BECOME "everything is fine" EITHER — the line reports the draft
+   * state it still knows, and the refusal carries the failure. A row asserting only the absence
+   * above would pass on a function that returned an empty string. */
+  t("E3a …and still reports the draft state it does know",
+    [draftStatusText({ ...base, failures: one }),
+     draftStatusText({ ...base, failures: one, unpublished: true })],
+    ["All changes published", "Unpublished changes"]);
+  t("E4 …and several failures read the same way, since the line is no longer their surface",
+    draftStatusText({ ...base, failures: two }), "All changes published");
 
-  t("E4 several failures give a count AND still name one, so the message is actionable",
-    draftStatusText({ ...base, failures: two }),
-    "Couldn't read 2 draft entries, including gallery/low-tide. Everything else is your draft.");
-
-  /* The global failure keeps the strong sentence — nothing is known, and saying anything softer
-     would be the confident lie the original comment refused. */
   t("E5 a whole-read failure still says the studio is showing published content",
     draftStatusText({ ...base, readError: true }),
     "Couldn't load your draft. Showing published content. Reload to try again.");

@@ -50,13 +50,18 @@ export function draftStatusText(input: DraftStatusInput): string {
   if (input.readError) {
     return "Couldn't load your draft. Showing published content. Reload to try again.";
   }
-  const first = input.failures[0];
-  if (first) {
-    const where = `${first.collection}/${first.slug}`;
-    return input.failures.length === 1
-      ? `Couldn't read ${where}. Everything else is your draft.`
-      : `Couldn't read ${input.failures.length} draft entries, including ${where}. Everything else is your draft.`;
-  }
+  /* ⚠ THE PER-ENTRY SENTENCE HAS LEFT THIS FUNCTION, ON THE OWNER'S RULING, AND THE REASONING IS
+     KEPT RATHER THAN DELETED. It said "Couldn't read gallery/low-tide. Everything else is your
+     draft." — my classification, on the argument that one unparseable file is a CONDITION.
+
+     THE OWNER READ IT AS AN ERROR AND THAT IS THE RIGHT READING: it means something is broken and
+     needs fixing, which is a refusal — persistent, named, carrying an action. This line is
+     overwritten by the next status and carries none, so it was the wrong surface for it.
+     `PublishProvider` raises one non-draining refusal per failure instead.
+
+     ⚠ THE GLOBAL FLAG STAYS, AND THE SPLIT IS THE WHOLE DISTINCTION. `readError` means the studio
+     is showing PUBLISHED content — true of everything on screen, for as long as it lasts, which is
+     what standing state means. A per-entry failure is one broken file against a working draft. */
   return input.unpublished ? "Unpublished changes" : "All changes published";
 }
 

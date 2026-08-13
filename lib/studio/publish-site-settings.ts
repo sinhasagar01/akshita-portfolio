@@ -21,7 +21,11 @@ import {
 } from "./github-commit";
 import { getFileTextAtRef, SETTINGS_PATH } from "./commit-site-settings";
 import { validateProjectSections } from "./validate-draft-sections";
-import { validateBlogPost, BLOG_POST_PATH_RE, hasPlaceholder } from "./validate-blog-post";
+import { validateBlogPost, hasPlaceholder } from "./validate-blog-post";
+import { COLLECTION_FILE_RE } from "./publish-preview";
+import { isCollectionName, type CollectionName } from "./commit-collection-entry";
+import { validateGalleryEntry } from "./gallery-format";
+import type { SaveError } from "./site-settings-format";
 import { BLOG_TOPICS } from "./blog-format-core";
 import { DRAFT_BRANCH } from "./draft-site-settings";
 
@@ -52,6 +56,71 @@ function messageOf(e: unknown): string {
  * SHA and deployPending:true (the live site updates only after the Vercel
  * rebuild, ~1-5 min — GH-5's UI uses deployPending for a "Publishing…" state).
  */
+/* ============================================================================================
+   ⚠ WHAT EACH COLLECTION MUST SATISFY BEFORE IT REACHES MAIN — EXHAUSTIVE OVER `CollectionName`.
+
+   THE DEFECT THIS REPLACES WAS THE CATCH-ALL, NOT A MISSING ARM. The loop below used to run two
+   `if`s — projects, then blog — and then a branch matching "any other content yaml", which applied
+   a placeholder scan and accepted the file. **Gallery did not slip through a gap. It landed in the
+   branch designed to accept anything unrecognised**, and four project-shaped entries reached main
+   and took the production build down site-wide, because the Keystatic reader validates on read and
+   THROWS.
+
+   ⚠ SO A THIRD `if` WOULD HAVE REPAIRED ONE INSTANCE OF A SHAPE THAT REPEATS. A `Record` makes the
+   fifth collection a COMPILE ERROR here rather than a production one — this arc's own lesson,
+   applied to the loop that broke the build. It is the same repair the four commit-layer dispatches
+   took, one layer out: those chose how to WRITE a file, this chooses whether it may SHIP.
+============================================================================================ */
+type PublishCheck = (slug: string, raw: string) => { ok: true } | { ok: false; error: SaveError };
+
+const COLLECTION_PUBLISH_CHECKS: Record<CollectionName, PublishCheck> = {
+  /* Runs the fail-loud ssg adapter — the strictest of the four, because a case study renders
+     through a renderer that throws on a shape it does not expect. */
+  projects: (slug, raw) => {
+    const sections = validateProjectSections(slug, raw);
+    return sections.ok ? { ok: true } : { ok: false, error: sections.error };
+  },
+  /* A NARROWER REMIT, deliberately: BlogProse is adapter-free and defensive, so this only catches
+     content the renderer would THROW on. It also skips drafts outright — see its header for why
+     judging them would let one half-written post block the publish of everything else. */
+  blog: (slug, raw) => {
+    const blocks = validateBlogPost(slug, raw, BLOG_TOPICS);
+    return blocks.ok ? { ok: true } : { ok: false, error: blocks.error };
+  },
+  /* ⚠ `galleryPublishBlockers` WIRED, AND IT WAS WRITTEN BEFORE THE INCIDENT AND CALLED BY NOTHING.
+     It already refuses an empty alt, a missing image and a zero dimension — precisely what shipped.
+     A gate that exists and is never called is the worst version of this shape, because its presence
+     reads as coverage: a comment in `app/(portfolio)/gallery/page.tsx` called it "the only thing
+     between an unlabelled image and a reader", which was false for as long as nothing called it.
+     That comment is corrected in this same commit, because the code and the claim move together.
+
+     ⚠ AND `waves.yaml` WILL BE REFUSED BY THIS, WHICH IS CORRECT AND IS NOT SOFTENED. It carries
+     `image: null, width: 0, height: 0` — an entry whose upload never completed. The masonry cannot
+     place a tile without intrinsic dimensions, so publishing it would ship a layout shift. The
+     author's remedy is to upload the image; the gate's job is to say so, not to admit it.
+
+     THE PARSE IS PART OF THE CHECK. A file that does not parse as this collection's schema is
+     exactly what took the build down, so a throw here becomes a refusal with the file named rather
+     than an exception that fails the publish with a stack trace. */
+  gallery: (slug, raw) => validateGalleryEntry(slug, raw),
+  /* ⚠ EXPERIENCE HAS NO PER-ENTRY CHECK AND THAT IS AN ANSWER RATHER THAN AN OMISSION. Five short
+     structured scalars, no prose field at all — its one prose field was deliberately deleted — and
+     no renderer that can throw on a shape. The placeholder rule below still covers it, because the
+     derived branch walks every other content yaml. A `Record` forces this to be SAID; the old
+     catch-all let it be assumed. */
+  experience: () => ({ ok: true }),
+};
+
+/** `content/<collection>/<slug>.yaml` -> which collection, which slug. Null for anything else,
+ *  which then falls to the placeholder branch. Derived from `COLLECTION_ENTRY_PATH_RE` so the
+ *  publish loop and the commit layer cannot disagree about what a collection file looks like. */
+function matchCollectionFile(filename: string): { collection: CollectionName; slug: string } | null {
+  const m = COLLECTION_FILE_RE.exec(filename);
+  if (!m) return null;
+  if (!isCollectionName(m[1])) return null;
+  return { collection: m[1], slug: m[2] };
+}
+
 export async function publishSiteSettings(): Promise<PublishResult> {
   if (!githubMode() || !process.env.STUDIO_GITHUB_TOKEN) {
     return { ok: true, merged: false, reason: "not_applicable" };
@@ -122,46 +191,32 @@ export async function publishSiteSettings(): Promise<PublishResult> {
     }
     for (const file of cmp.files) {
       if (file.status === "removed") continue;
-      const project = /^content\/projects\/([a-z0-9-]+)\.yaml$/.exec(file.filename);
-      if (project) {
-        const projectRaw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
-        const sections = validateProjectSections(project[1], projectRaw);
-        if (!sections.ok) {
-          // main untouched, draft left in place so it can be fixed.
-          return { ok: false, error: sections.error };
-        }
-        continue;
-      }
-      // BS-3b — the same gate for blog posts, with a NARROWER remit. The projects check
-      // runs the fail-loud ssg adapter; BlogProse is adapter-free and defensive, so this
-      // only catches content the renderer would THROW on (a null block, a null value, a
-      // richText whose paragraphs is not an array). validateBlogPost skips drafts
-      // outright — see its header for why that is safe and why judging them would only
-      // let one half-written post block the publish of everything else.
-      const post = BLOG_POST_PATH_RE.exec(file.filename);
-      if (post) {
-        const postRaw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
-        const blocks = validateBlogPost(post[1], postRaw, BLOG_TOPICS);
-        if (!blocks.ok) {
-          return { ok: false, error: blocks.error };
-        }
+
+      /* ⚠ EVERY COLLECTION IS ASKED BY NAME, AND THE CATCH-ALL NO LONGER DECIDES ANYTHING.
+         `COLLECTION_PUBLISH_CHECKS` is a `Record<CollectionName, …>`, so a fifth collection is a
+         COMPILE ERROR here rather than a production one. */
+      const entry = matchCollectionFile(file.filename);
+      if (entry) {
+        const raw = await getFileTextAtRef(file.filename, DRAFT_BRANCH);
+        const check = COLLECTION_PUBLISH_CHECKS[entry.collection];
+        const result = check(entry.slug, raw);
+        if (!result.ok) return { ok: false, error: result.error };
         continue;
       }
 
-      /* ⚠ AND EVERYTHING ELSE UNDER `content/` GOT NO CHECK AT ALL, WHICH IS SEVEN FILES OF FIFTEEN.
-         The two branches above cover projects and blog. `site-settings.yaml`, the five experience
-         entries and `skills.yaml` fell straight through this loop — and `site-settings.yaml` carries
-         the longest prose on the site outside those two collections: `aboutCopy` at 352 characters,
-         `aboutNote`, four hero tab lines, every one of them edited through a /studio panel and
-         public the moment it is on main.
+      /* THE PLACEHOLDER RULE FOR EVERYTHING ELSE UNDER `content/` — `site-settings.yaml`, the five
+         experience entries and `skills.yaml`. Seven files of fifteen had NO check at all until this
+         branch existed, and `site-settings.yaml` carries the longest prose on the site outside the
+         two collections above.
 
-         ⚠ THE SHAPE WAS FOUND BY ENUMERATING, WHICH IS ALSO HOW IT HID. The question asked was
-         whether experience and site-settings wanted the rule. `skills.yaml` is in the identical
-         position and nobody thought to ask — so the branch is written against "any other content
-         yaml" rather than against a list of the three that were noticed.
+         ⚠ AND IT IS NO LONGER THE BRANCH A COLLECTION CAN FALL INTO, WHICH IS THE WHOLE CHANGE. It
+         used to run after two `if`s, so anything they did not recognise landed here and was accepted
+         with a placeholder scan — gallery did not slip through a gap, it landed in the branch
+         designed to accept the unrecognised. Collections are now matched exhaustively above; what
+         reaches here is the singletons and the collections that carry no per-entry renderer.
 
-         Only the placeholder rule applies here. There is no renderer to re-run: these files are
-         read as plain data, so the adapter and BlogProse checks above have no equivalent. */
+         There is no renderer to re-run for these: they are read as plain data, so the adapter and
+         BlogProse checks have no equivalent. */
       if (/^content\/.+\.yaml$/.test(file.filename)) {
         // Named apart from the outer `raw`, which holds site-settings at line 72 — a shadow here
         // would read as the same document to anyone skimming.

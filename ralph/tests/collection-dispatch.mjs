@@ -46,7 +46,11 @@ import {
   serializeGalleryEntry,
   serializeNewGalleryEntry,
 } from "../../lib/studio/gallery-serialize.ts";
-import { sanitizeGalleryCreate, GALLERY_KINDS } from "../../lib/studio/gallery-format.ts";
+import {
+  sanitizeGalleryCreate,
+  GALLERY_KINDS,
+  validateGalleryEntry,
+} from "../../lib/studio/gallery-format.ts";
 
 /* ⚠ COMMENT BODIES ARE BLANKED, AND THIS SUITE IS THE EIGHTH INSTANCE OF WHY. `A5` asserts three
    ternaries are GONE from that file — and the comments explaining each removal QUOTE the ternary
@@ -204,6 +208,82 @@ console.log("\nD · the create, driven END TO END — the join no earlier gate t
       const after = load(serializeGalleryEntry(built.bytes, { alt: "A beach" }).bytes);
       return Object.keys(after).filter((k) => JSON.stringify(after[k]) !== JSON.stringify(doc[k]));
     })(), ["alt"]);
+}
+
+console.log("\nE · the PUBLISH loop is exhaustive — the branch that let gallery through");
+/* ⚠ THE DEFECT WAS THE CATCH-ALL, NOT A MISSING ARM. The loop ran two `if`s — projects, then blog —
+ * and then a branch matching any other content yaml, which applied a placeholder scan and ACCEPTED
+ * the file. Gallery did not slip through a gap; it landed in the branch designed to accept the
+ * unrecognised, and four project-shaped entries took the production build down site-wide.
+ *
+ * A THIRD `if` WOULD HAVE REPAIRED ONE INSTANCE OF A SHAPE THAT REPEATS. These rows assert the
+ * `Record` instead, so a fifth collection is a compile error rather than a production one. */
+{
+  const pub = blankCommentBodies(
+    readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "lib/studio/publish-site-settings.ts"), "utf8")
+  );
+  const checkRows = (() => {
+    const i = pub.indexOf("const COLLECTION_PUBLISH_CHECKS: Record<CollectionName, PublishCheck> = {");
+    if (i === -1) return null;
+    const body = pub.slice(i, pub.indexOf("\n};", i));
+    return [...body.matchAll(/^\s{2}([a-z]+):/gm)].map((m) => m[1]).sort();
+  })();
+  t("E0 the publish-check table was located — a null makes every row below vacuous",
+    checkRows !== null, true);
+  t("E1 ⚠ EVERY COLLECTION HAS A PUBLISH CHECK — the property the catch-all could not have",
+    checkRows, [...COLLECTIONS].sort());
+  /* ⚠ THE WIRING IS A SOURCE ROW AND IT IS THE WEAK HALF — SECTION F CALLS THE FUNCTION. A mutation
+   * replacing the whole gallery arm with a pass-through left an earlier version of this row green,
+   * because the orphaned body still contained the call it was grepping for. Presence is not
+   * reachability; this asserts only that the loop delegates to the leaf. */
+  t("E2 ⚠ AND GALLERY'S ARM DELEGATES TO THE LEAF, which section F then calls for real",
+    /gallery: \(slug, raw\) => validateGalleryEntry\(slug, raw\)/.test(pub), true);
+  t("E2a …imported rather than reimplemented, so the publish gate and the editor share one rule",
+    /import \{ validateGalleryEntry \} from "\.\/gallery-format"/.test(pub), true);
+  /* ⚠ EXPERIENCE IS AN EXPLICIT PASS, NOT AN ABSENT ROW. E1 would be satisfied by either; this is
+   * what makes "no per-entry check" a decision somebody wrote rather than one nobody noticed. */
+  t("E4 …and experience says explicitly that it needs no per-entry check",
+    /experience: \(\) => \(\{ ok: true \}\)/.test(pub), true);
+  /* The placeholder branch survives for the singletons — it is no longer the branch a COLLECTION
+     can fall into, which is the whole change. */
+  t("E5 the any-other-yaml branch remains for the singletons it was written for",
+    /\^content\\\/\.\+\\\.yaml\$/.test(pub) && /hasPlaceholder\(otherRaw\)/.test(pub), true);
+}
+
+console.log("\nF · the publish gate, CALLED — the rows that would have stopped the incident");
+/* ⚠ NOTHING HERE READS SOURCE. Section E asserts the loop delegates; these call the function with
+ * the exact bytes that reached main and read the exact refusal an author would see. */
+{
+  const projectShaped = "title: High Tide\nsummary: ''\norderIndex: 3\nfacts:\n  role: ''\nbody: []\n";
+  const bad = validateGalleryEntry("high-tide", projectShaped);
+  t("F1 ⚠ THE FILE THAT TOOK THE BUILD DOWN IS REFUSED AT PUBLISH", bad.ok, false);
+  /* ⚠ AND IT NAMES EVERY OFFENDING KEY. The build's own error names ONE — `summary` — which is how
+   * a red build becomes a hunt through five files for which one is wrong. */
+  t("F1a …naming every key the schema does not declare, where the build names only the first",
+    !bad.ok && ["summary", "facts", "body"].filter((k) => !bad.error.message.includes(k)), []);
+  t("F1b …and the file, so an author knows which one to open",
+    !bad.ok && bad.error.field, "content/gallery/high-tide.yaml");
+
+  /* ⚠ `waves.yaml` IS REFUSED TOO AND THAT IS CORRECT, NOT SOFTENED. It is the owner's real item and
+   * its upload never completed, so the masonry cannot place a tile for it. The remedy is to upload
+   * the image; admitting it would ship a layout shift. */
+  const waves = "title: Waves\nkind: photo\nimage: null\nwidth: 0\nheight: 0\nalt: Sea Waves\ndescription: Sea Waves - Morning\ntags:\n  - 35mm\ncaseStudy: ''\norderIndex: 4\n";
+  const w = validateGalleryEntry("waves", waves);
+  t("F2 ⚠ AN ITEM WHOSE UPLOAD NEVER FINISHED IS REFUSED — schema-valid is not publish-ready",
+    w.ok, false);
+  t("F2a …with both reasons, each naming an action",
+    !w.ok && [w.error.message.includes("no image uploaded"), w.error.message.includes("re-upload")],
+    [true, true]);
+
+  /* THE COMPLETE ITEM PASSES — without this every row above could be satisfied by a gate that
+     refuses everything, which is the empty-subject shape one direction over. */
+  const good = waves.replace("image: null", "image: /images/gallery/a.webp")
+    .replace("width: 0", "width: 1600").replace("height: 0", "height: 2000");
+  t("F3 …and a complete item passes, so F1 and F2 are not a gate that refuses everything",
+    validateGalleryEntry("waves", good).ok, true);
+  t("F4 an entry that is not valid YAML is a refusal naming the file, never a throw",
+    (() => { const r = validateGalleryEntry("x", "title: [unclosed"); return r.ok === false && r.error.field; })(),
+    "content/gallery/x.yaml");
 }
 
 console.log(`\ncollection-dispatch result: ${pass} passed, ${fail} failed`);
