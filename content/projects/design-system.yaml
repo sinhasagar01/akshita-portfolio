@@ -8,7 +8,7 @@ orderIndex: 5
 facts:
   role: ''
   type: Design System
-  platform: ''
+  platform: WEB
   timeline: ''
 template: web
 category: web
