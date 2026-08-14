@@ -7,4 +7,5 @@ facts:
   platform: ''
   timeline: ''
 template: web
+category: web
 body: []
