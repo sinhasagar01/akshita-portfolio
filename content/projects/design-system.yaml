@@ -6,4 +6,5 @@ facts:
   type: ''
   platform: ''
   timeline: ''
+template: web
 body: []
