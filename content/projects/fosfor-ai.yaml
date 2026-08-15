@@ -40,7 +40,7 @@ sections:
             Decision Cloud to support enterprise teams throughout their
             data-to-decision journey. Rather than introducing another chatbot,
             the experience embeds contextual AI directly into existing
-            workflows—helping Data Designers, Insight Designers, and Decision
+            workflows, helping Data Designers, Insight Designers, and Decision
             Designers move faster with greater clarity and confidence.
           eyebrow: LTIMindtree • Enterprise SaaS • AI Platform
           watermark: fosfor
@@ -98,7 +98,7 @@ sections:
       One companion,
       three very different people.
     lead: >-
-      Enterprise AI isn't difficult because of the technology—it's difficult
+      Enterprise AI isn't difficult because of the technology. It's difficult
       because every user expects something different.
 
 
@@ -121,7 +121,7 @@ sections:
           text: >-
             The challenge wasn't designing one AI assistant. It was designing
             one assistant that could think differently for three completely
-            different people—without making any of them feel like the product
+            different people, without making any of them feel like the product
             wasn't built for them.
       - discriminant: glanceGrid
         value:

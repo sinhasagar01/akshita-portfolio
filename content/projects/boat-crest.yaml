@@ -171,7 +171,7 @@ sections:
           title: boAt Crest
           thesis: Making the app worthy of the watch.
           position: >-
-            A ground-up redesign of boAt's smartwatch companion app — from
+            A ground-up redesign of boAt's smartwatch companion app, from
             cluttered and one-size-fits-all into a calm, personal system people
             actually want to open.
           eyebrow: Case study · Product design
@@ -232,7 +232,7 @@ sections:
       affordable, stylish audio and a fast-growing line of smartwatches. **boAt
       Crest** is the companion app that pairs with those watches to track
       fitness, health and daily activity. By the time this redesign began, the
-      app had fallen behind the hardware — the watches sold well, but the
+      app had fallen behind the hardware. The watches sold well, but the
       companion felt cluttered and dated, and the store rating showed it.
     northStar: ''
     layout: stack
@@ -262,10 +262,10 @@ sections:
     id: problem
     index: '02'
     eyebrow: The problem
-    title: Everything at once — so nothing stood out.
+    title: Everything at once, so nothing stood out.
     lead: >-
       One screen tried to do everything, with no hierarchy to guide the eye. The
-      things that mattered — your day, your activity — got lost in the noise.
+      things that mattered, your day and your activity, got lost in the noise.
     northStar: ''
     layout: split
     glow:
@@ -280,7 +280,7 @@ sections:
         value:
           items:
             - title: Competing colours
-              note: A different hue everywhere — nothing earns attention
+              note: A different hue everywhere, so nothing earns attention
             - title: Upsell nags
               note: '"Earn boAt coins" and profile prompts above your data'
             - title: Promo blocks
@@ -315,7 +315,7 @@ sections:
     index: '03'
     eyebrow: Goals
     title: >-
-      An app boAt users actually want to open — calm, personal, and worth coming
+      An app boAt users actually want to open. Calm, personal, and worth coming
       back to.
     lead: ''
     northStar: ''
@@ -337,7 +337,7 @@ sections:
               title: Declutter
               body: >-
                 Strip the noise down to one glanceable home, and let weight and
-                colour — not decoration — carry the hierarchy.
+                colour carry the hierarchy, not decoration.
             - index: '02'
               title: Personalise
               body: >-
@@ -355,7 +355,7 @@ sections:
     title: Grounded in research, focused by insight.
     lead: >-
       Before a single screen, I ran interviews, a 100-person survey and a
-      competitive teardown of leading fitness apps — then let the findings, not
+      competitive teardown of leading fitness apps. Then I let the findings, not
       assumptions, set the direction.
     northStar: ''
     layout: stack
@@ -376,7 +376,7 @@ sections:
                 leading fitness apps.
             - label: Define
               text: >-
-                A primary persona, empathy map, and journey — anchoring every
+                A primary persona, empathy map, and journey, anchoring every
                 decision in a real person.
             - label: Develop
               text: >-
@@ -393,21 +393,21 @@ sections:
             - value: '75'
               suffix: '%'
               body: >-
-                already used a fitness app regularly — the demand was real; the
-                old experience just wasn't meeting it.
+                already used a fitness app regularly. The demand was real, and
+                the old experience just wasn't meeting it.
               tag: The demand
               highlighted: false
             - value: '90'
               suffix: '%'
               body: >-
-                were dissatisfied with the old interface — proof the problem was
+                were dissatisfied with the old interface, proof the problem was
                 the experience, not the hardware.
               tag: The mandate
               highlighted: true
             - value: '85'
               suffix: '%'
               body: >-
-                wanted guided workouts over generic exercises — so guidance
+                wanted guided workouts over generic exercises, so guidance
                 became the backbone of the flows.
               tag: The direction
               highlighted: false
@@ -418,8 +418,8 @@ sections:
     title: One system, two themes.
     lead: >-
       A single token set drives both **Midnight Ember** (dark, the shipping
-      default) and **Daybreak** (light). Semantic colours — heart, sleep, oxygen
-      — stay constant, so your data reads the same in either.
+      default) and **Daybreak** (light). Semantic colours for heart, sleep and
+      oxygen stay constant, so your data reads the same in either.
     northStar: ''
     layout: stack
     glow:
@@ -508,8 +508,8 @@ sections:
     eyebrow: The work
     title: Where the redesign lives.
     lead: >-
-      Five places the new system does real work for the person wearing the watch
-      — each a small fix that compounds into a calmer whole.
+      Five places the new system does real work for the person wearing the
+      watch, each a small fix that compounds into a calmer whole.
     northStar: ''
     layout: stack
     glow:
@@ -529,8 +529,8 @@ sections:
               title: A setup that holds your hand.
               body: >-
                 Pairing used to drop people into a cluttered home. Now a short,
-                guided flow connects the watch and sets the basics — so the
-                first thing you feel is momentum, not confusion.
+                guided flow connects the watch and sets the basics, so the first
+                thing you feel is momentum, not confusion.
               image:
                 src: /work/boat-crest/17-onboarding-pair.png
                 alt: Guided onboarding screen for pairing the watch
@@ -558,8 +558,8 @@ sections:
               title: Four tabs. One glance.
               body: >-
                 The home screen answers the only question that matters in the
-                morning — how am I doing? — with steps, vitals, sleep and a
-                recommended session, in that order. Everything else moved one
+                morning. How am I doing? It leads with steps, vitals, sleep and
+                a recommended session, in that order. Everything else moved one
                 tap away.
               image:
                 src: /work/boat-crest/01-home.png
@@ -599,7 +599,7 @@ sections:
               title: Vitals you can watch move.
               body: >-
                 Heart rate, SpO₂ and sleep each get a focused detail screen with
-                live, animated readings and honest ranges — data that reassures
+                live, animated readings and honest ranges, data that reassures
                 instead of alarms.
               image:
                 src: /work/boat-crest/04-heart-rate.png
@@ -639,7 +639,7 @@ sections:
               title: Make the watch yours.
               body: >-
                 A simple studio to swap faces, accents and complications.
-                Personalisation was buried in the old app; here it becomes a
+                Personalisation was buried in the old app. Here it becomes a
                 first-class place to play.
               image:
                 src: /work/boat-crest/12-watchface-studio.png
@@ -740,7 +740,7 @@ sections:
           eyebrow: Before → After
           title: Same data. New clarity.
           lead: >-
-            The information didn't change — the hierarchy did. Screen by screen,
+            The information didn't change. The hierarchy did. Screen by screen,
             each one earns its colour and gives your day room to breathe.
           ratingFrom: '2.3'
           ratingTo: '4.2'
@@ -779,11 +779,11 @@ sections:
                 intrinsicHeight: 224
               changes:
                 - emphasis: One clear hierarchy
-                  rest: — weight and colour rank your day, not a flat wall of cards
+                  rest: so weight and colour rank your day, not a flat wall of cards
                 - emphasis: No upsell nags
-                  rest: — the coin prompts and profile pushes are gone
+                  rest: means the coin prompts and profile pushes are gone
                 - emphasis: Four-tab nav
-                  rest: — five vague destinations became four clear pillars
+                  rest: turns five vague destinations into four clear pillars
             - title: Activity
               tag: Midnight Ember
               before:
@@ -818,11 +818,11 @@ sections:
                 intrinsicHeight: 80
               changes:
                 - emphasis: Rings & steps at a glance
-                  rest: — the day reads in a second, not a single gauge
+                  rest: mean the day reads in a second, not a single gauge
                 - emphasis: Trends, not a snapshot
-                  rest: — a week of bars instead of one number
+                  rest: gives a week of bars instead of one number
                 - emphasis: Colour that means something
-                  rest: — accent reserved for what actually matters
+                  rest: keeps accent reserved for what actually matters
             - title: Vitals
               tag: Midnight Ember
               before:
@@ -857,11 +857,11 @@ sections:
                 intrinsicHeight: 252
               changes:
                 - emphasis: One calm hub
-                  rest: — heart, SpO₂ and sleep, finally together
+                  rest: brings heart, SpO₂ and sleep finally together
                 - emphasis: Honest ranges
-                  rest: — context that reassures instead of alarms
+                  rest: give context that reassures instead of alarms
                 - emphasis: Tap into any metric
-                  rest: — every reading opens its own detail
+                  rest: and every reading opens its own detail
   - variant: default
     id: reflection
     index: '08'
@@ -869,10 +869,10 @@ sections:
     title: What I learned, and what I'd test next.
     lead: >-
       Redesigning a shipped app meant respecting what already worked while being
-      honest about what didn't. The biggest lesson was **restraint** — the
+      honest about what didn't. The biggest lesson was **restraint**. The
       hardest cuts, the upsell nags and the fifth tab, did the most for clarity.
       The rating moving from **2.3 to 4.2** told me the hardware was never the
-      problem; the experience was.
+      problem. The experience was.
     northStar: ''
     layout: stack
     glow:
@@ -905,4 +905,4 @@ sections:
                 outdoors, where most glances actually happen.
       - discriminant: closingLine
         value:
-          text: Good products are never finished — they're just worth opening again.
+          text: Good products are never finished. They're just worth opening again.

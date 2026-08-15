@@ -428,7 +428,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               <SectionHeading
                 index="01"
                 title={HEADLINE}
-                subtext="Six years across enterprise data tools and one consumer turnaround."
+                subtext="Eight years across enterprise data tools and one consumer turnaround."
                 titleProps={{
                   contentEditable: true,
                   suppressContentEditableWarning: true,

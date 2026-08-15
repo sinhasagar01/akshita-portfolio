@@ -108,7 +108,7 @@ export const KIT: KitPart[] = [
       <SectionHeading
         index="01"
         title="Turning rough ideas into products people use"
-        subtext="Six years across enterprise data tools and one consumer turnaround."
+        subtext="Eight years across enterprise data tools and one consumer turnaround."
       />
     ),
   },

@@ -133,10 +133,21 @@ function HeroWord({ word }: { word: string }) {
 }
 
 /* the contract's counter roll — 0 to the figure over 900ms, cubic ease-out, staggered */
+/* ⚠ THE ROLL PRESERVES THE AUTHORED DECIMAL PLACES, AND IT USED TO ROUND THEM AWAY. `Math.round`
+   meant a stat could only ever land on an integer, so the boAt Crest app rating — 4.2 — was
+   authored as `value: '42'` with `unit: 'rating ×10'` and the page displayed **42 rating ×10** to
+   a reader. That is an encoding workaround surfacing raw on the credibility tab, and it was not
+   carelessness: the counter genuinely could not express the number.
+
+   Deriving the precision FROM THE AUTHORED STRING rather than taking a prop keeps /studio's hero
+   panel a plain text field — an author types 4.2 and gets 4.2, types 8 and gets 8, with no new
+   control to discover and nothing to keep in sync. The seed uses the same precision so the number
+   does not change width when the roll starts. */
 function RollNumber({ value, delay, reduced }: { value: string; delay: number; reduced: boolean }) {
   const target = Number(value);
   const rollable = Number.isFinite(target);
-  const [shown, setShown] = useState(reduced || !rollable ? value : "0");
+  const decimals = (value.split(".")[1] ?? "").length;
+  const [shown, setShown] = useState(reduced || !rollable ? value : (0).toFixed(decimals));
   useEffect(() => {
     if (reduced || !rollable) { setShown(value); return; }
     let raf = 0;
@@ -145,12 +156,12 @@ function RollNumber({ value, delay, reduced }: { value: string; delay: number; r
       if (now < t0) { raf = requestAnimationFrame(step); return; }
       const p = Math.min((now - t0) / 900, 1);
       const e = 1 - Math.pow(1 - p, 3);
-      setShown(String(Math.round(target * e)));
+      setShown((target * e).toFixed(decimals));
       if (p < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [value, delay, reduced, rollable, target]);
+  }, [value, delay, reduced, rollable, target, decimals]);
   return <>{shown}</>;
 }
 
@@ -567,7 +578,9 @@ export default function HeroSection({
 
           <div className="hero-veil" />
           <div className="hero-seam" />
-          <span className="hero-fig-label">Fig. 01 — the designer</span>
+          {/* A comma, not an em dash. The project's writing rules forbid em dashes in site copy
+              and this caption is site copy that happens to live in a component. */}
+          <span className="hero-fig-label">Fig. 01, the designer</span>
         </div>
 
         {/* ⚠ FOUR CHILDREN AND FOUR GRID ROWS, `auto auto 1fr auto`. The `1fr` is the body, so the
