@@ -38,13 +38,24 @@ function railCategory(category: string, platform: string): string {
 /**
  * One work card — a single block-level anchor (no nested interactive elements), so the
  * whole card is the link. The frame shows the uploaded heroImage when it is a usable
- * landscape asset, else the hand-built mock. A hover `.wc-veil` slides the story up over
- * the image; the `.wc-rail` beneath always carries name + category so the pattern
- * survives touch. The platform glow + dock cascade land in PR 3, the filter in PR 4.
+ * landscape asset, else the hand-built mock. A hover `.wc-veil` slides the TITLE up over
+ * the image; the `.wc-rail` beneath carries name, summary and category, so everything
+ * that sells the piece survives touch.
  *
- * Accessible name is the rail title alone (aria-labelledby): the veil is a decorative
- * hover duplicate (aria-hidden), and the summary reaches AT through a visually-hidden
- * node the anchor points at with aria-describedby, so it is never lost to the veil.
+ * ---- ⚠ THE SUMMARY USED TO LIVE ONLY IN THE VEIL, AT `opacity: 0` UNTIL `:hover` -------------
+ *
+ * At 375px `matchMedia("(hover: hover)")` is FALSE, so the veil never opened and no phone
+ * visitor ever read it. The grid showed four bare names. The one sentence on this site that
+ * converts a hiring manager — boAt Crest lifting a store rating from 2.3 to 4 — was written,
+ * was in the DOM, and was unreachable on the viewport most recruiters use.
+ *
+ * ⚠ AND IT WAS DUPLICATED INTO AN `sr-only` NODE, WHICH IS WHAT MAKES IT A DEFECT RATHER THAN A
+ * TASTE QUESTION. Assistive tech was handed the outcome through `aria-describedby` while a
+ * sighted phone user was not — the page served AT better than it served the majority of its
+ * traffic. The hidden duplicate is gone and `aria-describedby` now points at the VISIBLE
+ * summary, so AT receives the same two strings it always did and nothing is said twice.
+ *
+ * The veil keeps the title and the arrow and stays `aria-hidden`, because it repeats the rail.
  */
 export default function ProjectCard({ project, unoptimized }: Props) {
   const { slug, title, summary, facts, category, heroImage } = project;
@@ -78,26 +89,26 @@ export default function ProjectCard({ project, unoptimized }: Props) {
         ) : (
           svg
         )}
-        {/* Decorative hover duplicate of content the rail already carries — aria-hidden
+        {/* Decorative hover duplicate of the title the rail already carries — aria-hidden
             so the anchor's accessible name stays the rail title, not the title twice
             plus a spoken arrow. */}
         <div className="wc-veil" aria-hidden="true">
           <p className="vt">{title} →</p>
-          {summary && <p className="vs">{summary}</p>}
         </div>
       </div>
       <div className="wc-rail">
         <span className="name" id={nameId}>
           {title}
         </span>
+        {/* ⚠ VISIBLE, AND THE `aria-describedby` TARGET. Not an sr-only twin of a hover-only
+            node — one string, one node, read by both a reader and a screen reader. */}
+        {summary && (
+          <span className="sum" id={descId}>
+            {summary}
+          </span>
+        )}
         {catLabel && <span className="cat">{catLabel}</span>}
       </div>
-      {/* Summary for assistive tech (the visible copy lives in the aria-hidden veil). */}
-      {summary && (
-        <span id={descId} className="sr-only">
-          {summary}
-        </span>
-      )}
     </Link>
   );
 }

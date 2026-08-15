@@ -3854,8 +3854,12 @@ a {
 .work-card:focus-visible .wc-veil {
   opacity: 1;
 }
+/* ⚠ `.vs` IS GONE, AND IT IS A DELETION RATHER THAN A MOVE OF THE RULE. The veil's summary
+   paragraph carried the one sentence that sells each piece and never opened on touch, so the
+   copy moved to `.wc-rail .sum` where it is always visible. What the veil keeps is the title
+   and the arrow — a navigation affordance, not a story. */
 .wc-veil .vt {
-  margin: 0 0 7px;
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 27px;
@@ -3863,31 +3867,26 @@ a {
   transform: translateY(12px);
   transition: transform 0.52s cubic-bezier(0.16, 0.9, 0.28, 1) 40ms;
 }
-.wc-veil .vs {
-  margin: 0;
-  max-width: 42ch;
-  font-size: 13.5px;
-  line-height: 1.55;
-  opacity: 0.85;
-  transform: translateY(18px);
-  transition: transform 0.52s cubic-bezier(0.16, 0.9, 0.28, 1) 90ms;
-}
 .work-card:hover .vt,
-.work-card:hover .vs,
-.work-card:focus-visible .vt,
-.work-card:focus-visible .vs {
+.work-card:focus-visible .vt {
   transform: translateY(0);
 }
 
-/* the rail beneath — never hidden behind a hover, so touch keeps the basics.
-   Recedes with the shot (var(--op)) so a card and its rail dim together in the cascade;
-   --op stays on the shot/rail, NEVER the .reveal-card <li>, so it can't fight the
-   scroll-reveal opacity (see RevealSection). */
+/* the rail beneath — never hidden behind a hover, so touch keeps EVERYTHING now rather than
+   just the basics. Recedes with the shot (var(--op)) so a card and its rail dim together in the
+   cascade; --op stays on the shot/rail, NEVER the .reveal-card <li>, so it can't fight the
+   scroll-reveal opacity (see RevealSection).
+
+   ⚠ A COLUMN, NOT A SPACE-BETWEEN ROW, AND THE ROW IS WHAT PRODUCED THE MOBILE WRAP. Name left
+   and category right put "boAt Crest" and "Mobile · Android and iOS" in one line box, so at
+   375px the longest title broke to two lines to make room for a tag nobody reads first. Stacked,
+   the title owns its line at every width and the summary — the reason the card exists — sits
+   directly under it. */
 .wc-rail {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
   margin-top: 14px;
   opacity: var(--op, 1); /* recede follows the registered --op (transitions on .work-card) */
 }
@@ -3895,12 +3894,25 @@ a {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 21px;
+  line-height: 1.2;
   color: var(--color-text-primary);
+}
+/* ⚠ `text-secondary`, A ROLE, AND CHOSEN BY JOB RATHER THAN BY DISTANCE. This is supporting copy
+   under a title, which is what that role names. `text-subtle` is the quieter level and it fails
+   on the light grounds that do not invert — the boarded seven-site finding — so pointing the
+   sentence that sells the work at it would put the page's best line on the one role with a known
+   exposure. Measured 7.42 to 8.95 light and 7.43 to 7.50 dark. */
+.wc-rail .sum {
+  max-width: 46ch;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
 }
 .wc-rail .cat {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  margin-top: 3px;
   white-space: nowrap;
   font-size: 11px;
   letter-spacing: 0.13em;
@@ -3928,9 +3940,11 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* No image zoom, and the veil copy is not left translated (no trapped half-state).
-     The veil still opacity-toggles on hover/focus instantly, so the story stays
-     reachable — see A4. */
+  /* No image zoom, and the veil title is not left translated (no trapped half-state).
+     ⚠ THE "SO THE STORY STAYS REACHABLE" CLAUSE THAT SAT HERE IS RETIRED RATHER THAN REWORDED.
+     It argued the veil must keep toggling because the summary lived inside it. The summary is
+     in `.wc-rail .sum` now and never hides, so reduced motion cannot cost a reader anything —
+     the veil is a title and an arrow. */
   .wc-shot > img,
   .wc-shot > svg,
   .work-card:hover .wc-shot > img,
@@ -3938,12 +3952,10 @@ a {
     transform: none;
   }
   .wc-veil,
-  .wc-veil .vt,
-  .wc-veil .vs {
+  .wc-veil .vt {
     transition-duration: 1ms;
   }
-  .wc-veil .vt,
-  .wc-veil .vs {
+  .wc-veil .vt {
     transform: none;
   }
 }
@@ -6085,12 +6097,18 @@ a {
    Scoped to /studio. The Details canvas draws the work card TWICE, at rest and on hover, side by
    side and labelled.
 
-   BECAUSE THE SUMMARY IS INVISIBLE AT REST, AND THAT IS THE WHOLE REASON FOR THE SECOND CARD.
-   The card shows its image, its title and its category label; the summary lives only in
-   `.wc-veil`, at `opacity: 0` until `:hover` or `:focus-visible`. So a canvas drawing one state
-   cannot show a field the inspector spends a whole textarea on — and the author is editing that
-   text while looking at it. Same shape as #198: a defect that lives in the COMPARISON rather than
-   in either state, visible only by drawing both.
+   ⚠ THE STATED REASON FOR THE SECOND CARD HAS BEEN REMOVED, AND THE CLAIM MOVES WITH THE CODE.
+   This read "BECAUSE THE SUMMARY IS INVISIBLE AT REST, AND THAT IS THE WHOLE REASON FOR THE
+   SECOND CARD" — the summary lived only in `.wc-veil` at `opacity: 0`, so a canvas drawing one
+   state could not show a field the inspector spends a whole textarea on. **The summary is now in
+   `.wc-rail` and visible at rest**, so an author editing it sees it in BOTH cards, and the
+   sentence above stopped being true the moment that moved.
+
+   WHAT THE SECOND CARD STILL DOES IS PREVIEW THE HOVER — the scrim, the title lift, the image
+   scale, the glow and the rail dot. That is a smaller job than the one it was built for, and
+   whether it earns its width is a DESIGN DECISION ABOUT A STUDIO SURFACE rather than a
+   consequence of this change. Boarded, not taken here. Deleting it while removing its premise
+   would be a second unit riding inside the first.
 
    `:hover` CANNOT BE SET FROM SCRIPT, so the second card is drawn by re-asserting the hover
    declarations against a data attribute. EVERY PROPERTY THE PUBLIC `:hover` BLOCK CHANGES IS
@@ -6105,8 +6123,7 @@ a {
 .studio-chrome [data-card-state="hover"] .wc-veil {
   opacity: 1;
 }
-.studio-chrome [data-card-state="hover"] .vt,
-.studio-chrome [data-card-state="hover"] .vs {
+.studio-chrome [data-card-state="hover"] .vt {
   transform: translateY(0);
 }
 .studio-chrome [data-card-state="hover"] .wc-shot > img,
