@@ -28,8 +28,13 @@
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { blankCommentBodies } from "../strip-comments.mjs";
 import { blockImageReachability } from "../../lib/studio/image-reachability.ts";
+/* ⚠ THE WALK IS SHARED WITH THE COLLECTOR RATHER THAN COPIED. If this census and
+ * `ralph/collect-images.mjs` ever disagreed about where a reference can live, the collector
+ * would delete a file this census calls live — and this census would go on passing, because it
+ * never sees what was deleted. Every assertion below is unchanged and still runs on the walk it
+ * always ran on; only the definition moved. */
+import { REFERENCE_DIRS, referencesByDir, blockImagesOnDisk, walkFiles } from "../image-walk.mjs";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -39,51 +44,8 @@ const t = (name, got, want) => {
 };
 const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-/* ⚠ EVERY DIRECTORY THAT MAY HOLD A REFERENCE, DECLARED WITH ITS REASON. Adding a place that can
- * point at an uploaded image means adding it here — and B1 fails if any declared part finds none,
- * so a directory that stops carrying references is a decision somebody has to make rather than a
- * silent narrowing. */
-const REFERENCE_DIRS = [
-  ["content", "the entries themselves — where an author's upload is recorded"],
-  ["app", "route and harness pages; `app/dev` references project block images directly"],
-  ["components", "a component may hardcode an illustration path"],
-  ["lib", "a leaf may carry a default or a fixture path"],
-];
-const PATH_RE = /\/images\/[a-zA-Z0-9/_-]+\/blocks\/[0-9a-f]+\.(?:webp|png|jpg|jpeg|avif)/g;
-
-const walkFiles = (rel, out = []) => {
-  const abs = join(root, rel);
-  if (!existsSync(abs)) return out;
-  for (const e of readdirSync(abs, { withFileTypes: true })) {
-    if (e.name.startsWith(".") || e.name === "node_modules") continue;
-    const child = `${rel}/${e.name}`;
-    if (e.isDirectory()) walkFiles(child, out);
-    else out.push(child);
-  }
-  return out;
-};
-
 console.log("\nA · the walk, declared — because a walk that reaches nothing makes every file an orphan");
-const perDir = REFERENCE_DIRS.map(([d, why]) => {
-  const found = new Set();
-  for (const f of walkFiles(d)) {
-    if (/\.(png|jpe?g|webp|avif|ico|woff2?|mp4)$/i.test(f)) continue;
-    /* ⚠ COMMENTS BLANKED, AND THIS ROW'S OWN LEAF IS WHY. `image-reachability.ts` documents its
-       input with an EXAMPLE PATH, and the first run of this census read that example as a live
-       reference — `B2` caught it because the file does not exist.
-       ⚠ AND THE FAILURE MODE IS THE DANGEROUS DIRECTION: a comment cannot make a file an orphan,
-       it can only make an orphan look LIVE. Had the example named a real file, this census would
-       have protected it from a GC forever, and nothing would ever have gone red. B2 only caught it
-       because the example was invented.
-       ⚠ SECOND INSTANCE TODAY of an instrument reading its own prose as evidence, after
-       `collection-readiness` reported blog COMPARED because its own comment named the constant. It
-       is the same fix in a third tool, so blanking is the default for any scanner over source. */
-    let src;
-    try { src = blankCommentBodies(readFileSync(join(root, f), "utf8")); } catch { continue; }
-    for (const m of src.matchAll(PATH_RE)) found.add(m[0]);
-  }
-  return { dir: d, why, paths: [...found] };
-});
+const perDir = referencesByDir(root);
 for (const p of perDir) console.log(`      ${p.dir.padEnd(11)} ${String(p.paths.length).padStart(3)} path(s)   ${p.why}`);
 t("A1 every declared part of the walk is real — a missing directory would silently orphan its files",
   perDir.filter((p) => !existsSync(join(root, p.dir))).map((p) => p.dir), []);
@@ -99,9 +61,7 @@ t("A3 …and `app` carries references a content-only walk would have missed, whi
   perDir.find((p) => p.dir === "app").paths.length > 0, true);
 
 console.log("\nB · reachability, keyed on the PATH");
-const onDisk = walkFiles("public/images")
-  .filter((f) => f.includes("/blocks/") && /\.(webp|png|jpe?g|avif)$/i.test(f))
-  .map((f) => f.replace(/^public/, ""));
+const onDisk = blockImagesOnDisk(root);
 const referenced = [...new Set(perDir.flatMap((p) => p.paths))];
 const result = blockImageReachability({ onDisk, referenced });
 console.log(`      ${onDisk.length} on disk   ·   ${result.liveCount} live   ·   ${result.orphans.length} orphaned`);
