@@ -4469,14 +4469,37 @@ a {
   background-color: var(--color-surface);
 }
 
+/* ⚠ `visibility`, NOT JUST `opacity` — AN UNREVEALED CARD WAS INVISIBLE AND STILL TABBABLE.
+   `opacity: 0` hides an element from the EYE and from nothing else. Measured at 1226x964 on a
+   freshly loaded page, before anything scrolled: FOUR focusable nodes sat inside unrevealed cards
+   at `opacity: 0; visibility: visible`, so a reader tabbing from the top of the page landed on the
+   four work cards while they were still nowhere on screen.
+
+   `visibility: hidden` is the one property that removes an element AND ITS SUBTREE from the tab
+   order without removing its box, which is what this needs — the cards are laid out, they are
+   simply not shown yet. `inert` would also do it and would need JavaScript to toggle; this is the
+   same rule that already owns the hidden state.
+
+   ⚠ AND IT IS SAFE ONLY BECAUSE THE REVEAL IS ONE-WAY, WHICH WAS CHECKED RATHER THAN ASSUMED.
+   `RevealSection` sets `done = true`, disconnects its observer and removes its scroll listener on
+   first intersection, so `.is-revealed` is never taken off. A card goes hidden to visible once. If
+   that ever becomes reversible, a card would VANISH mid-view rather than fading, and this is the
+   line that would have to change with it.
+
+   ⚠ AND `visibility` IS IN THE TRANSITION LIST DELIBERATELY. Left out, it would flip to `visible`
+   the instant `.is-revealed` lands — while the staggered `transition-delay` holds opacity at 0 for
+   another .30s to .80s. That is the same defect back, just 300ms of it per card. Transitioned, it
+   stays hidden for the delay and turns visible exactly when the fade starts. */
 .reveal-card {
   opacity: 0;
+  visibility: hidden;
   transform: translateY(40px) scale(.96);
-  transition: opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1);
+  transition: opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1), visibility .8s;
 }
 
 .is-revealed .reveal-card {
   opacity: 1;
+  visibility: visible;
   transform: none;
   transition-delay: .30s;
 }
@@ -4697,8 +4720,14 @@ a {
   html[data-image-preview] [data-preview-src] .cs-preview-hint { transition: none; }
 }
 
+/* ⚠ `visibility` HERE TOO, AND FORGETTING IT WOULD HAVE BLANKED THE CANVAS. Three rules force the
+   revealed end state — this one, the reduced-motion block below, and `.is-revealed`. Each has to
+   carry every property the start state sets, or it inherits `visibility: hidden` and renders an
+   empty container. This rule serves the studio canvas, `/dev/parity` and the palette kit, none of
+   which scroll-reveal. */
 .canvas-static .reveal-card {
   opacity: 1;
+  visibility: visible;
   transform: none;
   transition: none;
 }
@@ -4711,6 +4740,7 @@ a {
   }
   .reveal-card {
     opacity: 1;
+    visibility: visible;
     transform: none;
     transition: none;
   }
