@@ -102,9 +102,9 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
         {categories.map((cat) => (
           <div
             key={cat.category}
-            className="flex flex-col gap-3 md:flex-row md:items-baseline md:gap-8 reveal-card"
+            className="flex flex-col gap-3 lg:flex-row lg:items-baseline lg:gap-8 reveal-card"
           >
-            <div className="md:w-28 md:shrink-0">
+            <div className="lg:w-28 lg:shrink-0">
               <p
                 className="text-[12px] tracking-[.14em] uppercase leading-none"
                 style={{ color: "var(--color-accent)" }}

@@ -121,7 +121,7 @@ export default function ProcessSection({ settings }: Props) {
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
+    const mq = window.matchMedia("(max-width: 1023px)");
     setIsSmallScreen(mq.matches);
     const handler = (e: MediaQueryListEvent) => setIsSmallScreen(e.matches);
     mq.addEventListener("change", handler);
@@ -211,8 +211,13 @@ export default function ProcessSection({ settings }: Props) {
           : "sticky top-0 min-h-screen flex flex-col justify-center py-section",
       ].join(" ")}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-[30px] items-center">
-        <LeftColumn stages={stages} active={active} onSelect={scrollToStage} />
+      {/* ⚠ `lg`, MATCHING THE PIN'S OWN GATE ABOVE. `noPin` now flips at 1023 and this grid flipped
+          at 768, so between those widths the section went two-column WITHOUT pinning — the fan deck
+          beside the stage copy in a layout the pin's choreography assumes it owns. The two must
+          switch together or the tablet gets a composition nobody designed. Found by re-censusing
+          after the other four were fixed rather than by the report, which named four. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[30px] items-center">
+        <LeftColumn stages={stages} active={active} onSelect={scrollToStage} reduced={!!prefersReduced} />
         <FanDeck active={active} skipAnim={noPin} />
       </div>
     </section>
@@ -229,27 +234,35 @@ export default function ProcessSection({ settings }: Props) {
 
 /* ── Left column ─────────────────────────────────────────────── */
 
+/* ⚠ `reduced` IS THREADED RATHER THAN RE-DERIVED, AND IT IS SEPARATE FROM `noPin`. The section
+   already computes `prefersReduced` and already passes a motion flag down — but only to `FanDeck`,
+   and as `skipAnim={noPin}`, which is `prefersReduced || isSmallScreen`. That conflation is right
+   for the deck (a phone should not pin either) and WRONG here: a desktop visitor who asks for
+   reduced motion is not a small screen, so every transition below ran at full duration for them.
+   Threading the preference itself keeps the two questions apart. */
 function LeftColumn({
   stages,
   active,
   onSelect,
+  reduced,
 }: {
   stages: ResolvedStage[];
   active: number;
   onSelect: (i: number) => void;
+  reduced: boolean;
 }) {
   return (
     <div>
       <SectionHeading
-        index="01"
+        index="02"
         title="Process"
         subtext="Watch a rough idea grow into the shipped design."
         variant="default"
         tone="grey"
       />
       <div className="mt-8 sm:mt-[52px]">
-        <StageCopy stage={stages[active]} />
-        <VerticalStepper stages={stages} active={active} onSelect={onSelect} />
+        <StageCopy stage={stages[active]} reduced={reduced} />
+        <VerticalStepper stages={stages} active={active} onSelect={onSelect} reduced={reduced} />
       </div>
     </div>
   );
@@ -282,40 +295,57 @@ const stageLine = {
   exit: { opacity: 0, y: 0 },
 };
 
-function StageCopy({ stage }: { stage: ResolvedStage }) {
+/* ⚠ THE STILL VARIANTS KEEP THE SWAP AND DROP THE TRAVEL. Reduced motion is not "no feedback" — the
+   copy must still change when a stage is selected, or the control stops reporting. What goes is the
+   12px rise, the stagger and the duration, which is the part that moves. Same posture as the work
+   card's reduced-motion block, which keeps the veil toggling and only removes the translate. */
+const stageWrapStill = {
+  enter: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0 } },
+  exit: { opacity: 0, transition: { duration: 0 } },
+};
+const stageLineStill = {
+  enter: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0 } },
+  exit: { opacity: 0 },
+};
+
+function StageCopy({ stage, reduced }: { stage: ResolvedStage; reduced: boolean }) {
+  const wrap = reduced ? stageWrapStill : stageWrap;
+  const line = reduced ? stageLineStill : stageLine;
   return (
     <div className="relative min-h-[180px] overflow-hidden">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={stage.index}
-          variants={stageWrap}
+          variants={wrap}
           initial="enter"
           animate="show"
           exit="exit"
           className="flex flex-col"
         >
           <motion.span
-            variants={stageLine}
+            variants={line}
             className="text-meta font-medium uppercase tracking-ui"
             style={{ color: "var(--color-accent)" }}
           >
             {stage.index}
           </motion.span>
           <motion.h3
-            variants={stageLine}
+            variants={line}
             className="display-face italic text-subheading leading-snug tracking-snug mt-1 mb-2.5"
           >
             {stage.name}
           </motion.h3>
           <motion.p
-            variants={stageLine}
+            variants={line}
             className="text-sm text-text-secondary leading-normal"
             style={{ minHeight: "46px" }}
           >
             {stage.description}
           </motion.p>
           <motion.div
-            variants={stageLine}
+            variants={line}
             className="flex flex-wrap gap-[6px] mt-[14px]"
           >
             {stage.tags.map((tag) => (
@@ -343,10 +373,12 @@ function VerticalStepper({
   stages,
   active,
   onSelect,
+  reduced,
 }: {
   stages: ResolvedStage[];
   active: number;
   onSelect: (i: number) => void;
+  reduced: boolean;
 }) {
   const ROW_H = 44;
   const railHeight = (stages.length - 1) * ROW_H;
@@ -371,16 +403,24 @@ function VerticalStepper({
           zIndex: 1,
         }}
       />
-      {/* terracotta fill */}
+      {/* terracotta fill — ⚠ `scaleY` RATHER THAN `height`, AND IT IS PIXEL-IDENTICAL HERE.
+          Animating `height` runs layout on every frame. The old form transitioned
+          `height: ${'${fillHeight}'}px`; this draws the rail at its FULL height once and scales it from the
+          top, which the compositor can do without touching layout at all. It is only identical
+          because the element is a solid 2px bar with no children and no border radius — a box with
+          content would be distorted by the scale, which is why this is a local swap and not a rule.
+          `transformOrigin: top` is what makes it grow downward from the first stage. */}
       <div
         style={{
           position: "absolute",
           left: "17px",
           top: "22px",
           width: "2px",
-          height: `${fillHeight}px`,
+          height: `${railHeight}px`,
+          transform: `scaleY(${railHeight ? fillHeight / railHeight : 0})`,
+          transformOrigin: "top",
           background: "var(--color-accent)",
-          transition: "height 0.4s ease",
+          transition: reduced ? "none" : "transform 0.4s ease",
           zIndex: 2,
         }}
       />
@@ -412,7 +452,7 @@ function VerticalStepper({
                   ? "1.5px solid var(--color-accent)"
                   : "1.5px solid color-mix(in oklch, var(--color-text-primary) 32%, transparent)",
                 color: isActive || isDone ? "var(--color-on-accent)" : "var(--color-text-subtle)",
-                transition: "background 0.3s, border-color 0.3s, color 0.3s",
+                transition: reduced ? "none" : "background 0.3s, border-color 0.3s, color 0.3s",
               }}
             >
               {isActive || isDone ? (
@@ -441,7 +481,7 @@ function VerticalStepper({
                 textTransform: "uppercase",
                 color: isActive ? "var(--color-accent-text)" : "var(--color-text-subtle)",
                 fontWeight: isActive ? 500 : 400,
-                transition: "color 0.3s",
+                transition: reduced ? "none" : "color 0.3s",
                 fontFamily: "var(--font-body)",
               }}
             >
@@ -538,7 +578,11 @@ function FanDeck({ active, skipAnim }: { active: number; skipAnim: boolean }) {
               zIndex: FAN_Z[d],
               opacity: FAN_OPACITY[d],
               transform: `translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(${FAN_SCALE[d]})`,
-              transition: "transform 0.55s cubic-bezier(0.22,1,0.36,1), opacity 0.45s",
+              /* ⚠ GATED ON `skipAnim` LIKE ITS SIBLING AT THE GLOW, WHICH IT WAS NOT. One component
+                 owned two transitions and honoured the preference in one of them — the kind of
+                 split that reads as intentional and is not. Found by censusing every inline
+                 `transition:` in the file rather than by fixing the three that were reported. */
+              transition: skipAnim ? "none" : "transform 0.55s cubic-bezier(0.22,1,0.36,1), opacity 0.45s",
             }}
           >
             <CardGraphic index={i} active={active} skipAnim={skipAnim} />

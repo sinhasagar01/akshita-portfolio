@@ -42,6 +42,7 @@ export default function WorkFilter({ counts }: { counts: Counts }) {
     }));
     if (!items.length || items.some((it) => !it.a)) return;
 
+    const live = control.querySelector<HTMLElement>(".wf-live");
     const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     // A4 — "" matches only "all"
     const matches = (f: string, cat: string) => f === "all" || cat === f;
@@ -57,11 +58,29 @@ export default function WorkFilter({ counts }: { counts: Counts }) {
     let pending: string | null = null;
     let active = "all";
 
+    /* ⚠ THE RESULT IS ANNOUNCED, NOT JUST THE CONTROL'S STATE, AND THOSE ARE DIFFERENT CLAIMS.
+       `aria-pressed` says "this chip is now on". It says nothing about what happened to the grid —
+       and what happened is that two of four case studies left the page. A sighted visitor gets a
+       900ms choreographed repack as the feedback; a screen reader got a state flip and silence.
+
+       Announced from `commitVisual` because that is the single point where the control becomes
+       truthful — the queue at A1 deliberately does NOT touch the thumb or `aria-pressed` for a
+       click that will not run, so announcing anywhere else would report a filter that never
+       applied. The count is derived from the same `matches` predicate the repack uses, so the
+       sentence and the grid cannot disagree. */
     function commitVisual(f: string) {
       active = f;
       setPressed(f);
       const btn = buttons.find((b) => b.dataset.filter === f);
       if (btn) moveThumb(btn);
+      if (live) {
+        const n = items.filter((it) => matches(f, it.cat)).length;
+        const label = buttons.find((b) => b.dataset.filter === f)?.dataset.filter ?? f;
+        live.textContent =
+          f === "all"
+            ? `Showing all ${n} case ${n === 1 ? "study" : "studies"}.`
+            : `Showing ${n} ${label} case ${n === 1 ? "study" : "studies"}.`;
+      }
     }
 
     function applyFilter(f: string) {
@@ -183,6 +202,9 @@ export default function WorkFilter({ counts }: { counts: Counts }) {
   return (
     <div className="work-filter" role="group" aria-label="Filter work by platform" ref={ref}>
       <span className="wf-thumb" aria-hidden="true" />
+      {/* Visually hidden, polite. `role="status"` carries an implicit `aria-live="polite"`, so a
+          filter change is announced after the current utterance rather than interrupting it. */}
+      <span className="wf-live sr-only" role="status" />
       <button type="button" data-filter="all" aria-pressed="true">
         All <span className="wf-n">{counts.all}</span>
       </button>

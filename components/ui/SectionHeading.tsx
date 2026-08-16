@@ -178,9 +178,19 @@ export default function SectionHeading({
   // Bleed and watermark: large word LEFT-anchored in a back layer behind index + subtext
   if (variant === "bleed" || variant === "watermark") {
     const minHeight = variant === "bleed" ? "128px" : "172px";
-    const wordClass = variant === "bleed"
-      ? "text-[78px] sm:text-[100px]"
-      : "text-[78px] sm:text-[108px]";
+    /* ⚠ `lg`, NOT `sm` — THIS FILE HELD THE FIFTH AND SIXTH BREAKPOINT SPLITS. The site goes mobile
+     at ONE breakpoint (1024) and these headings stepped up at 640, so between 640 and 1023 a
+     visitor got the desktop heading scale under a mobile menu.
+
+     ⚠ AND IT MADE A TYPE INVERSION WORSE IN ITS WORST BAND. `.hero-name` is
+     `clamp(34px, 10cqw, 46px)` below 1024 while this h2 was already 60px there — so the section
+     label outranked the page's own `h1` by 14px. Moving the step to `lg` removes that band. It does
+     NOT close the whole finding: between 1024 and 1395 the name is 44 to 60px against this 60, and
+     the weights are 200 against 600 everywhere. Whether the hero's thin display voice should change
+     is a design decision and is deliberately not taken here. */
+  const wordClass = variant === "bleed"
+      ? "text-[78px] lg:text-[100px]"
+      : "text-[78px] lg:text-[108px]";
 
     return (
       <div
@@ -226,7 +236,7 @@ export default function SectionHeading({
         <span style={idxStyle}>{index}</span>
         <span style={{ position: "relative", display: "inline-block", margin: "6px auto 2px" }}>
           <span aria-hidden style={glowStyle} />
-          <h2 className="text-[42px] sm:text-[60px]" style={wordStyle} {...titleProps}>{title}</h2>
+          <h2 className="text-[42px] lg:text-[60px]" style={wordStyle} {...titleProps}>{title}</h2>
         </span>
         <p style={{ ...subStyle, margin: "14px auto 0" }}>{subtext}</p>
       </div>
@@ -239,7 +249,7 @@ export default function SectionHeading({
       <span style={idxStyle}>{index}</span>
       <span style={{ position: "relative", display: "inline-block", margin: "6px 0 2px" }}>
         <span aria-hidden style={glowStyle} />
-        <h2 className="text-[42px] sm:text-[60px]" style={wordStyle} {...titleProps}>{title}</h2>
+        <h2 className="text-[42px] lg:text-[60px]" style={wordStyle} {...titleProps}>{title}</h2>
       </span>
       <p style={subStyle}>{subtext}</p>
     </div>
