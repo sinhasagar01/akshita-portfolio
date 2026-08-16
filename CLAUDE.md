@@ -213,20 +213,6 @@ gates.
 
 
 
-- **⚠ BOARDED: SHOULD `unchecked-joins` REACH CASTS ON SHAPE-BEARING TYPES? THE SKILLS OUTAGE IS THE
-  EVIDENCE.** That census counts casts onto COLLECTION-KEYED types — `entry[1] as PreviewGroup` and
-  its family — where a closed set is widened and a cast silences the check.
-
-  **`items as string[]` IS THE SAME ACT ON A DIFFERENT KIND OF TYPE.** `SkillsCategory` declared
-  `items: string[]`, the schema declared objects, and **the cast is what let it compile**. Four
-  places said string, one said object, **and the type system agreed with the wrong four** — so the
-  one mechanism that could have caught a two-day outage was the one silenced.
-
-  **THE QUESTION IS WHETHER A CAST ONTO A SHAPE THE SCHEMA OWNS IS THE SAME CLASS**, and it is not
-  obviously yes: `unchecked-joins` found ELEVEN casts and ruled TEN of them guarded, so a wider net
-  is only worth it if the guards can still be told apart. **Not built. The instance is recorded so
-  whoever answers it starts from evidence rather than from a hunch.**
-
 - **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
   IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
   kind, the gallery image fields — were inert EVERYWHERE: the UI offered a value and nothing
@@ -612,6 +598,66 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ RULED NO: `unchecked-joins` DOES NOT WIDEN TO SHAPE-BEARING CASTS, AND THE CENSUS IS WHY
+  RATHER THAN A PREFERENCE.** The entry asked whether a cast onto a schema-owned SHAPE is the same
+  class as a cast onto a collection-keyed TYPE, and said explicitly that a wider net is only worth
+  it if the guards can still be told apart. **They cannot.** Censused across 305 files:
+
+      313 `as` casts total     131 platform/built-in   ·   114 `as const`
+       13 collection-keyed     the current subject, up from the 11 this entry recorded
+       35 SHAPE-BEARING        the candidate — 2.7x the current subject
+       24 of the 35 guarded, 11 not, on a corrected detector
+
+  **⚠ THE GUARD KINDS ARE DIFFERENT, AND THAT IS THE WHOLE RULING.** The thirteen keyed casts are
+  guarded by things a matcher can NAME — a `hasOwnProperty` above the lookup, a truthiness test on
+  its result, a `Record<CollectionName, …>` making every key a member by construction. The
+  shape-bearing casts are guarded by **an empty literal having no members** (`[] as Skill[]`), **an
+  object constructed from a typed registry**, **a `switch` arm that names every collection**, and
+  **validation at a write boundary**. Every one is correct and **not one is matchable**, so a
+  widened gate would report eleven findings of which the honest count is near zero — the wrong-noun
+  error at 2.7x scale.
+
+  **⚠ AND THE MOTIVATING INSTANCE IS GONE, WHICH THE ENTRY COULD NOT HAVE KNOWN.** It rested on
+  `items as string[]`, where four places said string, one said object, and the type system agreed
+  with the wrong four. **`SkillsCategory` now declares `items: SkillItem[]`** and agrees with the
+  schema. The only `Skill[]` cast left is `[] as Skill[]` — an empty seed asserting nothing about
+  shape. The remaining `as string[]` sites are on genuinely-string fields and each carries an
+  `Array.isArray` or a `??`.
+
+  **THE BETTER-TARGETED CHECK IS A DIFFERENT ONE, AND NAMING IT IS WORTH MORE THAN THE WIDENING.**
+  The outage was **a declared TYPE disagreeing with the SCHEMA**, which no cast census can see — a
+  cast is how the disagreement stayed compilable, not how it arose. That question belongs beside
+  `singleton-item-shape` and `collection-readiness`, which already compare declarations against
+  schema shape.
+
+  **⚠ AND THE CENSUS MADE THREE ERRORS OF ITS OWN, EVERY ONE FOUND BY LOOKING AT THE HITS.** A
+  matcher over prose counted **`Stored as WebP.`** — JSX TEXT, which `blankCommentBodies` does not
+  reach because it blanks comments and this is markup. `import type { HeroCover as HeroCoverData }`
+  counted as a cast, and an import alias renames rather than asserting. And the guard detector
+  looked three lines ABOVE while most guards sit **on the line itself** — `(load(raw) ?? {}) as X`,
+  `Array.isArray(b) ? … as X` — which reported 21 unguarded where 11 is the honest figure. **A
+  fixed window that excludes its own subject** is the 900-character-window defect in a new costume,
+  and it is the third matcher error of the day.
+
+  **THE POPULATION IS RECORDED SO THE NEXT PERSON STARTS FROM IT.** If this is reopened, the
+  trigger is a shape cast that is genuinely unguarded and shipped a defect — one instance, not an
+  argument.
+
+- **⚠ BOARDED: SHOULD `unchecked-joins` REACH CASTS ON SHAPE-BEARING TYPES? THE SKILLS OUTAGE IS THE
+  EVIDENCE.** That census counts casts onto COLLECTION-KEYED types — `entry[1] as PreviewGroup` and
+  its family — where a closed set is widened and a cast silences the check.
+
+  **`items as string[]` IS THE SAME ACT ON A DIFFERENT KIND OF TYPE.** `SkillsCategory` declared
+  `items: string[]`, the schema declared objects, and **the cast is what let it compile**. Four
+  places said string, one said object, **and the type system agreed with the wrong four** — so the
+  one mechanism that could have caught a two-day outage was the one silenced.
+
+  **THE QUESTION IS WHETHER A CAST ONTO A SHAPE THE SCHEMA OWNS IS THE SAME CLASS**, and it is not
+  obviously yes: `unchecked-joins` found ELEVEN casts and ruled TEN of them guarded, so a wider net
+  is only worth it if the guards can still be told apart. **Not built. The instance is recorded so
+  whoever answers it starts from evidence rather than from a hunch.**
+
 
 - **⚠ CLOSED ON EVIDENCE: `text-subtle` FAILS NOWHERE, AND THE ENTRY'S TWO NAMED GROUNDS NO LONGER
   EXIST ON THE PAGE.** Re-derived before scoping any work, which is the board's own rule. Forced to
