@@ -101,24 +101,8 @@ export default function ProcessSection({ settings }: Props) {
   const prefersReduced = useReducedMotion();
   const lenis = useLenis();
   const wrapperRef = useRef<HTMLDivElement>(null);
-  // Keep a ref so the ScrollTrigger effect can reach the current lenis instance
-  // without declaring lenis as a dependency and recreating the trigger on changes.
-  const lenisRef = useRef(lenis);
-  useEffect(() => { lenisRef.current = lenis; }, [lenis]);
 
   const { isProgrammaticRef } = useSmoothScroll() ?? {};
-  const userScrolled = useRef(false);
-  useEffect(() => {
-    const mark = () => { userScrolled.current = true; };
-    window.addEventListener("wheel", mark, { passive: true });
-    window.addEventListener("touchmove", mark, { passive: true });
-    window.addEventListener("keydown", mark);
-    return () => {
-      window.removeEventListener("wheel", mark);
-      window.removeEventListener("touchmove", mark);
-      window.removeEventListener("keydown", mark);
-    };
-  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 1023px)");
@@ -130,10 +114,25 @@ export default function ProcessSection({ settings }: Props) {
 
   const noPin = !!prefersReduced || isSmallScreen;
 
+  /* ⚠ THE SCROLL SNAP IS GONE AND ITS REASONING IS KEPT HERE RATHER THAN IN A COMMIT BODY, because a
+     removed behaviour with no record reads as an omission to whoever notices it missing.
+
+     What stood here: after a 100ms pause the trigger called `lenis.scrollTo` to the nearest
+     third-point, so a reader who stopped mid-stage was moved. It was correct code and it took the
+     scroll away from the person doing it — the one input on the page a visitor expects to own
+     outright. A reader skimming past Process was pulled back; a reader stopping to read a stage was
+     nudged; and on a trackpad, where a pause is a normal part of scrolling rather than the end of
+     it, it fired constantly.
+
+     ⚠ AND IT COST TWO REFS AND THREE WINDOW LISTENERS THAT NOTHING ELSE READ. `userScrolled` existed
+     only to tell a real scroll from the snap's own, and `lenisRef` only so the snap could reach the
+     instance without re-creating the trigger. Both went with it, and with them a `wheel`,
+     `touchmove` and `keydown` listener on `window` that ran on every scroll of the page.
+
+     The stepper still tracks scroll, `scrollToStage` still animates on a CLICK, and the pin is
+     untouched — what is gone is the page moving when nobody asked it to. */
   useEffect(() => {
     if (noPin || !wrapperRef.current) return;
-
-    let snapTimer: ReturnType<typeof setTimeout> | null = null;
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
@@ -142,36 +141,16 @@ export default function ProcessSection({ settings }: Props) {
         start: "top top",
         end: "bottom bottom",
         onUpdate: (self) => {
-          // During programmatic scrolls: suppress stepper update AND snap together.
-          if (isProgrammaticRef?.current) {
-            if (snapTimer) clearTimeout(snapTimer);
-            snapTimer = null;
-            return;
-          }
-
-          const stage = Math.min(3, Math.round(self.progress * 3));
-          setActive(stage);
-
-          if (!userScrolled.current || !self.isActive) return;
-
-          // After the user pauses, snap to that stage's third-point via Lenis.
-          if (snapTimer) clearTimeout(snapTimer);
-          snapTimer = setTimeout(() => {
-            snapTimer = null;
-            if (isProgrammaticRef?.current) return; // race guard
-            const st = ScrollTrigger.getById("process-scrub");
-            const l = lenisRef.current;
-            if (!st || !l) return;
-            const snapTarget = st.start + (stage / 3) * (st.end - st.start);
-            l.scrollTo(snapTarget, { duration: 0.4 });
-          }, 100);
+          // A programmatic scroll drives the stepper from the click that started it,
+          // so reading progress here would fight it.
+          if (isProgrammaticRef?.current) return;
+          setActive(Math.min(3, Math.round(self.progress * 3)));
         },
       });
       ScrollTrigger.refresh();
     });
 
     return () => {
-      if (snapTimer) clearTimeout(snapTimer);
       ctx.revert();
     };
     // DISABLED RATHER THAN SATISFIED, and the choice is deliberate.

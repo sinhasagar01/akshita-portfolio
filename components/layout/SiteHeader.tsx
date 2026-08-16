@@ -605,8 +605,13 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
         )}
       </div>
 
-      {/* Mobile hidden: floating morph in its corner, toggles the same menu. */}
+      {/* ⚠ FOURTH ELEMENT OF THIS CLASS, AND THE CENSUS IS WHY IT IS THE LAST ONE PATCHED BLIND.
+          `#mobile-menu`, `#nav-sheet` and `nav-fab-desktop` each got `inert` one at a time, and each
+          time a fifth turned up in the next review. Measured at 390x844 this button was
+          `display: block`, `opacity: 0`, `pointer-events: none`, a real 41x41 box at (334,14), and
+          it took focus while staying invisible. The guard is keyed to `is-shown`'s own condition. */}
       <button
+        inert={!(navHidden && !menuOpen) || undefined}
         className={`nav-morph nav-fab nav-fab-mobile${navHidden && !menuOpen ? " is-shown" : ""}${menuOpen ? " is-open" : ""}`}
         aria-expanded={menuOpen}
         aria-controls="mobile-menu"

@@ -280,6 +280,9 @@ export function ListboxField<T extends string>({
           role="listbox"
           aria-labelledby={labelId}
           aria-hidden={!open}
+          /* `inert` with `aria-hidden`, per the rule the public census produced — a closed listbox
+             must leave the tab order as well as the accessibility tree. */
+          inert={!open || undefined}
           style={{ maxHeight: maxH }}
           className={
             "absolute inset-x-0 z-40 overflow-y-auto rounded-[var(--studio-radius-card,8px)] " +

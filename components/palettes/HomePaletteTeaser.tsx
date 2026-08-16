@@ -130,9 +130,15 @@ export default function HomePaletteTeaser({ swatches }: Props) {
   return (
     <>
       {/* ---- DESKTOP: the pill, bottom-left, revealed past the hero ---- */}
+      {/* ⚠ `inert` TRAVELS WITH `aria-hidden`, AND THE SIX CONTROLS INSIDE ARE WHY. `aria-hidden`
+          removes this from the accessibility TREE and does nothing to the TAB ORDER — measured, the
+          five swatches and the "All nine" link took focus at both 1280x800 and 390x844 while the
+          pill was at `opacity: 0`. A keyboard visitor reached six invisible controls before the
+          hero's own tabs. The two attributes answer different questions and must share a condition. */}
       <div
         className={`palette-pill${pastHero ? " is-past" : ""}`}
         aria-hidden={!pastHero}
+        inert={!pastHero || undefined}
       >
         <span className="palette-pill-label">Theme</span>
         <span className="palette-sep" />
