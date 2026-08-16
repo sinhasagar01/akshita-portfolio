@@ -2765,6 +2765,62 @@ a {
   .hero-scroll { margin-top: 14px; }
 }
 
+/* ⚠ ON A SHORT PHONE THE COUNTERS DO NOT EARN THEIR SPACE, AND THIS IS A CONTENT RULING RATHER THAN
+   A SPACING ONE. The ladder above bought 28px, which is enough at 828 and nowhere near enough at
+   680: measured there, the hero stands 845px against the viewport — 165px over — and no arrangement
+   of margins reaches that. Below this height the hero has to carry less, not sit tighter.
+
+   THE COUNTERS ARE THE RIGHT THING TO DROP BECAUSE THE PAGE ALREADY SAYS ALL THREE ELSEWHERE, so
+   this removes a SUMMARY and not information:
+
+       8 years        `aboutCopy` and `aboutSubtext` both open "Eight years …"
+       4 case studies the work filter's own label reads `All 4`
+       4 companies    the Experience section lists them, four employers over five roles
+
+   `display: none` rather than a visually-hidden shim, deliberately. A screen-reader user on a short
+   phone hearing three statistics that no sighted visitor on that device can see is not an
+   accessibility win, it is a second inconsistency — and the claims are all reachable further down
+   the page for everyone.
+
+   ⚠ AND IT DOES NOT CLEAR THE CUE ON ITS OWN. The counters are 63px plus an 18px margin, so the cue
+   rises 76px — measured, the hero drops 845 to 769 at 390x700 — which is a real improvement and
+   still leaves the cue 43px under at that height.
+
+   ⚠ THE THRESHOLD IS DERIVED, NOT CHOSEN, AND ITS FIRST VALUE WAS A PHONE SIZE RATHER THAN A
+   CONSTRAINT. At 750 there was a BAND where a taller phone was worse off than a shorter one —
+   measured at 390 wide:
+
+       vh 749   counters DROPPED   cue clears by  6      the rule fired
+       vh 780   counters present   cue 43 BELOW          it did not, and nothing else helped
+       vh 828   counters present   cue clears by  9      the ladder above is enough here
+
+   The cue's bottom sits at ~819-823 REGARDLESS of viewport height, because the mobile hero is
+   content-driven and the art band is fixed by a WIDTH clamp. So with the counters present the cue
+   clears only above ~823, and any threshold below that leaves a gap. 824 is that number rather than
+   a round one, which is why it looks arbitrary and is not.
+
+   ⚠ AND A HEIGHT TERM ALONE CANNOT EXPRESS THIS, WHICH IS WHY THERE ARE TWO. The cue's bottom is
+   not a constant — it moves 91px across 35px of width, because a narrower viewport wraps more text
+   and the hero grows. Measured with the counters present:
+
+       vw 390   cue bottom 823      vw 375   830
+       vw 382   cue bottom 819      vw 355   910
+
+   A single `max-height` closes the band at 382 and 390 and leaves 85px of it at 355. The width term
+   is what covers that, and it is aimed at the REAL failure rather than at the symptom: at 355 THE
+   COUNTERS THEMSELVES WRAP TO TWO ROWS and stand 125px instead of 63 — so the block that costs the
+   most is the one that costs most exactly where there is least room, and a two-row wrapped stat
+   block is a poor presentation before it is a spacing problem.
+
+   380 is the wrap boundary rather than a device size. Above it the three counters sit in one row.
+
+   ⚠ AND IT STILL DOES NOT CLEAR EVERY PHONE. With the counters gone the cue's bottom is ~743, so a
+   viewport shorter than that hides it regardless. The callouts are the next 82px and dropping those
+   too would clear the rest. That is a second content decision and is deliberately not taken. */
+@media (max-width: 1023px) and (max-height: 824px), (max-width: 380px) {
+  .hero-counters { display: none; }
+}
+
 /* the work section glows in the warmer tan tone */
 .glow-tan { --glow-color: var(--glow-on-tan); }
 
