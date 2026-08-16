@@ -2814,11 +2814,30 @@ a {
 
    380 is the wrap boundary rather than a device size. Above it the three counters sit in one row.
 
-   ⚠ AND IT STILL DOES NOT CLEAR EVERY PHONE. With the counters gone the cue's bottom is ~743, so a
-   viewport shorter than that hides it regardless. The callouts are the next 82px and dropping those
-   too would clear the rest. That is a second content decision and is deliberately not taken. */
+   ⚠ THE CALLOUTS GO ON THE SAME TERMS, AND THEY ARE NOT THE SAME TRADE. The counters were a
+   SUMMARY — every claim restated in `aboutCopy`, the work filter's label and the Experience
+   section. The callouts are not. Checked chip by chip against each tab's own headline and support:
+
+       Who I am         "Research-led"                                      said nowhere else
+       What I do        "Tokens"                                            said nowhere else
+       How I work       "Measure first" "Test with people" "Ship, re-measure"   ALL THREE unique
+       What I'm up to   "Fosfor · Elevate"                                  said nowhere else
+
+   So this REMOVES CONTENT rather than a restatement, and tab three loses its whole set. It is
+   scoped to the same two terms precisely to bound that: a roomy phone keeps them. It is taken
+   because on the viewports where it fires the callouts were already crossing the fold — at 390x700
+   they ended at 714 against a 700 fold — so what a visitor loses is a partly-cut row rather than a
+   row they were reading.
+
+   ⚠ AND A WIDTH BOUNDARY DERIVED FROM THE CALLOUTS' OWN WRAPPING WOULD BE EVERY PHONE, which is
+   why they inherit the counters' terms rather than getting their own. They are PER-TAB content, so
+   the wrap point is a property of the selected tab: measured at 430 — the widest common phone —
+   `Who I am` and `How I work` are TWO ROWS at 66px while the other two are one row at 30px. There
+   is no phone width at which all four fit on one line, so "drop them where they wrap" would mean
+   dropping them everywhere, and that is a bigger removal than the fold problem justifies. */
 @media (max-width: 1023px) and (max-height: 824px), (max-width: 380px) {
-  .hero-counters { display: none; }
+  .hero-counters,
+  .hero-callouts { display: none; }
 }
 
 /* the work section glows in the warmer tan tone */
