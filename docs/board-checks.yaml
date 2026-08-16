@@ -47,13 +47,6 @@ entries:
   # `expect: absent` because the item was open while both consumers shared `.next`. Adding `distDir`
   # made the entry stale and B2 said so, naming the entry rather than the code — which is the
   # behaviour the gate exists for, arriving twenty minutes after it merged.
-  - match: "SHOULD `unchecked-joins` REACH CASTS ON SHAPE-BEARING TYPES"
-    kind: judgement
-    why: >-
-      Whether a cast onto a schema-owned shape is the same class as a cast onto a collection-keyed
-      type. unchecked-joins ruled ten of eleven casts guarded, so widening only pays if the guards
-      stay distinguishable — a judgement about a net's precision, not a fact about the tree.
-
   - match: "AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE"
     kind: absence
     holds_while:
