@@ -62,8 +62,8 @@ standing:
   # ⚠ DERIVED, NOT DECLARED. The gate recomputes both from `entries` and fails if either drifts, and
   # it fails again if CLAUDE.md's prose disagrees. These two lines are here so a reader of this file
   # sees the figure without counting, never as the source of it.
-  instances: 12
-  rows: 14
+  instances: 11
+  rows: 13
 
 entries:
   - suite: rich-markers
@@ -197,33 +197,17 @@ entries:
       the one mutation that can kill it, and the suite's own comment at the row states so. Retitled
       from agreement to `derivation, not agreement`, which is what it actually proves.
 
-  - suite: unknown
-    row: null
-    state: unpinned
+  - suite: inspector-validation
+    row: C2
+    state: live
     rows: 1
-    pr: 97f3cb9
+    pr: c3d5279
     could_not_fail: >-
-      a whole-file check for an ARIA role matched a DIFFERENT field's role — the wrong-subject
-      shape inside an assertion.
-    kills: unrecorded
-    why: >-
-      SEARCHED AND NOT FOUND, which is worth more than "not looked for". The recording commit
-      97f3cb9 is docs-only. Grepped every suite for a row naming an ARIA role, and for the comment
-      that contained the role it existed to justify, and neither survives under a title that names
-      it. The repair almost certainly renamed the row, as its sibling B1 was renamed. Inventing a
-      suite and row id to make the entry look complete is the fabrication this repository deletes
-      on sight.
+      a whole-file check for an ARIA role matched a DIFFERENT field's role — the wrong-subject shape
+      inside an assertion. The row asserts the mark is advisory by requiring `role="alert"` to be
+      ABSENT, and it tested the whole file rather than the field it names.
+    kills: >-
+      put `role="alert"` on the blocker mark itself. The row asserts absence, which is the direction
+      that holds — if the words are not in the file, nothing can render them — so it is the SUBJECT
+      that had to narrow rather than the assertion's direction.
 
-  - suite: unknown
-    row: null
-    state: unpinned
-    rows: 1
-    pr: 97f3cb9
-    could_not_fail: >-
-      a presence rule — absent is skipped rather than guessed — applied to ONE field of four, by
-      its own author, in the same function, in the same hour.
-    kills: unrecorded
-    why: >-
-      same docs-only recording commit as the one above, and searched the same way. Grepped every
-      suite and `lib/` for the rule's own wording — absent is skipped rather than guessed — with no
-      hit. Unpinned rather than guessed.
