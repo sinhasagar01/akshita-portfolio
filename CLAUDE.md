@@ -213,51 +213,6 @@ gates.
 
 
 
-- **⚠ CLOSED: THE DEV SERVER HAS ITS OWN BUILD DIRECTORY, AND THE BOARD GATE CAUGHT THIS ENTRY
-  GOING STALE ON ITS SECOND RUN — ON THE UNIT THAT CLOSED IT.** The entry declared it held while
-  `next.config.ts` carried no `distDir`; adding one turned `B2` red and named the entry rather than
-  the code. **The gate's second-ever finding was its own author closing the item it was told to
-  watch**, twenty minutes after it merged.
-
-  `distDir` is `.next-dev` under `NODE_ENV=development` and `.next` otherwise, so the split falls
-  exactly on the line that matters: **nothing a dev server does can reach what the four suites read**
-  — `colour-census`, `rendered-theme`, `route-coverage` and `css-comment-trap` — and `next start`
-  still serves the production directory it built. Vercel runs `next build`, which is production,
-  so the deployed path does not move.
-
-  **⚠ AND "REMEMBER TO STOP THE SERVER FIRST" WAS ALREADY WRITTEN DOWN AND DID NOT HELP**, which is
-  the whole argument. It is this repository's oldest lesson about rules — reaching for the wrong
-  thing is faster than remembering, which is why `mutate.mjs --edit` exists rather than a note about
-  `git checkout`.
-
-  **THE BOARDED FRAMING, KEPT BECAUSE ITS ARGUMENT IS WHY THE FIX IS A CONFIG CHANGE:**
-
-- **⚠ SUPERSEDED: THE MEASUREMENT AND THE GATES CANNOT SHARE `.next`, AND THAT IS STRUCTURAL RATHER
-  THAN A DISCIPLINE PROBLEM.** A dev server was needed to measure nine palettes from the paint; the
-  bundle-reading suites need a PRODUCTION build; both use `.next`. The dev server overwrote it and
-  three suites went red with **20 failed assertions** — `colour-census`, and two others reading the
-  built CSS.
-
-  **⚠ SEVENTH INSTRUMENT CONDITION IN ONE SESSION AND THE ONLY ONE WITH A MECHANICAL ANSWER.** The
-  other six were a probe, a matcher, a stale manifest, a self-read comment, a suite reverting its
-  own mutation, and a slice bound. Each was fixed where it happened. **This one recurs by
-  construction: two consumers, one path, and no amount of remembering changes that.**
-
-  **THE MEMORY ALREADY SAYS "stop the dev server before building".** It is correct, it was written
-  down before today, and it did not help — the same shape as `git checkout` being reached for while
-  applying the rule that names it. **Only a mechanism prevents a failure mode.**
-
-  **THE CHEAP FORM IS A SEPARATE `distDir` FOR THE MEASUREMENT SERVER**, so a dev run cannot touch
-  what the suites read. Whether Next's config makes that clean is the open question and is why this
-  is boarded rather than done — it is a build-config change with its own blast radius, and it must
-  not ride inside an unrelated unit.
-
-  **⚠ AND THE FAILURE IS LOUD, WHICH IS THE ONLY REASON IT IS BOARDED RATHER THAN URGENT.** Twenty
-  red assertions naming a missing bundle is not a silent wrong answer. **A gate that goes red for an
-  environmental reason is still a gate people learn to skip**, and that is the cost being paid.
-
-
-
 - **⚠ BOARDED: SHOULD `unchecked-joins` REACH CASTS ON SHAPE-BEARING TYPES? THE SKILLS OUTAGE IS THE
   EVIDENCE.** That census counts casts onto COLLECTION-KEYED types — `entry[1] as PreviewGroup` and
   its family — where a closed set is widened and a cast silences the check.
@@ -333,31 +288,6 @@ gates.
   `lg`.** That is a convention violation rather than a hierarchy one, it was two of seven breakpoint
   sites, and fixing it removed the worst band. **What is NOT shipped and is not owed: any change to
   the hero's weight or size to agree with a system it does not belong to.**
-
-- **⚠ RULED: THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE AND CANNOT BE ON A SHORT ONE, AND THE
-  CUE IS THE ONLY THING THAT WAS EVER AT STAKE.** The scroll cue sat **19px below the fold at
-  382x828** — the one element whose entire job is to say there is more down here was the one element
-  a visitor could not see.
-
-  **THE LADDER PAID FOR IT, NOT THE ILLUSTRATION.** The gaps below the name ran 20/22/14/20/24/26,
-  **126px of air in a 573px column**. Tightened one step to 20/18/12/16/18/14, reclaiming 28px, and
-  the cue now clears by **9px** with the art band untouched at 300px. The illustration is the
-  strongest thing in the hero and 300px of it buys more than 28px of air.
-
-  **⚠ AND `padding-bottom` WOULD NOT HAVE MOVED IT, WHICH IS THE NON-OBVIOUS HALF.** The copy column
-  is `display: block` at mobile, so `align-self: end` is inert and the cue is placed by the SUM OF
-  THE GAPS ABOVE IT. Its 26px bottom padding changes the hero's height and not the cue's position —
-  the obvious lever was the one that does nothing.
-
-  **⚠ IT DOES NOT HOLD ON A SHORT PHONE, AND THAT IS STATED RATHER THAN ROUNDED AWAY.** At **382x680**
-  the hero is 845px — **165px over** — and the cue is 139px under the fold. No margin ladder reaches
-  that. What DOES clear the fold there is the eyebrow, the name, the tab strip and the thesis, which
-  is the right priority: identity, control, promise. The support line, the callouts, the counters and
-  the cue fall below.
-
-  **SO THE REMAINING LEVER IS CONTENT, NOT CSS** — dropping the callouts or the counters on a short
-  viewport. That is an owner's decision about what a phone visitor is shown first, and it is not
-  taken here.
 
 - **⚠ BOARDED WITH ITS NUMBERS: `text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT, AND IT IS
   THE MID-PAGE-GROUND QUESTION RATHER THAN A CONTROL QUESTION.** Forced to sapphire on the home page,
@@ -499,20 +429,6 @@ gates.
   **⚠ AND IT WOULD HAVE PREVENTED NONE OF THE THREE REPORTED DEFECTS**, which is recorded here so it
   is never picked up as a small fix that closes them.
 
-- **⚠ A CONCLUSION FROM THE WRONG PAIR, AND IT SURVIVED BECAUSE THE NUMBER WAS REAL.** Diagnosing a
-  `STALE_DATA` report, two commits were measured **19 seconds apart** and that gap was used to argue
-  the race was not a same-click pair but "one session outliving the branch it holds". **Both commits
-  were `update site settings draft` writes with nothing to do with the replace being diagnosed.**
-
-  **THE REPLACE FLOW IS TWO COMMITS FROM ONE CLICK**, which is what the discarded framing had said
-  and what the measurement appeared to refute. **Ratified by both parties**, because 19 seconds is a
-  real interval between real commits — it was simply an interval between the wrong two.
-
-  **⚠ THE WRONG-SUBJECT SHAPE ARRIVING IN A TIMELINE RATHER THAN IN A MEASUREMENT**, and the first
-  of those recorded here. Every earlier instance was a ratio, a count or a population; this was an
-  ordering. **The check is the same: name the subject beside the number** — "19 seconds between
-  WHICH two commits" would have failed immediately.
-
 - **⚠ BOARDED: U2's SUBJECT IS NOT ESTABLISHED, AND THREE CENSUSES OF IT INVERTED THE ANSWER EACH
   TIME.** An author looked for a Save button on the gallery panel. What that means has been derived
   three times and been wrong three times:
@@ -608,81 +524,6 @@ gates.
   paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
   against hashes would have deleted the blog's copy while "collecting" the gallery's.
 
-- **⚠ CLOSED, AND IT WAS A FALSE CLAIM SITTING ON `main` UNTIL THE BOARD CENSUS FOUND IT.** This read
-  *"blog and gallery are ABSENT from studio search"*. Measured: `buildStudioSearchIndex` takes a
-  `Record<CollectionName, readonly SearchSource[]>` and the layout passes all four, so a fifth
-  collection is a compile error rather than a silent omission. **The header comment was the last
-  thing carrying the old scope and it was corrected in #558.**
-
-  **⚠ EIGHTH CARRIED ITEM TO EXPIRE, AND THE FIRST FOUND BY AN INSTRUMENT RATHER THAN BY SOMEBODY
-  READING.** The other seven were noticed while doing adjacent work. **This is the argument for the
-  board gate stated as a result rather than as a prediction.**
-
-  **THE ORIGINAL FINDING, KEPT BECAUSE `git log -S` IS WHAT SETTLED IT:**
-
-- **⚠ BLOG AND GALLERY WERE ABSENT FROM STUDIO SEARCH, AND IT WAS AN OMISSION RATHER THAN A DECISION —
-  SETTLED BY `git log -S` RATHER THAN BY READING THE HEADER.** `buildStudioSearchIndex` takes
-  `{projects, experience, skills}`.
-
-      search index created   2026-07-07
-      blog collection added  2026-07-26   never added to it
-      gallery                added later, likewise
-
-  **`git log -S "blog"` on that file returns NOTHING — the word has never appeared in it.** So the
-  header's *"Scope: settings sections + experience + projects + skills"* is not a decision anyone
-  took about blog; it is a description written before blog existed and never revisited. **A comment
-  describing a smaller scope reads as a boundary somebody chose**, which is the `structural()` shape
-  arriving in prose rather than in a helper.
-
-  **NOT FIXED HERE, BECAUSE THE SUBJECT IS THE SEARCH AND NOT THE GALLERY.** Two collections are
-  missing and the fix is one change to a shared index; scoping it to gallery would fix it once per
-  collection, which is the boarding this file already carries for `useDraftForm`'s feedback.
-
-- **⚠ CLOSED BY THE BOARD GATE ON ITS FIRST RUN, AND THE PREMISE WAS FALSE WHEN IT WAS WRITTEN.**
-  This entry said *"There is no Save draft button on the gallery panel and none is planned — blur
-  saves, per the locked convention, and blog's post panel has none either"*, and ruled **DO NOT SHIP
-  A BUTTON**. Measured:
-
-      GalleryEditPanel   renders `primary={{ label: "Save draft", onClick: form.saveDraft }}`
-      arrived in         b64ec2e — #532, THE PR THIS ENTRY CITES AS THE CORRECT FIX
-      panels with one    NINE, including blog's blocks panel
-
-  **⚠ THE RULING FORBADE SHIPPING A CONTROL THAT WAS ALREADY SHIPPED, BY THE CHANGE THE ENTRY
-  ITSELF HELD UP AS THE RIGHT ONE.** The convention is not blur-alone — it is a `SaveBar` carrying a
-  Save draft primary AND blur saves, on nine of twelve panels. The entry described a studio that did
-  not exist.
-
-  **WHAT SURVIVES IS THE QUESTION, WHICH IS U2's AND NOT THIS ENTRY'S:** an author went looking for
-  something that was on screen, which is a discoverability finding rather than a missing affordance.
-  U2 already owns it, already records three inverted censuses of it, and already says the answer
-  needs one person at a browser.
-
-  **⚠ AND THIS IS THE ARGUMENT FOR THE GATE STATED AS A RESULT.** Two people read this entry
-  repeatedly across an arc, one of them wrote it, and its central factual claim was refutable by a
-  single grep the whole time. **Nothing had the board as its subject, so nobody ran that grep.**
-
-  **THE ORIGINAL FRAMING, KEPT BECAUSE THE FEEDBACK ARGUMENT IS SOUND AND ONLY ITS PREMISE WAS NOT:**
-
-- **⚠ SUPERSEDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
-  FEEDBACK, IT IS STUDIO-WIDE, AND IT IS NOT GALLERY'S.** There is no Save draft button on the
-  gallery panel and none is planned — blur saves, per the locked convention, and blog's post panel
-  has none either. **The convention is right and is not the question.**
-
-  **THE QUESTION IS WHY SOMEONE WENT LOOKING.** If an author reaches for a button, the indicator is
-  not saying clearly enough that the work is already saved. `SaveIndicator` reports `saving` and
-  `dirty` and the pill reports standing state, and between them an author still could not tell that
-  a blur had committed.
-
-  **⚠ DO NOT SHIP A BUTTON. IT WOULD CLOSE THE REPORT AND LEAVE THE CAUSE** — the same trade the
-  fold defect nearly got, where a Save control would have been added to a panel that already saved
-  while the missing composition stayed. This arc has that shape four times now: **an owner reports
-  the missing affordance, and the fix is always upstream of the symptom.**
-
-  **THE SUBJECT IS EVERY PANEL THAT SAVES ON BLUR, NOT THE GALLERY.** Scoping it to the surface
-  where it was noticed is how the same defect gets fixed once per collection — and the studio has
-  three editors plus the settings panels all sharing `useDraftForm`. **The unit is a census of what
-  each surface tells an author after a blur**, before any change to any of them.
-
 - **⚠ A SOURCE REGEX CANNOT SEE REACHABILITY, AND THE STANDING ANSWER FOR ANY ASSERTION ABOUT COPY
   IS TO EXTRACT AND CALL.** `PublishBar`'s status sentence was a ternary chain guarded by regexes
   over that component. Setting the first-failure binding to `null` makes the per-entry sentence
@@ -776,6 +617,210 @@ gates.
   **⚠ THE ITEM RANKED THE WORK AND EVERY PREMISE UNDER IT HAD EXPIRED.** Third time this pattern has
   cost an ordering, after the experience descriptions and the published-post count. **The entries
   most likely to be wrong are still the ones nobody has touched.**
+## Recorded
+
+⚠ **CLOSED FINDINGS, KEPT FOR THEIR REASONING RATHER THAN THEIR STATUS.** Nothing here needs doing.
+Every entry is here because the REASON it was closed is worth more than the fact — the wrong turn
+that was taken, the measurement that settled it, the shape it turned out to be an instance of.
+
+⚠ **AND THEY ARE NOT ARCHIVED, DELETED OR SUMMARISED.** This file's own recurring defect is a claim
+that ages into being false while still reading as verification; summarising a closed finding is how
+its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
+moment it grows an action again.
+
+- **⚠ THE BOARD PASS: NINE ENTRIES MOVED OUT OF `Open`, AND THE MEMBERSHIP RULE HAS NOW BEEN
+  BROKEN TWICE BY THE PEOPLE WHO WROTE IT.** The rule is that an entry belongs in `Open` only if it
+  carries an ACTION. Censused: **26 top-level entries, of which 6 carried a CLOSED, SUPERSEDED,
+  RULED or DECIDED marker in their own first line**, and three more carried no action at all.
+
+  **⚠ AND THE CENSUS'S FIRST MATCHER FOUND ONLY 6 OF THE 26**, because it required the bold heading
+  to close on the line it opened — and most of them wrap. A matcher narrower than its concept, in
+  the census written to check the board, on the same day two others were found. **The 6 it did find
+  looked like a complete answer.**
+
+  **THE ONE THAT MATTERED WAS NOT MISFILED, IT WAS WRONG.** The mobile-hero entry said the content
+  lever "is an owner's decision, and it is not taken here" — and the owner took it, and it shipped,
+  and the entry went on asking. Every other move was tidying; that one was a false claim about the
+  present sitting in the list that ranks the work.
+
+  **THE PAIRS MOVED TOGETHER, DELIBERATELY.** Four of the nine are superseded framings kept beneath
+  the entry that replaced them, and this file's own rule is that summarising a closed finding
+  separates its measurement from its conclusion. Splitting a pair across two sections would do the
+  same thing by a different route.
+
+- **⚠ CLOSED: THE DEV SERVER HAS ITS OWN BUILD DIRECTORY, AND THE BOARD GATE CAUGHT THIS ENTRY
+  GOING STALE ON ITS SECOND RUN — ON THE UNIT THAT CLOSED IT.** The entry declared it held while
+  `next.config.ts` carried no `distDir`; adding one turned `B2` red and named the entry rather than
+  the code. **The gate's second-ever finding was its own author closing the item it was told to
+  watch**, twenty minutes after it merged.
+
+  `distDir` is `.next-dev` under `NODE_ENV=development` and `.next` otherwise, so the split falls
+  exactly on the line that matters: **nothing a dev server does can reach what the four suites read**
+  — `colour-census`, `rendered-theme`, `route-coverage` and `css-comment-trap` — and `next start`
+  still serves the production directory it built. Vercel runs `next build`, which is production,
+  so the deployed path does not move.
+
+  **⚠ AND "REMEMBER TO STOP THE SERVER FIRST" WAS ALREADY WRITTEN DOWN AND DID NOT HELP**, which is
+  the whole argument. It is this repository's oldest lesson about rules — reaching for the wrong
+  thing is faster than remembering, which is why `mutate.mjs --edit` exists rather than a note about
+  `git checkout`.
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS ARGUMENT IS WHY THE FIX IS A CONFIG CHANGE:**
+
+- **⚠ SUPERSEDED: THE MEASUREMENT AND THE GATES CANNOT SHARE `.next`, AND THAT IS STRUCTURAL RATHER
+  THAN A DISCIPLINE PROBLEM.** A dev server was needed to measure nine palettes from the paint; the
+  bundle-reading suites need a PRODUCTION build; both use `.next`. The dev server overwrote it and
+  three suites went red with **20 failed assertions** — `colour-census`, and two others reading the
+  built CSS.
+
+  **⚠ SEVENTH INSTRUMENT CONDITION IN ONE SESSION AND THE ONLY ONE WITH A MECHANICAL ANSWER.** The
+  other six were a probe, a matcher, a stale manifest, a self-read comment, a suite reverting its
+  own mutation, and a slice bound. Each was fixed where it happened. **This one recurs by
+  construction: two consumers, one path, and no amount of remembering changes that.**
+
+  **THE MEMORY ALREADY SAYS "stop the dev server before building".** It is correct, it was written
+  down before today, and it did not help — the same shape as `git checkout` being reached for while
+  applying the rule that names it. **Only a mechanism prevents a failure mode.**
+
+  **THE CHEAP FORM IS A SEPARATE `distDir` FOR THE MEASUREMENT SERVER**, so a dev run cannot touch
+  what the suites read. Whether Next's config makes that clean is the open question and is why this
+  is boarded rather than done — it is a build-config change with its own blast radius, and it must
+  not ride inside an unrelated unit.
+
+  **⚠ AND THE FAILURE IS LOUD, WHICH IS THE ONLY REASON IT IS BOARDED RATHER THAN URGENT.** Twenty
+  red assertions naming a missing bundle is not a silent wrong answer. **A gate that goes red for an
+  environmental reason is still a gate people learn to skip**, and that is the cost being paid.
+
+
+
+- **⚠ RULED: THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE AND CANNOT BE ON A SHORT ONE, AND THE
+  CUE IS THE ONLY THING THAT WAS EVER AT STAKE.** The scroll cue sat **19px below the fold at
+  382x828** — the one element whose entire job is to say there is more down here was the one element
+  a visitor could not see.
+
+  **THE LADDER PAID FOR IT, NOT THE ILLUSTRATION.** The gaps below the name ran 20/22/14/20/24/26,
+  **126px of air in a 573px column**. Tightened one step to 20/18/12/16/18/14, reclaiming 28px, and
+  the cue now clears by **9px** with the art band untouched at 300px. The illustration is the
+  strongest thing in the hero and 300px of it buys more than 28px of air.
+
+  **⚠ AND `padding-bottom` WOULD NOT HAVE MOVED IT, WHICH IS THE NON-OBVIOUS HALF.** The copy column
+  is `display: block` at mobile, so `align-self: end` is inert and the cue is placed by the SUM OF
+  THE GAPS ABOVE IT. Its 26px bottom padding changes the hero's height and not the cue's position —
+  the obvious lever was the one that does nothing.
+
+  **⚠ IT DOES NOT HOLD ON A SHORT PHONE, AND THAT IS STATED RATHER THAN ROUNDED AWAY.** At **382x680**
+  the hero is 845px — **165px over** — and the cue is 139px under the fold. No margin ladder reaches
+  that. What DOES clear the fold there is the eyebrow, the name, the tab strip and the thesis, which
+  is the right priority: identity, control, promise. The support line, the callouts, the counters and
+  the cue fall below.
+
+  **SO THE REMAINING LEVER IS CONTENT, NOT CSS** — dropping the callouts or the counters on a short
+  viewport. That is an owner's decision about what a phone visitor is shown first, and it is not
+  taken here.
+
+  **⚠ CLOSED, AND THE DECISION THIS ENTRY SAYS IS "NOT TAKEN HERE" WAS TAKEN AND SHIPPED.** The
+  owner ruled on the content lever across four instructions, and `main` carries it:
+
+      .hero-callouts   hidden at (max-width: 1023px) and (max-height: 824px), or (max-width: 380px)
+      .hero-counters   hidden at (max-width: 380px)
+
+  **THE HEIGHT TERM IS ON THE CALLOUTS ALONE, WHICH IS THE CORRECTION INSIDE THE DECISION.** Hiding
+  the counters on height was tried and reverted — Safari's viewport is under 824 on most iPhones, so
+  a height rule would have taken the numbers off a phone that has room for them. The counters key on
+  WIDTH only.
+
+  **⚠ AND THE ENTRY WENT ON READING AS AN OPEN QUESTION AFTERWARDS**, which is the ninth stale board
+  item this record has caught and the only one of this pass that was wrong about the PRESENT rather
+  than merely filed in the wrong section. A board entry is a claim about now.
+- **⚠ A CONCLUSION FROM THE WRONG PAIR, AND IT SURVIVED BECAUSE THE NUMBER WAS REAL.** Diagnosing a
+  `STALE_DATA` report, two commits were measured **19 seconds apart** and that gap was used to argue
+  the race was not a same-click pair but "one session outliving the branch it holds". **Both commits
+  were `update site settings draft` writes with nothing to do with the replace being diagnosed.**
+
+  **THE REPLACE FLOW IS TWO COMMITS FROM ONE CLICK**, which is what the discarded framing had said
+  and what the measurement appeared to refute. **Ratified by both parties**, because 19 seconds is a
+  real interval between real commits — it was simply an interval between the wrong two.
+
+  **⚠ THE WRONG-SUBJECT SHAPE ARRIVING IN A TIMELINE RATHER THAN IN A MEASUREMENT**, and the first
+  of those recorded here. Every earlier instance was a ratio, a count or a population; this was an
+  ordering. **The check is the same: name the subject beside the number** — "19 seconds between
+  WHICH two commits" would have failed immediately.
+
+- **⚠ CLOSED, AND IT WAS A FALSE CLAIM SITTING ON `main` UNTIL THE BOARD CENSUS FOUND IT.** This read
+  *"blog and gallery are ABSENT from studio search"*. Measured: `buildStudioSearchIndex` takes a
+  `Record<CollectionName, readonly SearchSource[]>` and the layout passes all four, so a fifth
+  collection is a compile error rather than a silent omission. **The header comment was the last
+  thing carrying the old scope and it was corrected in #558.**
+
+  **⚠ EIGHTH CARRIED ITEM TO EXPIRE, AND THE FIRST FOUND BY AN INSTRUMENT RATHER THAN BY SOMEBODY
+  READING.** The other seven were noticed while doing adjacent work. **This is the argument for the
+  board gate stated as a result rather than as a prediction.**
+
+  **THE ORIGINAL FINDING, KEPT BECAUSE `git log -S` IS WHAT SETTLED IT:**
+
+- **⚠ BLOG AND GALLERY WERE ABSENT FROM STUDIO SEARCH, AND IT WAS AN OMISSION RATHER THAN A DECISION —
+  SETTLED BY `git log -S` RATHER THAN BY READING THE HEADER.** `buildStudioSearchIndex` takes
+  `{projects, experience, skills}`.
+
+      search index created   2026-07-07
+      blog collection added  2026-07-26   never added to it
+      gallery                added later, likewise
+
+  **`git log -S "blog"` on that file returns NOTHING — the word has never appeared in it.** So the
+  header's *"Scope: settings sections + experience + projects + skills"* is not a decision anyone
+  took about blog; it is a description written before blog existed and never revisited. **A comment
+  describing a smaller scope reads as a boundary somebody chose**, which is the `structural()` shape
+  arriving in prose rather than in a helper.
+
+  **NOT FIXED HERE, BECAUSE THE SUBJECT IS THE SEARCH AND NOT THE GALLERY.** Two collections are
+  missing and the fix is one change to a shared index; scoping it to gallery would fix it once per
+  collection, which is the boarding this file already carries for `useDraftForm`'s feedback.
+
+- **⚠ CLOSED BY THE BOARD GATE ON ITS FIRST RUN, AND THE PREMISE WAS FALSE WHEN IT WAS WRITTEN.**
+  This entry said *"There is no Save draft button on the gallery panel and none is planned — blur
+  saves, per the locked convention, and blog's post panel has none either"*, and ruled **DO NOT SHIP
+  A BUTTON**. Measured:
+
+      GalleryEditPanel   renders `primary={{ label: "Save draft", onClick: form.saveDraft }}`
+      arrived in         b64ec2e — #532, THE PR THIS ENTRY CITES AS THE CORRECT FIX
+      panels with one    NINE, including blog's blocks panel
+
+  **⚠ THE RULING FORBADE SHIPPING A CONTROL THAT WAS ALREADY SHIPPED, BY THE CHANGE THE ENTRY
+  ITSELF HELD UP AS THE RIGHT ONE.** The convention is not blur-alone — it is a `SaveBar` carrying a
+  Save draft primary AND blur saves, on nine of twelve panels. The entry described a studio that did
+  not exist.
+
+  **WHAT SURVIVES IS THE QUESTION, WHICH IS U2's AND NOT THIS ENTRY'S:** an author went looking for
+  something that was on screen, which is a discoverability finding rather than a missing affordance.
+  U2 already owns it, already records three inverted censuses of it, and already says the answer
+  needs one person at a browser.
+
+  **⚠ AND THIS IS THE ARGUMENT FOR THE GATE STATED AS A RESULT.** Two people read this entry
+  repeatedly across an arc, one of them wrote it, and its central factual claim was refutable by a
+  single grep the whole time. **Nothing had the board as its subject, so nobody ran that grep.**
+
+  **THE ORIGINAL FRAMING, KEPT BECAUSE THE FEEDBACK ARGUMENT IS SOUND AND ONLY ITS PREMISE WAS NOT:**
+
+- **⚠ SUPERSEDED: AN AUTHOR LOOKED FOR A SAVE BUTTON, AND THE QUESTION IS THE FINDING. THE DEFECT IS
+  FEEDBACK, IT IS STUDIO-WIDE, AND IT IS NOT GALLERY'S.** There is no Save draft button on the
+  gallery panel and none is planned — blur saves, per the locked convention, and blog's post panel
+  has none either. **The convention is right and is not the question.**
+
+  **THE QUESTION IS WHY SOMEONE WENT LOOKING.** If an author reaches for a button, the indicator is
+  not saying clearly enough that the work is already saved. `SaveIndicator` reports `saving` and
+  `dirty` and the pill reports standing state, and between them an author still could not tell that
+  a blur had committed.
+
+  **⚠ DO NOT SHIP A BUTTON. IT WOULD CLOSE THE REPORT AND LEAVE THE CAUSE** — the same trade the
+  fold defect nearly got, where a Save control would have been added to a panel that already saved
+  while the missing composition stayed. This arc has that shape four times now: **an owner reports
+  the missing affordance, and the fix is always upstream of the symptom.**
+
+  **THE SUBJECT IS EVERY PANEL THAT SAVES ON BLUR, NOT THE GALLERY.** Scoping it to the surface
+  where it was noticed is how the same defect gets fixed once per collection — and the studio has
+  three editors plus the settings panels all sharing `useDraftForm`. **The unit is a census of what
+  each surface tells an author after a blur**, before any change to any of them.
+
 - **Kaushan Script — DECIDED, KEPT. The wordmark stays; the inert class on the heading is gone.**
   The question was framed as debt left by the typography arc. It is not debt. **A wordmark in its own
   face is not an inconsistency — it is what a wordmark IS**, and a logo drawn in a display face beside
@@ -807,16 +852,6 @@ owner can make, which is a different question from whether the fields are filled
 The light editorial direction was confirmed long ago and the tokens are set. That question is
 closed.
 
-## Recorded
-
-⚠ **CLOSED FINDINGS, KEPT FOR THEIR REASONING RATHER THAN THEIR STATUS.** Nothing here needs doing.
-Every entry is here because the REASON it was closed is worth more than the fact — the wrong turn
-that was taken, the measurement that settled it, the shape it turned out to be an instance of.
-
-⚠ **AND THEY ARE NOT ARCHIVED, DELETED OR SUMMARISED.** This file's own recurring defect is a claim
-that ages into being false while still reading as verification; summarising a closed finding is how
-its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
-moment it grows an action again.
 
 - **⚠ THREE INSTRUMENTS WERE WRONG IN ONE INVESTIGATION AND EACH ONE ANSWERED A QUESTION NOBODY
   ASKED — `PORTABLE.md` RULE 37, AND THIS IS THE INSTANCE IT WAS EXTRACTED FROM.** The subject was

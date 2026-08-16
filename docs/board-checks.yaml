@@ -28,28 +28,25 @@
 # gate that prints "10 verified" over a 20-entry board is the third-of-the-board report reading as
 # coverage, which this record carries four times.
 
+#
+# ⚠ A CLOSED ENTRY'S WATCH IS REMOVED, NOT INVERTED — AND THAT IS A STATEMENT ABOUT THIS GATE'S
+# SUBJECT RATHER THAN A TIDYING PREFERENCE. `board-decay` watches the BOARD. When an entry leaves
+# `Open` for `Recorded` its watch is moot, because there is no longer a claim about the present for
+# a condition to falsify.
+#
+# It is tempting to keep one as a regression guard — the dev-server `distDir` watch reads like one.
+# It is not. It asserted the state that made an OPEN entry true, and inverting it would make this
+# file a second, weaker home for checks that belong in a suite of their own. A board registry that
+# also guards code is two subjects in one list, which is the shape this repository removes on sight.
+#
+# Nine were removed in one pass when nine entries moved to `Recorded`. A3 is what forced it: the
+# move unbound every one of them and the gate named all nine rather than letting the registry rot
+# into keys that match nothing.
 entries:
   # ⚠ THIS CHECK FIRED ON THE GATE'S SECOND RUN, ON THE UNIT THAT CLOSED THE ITEM. It read
   # `expect: absent` because the item was open while both consumers shared `.next`. Adding `distDir`
   # made the entry stale and B2 said so, naming the entry rather than the code — which is the
   # behaviour the gate exists for, arriving twenty minutes after it merged.
-  - match: "THE DEV SERVER HAS ITS OWN BUILD DIRECTORY"
-    kind: structural
-    holds_while:
-      file: next.config.ts
-      pattern: distDir
-      expect: present
-    note: >-
-      The correction states the directories are split. Removing `distDir` puts the dev server back
-      on top of what four suites read, and this entry would describe a repository that no longer
-      exists.
-
-  - match: "SUPERSEDED: THE MEASUREMENT AND THE GATES CANNOT SHARE"
-    kind: judgement
-    why: >-
-      Superseded framing, kept because it argues why the fix had to be a config change rather than a
-      rule. There is no live condition left in it.
-
   - match: "SHOULD `unchecked-joins` REACH CASTS ON SHAPE-BEARING TYPES"
     kind: judgement
     why: >-
@@ -76,15 +73,6 @@ entries:
     note: >-
       Open while the hero keeps its own scoped sans. If that token goes, somebody has collapsed the
       two systems and this entry describes a site that no longer exists.
-
-  - match: "THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE"
-    kind: judgement
-    why: >-
-      The CSS half is shipped and measured — the ladder reclaimed 28px and the cue clears by 9px at
-      382x828. What is left open is which content a short phone should be shown first, since at
-      382x680 the hero is 165px over and no spacing change reaches that. Dropping the callouts or
-      the counters below a height threshold is a decision about what a visitor sees in their first
-      screen, and nothing here can weigh it.
 
   - match: "`text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT"
     kind: measurement
@@ -139,12 +127,6 @@ entries:
       "One commit would have prevented none of the three reported defects" is almost certainly
       right and has no mechanical form. Nothing here can weigh a counterfactual.
 
-  - match: "A CONCLUSION FROM THE WRONG PAIR"
-    kind: measurement
-    why: >-
-      Rests on two commit timestamps 19 seconds apart and which two commits they were. Re-deriving
-      it means reading git history for a specific past pair, not the current tree.
-
   - match: "U2's SUBJECT IS NOT ESTABLISHED"
     kind: measurement
     why: >-
@@ -186,22 +168,6 @@ entries:
   # `expect: absent` on `Save draft` in GalleryEditPanel, because the entry claimed no such control
   # existed. One arrived in b64ec2e — the PR the entry cites as the correct fix — and NINE panels
   # carry one. The entry is now the correction and the condition is inverted with it.
-  - match: "CLOSED BY THE BOARD GATE ON ITS FIRST RUN"
-    kind: structural
-    holds_while:
-      file: components/studio/GalleryEditPanel.tsx
-      pattern: 'label: "Save draft"'
-      expect: present
-    note: >-
-      The correction states the control exists and is the convention on nine panels. If it is
-      removed the original ruling becomes live again and this entry needs rewriting.
-
-  - match: "SUPERSEDED: AN AUTHOR LOOKED FOR A SAVE BUTTON"
-    kind: judgement
-    why: >-
-      Superseded framing, kept because the feedback argument is sound and only its premise was not.
-      Whether an indicator communicates is not a fact any regex can reach.
-
   - match: "A SOURCE REGEX CANNOT SEE REACHABILITY"
     kind: absence
     holds_while:
@@ -228,28 +194,3 @@ entries:
       Ranks content work by what an author using the editor finds. Only a person driving /studio
       can move it.
 
-  - match: "Kaushan Script"
-    kind: structural
-    holds_while:
-      file: components/layout/SiteFooter.tsx
-      pattern: font-script
-      expect: present
-    note: >-
-      The ruling keeps the wordmark in its own face. If the script face stops being used in the
-      identity, the decision has been reversed and the entry describes a site that no longer exists.
-
-  - match: "CLOSED, AND IT WAS A FALSE CLAIM SITTING ON `main`"
-    kind: structural
-    holds_while:
-      file: lib/studio/search-index.ts
-      pattern: Record<CollectionName
-      expect: present
-    note: >-
-      This entry is the CORRECTION. It holds while the search index is derived; if the Record is
-      replaced by a hand-written list the omission can return.
-
-  - match: "BLOG AND GALLERY WERE ABSENT FROM STUDIO SEARCH"
-    kind: judgement
-    why: >-
-      Superseded framing, kept because `git log -S` is what separated an omission from a decision.
-      The reasoning is the artefact; there is no live condition.
