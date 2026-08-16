@@ -91,6 +91,16 @@ t("C2 ⚠ EVERY LIVE ROW RESOLVES IN ITS SUITE — a repaired row deleted or ren
 const noKill = live.filter((e) => !e.kills || e.kills === "unrecorded").map((e) => `${e.suite} ${e.row}`);
 t("C3 ⚠ AND EVERY LIVE ROW NAMES ITS KILL-MUTATION — a repair nobody can reproduce is a claim",
   noKill, []);
+/* ⚠ THE MECHANICAL HALF, ADDED ONCE EVERY ENTRY HAD ONE. `kills` is PROSE and C3 only proves
+ * somebody wrote it; these three fields are the triple `mutate.mjs --verify-register` executes, and
+ * without them an entry's kill is a sentence nobody has ever run. Asserting the field's PRESENCE is
+ * all a suite can do — whether the mutation actually reddens the row is the operator tool's job,
+ * because running it edits tracked source. */
+const noMutation = live
+  .filter((e) => !e.mut_file || e.mut_anchor === undefined || e.mut_replacement === undefined)
+  .map((e) => `${e.suite} ${e.row}`);
+t("C4 ⚠ AND EVERY LIVE ROW CARRIES AN EXECUTABLE TRIPLE — `--verify-register` has nothing to run without one",
+  noMutation, []);
 
 console.log("\nD · a row that cannot be looked up is a DECLARED state, not a silent gap");
 const nonLive = entries.filter((e) => e.state !== "live");
