@@ -818,6 +818,48 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ THREE INSTRUMENTS WERE WRONG IN ONE INVESTIGATION AND EACH ONE ANSWERED A QUESTION NOBODY
+  ASKED — `PORTABLE.md` RULE 37, AND THIS IS THE INSTANCE IT WAS EXTRACTED FROM.** The subject was
+  whether `.palette-rail` covers the hero tab strip. Three readings, three verdicts, and the first
+  two were confidently wrong in opposite directions.
+
+      rect comparison        "2px of overlap"     REAL-LOOKING, and the rule's own comment had
+                                                  already predicted a rect overlap is a false alarm
+      elementFromPoint       "0 covered, clean"   FIXED BY CONSTRUCTION — see below
+      elementsFromPoint      "11 covered points"  the answer, all of them `What I'm up to`
+
+  **⚠ THE MIDDLE ONE IS THE ENTRY. `elementFromPoint` RETURNS THE TOPMOST ELEMENT**, so sweeping the
+  rail's own footprint and asking whether a tab button is there is answered by the RAIL, every
+  point, always. **A zero was guaranteed before the probe ran**, and it read as a clean bill of
+  health — I reported *"nothing to fix"* on it. `elementsFromPoint`, which returns the whole stack,
+  found the coverage on its first pass.
+
+  **THE ASSERTION-THAT-CANNOT-FAIL SHAPE, ARRIVING IN A PROBE RATHER THAN IN A SUITE.** Every
+  earlier instance in this record lives inside `ralph` and every one was found by mutation.
+  **Nothing mutates a probe**, so the only defence is the question this file already states — ask
+  what would have to change for this to come out differently, and if the answer is nothing, the
+  reading is not a reading.
+
+  **⚠ AND WRITING THIS ENTRY TRIPPED THE FILE'S OWN RULE 16, WHICH IS WHY THERE IS NO COUNT IN THE
+  PARAGRAPH ABOVE.** It first read *"twelve instances"*, cited from the headline entry at the
+  unfalsifiable-rows section. **The file disagrees with itself** — that entry says TWELVE and the
+  unpublished-disclosure entry says *"thirteenth unfalsifiable row this session"*. Neither was
+  re-derived here, so the number is left out rather than a contested figure being carried forward
+  into a third place.
+
+  **⚠ AND THE THIRD AROSE WHILE VERIFYING THE FIX HAD SHIPPED.** A search of the served stylesheet
+  for the new custom property returned **0**, which would have meant a live `var()` resolving to
+  nothing and the strip's width falling back. The home page loads **three** CSS chunks and the
+  search read the first. The declaration was in the second. **Same family as the unquoted glob that
+  once returned a zero with a destructive edit waiting on it** — an absence is evidence only if the
+  search could have found the thing.
+
+  **THE PAIR THAT MAKES IT A RULE RATHER THAN THREE MISTAKES IS ALREADY IN THIS FILE, FROM THE
+  OPPOSITE SIDE.** A bundle grep once "verified" two shadowed CSS values by proving both PRESENT
+  when the question was which one RESOLVED. **There the question was the winner and the tool
+  enumerated. Here the question was the members and the tool resolved.** Every tool answers one of
+  those two, and the output looks identical either way.
+
 - **⚠ CLOSED: THE WORK CARDS ARE REDRAWN, AND THE GATE THAT SAID SO WAS THE ENTRY'S OWN CONDITION.**
   This was boarded with `holds_while: boat-crest.yaml has heroImage`, and the note predicted its own
   end — *"if the key goes, somebody has taken one of the two routes."* Four hours later the key went
