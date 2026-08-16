@@ -3348,6 +3348,36 @@ build a gate for the limit and then believe it.
   the safety net for work that is finished is using it against its own design. **Second instance,
   and the first where the person who re-read the entry that morning is the one who did it.**
 
+- **⚠ THE ZERO-BOX TAB-ORDER ROUTE IS EMPTY, AND MY OWN GATE SAID OTHERWISE FOR A WEEK.**
+  `inert-with-aria-hidden` section C named *"a zero-size box — the desktop nav links measure 0x0 at
+  mobile and stay tabbable"* as a route it cannot reach. Measured by asking the browser for focus
+  rather than by measuring boxes:
+
+      390x844    9 zero-box focusables   0 take focus   all inside `display:none` (.nav-desktop, .hidden)
+      1280x800   7 zero-box focusables   0 take focus   6 inside .palette-rail, 1 IS .nav-morph
+
+  **ZERO OF SIXTEEN, ACROSS BOTH VIEWPORTS.** Every one sits inside — or is — a `display: none`
+  element, and the browser removes those from the tab order by construction. There was nothing to
+  fix.
+
+  **⚠ THE ORIGINAL CENSUS MEASURED BOXES AND THE GATE INHERITED ITS WORDING.** A node with a zero
+  rect was counted as invisible-and-tabbable without anyone asking whether focus lands on it. The
+  count was right and the NOUN was wrong — `zero box` is not `tabbable`, and the two were treated as
+  the same population because one is easy to measure and the other needs a `.focus()` call.
+
+  **A FALSE ENTRY IN A "WHAT I CANNOT REACH" LIST IS WORSE THAN A MISSING ONE**, which is the part
+  worth keeping. A missing gap leaves a reader unaware; a fabricated one sends them looking for a
+  defect that does not exist, and it reads as rigour the whole time. It sent me.
+
+  **⚠ AND MY FIRST TWO PROBES BOTH ASKED THE WRONG QUESTION, IN THE SAME DIRECTION.** The first
+  filtered on the element's OWN `display` and `visibility` and so kept nine nodes whose ANCESTORS
+  were hidden. The second walked ancestors from `parentElement` and so missed `.nav-morph`, which
+  carries `display: none` on ITSELF. **Two walks, two off-by-one boundaries, both excluding the
+  element under examination from its own examination.**
+
+  **THE SUBJECT IS NOT THE BOX, IT IS THE FOCUS.** `el.focus()` and then reading `activeElement` is
+  the whole test, it costs one line, and it is the only thing that separates a rect from a hazard.
+
 - **⚠ THE UNFALSIFIABLE-ROW REGISTER, ENUMERATED — BECAUSE A REMEMBERED RUNNING TOTAL WENT AN
   ARC OUT OF DATE AND THREE LATER CLAIMS ABOUT IT WERE ALSO WRONG.** Every one was found by
   mutation and none by reading. *(This heading first said the total had "counted the wrong noun",
