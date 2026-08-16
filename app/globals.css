@@ -2721,8 +2721,12 @@ a {
 
      That is the honest shape of it — the mobile hero has more content than the viewport, and the
      tab height, the cue and the wrap question are one budget rather than three defects. */
+  /* ⚠ THE STRIP RESERVES THE RAIL'S BAND, AND `width: 100%` IS WHAT MADE IT NOT. The palette rail
+     is `position: fixed; right: 0`, so it is anchored to the VIEWPORT while this strip is anchored
+     to `.hero-copy`'s content box — two reference frames, and the gap between them is the whole
+     defect. `--palette-rail-band` is declared beside the rail, which owns the number. */
   .hero-tabs {
-    margin-top: 20px; width: 100%; max-width: 100%;
+    margin-top: 20px; width: calc(100% - var(--palette-rail-band)); max-width: 100%;
     overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none;
   }
   .hero-tabs::-webkit-scrollbar { display: none; }
@@ -3214,23 +3218,48 @@ a {
 /* ---- MOBILE: the edge rail. Present from the first frame — there is no cue to wait for. ---- */
 .palette-rail { display: none; }
 @media (max-width: 1023px) {
+  :root {
+    /* 19px dots + 4px padding each side + 1px border. DECLARED, so `.hero-tabs` reserves the same
+       number the rail draws rather than a copy of it. */
+    --palette-rail-w: 28px;
+    /* what the strip must give up: the rail's band plus a 4px gap, less the 22px `.hero-copy`
+       already pads. Change either of those and this is the one line to re-derive. */
+    --palette-rail-band: 10px;
+  }
   .palette-pill { display: none; }
   .palette-rail {
     /* ⚠ MID-HEIGHT IS RIGHT, AND THE COLLISION IT LOOKED LIKE IS A WIDTH PROBLEM RATHER THAN A
        POSITION ONE. The hero's tab strip is horizontally scrollable and its fourth tab overflows
-       its own box, so the BUTTON'S RECT reaches x 444 while the strip CLIPS at 353 — and
-       hit-testing found six points where the tab really is tappable under a 36px rail. A rect
-       overlap alone would have been a false alarm; the hit-test is what made it real.
+       its own box, so the BUTTON'S RECT reaches x 444 while the strip CLIPS at 360 — and
+       hit-testing found points where the tab really is underneath the rail. A rect overlap alone
+       would have been a false alarm; the hit-test is what made it real.
 
        ⚠ MOVING THE RAIL VERTICALLY WAS TRIED AND IS NOT A FIX. Anchored at `bottom: 20%` it was
        clean at 828 and collided again at 680, because the strip moves with the viewport and a
        percentage follows it. There is no fixed anchor that clears a target which travels.
 
-       THE STRIP CLIPS AT `hero-copy`'s RIGHT PADDING — 29px from the edge — SO A RAIL NARROWER
-       THAN THAT CANNOT OVERLAP IT AT ANY HEIGHT. That is height-independent, which is the property
-       the positional nudge could never have. 28px wide: 19px dots, 4px padding each side, 1px
-       border. Verified clean at both viewport heights afterwards. */
+       ⚠ AND THE ARGUMENT THAT STOOD HERE WAS TRUE WHEN WRITTEN AND STALE WHEN READ. It said the
+       strip clips at `hero-copy`'s right padding, "29px from the edge — so a rail narrower than
+       that cannot overlap it at any height", and concluded a 28px rail was safe. Measured: the
+       padding is **22px**, so 28 > 22 and the rail overlapped by 6px on a device with overlay
+       scrollbars. The conclusion was right for one arc and the premise had moved under it — the
+       decay-prone form this record names, a comment carrying a precise mechanical number that
+       nothing re-reads.
+
+       ⚠ AND THE FIRST TEST OF IT PASSED FOR A REASON THAT CANNOT FAIL. `elementFromPoint` returns
+       the TOPMOST element, which inside the rail's own footprint is always the rail, so a sweep
+       looking for a button found none by construction and read as clean. `elementsFromPoint` — the
+       plural — found 11 covered points immediately. An assertion that cannot fail for the reason
+       it names, in a probe rather than in a suite.
+
+       THE FIX IS THAT THE STRIP RESERVES THE BAND RATHER THAN THE RAIL PROMISING TO FIT IN A
+       GUTTER. `--palette-rail-band` is the rail's width plus a 4px gap, minus the 22px of padding
+       `.hero-copy` already contributes — one number, declared where the rail is declared, consumed
+       by `.hero-tabs`. The rail's width is now DECLARED rather than intrinsic, so the variable is
+       the source of the value instead of a description of it, which is what let the old number
+       drift. */
     position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 41;
+    width: var(--palette-rail-w);
     display: flex; flex-direction: column; align-items: center; gap: 8px;
     background: var(--glass-fill-strong);
     backdrop-filter: var(--glass-blur);
