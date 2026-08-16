@@ -31,11 +31,11 @@
 // to leave on disk. Nothing here should run on a schedule. This exists so that deleting them is a
 // decision someone takes with the numbers in front of them, rather than a `rm` somebody reasons out
 // at a prompt — which is the shape that once cost this repository an uncommitted registry.
-import { existsSync, rmSync, statSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { blockImageReachability } from "../lib/studio/image-reachability.ts";
-import { ROOT, referencesByDir, blockImagesOnDisk } from "./image-walk.mjs";
+import { ROOT, referencesByDir, blockImagesOnDisk, walkFiles, PATH_RE } from "./image-walk.mjs";
 
 const DELETE = process.argv.includes("--delete");
 const bail = (code, headline, ...detail) => {
@@ -74,15 +74,64 @@ if (broken.length) {
   for (const b of broken) console.log(`    ${b}`);
 }
 
+/* ⚠ A SECOND HOLD, AND A GATE GOING RED IS HOW IT WAS FOUND. The first real run of `--delete`
+ * removed `/images/projects/elevate-one-view/blocks/1dacc14060dc.webp`, and
+ * `collection-image-paths` B3 went red — it derives that path and asserts the blob EXISTS, "a real
+ * artifact, not a fixture".
+ *
+ * THE FILE IS A GENUINE ORPHAN AND DELETING IT IS STILL WRONG, which is why this is a hold rather
+ * than a fix to the census. Two different questions were being conflated:
+ *
+ *     is it reachable from the SITE?        content, app, components, lib — the census's subject
+ *     would deleting it BREAK something?    also every suite that names a real path
+ *
+ * `image-orphans` keeps the first question and its eleven orphans stand. The collector answers the
+ * second, because it is the one that deletes.
+ *
+ * ⚠ AND `ralph` IS DELIBERATELY NOT ADDED TO THE CENSUS WALK, WHICH WOULD HAVE BEEN THE OBVIOUS
+ * FIX. Suites are full of INVENTED paths — `abc123.webp`, `aaaaaaaaaaaa.webp`, `/blog/a-post/` —
+ * and feeding those into the reference set breaks `B2`, which asserts every referenced path
+ * resolves to a file that exists. The hold needs no such filter: an invented path matches no file
+ * on disk, so only the real ones can ever be held.
+ *
+ * THE WALK-BOUNDARY DEFECT, ON A DIRECTORY NOBODY HAD LISTED. `app/dev` was the same shape and was
+ * caught before a tool could act on it. This one was caught by a gate, after the delete, on a
+ * branch — which is the whole reason the tool refuses on a dirty tree. */
+const testRefs = new Set();
+for (const f of walkFiles("ralph")) {
+  let src;
+  /* ⚠ THE CATCH IS NARROWED, AND A BARE ONE HID THIS BLOCK ENTIRELY. It read `catch { continue }`,
+   * meant to skip a file that cannot be read as text — and this module did not import
+   * `readFileSync`, so every iteration threw a ReferenceError which the catch swallowed. `testRefs`
+   * came out EMPTY and the hold silently protected nothing, in the tool that deletes.
+   *
+   * A bare catch turns a programming error into an empty result, and an empty result here reads as
+   * "no suite references any image". Only an errno is skipped now; anything else is thrown. */
+  try { src = readFileSync(join(ROOT, f), "utf8"); }
+  catch (e) { if (e && e.code) continue; throw e; }
+  for (const m of src.matchAll(PATH_RE)) testRefs.add(m[0]);
+}
+if (!testRefs.size) bail(2, "the ralph walk found NO image paths, which cannot be true",
+  "  Suites reference real artifacts and invented fixtures alike; zero means the walk is broken.",
+  "  A hold that protects nothing is worse than no hold, because the delete list looks vetted.");
+const heldByTest = new Set(result.orphans.filter((o) => testRefs.has(o)));
+
 const unsafe = new Set(result.unsafeToDeleteByName);
-const deletable = result.orphans.filter((o) => !unsafe.has(o));
+const deletable = result.orphans.filter((o) => !unsafe.has(o) && !heldByTest.has(o));
 let bytes = 0;
 console.log(`\norphans`);
 for (const o of result.orphans) {
   const abs = join(ROOT, "public", o);
   const size = existsSync(abs) ? statSync(abs).size : 0;
-  if (!unsafe.has(o)) bytes += size;
-  console.log(`  ${unsafe.has(o) ? "HELD  " : "delete"}  ${String(size).padStart(7)} B  ${o}`);
+  const held = unsafe.has(o) || heldByTest.has(o);
+  if (!held) bytes += size;
+  const why = unsafe.has(o) ? "HELD name" : heldByTest.has(o) ? "HELD test" : "delete   ";
+  console.log(`  ${why}  ${String(size).padStart(7)} B  ${o}`);
+}
+if (heldByTest.size) {
+  console.log(`\n⚠ ${heldByTest.size} HELD — a ralph suite names this path as a REAL artifact. It is a genuine`);
+  console.log(`  orphan by the site's reckoning and deleting it still reddens a gate, because "is it`);
+  console.log(`  reachable from the site" and "would deleting it break something" are two questions.`);
 }
 if (unsafe.size) {
   console.log(`\n⚠ ${unsafe.size} HELD — the basename is shared with a LIVE file. The name is the content`);
