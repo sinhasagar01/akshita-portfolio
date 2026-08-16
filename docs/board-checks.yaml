@@ -74,12 +74,6 @@ entries:
       Open while the hero keeps its own scoped sans. If that token goes, somebody has collapsed the
       two systems and this entry describes a site that no longer exists.
 
-  - match: "`text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT"
-    kind: measurement
-    why: >-
-      Seven sites at 1.60 to 2.34 under a forced sapphire, on grounds that stay light. Re-deriving
-      it means rendering a dark palette and sampling the paint, which no suite here can do.
-
   - match: "`SegmentedGroup` CANNOT BE REUSED ON THE PUBLIC SITE"
     kind: structural
     holds_while:
