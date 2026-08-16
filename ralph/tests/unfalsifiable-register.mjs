@@ -74,7 +74,15 @@ const unresolved = [];
 for (const e of live) {
   let src = null;
   try { src = read(`ralph/tests/${e.suite}.mjs`); } catch { unresolved.push(`${e.suite}.mjs does not exist`); continue; }
-  if (!src.includes(`t("${e.row} `) && !src.includes(`t("${e.row}:`))
+  /* ⚠ THE MATCHER TAKES BOTH QUOTE FORMS, AND IT DID NOT WHEN THIS SUITE SHIPPED. It read `t("`
+     alone, and the first two rows anyone tried to pin were TEMPLATE literals — `t(\`B1 ${name}: …`
+     and `t(\`bold-only parse unchanged · …`. A row whose title is built per iteration is exactly
+     the kind that gets loop-emitted and therefore under-counted, which is the `rich-markers` and
+     `studio-index` shape twice over. The concept is "a row whose title starts with this
+     identifier"; the vocabulary was "a row written with a double quote". Narrower than its concept,
+     in the gate written to catch rows that do not do what their titles say. */
+  const heads = [`t("${e.row} `, `t("${e.row}:`, "t(`" + e.row + " ", "t(`" + e.row + ":"];
+  if (!heads.some((h) => src.includes(h)))
     unresolved.push(`${e.suite} has no row \`${e.row}\``);
   else console.log(`      ok  ${e.suite} ${e.row}`);
 }
