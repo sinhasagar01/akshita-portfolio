@@ -369,6 +369,31 @@ Stop the server before any build a gate will read, and before re-measuring anyth
 the build. And when a figure moves, rebuild BOTH sides rather than assuming the baseline still
 holds — that is the only step that distinguishes a real change from a contaminated one.
 
+### 37. A query that resolves to one answer cannot tell you about the set it resolved from
+
+Most tools answer one of two different questions. A RESOLVING tool returns the winner. An
+ENUMERATING tool returns the members. Point one at the other's question and it still returns a
+clean, specific, checkable looking answer, and that answer is fixed before the question is asked.
+
+The failure is invisible because nothing errors. The winner really is the winner. It is simply not
+what was being asked about.
+
+*Three instances in one afternoon, all in the same investigation.* A hit test asked whether a
+control was covered by a fixed panel, using the browser call that returns the TOPMOST element at a
+point. Inside the panel's own footprint that call returns the panel every time, so a sweep looking
+for the control beneath it found nothing BY CONSTRUCTION and read as clean. The plural call, which
+returns the whole stack, found eleven covered points immediately. Earlier in the same hour a
+rectangle comparison had reported an overlap where no pixel was actually covered, and later a
+search of a built stylesheet returned zero because it read the first of three chunks.
+
+*And the mirror of it, from an earlier arc, is what makes this a pair rather than an anecdote.* A
+search of a built bundle once verified two competing declarations by proving both PRESENT, when the
+question was which one RESOLVED. There the question was about the winner and the tool enumerated.
+Here the question was about the members and the tool resolved.
+
+**Before believing a query, name which of the two questions it answers, and which one you asked.**
+The two are never distinguishable from the output.
+
 ---
 
 ## Part two. Limits
