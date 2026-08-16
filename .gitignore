@@ -45,3 +45,19 @@ AGENTS.md
 # swallow real image assets a future case study needs, and the site would 404
 # on them with nothing in git status to show why.
 public/images/**/content/
+
+# Impeccable's local state. Three kinds of thing live here and only one of them has any
+# lasting value:
+#
+#   hook.cache.json      the design detector's cache
+#   live/server.json     runtime state for the overlay server
+#   critique/*.md        the persisted critique snapshots and their score trend
+#
+# ⚠ THE SNAPSHOTS ARE THE COST OF THIS LINE, AND IT IS WORTH SAYING RATHER THAN DISCOVERING.
+# `/impeccable polish` reads them to inherit a run's priority issues, and `critique` reads them
+# for the trend it prints. Ignoring the directory makes both LOCAL — a clone, a fresh machine or
+# a CI checkout starts with no history, and the 21 -> 22 -> 26 series lives only in this working
+# copy. That is the intended trade: the snapshots are a working artifact of a review, not a
+# record of the site, and this repository already keeps its durable findings in CLAUDE.md and
+# docs/. Anything from a critique worth surviving belongs there instead.
+.impeccable/
