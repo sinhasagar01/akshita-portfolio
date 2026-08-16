@@ -2729,11 +2729,11 @@ a {
   .hero-tabs button { white-space: nowrap; flex: 0 0 auto; }
   /* the desktop gap is reset — this block already spaces the answer with its own margin, and
      keeping both would stack 28px of padding on top of 22px of margin */
-  .hero-body { display: block; margin-top: 22px; padding-top: 0; padding-right: 0; }
+  .hero-body { display: block; margin-top: 18px; padding-top: 0; padding-right: 0; }
   .hero-line { font-size: clamp(22px, 6.4cqw, 28px); max-width: none; }
-  .hero-support { font-size: 14px; max-width: none; margin-top: 14px; }
+  .hero-support { font-size: 14px; max-width: none; margin-top: 12px; }
   .hero-callouts {
-    display: flex; gap: 7px; flex-wrap: wrap; margin: 20px 0 0; padding: 0; list-style: none;
+    display: flex; gap: 7px; flex-wrap: wrap; margin: 16px 0 0; padding: 0; list-style: none;
   }
   .hero-callouts li {
     font-family: var(--font-hero-mono), monospace; font-size: 9px; letter-spacing: 0.16em;
@@ -2744,10 +2744,25 @@ a {
   .hero-callouts li::before {
     content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--hx-accent);
   }
-  .hero-counters { margin-top: 24px; }
+  .hero-counters { margin-top: 18px; }
   .hero-counters > div { padding: 12px 18px 0 0; margin-right: 18px; }
   .hero-counters dt { font-size: 20px; }
-  .hero-scroll { margin-top: 26px; }
+  /* ⚠ THE MOBILE HERO IS ONE VIEWPORT, AND THE LADDER BELOW THE NAME IS WHAT PAYS FOR IT.
+     Measured at 382x828 the hero stood 873px and the scroll cue sat 19px BELOW the fold — so the
+     one element whose entire job is to say "there is more down here" was the one element a visitor
+     could not see. Its margin is load-bearing at this width in a way it is not on desktop: the
+     copy column is `display: block` here, so `align-self: end` is inert and this margin is the
+     only thing placing the cue.
+
+     ⚠ AND SHRINKING `padding-bottom` WOULD NOT HAVE MOVED IT. The padding sits BELOW the cue, so
+     it changes the hero's height and not the cue's position. What moves the cue is the sum of the
+     gaps ABOVE it, which is why this is a ladder change rather than one number.
+
+     The ladder was 20 / 22 / 14 / 20 / 24 / 26 below the name, 126px of air in a 573px column.
+     Tightened one step to 20 / 18 / 12 / 16 / 18 / 14, which reclaims 28px and is proportional —
+     the rhythm keeps its shape instead of one gap being singled out. The illustration is NOT the
+     donor: it is the strongest thing in the hero and 300px of it buys more than 28px of air. */
+  .hero-scroll { margin-top: 14px; }
 }
 
 /* the work section glows in the warmer tan tone */
