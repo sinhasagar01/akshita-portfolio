@@ -71,7 +71,12 @@ export default function AboutSection({ settings }: Props) {
       id="about"
       className="scroll-mt-20 overflow-hidden py-0! px-0!"
     >
-      <div className="grid grid-cols-1 md:grid-cols-[.92fr_1.08fr] items-stretch">
+      {/* ⚠ `lg`, NOT `md` — THE SITE GOES MOBILE AT ONE BREAKPOINT AND THIS WAS ONE OF FOUR PLACES
+          THAT DID NOT. At 820px (iPad Air portrait) the nav was a hamburger and the work grid was
+          one column, while this block was already two — a 340px column beside a 400px one under a
+          mobile menu. Measured, not inferred. See ExperienceSection, SkillsBody and ProcessSection
+          for the other three. */}
+      <div className="grid grid-cols-1 lg:grid-cols-[.92fr_1.08fr] items-stretch">
 
         {/* Photo column */}
         <div className="ab-photo min-h-[520px] reveal-card">

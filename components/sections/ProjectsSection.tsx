@@ -26,7 +26,7 @@ export default function ProjectsSection({ projects }: Props) {
       <CursorGlow />
       <Container>
         <SectionHeading
-          index="02"
+          index="01"
           title="Work"
           subtext="A few projects from the last couple of years, from first sketch to shipped screen."
           variant="default"

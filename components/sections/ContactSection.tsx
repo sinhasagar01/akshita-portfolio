@@ -178,7 +178,7 @@ function StepContent({
       >
         {sending ? (
           <>
-            <span aria-hidden="true" className="w-[14px] h-[14px] rounded-full border-2 border-white/40 border-t-white animate-spin" />
+            <span aria-hidden="true" className="w-[14px] h-[14px] rounded-full border-2 border-white/40 border-t-white animate-spin motion-reduce:animate-none" />
             Sending
           </>
         ) : (

@@ -564,7 +564,18 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
       >
         <i /><i /><i />
       </button>
-      <div id="nav-sheet" className={`nav-sheet${sheetOpen ? " is-open" : ""}`}>
+      {/* ⚠ `inert` WHEN CLOSED, AND THE MOBILE DRAWER 38 LINES BELOW ALREADY DID THIS. The sheet
+          closes with `opacity: 0` and `pointer-events: none`, which stops a POINTER and does
+          nothing to the TAB ORDER — `visibility` stays `visible`, so the eight links inside stayed
+          focusable. Measured at 1280x800: the first one took focus at (1051, 84), 180x40, inside
+          the viewport, reading "Work". A keyboard visitor got eight focus rings on empty space and
+          Enter navigated them somewhere they had never seen. WCAG 2.4.3, 2.4.7 and 4.1.2.
+
+          ⚠ THE PATTERN WAS ALREADY IN THIS FILE AND THIS ELEMENT DID NOT GET IT. `#mobile-menu`
+          carries `inert={!menuOpen}` and has since it was built. Two sibling disclosure surfaces,
+          one guarded and one not — which is why the defect reads as an omission rather than a
+          decision, and why the fix is the existing spelling rather than a new mechanism. */}
+      <div id="nav-sheet" inert={!sheetOpen} className={`nav-sheet${sheetOpen ? " is-open" : ""}`}>
         {NAV.map((item) => (
           <Link
             key={item.id}
