@@ -127,7 +127,7 @@ console.log("\nC · what this gate cannot reach, by name");
  * are written down. The browser census that produced this rule found three other routes to the same
  * defect, and not one of them carries an `aria-hidden` for a source scan to key on. */
 for (const gap of [
-  "a zero-size box — the desktop nav links measure 0x0 at mobile and stay tabbable",
+  "a zero-size box that is RENDERED — measured, the population is currently EMPTY: every zero-box\n                    focusable sits inside, or is, a `display: none` element, so the browser already refuses it",
   "`display: contents` — it generates no box, which is what made five footer links unfocusable",
   "an off-screen container positioned outside the viewport",
   "whether a guarded subtree actually contains anything focusable",
