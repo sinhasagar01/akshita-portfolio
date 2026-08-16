@@ -309,10 +309,6 @@ gates.
   **THE TRIGGER FOR REOPENING IT IS A DESIGN DECISION, NOT A CLEANUP:** deciding the hero should not
   have its own sans. That is a mock and three faces to reconsider.
 
-- **⚠ BOARDED: THE WORK FILTER HAS NO `flex-wrap` AND FITS AT 375px ONLY BECAUSE IT IS 310px WIDE.**
-  `.hero-tabs` carries `flex-wrap: wrap` and `max-width: 100%`; `.work-filter` carries neither.
-  **THE TRIGGER IS A FOURTH CHIP** — three fit, four would overflow rather than wrap.
-
 - **⚠ BOARDED WITH ITS NUMBERS: `text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT, AND IT IS
   THE MID-PAGE-GROUND QUESTION RATHER THAN A CONTROL QUESTION.** Forced to sapphire on the home page,
   **38 elements paint `text-subtle` and SEVEN fall below 4.5, at 1.60 to 2.34** — the work section's
@@ -771,6 +767,25 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED: THE WORK FILTER WRAPS — AND THE TRIGGER THAT CLOSED IT IS NOT THE ONE THE BOARD
+  NAMED.** The entry read *"three fit, four would overflow rather than wrap"* and set the trigger at
+  a FOURTH CHIP. Measured at 382x828 the group is **310px wide with 28px of headroom**, so the
+  board's own trigger has still never fired.
+
+  **WHAT CLOSED IT WAS A SECOND ROUTE TO THE SAME OVERFLOW, FOUND WHILE MEASURING SOMETHING ELSE.**
+  The labels carry their counts — `All 4`, `Web 2`, `Mobile 2` — so the group grows with the
+  COLLECTION as well as with the category list. A fifth case study keeps every chip the same width;
+  a **two-digit** count widens all three at once. At 320px they already sit within 10px of the edge.
+
+  **⚠ A BOARD TRIGGER IS A PREDICTION, AND THIS ONE NAMED THE WRONG VARIABLE.** It watched the
+  number of CATEGORIES; the thing that moves the width first is the number of PROJECTS. Both are
+  latent, neither has fired, and one line closes both — `.work-filter` now carries the
+  `flex-wrap: wrap` and `max-width: 100%` that `.hero-tabs` has always had.
+
+  **AND THE GATE IS WHAT SAID SO.** `board-decay` B2 went red on this entry the moment the property
+  landed, naming the ENTRY rather than the code, which is its third firing and the second where the
+  author closing the item was the one who tripped it.
 
 - **⚠ MOVED FROM `Open` BY THE BOARD'S OWN MEMBERSHIP RULE — CLOSED FINDINGS SITTING IN THE ACTION
   LIST.** Three entries were marked CLOSED and left under `Open`, each with the superseded framing it

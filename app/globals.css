@@ -2497,6 +2497,17 @@ a {
   font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--hx-faint);
 }
+/* ⚠ 14px OF MICRO-TYPE HIT AT 44, WITHOUT MOVING THE BASELINE. `justify-self: start` above exists
+   because this anchor's BOX was five times wider than its words; the fix for that was to stop the
+   box claiming space it never draws in, and the fix here must not undo it. A pseudo grows the hit
+   area on both axes while the link's own box stays 120x14, so the two repairs do not fight.
+   `::before` is the pinging dot, so `::after` is the free one. */
+.hero-scroll { position: relative; }
+.hero-scroll::after {
+  content: "";
+  position: absolute;
+  inset: -15px -8px;
+}
 .hero-scroll::before {
   content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--hx-accent);
   box-shadow: 0 0 0 0 color-mix(in srgb, var(--hx-accent) 60%, transparent);
@@ -2639,8 +2650,27 @@ a {
    thresholds and they want the hero's own box. Only the threshold moves to the viewport. */
 @media (max-width: 1023px) {
   .hero-shell { min-height: 0; }
+  /* ⚠ THE BAND IS SIZED BY WIDTH AND CONSTRAINED BY HEIGHT, AND IN LANDSCAPE THOSE PULL APART.
+     `clamp(300px, 52cqw, 400px)` reads the CONTAINER WIDTH, so a landscape phone — wide and short —
+     lands on the clamp's MAXIMUM at exactly the moment the viewport is shortest. Measured at
+     844x390: the band drew 400px into a 390px viewport, the hero stood 903px tall, and
+     `.hero-eyebrow` started at y 422. **Every word of the copy was below the fold** — no name, no
+     tabs, no headline. A visitor turning the phone sideways saw artwork and nothing else.
+
+     The breakpoint is width-only at 1023px, so a landscape phone takes the stacked one-column
+     layout by construction; nothing here was going to catch that, because every earlier measurement
+     of this block was taken in portrait.
+
+     `min(..., 46svh)` adds the missing constraint and is deliberately a CEILING rather than a new
+     clamp. In portrait it never binds — at 382x828 the width term already resolves to 300 and 46svh
+     is 381, so the min picks 300 and **not one portrait pixel moves.** In landscape it binds hard,
+     and the clamp's 300px floor is correctly overridden, because a floor calibrated for portrait is
+     the wrong instrument on a 390px viewport. `svh` rather than `vh` so mobile browser chrome is
+     already subtracted. The plain declaration below it is the fallback for anything without svh. */
   .hero-art {
-    position: relative; inset: auto; width: 100%; height: clamp(300px, 52cqw, 400px);
+    position: relative; inset: auto; width: 100%;
+    height: clamp(300px, 52cqw, 400px);
+    height: min(clamp(300px, 52cqw, 400px), 46svh);
   }
   .hero-veil {
     background: linear-gradient(180deg, transparent 40%,
@@ -2669,6 +2699,28 @@ a {
     padding: 22px 22px 26px;
   }
   .hero-name { font-size: clamp(34px, 10cqw, 46px); margin-top: 12px; }
+  /* ⚠ THE STRIP HIDES 95px WITH EVERY AFFORDANCE REMOVED, AND NEITHER HALF WAS FIXED HERE.
+     Measured at 382x828: `scrollWidth` 424 against `clientWidth` 329. The fourth tab is 125px wide
+     and the strip clips at 353, so **33px of it renders** — it reads as "WH". That tab is
+     `What I'm up to`, the one that says she is open to roles.
+
+     `scrollbar-width: none` plus the webkit rule below removes the only native hint that it moves.
+
+     ⚠ THE OBVIOUS FIX IS A RIGHT-EDGE MASK AND IT IS WRONG. A static fade covers the last 26px
+     ALWAYS, including once you have scrolled to the end — so it would fade the fourth tab at
+     exactly the moment you scrolled to read it. Making it scroll-aware needs either a JS scroll
+     listener on the hero or an animated `mask-image`, and mask interpolation is not something to
+     rest an affordance on. Left as a design decision with the measurement attached.
+
+     ⚠ AND THE TABS ARE 33px TALL, WHICH IS UNDER EVERY PLATFORM MINIMUM AND IS NOT FIXABLE HERE.
+     `overflow-x: auto` forces `overflow-y: auto`, so a pseudo hit area extending past the strip is
+     CLIPPED — the technique used on `.nav-morph`, `.work-filter button`, `.hero-scroll` and
+     `.palette-more` cannot reach these. Growing the strip grows the hero, and the hero is already
+     over-subscribed in portrait: content stands 872px against an 828px viewport, which is why the
+     scroll cue sits 19px BELOW the fold. Every accessibility fix here makes the cue worse.
+
+     That is the honest shape of it — the mobile hero has more content than the viewport, and the
+     tab height, the cue and the wrap question are one budget rather than three defects. */
   .hero-tabs {
     margin-top: 20px; width: 100%; max-width: 100%;
     overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none;
@@ -3015,7 +3067,22 @@ a {
   font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--color-text-subtle);
 }
-.palette-more { font-size: 11px; color: var(--color-accent-text); text-decoration: none; }
+.palette-more { font-size: 11px; color: var(--color-accent-text); text-decoration: none; position: relative; display: block; }
+/* ⚠ 11x17 ON A PHONE, HIT ACROSS THE RAIL'S WIDTH AND 44 TALL. The arrow is the smallest target on
+   the site. The hit area may grow VERTICALLY and only a little sideways, because the rail is 28px
+   wide BY DERIVATION — see the mobile `.palette-rail` block, which records that the hero tab strip
+   clips 29px from the edge, so a rail narrower than that cannot overlap it at any height.
+
+   ⚠ AND THE DOTS THEMSELVES CANNOT BE FIXED THIS WAY, WHICH IS RECORDED RATHER THAN FUDGED. Five
+   `.palette-dot`s measure 19x19 with 7px of gap. Reaching 44 needs either a wider rail — which
+   re-creates the exact collision the narrow rail was built to remove — or hit areas that overlap
+   each other and select the wrong palette. It is a genuine constraint, not an oversight, and the
+   way out is a design decision about the rail rather than a CSS one. */
+.palette-more::after {
+  content: "";
+  position: absolute;
+  inset: -14px -8px; /* 17 + 28 = 45, over the 44 floor rather than the 43 that -13 gave */
+}
 .palette-more:hover { text-decoration: underline; }
 
 /* ---- DESKTOP: the pill. Absent while the hero is on screen; the cue owns that corner. ---- */
@@ -3412,6 +3479,17 @@ a {
   .nav-morph { display: block; }
 }
 .nav-morph:focus-visible { outline: 2px solid var(--color-accent-500); outline-offset: 3px; }
+/* ⚠ A 36px CIRCLE HIT AT 44, AND THE CIRCLE DOES NOT MOVE. This is the only nav control on a
+   phone and 36 is under every platform minimum. Padding would grow the circle, which is a
+   designed size the glass fill, stroke and shadow are all drawn to; a pseudo grows only what a
+   thumb lands on. Already `position: relative`, and the icon uses `i` children, so `::after` is
+   free. */
+.nav-morph::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+}
 .nav-morph i {
   position: absolute;
   left: 50%;
@@ -3965,13 +4043,28 @@ a {
    Tokens mapped to the site palette. The leave/enter fade rides the .work-card <a>; the
    hide + re-pack ride the .reveal-card <li>, so the filter never touches the reveal opacity.
 ============================================================ */
+/* ⚠ `flex-wrap` AND `max-width` MATCH `.hero-tabs`, AND THE TRIGGER WAS NOT THE ONE THE BOARD NAMED.
+   The item was boarded as "three chips fit at 375px, a fourth would overflow rather than wrap" —
+   a latent defect waiting on a fourth category. Measured at 382x828 the group is 310px wide with
+   28px of headroom, so the board's own trigger has still not fired and this is still latent.
+
+   What made it worth closing now is that a SECOND route to the same overflow turned up while
+   measuring something else: the labels carry their counts (`All 4`, `Web 2`, `Mobile 2`), so the
+   group grows with the COLLECTION as well as with the category list. A fifth case study takes
+   `All 4` to `All 5` — same width — but a two-digit collection widens every chip at once, and at
+   320px the current three already sit within 10px of the edge.
+
+   Two triggers, neither fired, one line. The board entry expected a fourth chip and would not have
+   caught the digit. */
 .work-filter {
   position: relative;
   z-index: 1;
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 2px;
   width: max-content;
+  max-width: 100%;
   margin-top: 20px;
   padding: 3px;
   border: 1px solid color-mix(in oklch, var(--color-etch) 8%, transparent);
@@ -4016,6 +4109,16 @@ a {
   transition:
     transform 420ms cubic-bezier(0.16, 0.9, 0.28, 1),
     width 420ms cubic-bezier(0.16, 0.9, 0.28, 1);
+}
+/* ⚠ 39px TALL, HIT AT 45, AND THE PADDING IS DELIBERATELY NOT THE LEVER. Growing the chips to 44
+   with padding grows the pill, and `.wf-thumb` is a FLIP-animated element measured against these
+   buttons' geometry — so a padding change moves the selected pill's animation as well as its box.
+   A pseudo leaves every measured number alone. */
+.work-filter button::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+  border-radius: 99px;
 }
 .work-filter button {
   position: relative;

@@ -77,14 +77,6 @@ entries:
       Open while the hero keeps its own scoped sans. If that token goes, somebody has collapsed the
       two systems and this entry describes a site that no longer exists.
 
-  - match: "THE WORK FILTER HAS NO `flex-wrap`"
-    kind: absence
-    holds_while:
-      file: app/globals.css
-      pattern: "\\.work-filter \\{[^}]*flex-wrap"
-      expect: absent
-    note: Open while the filter has no wrap. Adding one closes it; the trigger is a fourth chip.
-
   - match: "`text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT"
     kind: measurement
     why: >-
