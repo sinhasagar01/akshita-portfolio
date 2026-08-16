@@ -289,21 +289,6 @@ gates.
   sites, and fixing it removed the worst band. **What is NOT shipped and is not owed: any change to
   the hero's weight or size to agree with a system it does not belong to.**
 
-- **⚠ BOARDED WITH ITS NUMBERS: `text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT, AND IT IS
-  THE MID-PAGE-GROUND QUESTION RATHER THAN A CONTROL QUESTION.** Forced to sapphire on the home page,
-  **38 elements paint `text-subtle` and SEVEN fall below 4.5, at 1.60 to 2.34** — the work section's
-  dek, the platform chips, the about copy. They fail because the role inverts to a light grey for the
-  dark page while those sections' grounds STAY LIGHT (`225,222,216`, `201,182,163`).
-
-  **NOT LIVE. Cream is published and every one of them clears there.** It becomes real the moment a
-  dark palette is published, which is one field in `/studio` — the same exposure the case-study
-  entry carries.
-
-  **⚠ AND IT IS BOARDED RATHER THAN FIXED BECAUSE OF THE MEASUREMENT RECORD BEHIND IT.** Five probe
-  failures in one unit; a site-wide role change built on that would be the instrument deciding the
-  design.
-
-
 - **⚠ BOARDED: `SegmentedGroup` CANNOT BE REUSED ON THE PUBLIC SITE, AND "REUSE IF POSSIBLE"
   RESOLVED TO NO WITH A REASON.** It is the right shape — `role="group"`, `aria-pressed`, accent
   FILL, the same contract the hero tabs and the work filter both carry — and it lives in
@@ -627,6 +612,57 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED ON EVIDENCE: `text-subtle` FAILS NOWHERE, AND THE ENTRY'S TWO NAMED GROUNDS NO LONGER
+  EXIST ON THE PAGE.** Re-derived before scoping any work, which is the board's own rule. Forced to
+  sapphire, full page scrolled so every panel revealed and settled, read from the paint through a
+  canvas pixel, sanity pair 21.000 first:
+
+      52 elements paint `text-subtle`   ·   0 fall below 4.5      (the entry said 38 and SEVEN)
+      work section dek     5.35     on 24,30,37
+      platform chip        5.35     on 24,30,37
+      about copy           4.62     on 36,42,48
+      the named grounds    225,222,216 and 201,182,163 — ABSENT, no element on the page carries them
+
+  **THE ENTRY WAS RIGHT AND ITS SUBJECT WAS REPAIRED UNDERNEATH IT.** Its cause was mid-page grounds
+  staying light while the text role inverted; those sections now take dark grounds on a dark
+  palette, so there is nothing left for the role to fail against. **The fix arrived as a consequence
+  of the role-layer and ground-block work rather than as a unit aimed at this entry**, which is why
+  nobody closed it.
+
+  **⚠ AND ABOUT COPY AT 4.62 IS THIN, STATED RATHER THAN ROUNDED AWAY.** It clears by 0.12. That is
+  a pass and it is the tightest one on the page, so a future darkening of `surface` on the dark
+  palettes moves it first.
+
+  **⚠ AND MY OWN PROBE PRODUCED A FALSE FINDING ON THE WAY, WHICH IS RECORDED BECAUSE THE COMPONENT
+  HAD ALREADY NAMED THE TRAP.** A sweep for light mid-page grounds reported the `See all nine` pill
+  at **1.00 — text and fill the same token exactly.** It measures the `<a>`, which carries
+  `bg-text-primary` and **NO TEXT NODE**; the words are in a child `<span class="text-surface">`,
+  measuring **15.20**.
+
+  `PreviewIndicator.tsx` already carries a comment about this element saying the link once inherited
+  the strip's near-black onto a near-black pill at 1.00, that the repair was moving the colour to a
+  child span, and that **"it reads as a working class in the markup, which is why nothing but a
+  measurement finds it."** My probe reproduced the OLD reading against the FIXED markup, because it
+  measured an element that paints nothing. **A ratio belongs to an element that draws text** — the
+  eighth instance of the wrong-subject shape this file records, arriving in the probe written to
+  close an entry about the same class of defect.
+
+- **⚠ BOARDED WITH ITS NUMBERS: `text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT, AND IT IS
+  THE MID-PAGE-GROUND QUESTION RATHER THAN A CONTROL QUESTION.** Forced to sapphire on the home page,
+  **38 elements paint `text-subtle` and SEVEN fall below 4.5, at 1.60 to 2.34** — the work section's
+  dek, the platform chips, the about copy. They fail because the role inverts to a light grey for the
+  dark page while those sections' grounds STAY LIGHT (`225,222,216`, `201,182,163`).
+
+  **NOT LIVE. Cream is published and every one of them clears there.** It becomes real the moment a
+  dark palette is published, which is one field in `/studio` — the same exposure the case-study
+  entry carries.
+
+  **⚠ AND IT IS BOARDED RATHER THAN FIXED BECAUSE OF THE MEASUREMENT RECORD BEHIND IT.** Five probe
+  failures in one unit; a site-wide role change built on that would be the instrument deciding the
+  design.
+
+
 
 - **⚠ THE BOARD PASS: NINE ENTRIES MOVED OUT OF `Open`, AND THE MEMBERSHIP RULE HAS NOW BEEN
   BROKEN TWICE BY THE PEOPLE WHO WROTE IT.** The rule is that an entry belongs in `Open` only if it
