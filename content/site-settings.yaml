@@ -13,8 +13,8 @@ heroTabs:
     stats:
       - value: '8'
         unit: years
-      - value: '4'
-        unit: case studies
+      - value: 20,000
+        unit: merchants reached
       - value: '4'
         unit: companies
   - label: What I do

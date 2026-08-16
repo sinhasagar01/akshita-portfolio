@@ -4091,6 +4091,25 @@ a {
   line-height: 1.55;
   color: var(--color-text-secondary);
 }
+/* ⚠ `text-subtle` STANDS, AND THE 3.63 THAT NEARLY MOVED IT WAS TAKEN ON A GROUND NO READER EVER
+   SEES WITH THIS TEXT ON IT. Recorded rather than dropped, because the figure is reproducible and
+   would send the next person the same way.
+
+       text-subtle on --color-reveal-sand      3.63   <- what was measured
+       text-subtle on --color-surface          5.52   <- what a reader actually gets, clears 4.5
+       text-secondary on --color-surface       7.42
+
+   `.reveal-panel` starts at `--color-reveal-sand` AND at `clip-path: inset(0 0 100% 0)`, so nothing
+   inside it paints; `.reveal-card` starts at `opacity: 0` and only fades in under `.is-revealed`,
+   after the ground has begun its 900ms settle to `--color-surface`. **A fully sand ground with
+   readable text on it is not a state this component has.** The 3.63 is a token pair measured
+   against each other, which is the ratio-belongs-to-the-ground-it-was-taken-on defect this record
+   carries eight instances of.
+
+   ⚠ AND MOVING IT WOULD HAVE COST THE CARD ITS SECOND LEVEL. `.sum` is already `text-secondary`, so
+   taking `.cat` there paints the category label and the summary the same colour — two populations
+   collapsing into one, which is the check this repository requires before merging two roles and did
+   not run here until after the edit was written. */
 .wc-rail .cat {
   display: inline-flex;
   align-items: center;

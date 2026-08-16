@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, useEffect, Fragment } from "react";
+import { useRef, useState, useEffect, useCallback, Fragment } from "react";
 import {
   motion,
   AnimatePresence,
@@ -143,11 +143,29 @@ function HeroWord({ word }: { word: string }) {
    panel a plain text field — an author types 4.2 and gets 4.2, types 8 and gets 8, with no new
    control to discover and nothing to keep in sync. The seed uses the same precision so the number
    does not change width when the roll starts. */
+/* ⚠ THE AUTHORED STRING IS THE FORMAT, AND BOTH `decimals` AND THE THOUSANDS SEPARATOR ARE READ OFF
+   IT RATHER THAN CHOSEN HERE. `4.2` rolls to two significant places because the author wrote two;
+   `20,000` rolls grouped because the author wrote a comma. Before this, `Number("20,000")` was NaN,
+   so a grouped figure fell through to `rollable: false` and sat still beside two that rolled — the
+   defect announcing itself as a design inconsistency rather than as a parse failure.
+
+   ⚠ AND THE GROUPING IS DONE BY HAND RATHER THAN BY `toLocaleString`, DELIBERATELY. That function
+   reads the runtime's locale, so the server and the browser can disagree and React reports a
+   hydration mismatch on a number nobody typed differently. A regex over the integer part is
+   deterministic on both. */
 function RollNumber({ value, delay, reduced }: { value: string; delay: number; reduced: boolean }) {
-  const target = Number(value);
-  const rollable = Number.isFinite(target);
-  const decimals = (value.split(".")[1] ?? "").length;
-  const [shown, setShown] = useState(reduced || !rollable ? value : (0).toFixed(decimals));
+  const bare = value.replace(/,/g, "");
+  const target = Number(bare);
+  const rollable = bare.trim() !== "" && Number.isFinite(target);
+  const decimals = (bare.split(".")[1] ?? "").length;
+  const grouped = value.includes(",");
+  const fmt = useCallback((n: number) => {
+    const s = n.toFixed(decimals);
+    if (!grouped) return s;
+    const [int, frac] = s.split(".");
+    return int.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (frac ? `.${frac}` : "");
+  }, [decimals, grouped]);
+  const [shown, setShown] = useState(reduced || !rollable ? value : fmt(0));
   useEffect(() => {
     if (reduced || !rollable) { setShown(value); return; }
     let raf = 0;
@@ -156,12 +174,12 @@ function RollNumber({ value, delay, reduced }: { value: string; delay: number; r
       if (now < t0) { raf = requestAnimationFrame(step); return; }
       const p = Math.min((now - t0) / 900, 1);
       const e = 1 - Math.pow(1 - p, 3);
-      setShown((target * e).toFixed(decimals));
+      setShown(fmt(target * e));
       if (p < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [value, delay, reduced, rollable, target, decimals]);
+  }, [value, delay, reduced, rollable, target, fmt]);
   return <>{shown}</>;
 }
 
