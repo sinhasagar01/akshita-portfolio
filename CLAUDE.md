@@ -839,9 +839,34 @@ moment it grows an action again.
   count moved and **the row's prose, which said "77 of the site's 82" in two places, moved with it.**
   Updating only the field would have left a sentence a reader trusts stating a figure nothing checks.
 
-  **THE FOUR UPLOADS ARE NOW ORPHANED AND DELIBERATELY NOT DELETED** — content addressing makes them
-  free to leave, `image-orphans` walks by path, and re-pointing a `heroImage` key is how this is
-  reverted if the drawn cards are judged worse than the photographs.
+  **⚠ RULED BY THE OWNER, AT TRUE SIZE, AND THE CONDITIONAL IS CLOSED.** This entry first read *"if
+  the drawn cards are judged worse than the photographs"*. They were judged — all eight images shown
+  before and after at identical size on a colourless ground, so neither column was flattered — and
+  **the drawings are kept.** Recorded because an open conditional is an invitation for a fourth
+  critique to re-litigate a decision that has already been made.
+
+  **THE HONEST STATEMENT OF THE TRADE, WHICH THE SHEET MADE PLAIN AND PROSE COULD NOT:** the uploads
+  have more FINISH — real screenshots, depth, gloss — and the drawings have more FIT. Preferring the
+  photographs would have been a legitimate position, which is why the comparison was built rather
+  than argued.
+
+  **⚠ AND "THE FOUR UPLOADS ARE NOW ORPHANED" WAS HALF WRONG, IN THE MERGED COMMIT MESSAGE.** Two of
+  them are still LIVE, as fixtures in the gallery dev harness:
+
+      boat-crest/heroImage.webp     app/dev/gallery:50, app/dev/gallery-parity:60   LIVE
+      fosfor-ai/heroImage.webp      app/dev/gallery:48, app/dev/gallery-parity:58   LIVE
+      fosfor-data-profiling         0 references                                    orphan
+      elevate-one-view              0 references                                    orphan
+
+  **SO DELETING THE FOUR WOULD BREAK TWO DEV ROUTES**, and that is the exact hazard `image-orphans`'
+  own header records — *"a GC scoped to content would delete two files something loads"* — arriving
+  on a different file set within the week.
+
+  **⚠ AND `image-orphans` COVERS NONE OF THEM, WHICH IS THE PART WORTH KEEPING.** Its `PATH_RE`
+  matches `/images/**/blocks/<hash>.webp` only, so a `heroImage` was never in its subject. The census
+  read **33 on disk, 22 live, 11 orphaned both before and after four files stopped being referenced**
+  — an unchanged number over a changed world. A suite whose figure cannot move for the thing you just
+  did is not covering it, and the tell was that the count did not move.
 
 - **⚠ CLOSED: THE WORK FILTER WRAPS — AND THE TRIGGER THAT CLOSED IT IS NOT THE ONE THE BOARD
   NAMED.** The entry read *"three fit, four would overflow rather than wrap"* and set the trigger at
