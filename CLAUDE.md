@@ -334,6 +334,40 @@ gates.
   sites, and fixing it removed the worst band. **What is NOT shipped and is not owed: any change to
   the hero's weight or size to agree with a system it does not belong to.**
 
+- **⚠ BOARDED: THE WORK CARDS' FRAME IS THE CLICHÉ AND THE SCREENS ARE THE PORTFOLIO, AND THREE
+  CRITIQUES NAMED IT AS ONE THING.** All three runs reported the four cards as "a device on a
+  saturated gradient with bokeh, one recipe four times" and ruled the design specificity verdict on
+  it — *the frame is hers, the contents of the two sections that must convert are everyone's.*
+
+  **⚠ THE READING WAS HALF RIGHT AND NOBODY HAD OPENED THE FILES.** Looked at:
+  `boat-crest/heroImage.webp` carries a real heart-rate detail with a zone chart, an 8,420-step ring
+  and a vitals grid; `fosfor-ai/heroImage.webp` carries a project table with the AI panel docked
+  right. **That is her actual product design and it is good.** What repeats is everything AROUND it —
+  a saturated gradient (orange-magenta, purple-violet), the SAME bokeh ring motif in the same
+  corners, the same device tilt. **The screens are the portfolio. The frame is the cliché.**
+
+  **⚠ AND THE OBVIOUS REMEDY CONTRADICTS THIS FILE'S OWN DISCRIMINATOR, WHICH IS WHY IT IS BOARDED
+  RATHER THAN DONE.** The instruction offered was *"cream paper, the accent as the only saturated
+  element"*. That would recolour DEPICTED PRODUCTS — and the recorded rule is **"is it drawn in the
+  site's voice, or in the depicted thing's own colours?"** `ProjectCardSvgs.tsx` is boundary-listed
+  for exactly this, 77 hex literals excluded whole. **Recolouring boAt's red UI to the site accent
+  would misrepresent the product**, and a critique's complaint that the cards "ignore the palette" is
+  the record saying they should.
+
+  **SO THE FIX IS THE GROUND, NOT THE PRODUCT**, and that is the sentence this entry exists to carry.
+
+  **TWO ROUTES, AND THE FIRST NEEDS AN ASSET NOBODY HERE CAN MAKE.** Re-exporting the four mockups
+  from source on a transparent or cream ground keeps every pixel of the screens and needs no code —
+  they drop into the existing `heroImage` path. The alternative is authoring four SVGs at card scale
+  with a cream paper ground in the site's voice and screen contents in each product's own colours,
+  which satisfies both the critique and the rule.
+
+  **⚠ AND THE SECOND ROUTE'S MECHANISM ALREADY EXISTS AND IS BEING OVERRIDDEN.** `PROJECT_SVGS`
+  renders whenever `heroImage` is null, and those fallbacks are already product-true mocks rather
+  than gradient plates — `boatCrest` draws boAt's dark UI with its own red, `fosforAi` draws the
+  Fosfor blue. **The closest thing on disk to what the critiques keep asking for is switched off by
+  the very uploads they object to.**
+
 - **⚠ RULED: THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE AND CANNOT BE ON A SHORT ONE, AND THE
   CUE IS THE ONLY THING THAT WAS EVER AT STAKE.** The scroll cue sat **19px below the fold at
   382x828** — the one element whose entire job is to say there is more down here was the one element

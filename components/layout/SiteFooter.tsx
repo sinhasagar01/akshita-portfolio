@@ -90,16 +90,37 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
               <p className="text-[12px] tracking-[.18em] uppercase text-text-subtle mb-4">
                 Social
               </p>
+              {/* ⚠ `display: contents` ON THE ANCHOR MADE FIVE LINKS UNREACHABLE BY KEYBOARD, AND
+                  THE CV WAS ONE OF THEM. An element with `display: contents` generates no box, and a
+                  box is what a link needs to be focusable — measured live, each anchor computed a
+                  0x0 rect and `.focus()` left `document.activeElement` on `<body>`. Behance,
+                  LinkedIn, Dribbble, Resume and Email were all mouse-only. WCAG 2.1.1.
+
+                  ⚠ AND IT WAS THERE FOR A REAL REASON, WHICH IS WHY THE FIX IS A REGRID RATHER THAN
+                  A DELETION. It let each anchor's two spans become items of the PARENT grid, so the
+                  glyph column and the label column lined up across all five rows. Simply removing it
+                  would have ragged the labels.
+
+                  The parent is one column now and each anchor carries its own `34px auto` grid, so
+                  the alignment is identical — the glyph track is a fixed 34px in both spellings —
+                  and every anchor is a real box that takes focus. */}
               <div
-                className="footer-social inline-grid items-center text-left"
-                style={{ gridTemplateColumns: "auto auto", gap: "13px 12px" }}
+                className="footer-social inline-grid items-start text-left"
+                style={{ gridTemplateColumns: "1fr", gap: "13px" }}
               >
                 {links.map(({ label, href, external, glyph }, i) => (
                   <a
                     key={i}
                     href={href}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    style={{ display: "contents", textDecoration: "none" }}
+                    style={{
+                      display: "inline-grid",
+                      gridTemplateColumns: "34px auto",
+                      gap: "12px",
+                      alignItems: "center",
+                      justifyItems: "start",
+                      textDecoration: "none",
+                    }}
                   >
                     <span
                       className="footer-chip flex items-center justify-center w-[34px] h-[34px] rounded-[9px] text-[12px] font-semibold text-text-secondary"

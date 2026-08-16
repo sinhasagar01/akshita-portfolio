@@ -2836,8 +2836,23 @@ a {
    is no phone width at which all four fit on one line, so "drop them where they wrap" would mean
    dropping them everywhere, and that is a bigger removal than the fold problem justifies. */
 @media (max-width: 1023px) and (max-height: 824px), (max-width: 380px) {
-  .hero-counters,
   .hero-callouts { display: none; }
+}
+/* ⚠ THE COUNTERS COME BACK ON HEIGHT, AND KEEPING THEM OUT WAS THIS UNIT'S OWN MISTAKE. The rule
+   above once hid them too, on the argument recorded beside it — that the blocks were already
+   crossing the fold where it fires. THAT IS TRUE OF THE CALLOUTS AND NOT OF THE COUNTERS.
+
+   ⚠ AND THE THRESHOLD IS THE WRONG SIDE OF A COMMON PHONE. Safari's visible viewport is under 824
+   with the URL bar showing on essentially every iPhone, so an 824px height term does not mean "a
+   short phone" — it means MOST PHONES. `8 years / 4 case studies / 4 companies` is the fastest
+   credibility on the page and it was absent for the majority of mobile visitors for one afternoon.
+
+   They still drop on the WIDTH term, which is where they genuinely fail: at 355 they wrap to two
+   rows and stand 125px instead of 63, and a wrapped stat block is a poor presentation before it is
+   a spacing problem. Height is a fold question; width is a legibility one, and only the second is
+   theirs. */
+@media (max-width: 380px) {
+  .hero-counters { display: none; }
 }
 
 /* the work section glows in the warmer tan tone */
@@ -4699,7 +4714,17 @@ a {
    Footer — component styles
 ============================================================ */
 
-/* Social grid hover — display:contents prevents Tailwind group-hover; use parent selectors */
+/* ⚠ A FOCUS RING, BECAUSE THE ANCHORS COULD NOT TAKE FOCUS UNTIL NOW AND SO NEVER NEEDED ONE.
+   `display: contents` gave them no box, which cost them the tab order entirely — the ring is the
+   other half of that repair rather than a cosmetic addition. It sits on the anchor, so it draws
+   around the glyph AND its label as one target. */
+.footer-social a:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 4px;
+  border-radius: 9px;
+}
+/* Social grid hover — the parent selectors below outlived the `display: contents` they were written
+   for. They still read correctly against the per-anchor grid and are left as they are. */
 .footer-social a:hover .footer-chip {
   border-color: var(--color-accent-500);
   color: var(--color-accent-500);

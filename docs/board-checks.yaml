@@ -77,6 +77,18 @@ entries:
       Open while the hero keeps its own scoped sans. If that token goes, somebody has collapsed the
       two systems and this entry describes a site that no longer exists.
 
+  - match: "THE WORK CARDS' FRAME IS THE CLICHÉ"
+    kind: structural
+    holds_while:
+      file: content/projects/boat-crest.yaml
+      pattern: "heroImage: /images/projects/boat-crest/heroImage.webp"
+      expect: present
+    note: >-
+      Open while the gradient-and-bokeh upload is what the card renders. `PROJECT_SVGS` only draws
+      when `heroImage` is null, so dropping that key — or replacing the file with a re-export on a
+      cream ground — is what closes this. If the key goes, somebody has taken one of the two routes
+      and the entry describes a page that no longer exists.
+
   - match: "THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE"
     kind: judgement
     why: >-
