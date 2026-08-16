@@ -842,10 +842,15 @@ moment it grows an action again.
 
   **⚠ AND WRITING THIS ENTRY TRIPPED THE FILE'S OWN RULE 16, WHICH IS WHY THERE IS NO COUNT IN THE
   PARAGRAPH ABOVE.** It first read *"twelve instances"*, cited from the headline entry at the
-  unfalsifiable-rows section. **The file disagrees with itself** — that entry says TWELVE and the
-  unpublished-disclosure entry says *"thirteenth unfalsifiable row this session"*. Neither was
-  re-derived here, so the number is left out rather than a contested figure being carried forward
-  into a third place.
+  unfalsifiable-rows section, and was cut because that entry says TWELVE while the
+  unpublished-disclosure entry says *"thirteenth"*. **Declining to carry an underived number was
+  right. Calling the two a DISAGREEMENT was wrong, and it shipped in #585.**
+
+  Derived afterwards from `git log -S`, they are a SEQUENCE — twelve at #539, thirteen at #545 —
+  and the real defect is that a fourteenth landed at #557 and nobody incremented. **Two numbers in
+  a long record disagreeing and one of them being stale look identical from a grep**, and the
+  cheap thing that separates them is asking WHEN each was written. The register now enumerates
+  them so the question cannot arise again.
 
   **⚠ AND THE THIRD AROSE WHILE VERIFYING THE FIX HAD SHIPPED.** A search of the served stylesheet
   for the new custom property returned **0**, which would have meant a live `var()` resolving to
@@ -1784,7 +1789,9 @@ moment it grows an action again.
   **⚠ AND ONE OF ITS OWN ROWS COULD NOT FAIL FOR THE REASON IT NAMED.** `C2` asserted the read error
   *outranks* everything and tested it against a LIST alone, so reordering it below the LOADING check
   survived. **A precedence claim has to name every competitor**; "outranks" with one example is a
-  claim about one example. Thirteenth unfalsifiable row this session, found by mutation.
+  claim about one example. Thirteenth unfalsifiable row this session, found by mutation — **row 13
+  of the register**, which is enumerated under `Recorded` rather than carried as a running total,
+  because this figure went a full arc out of date before anyone re-derived it.
 
   **AND `behind` IS NEVER SHOWN** — measured at 12 commits behind while carrying one unpublished
   entry. Only AHEAD is unpublished work, and "your draft is 12 behind" is the kind of true, useless,
@@ -3187,16 +3194,74 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
-- **⚠ TWELVE UNFALSIFIABLE ROWS NOW, EVERY ONE FOUND BY MUTATION AND NONE BY READING — AND THE
-  COUNT IS THE ARGUMENT.** The newest two came from one suite written by an author who had just
-  re-read this entry. One was `A7`'s shape a fourth time — **the leaf proven and the call
-  unasserted**, where swapping a call site's argument to the exact reversal the rows existed to
-  prevent left the suite fully green. The other is the extractor variant recorded above.
+- **⚠ THE UNFALSIFIABLE-ROW REGISTER, ENUMERATED — BECAUSE A REMEMBERED RUNNING TOTAL WENT AN
+  ARC OUT OF DATE AND THREE LATER CLAIMS ABOUT IT WERE ALSO WRONG.** Every one was found by
+  mutation and none by reading. *(This heading first said the total had "counted the wrong noun",
+  which the arithmetic below refutes. Amended rather than left, because a title is what a reader
+  takes away when they skim — the same rule the deploy-throttle heading was amended under.)*
 
-  **THE TALLY MATTERS BECAUSE THE INSTINCT IT REFUTES IS "I WOULD SEE THAT ONE".** Twelve times the
-  reading passed and the mutation did not. **Ask what would have to change for this row to go red,
-  and then MAKE that change** — the asking is not the test, and this file has now been wrong about
-  that twelve times.
+  **MEMBERSHIP: a row in a ralph suite that could not fail for the reason its own title names.**
+  Stated because it never was, which is why nobody could reproduce the count.
+
+      1   rich-markers, 3 ROWS      value compared to itself; the `===` comparator forced the shape
+      2   theme V4                  `glass.c + step` reduces to `pearl.c >= 0`
+      3   theme-contrast D12e-a     `gaMin > D12E_FLOOR * 3` — halve the floor, halve the guard
+      4   theme-contrast D12b       denominator computed from its own subject; empty list satisfies
+      5   cascade-public line row   a one-line fixture cannot tell blanking from deletion
+      6   inspector/publish agree   two things reading ONE function, so they cannot disagree
+      7   ARIA role whole-file      matched a DIFFERENT field's role
+      8   presence rule             applied to one field of four, by its own author
+      9   A7's shape, 4th time      the leaf proven and the call unasserted
+      10  extractor end-anchor      `endsWith("}")`, which the whole stylesheet satisfies
+      11  unpublished-disclosure C2 a precedence claim tested against ONE competitor        row 13
+      12  mutate-harness isolation  would have passed identically against the operator's manifest  row 14
+
+  **TWELVE INSTANCES AND FOURTEEN ROWS**, and both numbers are needed because `rich-markers` alone
+  was three rows.
+
+  **⚠ AND THE ENTRY'S UNIT WAS RIGHT, WHICH IS THE OPPOSITE OF WHAT THIS PARAGRAPH FIRST ACCUSED IT
+  OF.** It read *"TWELVE UNFALSIFIABLE ROWS"* and I wrote that it was counting instances and had
+  committed the wrong-unit defect. **Then I did the arithmetic.** Items 1 to 10 are everything that
+  existed at #539, and with `rich-markers` at its true three they sum to **exactly twelve ROWS**.
+  The entry said rows and counted rows.
+
+  **THAT ARITHMETIC ALSO CONFIRMS THE MEMBERSHIP RULE ABOVE IS THE ORIGINAL AUTHOR'S RATHER THAN
+  MINE.** Reaching twelve requires excluding one of the four from `97f3cb9` — and the one that has
+  to go is the role-name comment, which is the same one excluded below on its own grounds. Two
+  people, one boundary, arrived at independently. **A count that reconciles is evidence the
+  population was understood; a count that merely looks right is not.**
+
+  **⚠ SO THE DEFECT IS STALENESS ALONE, AND MY #585 CLAIM OF A CONTRADICTION WAS WRONG — CORRECTED
+  HERE RATHER THAN EDITED AWAY.** Read from `git log -S`:
+
+      #539   this entry written, TWELVE rows correct at the time     (items 1-10)
+      #545   C2 lands and correctly calls itself the thirteenth ROW  (item 11)
+      #557   the mutate-harness isolation claim lands, row 14        (item 12) — NOBODY INCREMENTED
+
+  So the figure was right when written, right when incremented once, and **has been one short since
+  #557** — and the entry that ranks the argument was the last thing to know it. **Three claims about
+  this count have now been wrong, and two of them were mine, made while correcting the first.**
+
+  **THE LIST IS THE REPAIR, NOT A CORRECTED NUMBER.** A remembered running total decays silently and
+  a derived one cannot; the next instance appends a row and the count follows. **A number in prose
+  is a claim about the present**, which is this file's oldest lesson arriving in the entry about
+  assertions that cannot fail.
+
+  **⚠ TWO ADJACENT FAMILIES ARE DELIBERATELY OUT, NAMED SO NOBODY QUIETLY FOLDS THEM IN.** The
+  comment that contained the ARIA role it existed to explain is *explaining-it-requires-writing-it*,
+  which the source entry labels that way itself. And the three gates that would have **passed on an
+  empty subject** — `studio-ink-contrast` S4, C-9's exclusion, `rendered-theme`'s page count — are
+  the vacuous-pass family, which fails for a reason nobody named rather than surviving the reason
+  somebody did. **Folding either in moves the count without moving the subject.**
+
+  **AND PROBES ARE OUT BY CONSTRUCTION, WHICH IS THE UNCOMFORTABLE HALF.** `elementFromPoint`
+  returning the covering element at every point in its own footprint is exactly this shape and it is
+  not in the register, because **nothing mutates a probe**. The register measures the place that has
+  a mechanism; the place without one is unmeasured rather than clean.
+
+  **THE TALLY MATTERS BECAUSE THE INSTINCT IT REFUTES IS "I WOULD SEE THAT ONE".** Fourteen rows
+  across twelve instances, and every time the reading passed and the mutation did not. **Ask what would have to change for this row to go red,
+  and then MAKE that change** — the asking is not the test.
 
 - **⚠ AN ASSERTION THAT CANNOT FAIL FOR THE REASON IT NAMES — FOUR IN ONE UNIT, ONE SHAPE.** Each
   passed, each was checkable-looking, and none tested the property in its own title.
