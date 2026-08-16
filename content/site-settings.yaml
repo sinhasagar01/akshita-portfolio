@@ -4,18 +4,18 @@ heroTabs:
   - label: Who I am
     headline: A product designer who turns rough ideas into products people *use*.
     support: >-
-      Six years across enterprise data tools and one consumer turnaround. Most
+      Eight years across enterprise data tools and one consumer turnaround. Most
       of the work happens before anything is drawn.
     callouts:
       - Enterprise UX
       - Design systems
       - Research-led
     stats:
-      - value: '6'
+      - value: '8'
         unit: years
       - value: '4'
         unit: case studies
-      - value: '2'
+      - value: '4'
         unit: companies
   - label: What I do
     headline: End-to-end design for *data-dense* tools.
@@ -47,13 +47,13 @@ heroTabs:
         unit: '% completion'
       - value: '25'
         unit: '% retention'
-      - value: '42'
-        unit: rating ×10
+      - value: '4.2'
+        unit: app rating, up from 2.3
   - label: What I'm up to
     headline: Open to roles, and *writing* about motion.
     support: >-
-      Currently at Fosfor on Elevate ONE View. Writing about what motion is for,
-      and what you learn by removing it.
+      Currently at LTIMindtree on Elevate ONE View. Writing about what motion is
+      for, and what you learn by removing it.
     callouts:
       - Fosfor · Elevate
       - Writing
@@ -65,7 +65,7 @@ heroTabs:
         unit: studies
       - value: '1'
         unit: turnaround
-heroRoleLabel: UI/UX product designer · Bengaluru
+heroRoleLabel: UI and UX product designer · Bengaluru
 heroScrollCue: Scroll to work
 heroFigure: /images/hero/heroFigure.webp
 photo: /images/photo.webp
@@ -73,19 +73,19 @@ aboutCopy: >
   I turn rough ideas into products people actually use.
 
 
-  Seven years across SaaS, e-commerce, and enterprise. Right now, I am at
+  Eight years across SaaS, e-commerce, and enterprise. Right now, I am at
   **LTIMindtree**, designing a mechanic-first app for Elevate, after shaping
   fitness wearables, AI data platforms, and point-of-sale systems used by more
   than **20,000 merchants**, with a Design Innovation Award along the way.
 aboutNote: >-
-  The same curiosity that gets me painting under a tree is the one I bring to a
-  blank product to canvas.
+  The same curiosity that makes me stop beneath a tree with a paintbrush is what
+  I bring to a blank product canvas.
 aboutFocusChips:
   - User-centered design
   - Prototyping
   - Design systems
   - 0 to 1 products
-aboutSubtext: Seven years turning rough ideas into products people actually use.
+aboutSubtext: Eight years turning rough ideas into products people actually use.
 aboutPhotoCaption: off the clock, painting under a tree
 processStages:
   - name: Discover

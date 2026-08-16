@@ -61,7 +61,7 @@ export default function AboutSection({ settings }: Props) {
   // pattern as the Hero role label and scroll cue.
   const subtext = settings.aboutSubtext?.trim()
     ? settings.aboutSubtext
-    : "Seven years turning rough ideas into products people actually use.";
+    : "Eight years turning rough ideas into products people actually use.";
   const photoCaption = settings.aboutPhotoCaption?.trim()
     ? settings.aboutPhotoCaption
     : "off the clock, painting under a tree";

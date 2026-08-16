@@ -1742,7 +1742,13 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
 
 /* ---- C12 · THE DETAILS CANVAS ----------------------------------------------------------------
  * The canvas renders `ProjectCard` ITSELF with draft values — #178's rule — and draws it in BOTH
- * states side by side, because the summary is invisible at rest. */
+ * states side by side.
+ *
+ * ⚠ THE "BECAUSE THE SUMMARY IS INVISIBLE AT REST" CLAUSE IS RETIRED, AND HOW IT DIED IS THE
+ * USEFUL PART. It sat here and in the row title below, and the row computed only that two states
+ * are drawn. Moving the summary into `.wc-rail` made the premise FALSE AND LEFT THE ROW GREEN —
+ * a title stating a quantity the row does not compute, which is this file's own recurring defect
+ * arriving in prose. The reason is asserted below rather than stated. */
 {
   const canvas = code("components/studio/DetailsCanvas.tsx");
   const card = code("components/sections/ProjectCard.tsx");
@@ -1750,8 +1756,22 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   t("C12: the canvas renders the PUBLIC component, not a lookalike",
     /import ProjectCard from "@\/components\/sections\/ProjectCard"/.test(canvas)
       && /<ProjectCard project=\{project\}/.test(canvas), true);
-  t("C12: …and draws BOTH states, because the summary lives only in the hover veil",
+  t("C12: …and draws BOTH states, so an author can see what the hover does to the card",
     /\["rest", "At rest"[\s\S]{0,120}?\["hover", "On hover"/.test(canvas), true);
+
+  /* ⚠ THE ROW THAT REPLACES THE RETIRED PREMISE, AND IT IS THE ABSENCE DIRECTION ON PURPOSE.
+   * `.wc-veil` is `opacity: 0` until `:hover`, and at 375px `(hover: hover)` is FALSE — so any
+   * copy inside it is unreachable to a phone visitor. A source regex cannot prove a string is on
+   * screen, but it CAN prove one is not in the node that hides it, and that is the direction that
+   * matters here: a revert puts the summary back in the veil. Lives beside C12 rather than in a
+   * new suite because the claim it replaces was C12's. */
+  t("C12: ⚠ THE SUMMARY IS NOT IN THE VEIL — hover-only copy is copy no touch visitor ever reads",
+    /<div className="wc-veil"[\s\S]*?<\/div>/.exec(card)?.[0].includes("summary") ?? "veil not parsed",
+    false);
+  t("C12: …and it IS in the rail, as the VISIBLE aria-describedby target rather than an sr-only twin",
+    /<div className="wc-rail">[\s\S]*?className="sum" id=\{descId\}/.test(card)
+      && /aria-describedby=\{summary \? descId : undefined\}/.test(card)
+      && !/className="sr-only"/.test(card), true);
 
   /* THE DRAWN HOVER MUST CHANGE EXACTLY WHAT THE REAL ONE CHANGES. `:hover` cannot be set from
    * script, so the second card is drawn by re-asserting the hover declarations against a data
