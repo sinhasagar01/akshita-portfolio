@@ -3216,6 +3216,24 @@ build a gate for the limit and then believe it.
       11  unpublished-disclosure C2 a precedence claim tested against ONE competitor        row 13
       12  mutate-harness isolation  would have passed identically against the operator's manifest  row 14
 
+      STANDING FIGURE   12 instances   14 rows
+
+  **⚠ AND THE LIST ABOVE IS NOW A READING OF `docs/unfalsifiable-rows.yaml` RATHER THAN THE RECORD
+  ITSELF.** The register is data, `ralph/tests/unfalsifiable-register.mjs` derives both totals from
+  it, and **`E4` fails if the STANDING FIGURE line above disagrees with the file.** The number that
+  went an arc out of date cannot go stale again without something going red.
+
+  **THE FIGURE IS ALSO STATED IN NUMERALS ON ITS OWN LINE FOR A REASON.** It was previously carried
+  as `TWELVE` and `fourteen` inside sentences, and **nothing re-reads a word.** A machine-readable
+  line is what lets a gate hold the prose to the data.
+
+  **⚠ AND THE GATE DOES NOT RUN THE MUTATIONS, WHICH IS SAID RATHER THAN LEFT TO BE ASSUMED.** It
+  asserts a `kills` was written down, that every LIVE row still resolves in its suite, and that an
+  unpinnable row is a DECLARED state carrying its reason rather than a guess. **Applying each kill
+  belongs to a person with `mutate.mjs --edit`** — a suite that mutates tracked source is one crash
+  away from a dirty tree every later gate then measures, which is the argument `mutate-harness`
+  already makes about its own section B.
+
   **TWELVE INSTANCES AND FOURTEEN ROWS**, and both numbers are needed because `rich-markers` alone
   was three rows.
 

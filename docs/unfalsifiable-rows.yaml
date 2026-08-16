@@ -1,0 +1,225 @@
+# ROWS THAT COULD NOT FAIL FOR THE REASON THEY NAMED, AND WHAT KILLS THEM NOW.
+#
+# ⚠ THIS FILE EXISTS BECAUSE THE COUNT WAS A NUMBER SOMEBODY REMEMBERED, AND THREE SUCCESSIVE
+# CLAIMS ABOUT IT WERE WRONG.
+#
+# The tally lived in prose in CLAUDE.md. It was correct at PR 539, correctly incremented at 545,
+# and then a fourteenth row landed at 557 and nobody incremented it. Two later attempts to
+# reconcile that were also wrong — one called two figures a contradiction when they were a
+# sequence, the other accused the entry of counting the wrong noun when its arithmetic was right.
+#
+# A remembered running total decays silently. A derived one cannot. So the count now comes from
+# this file, `ralph/tests/unfalsifiable-register.mjs` asserts the prose agrees with it, and the
+# next instance appends an entry rather than incrementing a sentence.
+#
+# ---- MEMBERSHIP -------------------------------------------------------------------------------
+#
+# A row in a ralph suite that COULD NOT FAIL FOR THE REASON ITS OWN TITLE NAMES.
+#
+# It is not "a row that was wrong". A row asserting the wrong value is caught by the next person
+# who reads the value. This is the row whose stated property is unreachable by any edit, so it
+# passes forever and reads as coverage the whole time.
+#
+# ⚠ TWO ADJACENT FAMILIES ARE OUT, AND THEY ARE NAMED SO NOBODY QUIETLY FOLDS THEM IN.
+#
+#   the VACUOUS PASS — a row that would pass over an EMPTY subject. It fails for a reason nobody
+#     named rather than surviving the reason somebody did. `studio-ink-contrast` S4, C-9's
+#     exclusion and `rendered-theme`'s page count are that family.
+#   EXPLAINING-IT-REQUIRES-WRITING-IT — a check tripped by the comment explaining it, such as the
+#     comment that contained the ARIA role it existed to justify.
+#
+# Folding either in moves the count without moving the subject. The arithmetic below is what
+# proves this boundary is the ORIGINAL author's rather than a later re-adjudication: items 1 to 10
+# are everything that existed at PR 539, and with rich-markers at its true three rows they sum to
+# exactly the twelve that entry claimed. Reaching twelve REQUIRES excluding the role-name comment.
+#
+# ⚠ AND PROBES ARE OUT BY CONSTRUCTION, WHICH IS THE UNCOMFORTABLE HALF. A browser probe using the
+# call that returns the topmost element, sweeping a covering panel's own footprint, is exactly this
+# shape and it is not here — because NOTHING MUTATES A PROBE. This register measures the place that
+# has a mechanism. The place without one is unmeasured rather than clean.
+#
+# ---- HOW TO ADD ONE ---------------------------------------------------------------------------
+#
+# Append an entry. Do not edit a total anywhere.
+#
+#   suite   the ralph suite file, without the path or the extension
+#   row     the row's identifying prefix as it appears in the suite, or null when unpinned
+#   state   live | retitled | unpinned
+#   rows    how many ROWS this instance cost. Usually 1. rich-markers was 3, and recording it as 1
+#           is what would make the instance count and the row count silently disagree.
+#   pr      the commit or PR that recorded it
+#   could_not_fail   the property its title named that no edit could reach
+#   kills   THE MUTATION THAT REDDENS IT NOW. Required for a live row, and it is the whole point of
+#           the entry — a repair nobody can reproduce is a claim rather than a fix.
+#
+# ⚠ `unpinned` IS A DECLARED STATE, NOT A GAP TO TIDY AWAY. Four of these predate the register and
+# their rows were repaired by renaming, retitling or replacement, so no lookup can succeed. Writing
+# a plausible row id for them would be the fabrication this repository deletes on sight. The gate
+# reports the pinned count as a denominator so a register that is mostly unpinned cannot read as
+# coverage.
+
+standing:
+  # ⚠ DERIVED, NOT DECLARED. The gate recomputes both from `entries` and fails if either drifts, and
+  # it fails again if CLAUDE.md's prose disagrees. These two lines are here so a reader of this file
+  # sees the figure without counting, never as the source of it.
+  instances: 12
+  rows: 14
+
+entries:
+  - suite: rich-markers
+    row: null
+    state: unpinned
+    rows: 3
+    pr: d61ffdd
+    could_not_fail: >-
+      a value compared to itself. The suite's harness compared with reference equality, under which
+      every honest structural expectation fails, so the `want` side had nowhere to get a value
+      except by repeating the `got` expression.
+    kills: unrecorded
+    why: >-
+      the three rows were rewritten when the comparator was fixed, so the titles that carried the
+      defect no longer exist. It reads as carelessness and it was not — it was the only form that
+      compiled, which is why the entry is kept rather than dropped for being unpinnable.
+
+  - suite: theme
+    row: V4
+    state: live
+    rows: 1
+    pr: 0f9f183
+    could_not_fail: >-
+      the guard was `glass.c + step` where `step` is `pearl.c - glass.c`, which reduces to
+      `pearl.c >= 0` and is true by construction.
+    kills: >-
+      replace the literal expectation with one computed from the subject again. A guard derived
+      from the thing it guards cannot fail when that thing moves.
+
+  - suite: theme-contrast
+    row: D12e-a
+    state: live
+    rows: 1
+    pr: 0f9f183
+    could_not_fail: >-
+      asserted `gaMin > D12E_FLOOR * 3`, so halving the floor halved the guard and the row went on
+      calling the floor comfortable.
+    kills: >-
+      point the expectation back at `D12E_FLOOR` instead of a literal, then halve the floor. The
+      row must go red rather than following it down.
+
+  - suite: theme-contrast
+    row: D12b
+    state: live
+    rows: 1
+    pr: ea87038
+    could_not_fail: >-
+      a denominator row whose expected count was computed from the list it was checking, so an
+      EMPTY list satisfied it exactly. Five of six rows in that section passed with it.
+    kills: >-
+      empty the pair list. The row must go red. Only the CONSTANT floor row caught this originally,
+      which is why a denominator assertion must compare against something the subject cannot hollow
+      out.
+
+  - suite: cascade-public
+    row: A0c
+    state: live
+    rows: 1
+    pr: "1948216"
+    could_not_fail: >-
+      the fixture's comment was ONE LINE, so deleting it removed no newline and the row asserting
+      that reported line numbers stay true passed under a mutation that replaced blanking with
+      deletion.
+    kills: >-
+      replace comment blanking with deletion. A three-line fixture shifts every line after it and
+      the row goes red. The one-line fixture could not tell the two apart.
+
+  - suite: unpublished-changes
+    row: C2
+    state: live
+    rows: 1
+    pr: 8a03777
+    could_not_fail: >-
+      a PRECEDENCE claim — that a read error outranks everything — tested against ONE competitor.
+      Reordering it below a different check survived.
+    kills: >-
+      reorder the read-error check below the LOADING check. A precedence claim must name every
+      competitor or it is a claim about one example.
+
+  - suite: gallery-hero
+    row: C4
+    state: live
+    rows: 1
+    pr: d85cb32
+    could_not_fail: >-
+      the leaf was proven and the CALL was unasserted, for the fourth time. Swapping the call
+      site's argument to the exact reversal the rows existed to prevent left the suite fully green.
+    kills: >-
+      pass a per-kind count at the call site instead of the collection total. C3a is the
+      denominator that stops C4 reading an empty extraction.
+
+  - suite: gallery-hero
+    row: F1
+    state: live
+    rows: 1
+    pr: d85cb32
+    could_not_fail: >-
+      the extractor sliced from the at-rule to the END OF FILE and its companion guard checked the
+      slice was closed with `endsWith("}")`, which the whole stylesheet satisfies. The mutation
+      landed inside the tail the row had already deleted.
+    kills: >-
+      move the straighten rule outside the reduced-motion block. The braces are balanced now and a
+      SIZE CEILING replaces the `endsWith`, because a bounded block is hundreds of bytes and the
+      file's tail is hundreds of thousands.
+
+  - suite: mutate-harness
+    row: D6
+    state: live
+    rows: 1
+    pr: 4638c69
+    could_not_fail: >-
+      the isolation claim would have passed IDENTICALLY had TMPDIR not been honoured, because both
+      worlds produce the same outcome. That is precisely how it hid.
+    kills: >-
+      stop honouring TMPDIR. D6 names the sandbox rather than asserting an outcome both worlds
+      produce.
+
+  - suite: unknown
+    row: null
+    state: retitled
+    rows: 1
+    pr: 97f3cb9
+    could_not_fail: >-
+      a row asserted that the inspector's mark and the publish wall AGREE on their copy. They read
+      ONE exported function, so no mutation to a message can make them disagree — the title claimed
+      agreement between two things and there is only one thing.
+    kills: >-
+      reinstate an inline message ahead of the shared call, so a second spelling is BORN. That is
+      the one mutation that can kill it.
+    why: >-
+      retitled to `derivation`, which is what it actually proves. The recording commit is docs-only
+      and the repair landed elsewhere, so the suite is not established without archaeology and is
+      left unnamed rather than guessed.
+
+  - suite: unknown
+    row: null
+    state: unpinned
+    rows: 1
+    pr: 97f3cb9
+    could_not_fail: >-
+      a whole-file check for an ARIA role matched a DIFFERENT field's role — the wrong-subject
+      shape inside an assertion.
+    kills: unrecorded
+    why: >-
+      recorded in a docs-only commit; the repair landed in a PR the record does not name, and
+      inventing a suite and row id to make the entry look complete is the fabrication this
+      repository deletes on sight.
+
+  - suite: unknown
+    row: null
+    state: unpinned
+    rows: 1
+    pr: 97f3cb9
+    could_not_fail: >-
+      a presence rule — absent is skipped rather than guessed — applied to ONE field of four, by
+      its own author, in the same function, in the same hour.
+    kills: unrecorded
+    why: >-
+      same docs-only recording commit as the two above. Unpinned rather than guessed.
