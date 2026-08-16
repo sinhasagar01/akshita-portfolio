@@ -309,6 +309,56 @@ gates.
   **THE TRIGGER FOR REOPENING IT IS A DESIGN DECISION, NOT A CLEANUP:** deciding the hero should not
   have its own sans. That is a mock and three faces to reconsider.
 
+  **⚠ AND THIS ENTRY WAS THEN USED TO RULE A LATER FINDING VOID, WHICH IS THE FIRST TIME IT HAS PAID
+  FOR ITSELF.** A critique reported that the page's `h1` is outranked by a section `h2` — measured and
+  true: `.hero-name` renders **46 to 66px at weight 200** while the section `h2` renders **42 or 60px
+  at weight 600**, so the word `Work` is larger and four weight-steps heavier than her own name, and
+  **the size relation FLIPS at 1395px** because one side is `clamp(36px, 4.3vw, 66px)` and the other
+  is a fixed step.
+
+  **RULED VOID, ON THIS ENTRY'S OWN SENTENCE:** *"a shared spec across two deliberately separated
+  systems is the thing to avoid, not the thing to build."* The `h1` is in the hero's set
+  (`--font-hero-display`, Fraunces, hero-scoped, `preload: false`); the `h2` is in the site's
+  (`--font-display`). **Comparing their weights or their sizes as one hierarchy is the same category
+  error that cost four rounds the first time**, and both the reviewer and I made it — it shipped as a
+  P1 in a critique before anyone re-read this entry.
+
+  **⚠ AND THE TWO CANDIDATE FIXES WERE MEASURED BEFORE THE RULING, WHICH IS WHY IT IS A RULING RATHER
+  THAN A PREFERENCE.** Lifting the name gives 68/300 against 60/600; lowering the `h2` gives 54/200
+  against 44/600. **Both reintroduce the exact cancellation `wordStyle`'s 600 was added to remove** —
+  a heading whose size says "more important" and whose weight says "less". So the finding had no
+  fix that was not also a regression, which is itself evidence the finding was the wrong shape.
+
+  **WHAT WAS REAL AND SHIPPED: the `h2` stepped up at `sm` (640) against a site that goes mobile at
+  `lg`.** That is a convention violation rather than a hierarchy one, it was two of seven breakpoint
+  sites, and fixing it removed the worst band. **What is NOT shipped and is not owed: any change to
+  the hero's weight or size to agree with a system it does not belong to.**
+
+- **⚠ RULED: THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE AND CANNOT BE ON A SHORT ONE, AND THE
+  CUE IS THE ONLY THING THAT WAS EVER AT STAKE.** The scroll cue sat **19px below the fold at
+  382x828** — the one element whose entire job is to say there is more down here was the one element
+  a visitor could not see.
+
+  **THE LADDER PAID FOR IT, NOT THE ILLUSTRATION.** The gaps below the name ran 20/22/14/20/24/26,
+  **126px of air in a 573px column**. Tightened one step to 20/18/12/16/18/14, reclaiming 28px, and
+  the cue now clears by **9px** with the art band untouched at 300px. The illustration is the
+  strongest thing in the hero and 300px of it buys more than 28px of air.
+
+  **⚠ AND `padding-bottom` WOULD NOT HAVE MOVED IT, WHICH IS THE NON-OBVIOUS HALF.** The copy column
+  is `display: block` at mobile, so `align-self: end` is inert and the cue is placed by the SUM OF
+  THE GAPS ABOVE IT. Its 26px bottom padding changes the hero's height and not the cue's position —
+  the obvious lever was the one that does nothing.
+
+  **⚠ IT DOES NOT HOLD ON A SHORT PHONE, AND THAT IS STATED RATHER THAN ROUNDED AWAY.** At **382x680**
+  the hero is 845px — **165px over** — and the cue is 139px under the fold. No margin ladder reaches
+  that. What DOES clear the fold there is the eyebrow, the name, the tab strip and the thesis, which
+  is the right priority: identity, control, promise. The support line, the callouts, the counters and
+  the cue fall below.
+
+  **SO THE REMAINING LEVER IS CONTENT, NOT CSS** — dropping the callouts or the counters on a short
+  viewport. That is an owner's decision about what a phone visitor is shown first, and it is not
+  taken here.
+
 - **⚠ BOARDED WITH ITS NUMBERS: `text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT, AND IT IS
   THE MID-PAGE-GROUND QUESTION RATHER THAN A CONTROL QUESTION.** Forced to sapphire on the home page,
   **38 elements paint `text-subtle` and SEVEN fall below 4.5, at 1.60 to 2.34** — the work section's

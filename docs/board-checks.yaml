@@ -77,6 +77,15 @@ entries:
       Open while the hero keeps its own scoped sans. If that token goes, somebody has collapsed the
       two systems and this entry describes a site that no longer exists.
 
+  - match: "THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE"
+    kind: judgement
+    why: >-
+      The CSS half is shipped and measured — the ladder reclaimed 28px and the cue clears by 9px at
+      382x828. What is left open is which content a short phone should be shown first, since at
+      382x680 the hero is 165px over and no spacing change reaches that. Dropping the callouts or
+      the counters below a height threshold is a decision about what a visitor sees in their first
+      screen, and nothing here can weigh it.
+
   - match: "`text-subtle` FAILS ON EVERY GROUND THAT DOES NOT INVERT"
     kind: measurement
     why: >-
