@@ -184,15 +184,26 @@ entries:
     kind: judgement
     category: artwork-by-file
     where: components/sections/ProjectCardSvgs.tsx
-    count: 77
+    count: 118
     files: [components/sections/ProjectCardSvgs.tsx]
     reason: >
-      An illustration file. 77 of the site's 82 SVG colour attributes live here and are excluded
+      An illustration file. 112 of the site's 115 SVG colour attributes live here and are excluded
       whole, by what the file is for rather than by the syntax the colour is written in.
     test: >
-      The file is an ILLUSTRATION SET — 77 of the site's 82 SVG colour attributes live in it, drawing
-      product cards rather than interface. Its purpose is depiction, so every colour in it is excluded
-      whole rather than attribute by attribute.
+      The file is an ILLUSTRATION SET — 112 of the site's 115 SVG colour attributes live in it,
+      drawing product cards rather than interface. Its purpose is depiction, so every colour in it is
+      excluded whole rather than attribute by attribute.
+
+      ⚠ THE COUNT WENT 77 -> 118 WHEN THE CARDS WERE REDRAWN, AND J5 IS WHAT SAID SO. The four
+      uploads the cards used to render were a device on a saturated gradient with bokeh, one recipe
+      four times; the replacements draw each product in ITS OWN COLOURS on the site's paper. More
+      depiction means more literals, and every one of them is a product's rather than the site's —
+      which is the same reason the file was excluded in the first place, arriving at a larger number.
+
+      ⚠ AND THE PROSE MOVED WITH THE FIELD ON PURPOSE. This row said "77 of the site's 82" in two
+      places while `count:` said 77. Updating only the field would have left the sentence a reader
+      trusts stating a figure nothing checks — the exact drift `count:` was made load-bearing to
+      stop.
 
   - id: process-diagram-fills
     kind: judgement

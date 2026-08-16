@@ -334,40 +334,6 @@ gates.
   sites, and fixing it removed the worst band. **What is NOT shipped and is not owed: any change to
   the hero's weight or size to agree with a system it does not belong to.**
 
-- **⚠ BOARDED: THE WORK CARDS' FRAME IS THE CLICHÉ AND THE SCREENS ARE THE PORTFOLIO, AND THREE
-  CRITIQUES NAMED IT AS ONE THING.** All three runs reported the four cards as "a device on a
-  saturated gradient with bokeh, one recipe four times" and ruled the design specificity verdict on
-  it — *the frame is hers, the contents of the two sections that must convert are everyone's.*
-
-  **⚠ THE READING WAS HALF RIGHT AND NOBODY HAD OPENED THE FILES.** Looked at:
-  `boat-crest/heroImage.webp` carries a real heart-rate detail with a zone chart, an 8,420-step ring
-  and a vitals grid; `fosfor-ai/heroImage.webp` carries a project table with the AI panel docked
-  right. **That is her actual product design and it is good.** What repeats is everything AROUND it —
-  a saturated gradient (orange-magenta, purple-violet), the SAME bokeh ring motif in the same
-  corners, the same device tilt. **The screens are the portfolio. The frame is the cliché.**
-
-  **⚠ AND THE OBVIOUS REMEDY CONTRADICTS THIS FILE'S OWN DISCRIMINATOR, WHICH IS WHY IT IS BOARDED
-  RATHER THAN DONE.** The instruction offered was *"cream paper, the accent as the only saturated
-  element"*. That would recolour DEPICTED PRODUCTS — and the recorded rule is **"is it drawn in the
-  site's voice, or in the depicted thing's own colours?"** `ProjectCardSvgs.tsx` is boundary-listed
-  for exactly this, 77 hex literals excluded whole. **Recolouring boAt's red UI to the site accent
-  would misrepresent the product**, and a critique's complaint that the cards "ignore the palette" is
-  the record saying they should.
-
-  **SO THE FIX IS THE GROUND, NOT THE PRODUCT**, and that is the sentence this entry exists to carry.
-
-  **TWO ROUTES, AND THE FIRST NEEDS AN ASSET NOBODY HERE CAN MAKE.** Re-exporting the four mockups
-  from source on a transparent or cream ground keeps every pixel of the screens and needs no code —
-  they drop into the existing `heroImage` path. The alternative is authoring four SVGs at card scale
-  with a cream paper ground in the site's voice and screen contents in each product's own colours,
-  which satisfies both the critique and the rule.
-
-  **⚠ AND THE SECOND ROUTE'S MECHANISM ALREADY EXISTS AND IS BEING OVERRIDDEN.** `PROJECT_SVGS`
-  renders whenever `heroImage` is null, and those fallbacks are already product-true mocks rather
-  than gradient plates — `boatCrest` draws boAt's dark UI with its own red, `fosforAi` draws the
-  Fosfor blue. **The closest thing on disk to what the critiques keep asking for is switched off by
-  the very uploads they object to.**
-
 - **⚠ RULED: THE MOBILE HERO IS ONE VIEWPORT ON A TALL PHONE AND CANNOT BE ON A SHORT ONE, AND THE
   CUE IS THE ONLY THING THAT WAS EVER AT STAKE.** The scroll cue sat **19px below the fold at
   382x828** — the one element whose entire job is to say there is more down here was the one element
@@ -851,6 +817,31 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED: THE WORK CARDS ARE REDRAWN, AND THE GATE THAT SAID SO WAS THE ENTRY'S OWN CONDITION.**
+  This was boarded with `holds_while: boat-crest.yaml has heroImage`, and the note predicted its own
+  end — *"if the key goes, somebody has taken one of the two routes."* Four hours later the key went
+  and `board-decay` B2 named the ENTRY rather than the code. **Fourth firing, and the second where the
+  author closing the item is the one who tripped it.**
+
+  **THE SPLIT THAT MADE IT BUILDABLE:** the ground and the plate edge take ROLE TOKENS and theme
+  across all nine palettes; everything inside the plate is the product's own colours as literals.
+  That satisfies the specificity critique and the artwork-by-file rule at once, which is why neither
+  of the two remedies offered separately was right.
+
+  **AND THE PLATE'S SHAPE CARRIES THE PLATFORM, WHICH THE UPLOADS HAD NO ROOM FOR.** Two of the four
+  products are phones and two are desktop apps, so a portrait plate and a landscape plate say so
+  before a reader reaches the `MOBILE` or `WEB` tag beneath. **The set reads as four products rather
+  than four crops of one recipe** — which was the whole of the finding.
+
+  **⚠ AND `colour-census` J5 CAUGHT THE SECOND HALF, WHICH NOTHING ELSE WOULD HAVE.** The boundary
+  row declared `count: 77` and the census found **118**. More depiction means more literals; the
+  count moved and **the row's prose, which said "77 of the site's 82" in two places, moved with it.**
+  Updating only the field would have left a sentence a reader trusts stating a figure nothing checks.
+
+  **THE FOUR UPLOADS ARE NOW ORPHANED AND DELIBERATELY NOT DELETED** — content addressing makes them
+  free to leave, `image-orphans` walks by path, and re-pointing a `heroImage` key is how this is
+  reverted if the drawn cards are judged worse than the photographs.
 
 - **⚠ CLOSED: THE WORK FILTER WRAPS — AND THE TRIGGER THAT CLOSED IT IS NOT THE ONE THE BOARD
   NAMED.** The entry read *"three fit, four would overflow rather than wrap"* and set the trigger at
