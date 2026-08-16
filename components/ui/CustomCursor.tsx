@@ -29,9 +29,23 @@ export default function CustomCursor() {
     let mx = 0, my = 0, rx = 0, ry = 0, shown = false;
     let rafId = 0;
 
-    function setRing(w: string, h: string, bg: string, bc: string) {
-      ring.style.width = w;
-      ring.style.height = h;
+    /* ⚠ `scale` RATHER THAN `width`/`height`, AND THE BORDER IS COMPENSATED SO NOTHING MOVES.
+       Animating width and height runs layout on every frame of the 250ms ease. The ring is a
+       square, so a scale off the 34px base is exact — 84 is 2.4706, 46 is 1.3529, 34 is 1 — and
+       `translate(-50%, -50%)` still centres it, because the translate is a share of the UNSCALED
+       box and the scale then grows about that same centre.
+
+       THE BORDER IS THE ONE THING A SCALE WOULD CHANGE, so it is divided back out. Left alone,
+       1.5px at 1.3529 renders 2.03px. Only one of the three states has a visible border at all —
+       the 84px state sets it transparent — so this is half a pixel on one state, and it is
+       compensated rather than waved through because "nothing moves" should be true rather than
+       nearly true. It is set without a transition on purpose: `border-width` is itself a layout
+       property, so transitioning it would put back what this change removes. */
+    const RING_BASE = 34;
+    function setRing(size: number, bg: string, bc: string) {
+      const k = size / RING_BASE;
+      ring.style.transform = `translate(-50%, -50%) scale(${k})`;
+      ring.style.borderWidth = `${1.5 / k}px`;
       ring.style.background = bg;
       ring.style.borderColor = bc;
     }
@@ -74,12 +88,12 @@ export default function CustomCursor() {
         return;
       }
       if (t.closest('[data-cursor="card"]')) {
-        setRing("84px", "84px", ACCENT(12), "transparent");
+        setRing(84, ACCENT(12), "transparent");
         dot.style.opacity = "0";
         return;
       }
       if (t.closest('a,button,[role="button"],.cursor-link')) {
-        setRing("46px", "46px", "transparent", ACCENT(80));
+        setRing(46, "transparent", ACCENT(80));
         if (shown) dot.style.opacity = "1";
         return;
       }
@@ -92,7 +106,7 @@ export default function CustomCursor() {
           'input,textarea,select,[contenteditable],[data-cursor="card"],a,button,[role="button"],.cursor-link'
         )
       ) {
-        setRing("34px", "34px", "transparent", ACCENT(55));
+        setRing(34, "transparent", ACCENT(55));
         if (shown) {
           dot.style.opacity = "1";
           ring.style.opacity = "1";
@@ -160,7 +174,7 @@ export default function CustomCursor() {
           pointerEvents: "none",
           zIndex: 9998,
           opacity: 0,
-          transition: "width .25s, height .25s, background .25s, border-color .25s, opacity .2s",
+          transition: "transform .25s, background .25s, border-color .25s, opacity .2s",
         }}
       />
     </>
