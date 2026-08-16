@@ -3207,16 +3207,35 @@ build a gate for the limit and then believe it.
       2   theme V4                  `glass.c + step` reduces to `pearl.c >= 0`
       3   theme-contrast D12e-a     `gaMin > D12E_FLOOR * 3` — halve the floor, halve the guard
       4   theme-contrast D12b       denominator computed from its own subject; empty list satisfies
-      5   cascade-public line row   a one-line fixture cannot tell blanking from deletion
-      6   inspector/publish agree   two things reading ONE function, so they cannot disagree
-      7   ARIA role whole-file      matched a DIFFERENT field's role
-      8   presence rule             applied to one field of four, by its own author
-      9   A7's shape, 4th time      the leaf proven and the call unasserted
-      10  extractor end-anchor      `endsWith("}")`, which the whole stylesheet satisfies
-      11  unpublished-disclosure C2 a precedence claim tested against ONE competitor        row 13
-      12  mutate-harness isolation  would have passed identically against the operator's manifest  row 14
+      5   cascade-public A0c        a one-line fixture cannot tell blanking from deletion
+      6   inspector-validation B1   two things reading ONE function, so they cannot disagree
+      7   inspector-validation C2   a whole-file ARIA check matched a DIFFERENT field's role
+      8   gallery-hero C4           the leaf proven and the call unasserted
+      9   gallery-hero F1           `endsWith("}")`, which the whole stylesheet satisfies
+      10  unpublished-changes C2    a precedence claim tested against ONE competitor
+      11  mutate-harness D6         would have passed identically against the operator's manifest
 
-      STANDING FIGURE   12 instances   14 rows
+      STANDING FIGURE   11 instances   13 rows
+
+  **⚠ ELEVEN, NOT TWELVE — AND STATING THE MEMBERSHIP RULE IS WHAT CHANGED THE NUMBER, WHICH IS THE
+  WHOLE POINT RATHER THAN AN EMBARRASSMENT.** Every entry is now pinned to a live row in a named
+  suite, and the twelfth candidate does not survive the rule this register states. It was a
+  **presence rule in `validate-blog-post.ts`** — `"title" in input` guarding title while topic got
+  no such guard — which is an incomplete rule in a VALIDATOR rather than a row in a suite, and it
+  CAN fail: a blank title fires it. **Recorded here because it is a real finding and deleting it
+  would lose it; excluded there because it is not this register's subject.**
+
+  **⚠ AND THAT KILLS A CLAIM I PUBLISHED TWICE, IN #586 AND #587.** I wrote that the arithmetic
+  *"confirms the membership rule is the ORIGINAL author's rather than mine"*, on the grounds that
+  reaching twelve requires excluding exactly one of the four from `97f3cb9`. **It reconciled because
+  I had not yet pinned those four and assumed three of them were rows. Two are.** So the boundary
+  was never the original author's and never mine — **it was never stated at all**, which is exactly
+  why nobody could reproduce the count, and why writing it down moved the number.
+
+  **A COUNT THAT RECONCILES IS EVIDENCE THE POPULATION WAS UNDERSTOOD — AND THAT CUTS BOTH WAYS.**
+  Mine reconciled against an assumption rather than against the members, which is the same defect
+  wearing the opposite result. **The register is the repair precisely because a number nobody can
+  re-derive is a number that will be wrong again.**
 
   **⚠ AND THE LIST ABOVE IS NOW A READING OF `docs/unfalsifiable-rows.yaml` RATHER THAN THE RECORD
   ITSELF.** The register is data, `ralph/tests/unfalsifiable-register.mjs` derives both totals from

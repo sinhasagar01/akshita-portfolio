@@ -93,6 +93,12 @@ t("C3 ⚠ AND EVERY LIVE ROW NAMES ITS KILL-MUTATION — a repair nobody can rep
   noKill, []);
 
 console.log("\nD · a row that cannot be looked up is a DECLARED state, not a silent gap");
+const nonLive = entries.filter((e) => e.state !== "live");
+/* ⚠ PRINTED BECAUSE IT IS CURRENTLY ZERO, AND TWO ROWS OVER AN EMPTY SUBJECT READ AS COVERAGE.
+ * Every entry pinned to a live row is the good state, and it makes D1 and D2 vacuous until the next
+ * unpinnable instance arrives. Saying so is the whole remedy — this suite's own register excludes
+ * the vacuous pass from membership, so it must not commit one silently. */
+console.log(`      ${nonLive.length} non-live entries — D1 and D2 have ${nonLive.length ? "subjects" : "NO SUBJECTS, and pass vacuously until one arrives"}`);
 const unexplained = entries
   .filter((e) => e.state !== "live" && (!e.why || String(e.why).trim().length < 20))
   .map((e, i) => `entry ${i + 1}`);
