@@ -3194,6 +3194,43 @@ build a gate for the limit and then believe it.
   better than one rotated OUT of a collision.** The windows are recorded so the next one starts from
   an arc rather than from a drawing that has to be checked against one.
 
+- **⚠ `--verify-register` PRODUCED TWO DEFECTS OF THE EXACT CLASS IT VERIFIES, AND `--restore` TOOK
+  ITS OWN AUTHOR'S WORK — ALL THREE IN ONE SITTING.** The mode applies each register entry's
+  recorded kill-mutation and asserts the NAMED row reddens. Three of eleven entries are mechanised;
+  all three kill.
+
+  **⚠ ONE. A GUARD THAT COULD NOT FIRE, IN THE TOOL BUILT TO FIND GUARDS THAT CANNOT FIRE.** The
+  pre-flight refusal read `dirtyFiles().size`. **`dirtyFiles()` returns an ARRAY**, so `.size` is
+  `undefined`, so the refusal was unreachable on every tree. Found by dirtying a file and watching
+  the run proceed — never by reading it.
+
+  **THE COST WAS CLARITY RATHER THAN DAMAGE**, because the per-entry `--edit` still refused
+  correctly. A dirty tree came back as `UNAPPLIED` beside real verdicts under a `FAILED` summary,
+  which reads as a broken kill rather than as an untidy tree. **An ambiguous refusal is the shape
+  this record already carries from a publish reporting `Something went wrong`.**
+
+  **⚠ TWO. A HAND PARSER REPORTED A FALSE `SURVIVED`, WHICH IS THE ONE OUTCOME THE WHOLE MECHANISM
+  EXISTS TO MAKE IMPOSSIBLE.** The register was read with a line matcher, justified in its own
+  comment as avoiding a dependency in the one tool that must run when the tree is unknown. **It
+  stripped outer quotes and never unescaped**, so a replacement carrying escaped quotes reached the
+  file with literal backslashes. The mutation applied WRONG, the row stayed green, and the tool
+  reported the kill as SURVIVED.
+
+  **A MISAPPLIED MUTATION REPORTING SURVIVED SENDS THE NEXT PERSON TO REWRITE A ROW THAT WAS FINE.**
+  Same family as the unrun mutations this file carries three refusals against, arriving through a
+  PARSER rather than through a missing anchor. **And the dependency argument was wrong on its own
+  terms** — js-yaml is present whenever `node_modules` is, which no working-tree state changes.
+
+  **⚠ THREE. `--restore` REVERTED THE TWO FIXES ABOVE, AND `git status` LOOKED IDENTICAL.** The
+  snapshot was taken, then both repairs were written INTO A SNAPSHOTTED FILE, then `--restore` was
+  reached for as tidying. Both fixes went. **The file count did not move**, which is exactly the
+  invariant-under-the-damage this record already names.
+
+  **THE RULE WAS ALREADY WRITTEN DOWN AND IT IS THE ONE I BROKE: COMMIT BEFORE A MUTATION BATCH, NOT
+  SNAPSHOT.** The snapshot mechanism is for an operator's uncommitted work in progress; using it as
+  the safety net for work that is finished is using it against its own design. **Second instance,
+  and the first where the person who re-read the entry that morning is the one who did it.**
+
 - **⚠ THE UNFALSIFIABLE-ROW REGISTER, ENUMERATED — BECAUSE A REMEMBERED RUNNING TOTAL WENT AN
   ARC OUT OF DATE AND THREE LATER CLAIMS ABOUT IT WERE ALSO WRONG.** Every one was found by
   mutation and none by reading. *(This heading first said the total had "counted the wrong noun",
