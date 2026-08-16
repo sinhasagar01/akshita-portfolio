@@ -467,6 +467,111 @@ if (process.argv[2] === "--edit") {
   process.exit(0);
 }
 
+/* ---- `--verify-register` : APPLY EACH RECORDED KILL AND ASSERT THE NAMED ROW REDDENS ------------
+ *
+ * ⚠ THIS IS THE HALF `unfalsifiable-register` DELIBERATELY DOES NOT DO, AND IT IS AN OPERATOR TOOL
+ * RATHER THAN A SUITE FOR THE REASON THAT SUITE STATES: it edits TRACKED SOURCE, and a gate that
+ * mutates the repository is one crash away from leaving a dirty tree every later gate then measures.
+ *
+ * The suite asserts a `kills` was WRITTEN DOWN. This asserts it WORKS. That is the difference
+ * between a claim and a fix, and this record already carries the case that a repair nobody can
+ * reproduce is the former.
+ *
+ * ⚠ AND IT CHECKS THE NAMED ROW, NOT THE EXIT CODE. A mutation that reddens some OTHER row of the
+ * same suite has not been shown to reach its subject — the exact defect this file records against a
+ * hand-placed kill-mutation that was put AFTER the check it was meant to replace and never ran.
+ *
+ * ⚠ SIGNALS ARE TRAPPED BECAUSE A KILLED PROCESS HAS NO `finally`. A probe that mutates a tracked
+ * file and is interrupted leaves the edit in the tree, which is the silent un-publishing this
+ * record already carries once. `--revert-edit` runs on SIGINT, SIGTERM and SIGHUP. */
+if (process.argv[2] === "--verify-register") {
+  const REG = "docs/unfalsifiable-rows.yaml";
+  if (!existsSync(REG)) bail(2, `no register at ${REG}`);
+
+  /* ⚠ `.length`, AND IT READ `.size` — A GUARD THAT COULD NOT FIRE, IN THE TOOL BUILT TO FIND
+   * GUARDS THAT CANNOT FIRE. `dirtyFiles()` returns an ARRAY; `.size` on an array is `undefined`,
+   * which is falsy, so this refusal was unreachable on every tree. It was found by dirtying a file
+   * and watching the run proceed — never by reading it, which is the twelfth time this record has
+   * said that about an unfalsifiable check and the first where the check belonged to this feature.
+   *
+   * The per-entry `--edit` still refused correctly, so nothing was damaged. What was lost is the
+   * CLARITY: a dirty tree came back as `UNAPPLIED` beside real verdicts and a FAILED summary, which
+   * reads as a broken kill rather than as an operator's untidy tree. An ambiguous refusal is the
+   * shape this record already carries from a publish that reported `Something went wrong`. */
+  const dirty = dirtyFiles();
+  const snapped = existsSync(SNAP);
+  if (dirty.length && !snapped) {
+    bail(2, "the tree is dirty and unsnapshotted, so a revert cannot be trusted",
+      `  ${dirty.length} file(s) carry uncommitted work, starting with ${dirty[0]}.`,
+      "  Commit them, or run `node ralph/mutate.mjs --snapshot` first.",
+      "  NOTHING WAS CHANGED.");
+  }
+
+  /* ⚠ js-yaml, AND A HAND PARSER HERE PRODUCED A FALSE `SURVIVED` ON ITS FIRST RUN.
+   *
+   * This read the register with a small line matcher, justified as avoiding a dependency in the one
+   * tool that must run when the tree is in an unknown state. It stripped the outer quotes and NEVER
+   * UNESCAPED — so a replacement written with escaped quotes reached the file carrying literal
+   * backslashes, the mutation applied WRONG, the row stayed green, and the tool reported the kill
+   * as SURVIVED.
+   *
+   * THAT IS A FALSE NEGATIVE, WHICH IS THE ONE OUTCOME THIS MECHANISM EXISTS TO MAKE IMPOSSIBLE. A
+   * misapplied mutation reporting SURVIVED reads as a weak gate and sends the next person to
+   * rewrite a row that was fine — the same shape as the unrun mutations this file already carries
+   * three refusals against.
+   *
+   * And the dependency argument was wrong on its own terms: js-yaml is present whenever
+   * `node_modules` is, which no working-tree state changes, and every ralph suite that reads a
+   * registry already imports it. */
+  const { load: loadYaml } = await import("js-yaml");
+  const doc = loadYaml(readFileSync(REG, "utf8"));
+  const entries = Array.isArray(doc?.entries) ? doc.entries : [];
+  if (!entries.length) bail(2, "the register parsed to ZERO entries — refusing to report success over nothing");
+
+  const withMutation = entries.filter((e) => e.mut_file && e.mut_anchor !== undefined && e.mut_replacement !== undefined);
+  console.log(`\nverify-register — ${withMutation.length} of ${entries.length} entries carry a mechanical mutation\n`);
+
+  const revert = () => spawnSync(process.execPath, [import.meta.filename ?? "ralph/mutate.mjs", "--revert-edit"], { encoding: "utf8" });
+  for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) {
+    process.on(sig, () => { revert(); console.log(`\n${sig} — reverted, tree restored.`); process.exit(130); });
+  }
+
+  const results = [];
+  try {
+    for (const e of withMutation) {
+      const ed = spawnSync(process.execPath, ["ralph/mutate.mjs", "--edit", e.mut_file, e.mut_anchor, e.mut_replacement], { encoding: "utf8" });
+      if (ed.status !== 0) {
+        results.push({ e, verdict: "UNAPPLIED", why: (ed.stdout + ed.stderr).trim().split("\n").at(-1) });
+        continue;
+      }
+      const run = spawnSync(process.execPath, [`ralph/tests/${e.suite}.mjs`], { encoding: "utf8" });
+      const out = run.stdout + run.stderr;
+      /* ⚠ TWO HARNESS FORMATS, AND ASSUMING ONE IS THE DEFECT THIS WHOLE REGISTER IS ABOUT.
+         Most suites print `[FAIL] `; `rich-markers` prints a tick-and-cross form. A matcher that
+         knows only the common one reports WRONG-ROW on a kill that landed perfectly — narrower than
+         its concept, inside the tool built to verify rows that do not do what their titles say. */
+      const head = e.row.split(" ")[0];
+      const named = [`[FAIL] ${e.row}`, `[FAIL] ${head}`, `\u2717 FAIL ${e.row}`, `\u2717 FAIL ${head}`]
+        .some((h) => out.includes(h));
+      revert();
+      results.push({ e, verdict: named ? "KILLED" : (run.status !== 0 ? "WRONG-ROW" : "SURVIVED") });
+    }
+  } finally {
+    revert();
+  }
+
+  for (const r of results) {
+    const tag = { KILLED: "  KILLED   ", SURVIVED: "  SURVIVED ", "WRONG-ROW": "  WRONG-ROW", UNAPPLIED: "  UNAPPLIED" }[r.verdict];
+    console.log(`${tag} ${r.e.suite} ${r.e.row}${r.why ? `  — ${r.why}` : ""}`);
+  }
+  const bad = results.filter((r) => r.verdict !== "KILLED");
+  const skipped = entries.length - withMutation.length;
+  console.log(`\n${results.filter((r) => r.verdict === "KILLED").length} killed, ${bad.length} not, ${skipped} carry no mechanical mutation yet`);
+  if (skipped) console.log("  a skipped entry is UNVERIFIED, not passing — its `kills` is prose nobody has executed");
+  console.log(bad.length ? "\nVERIFY-REGISTER FAILED" : "\nVERIFY-REGISTER OK — every mechanised kill reddens the row it names");
+  process.exit(bad.length ? 1 : 0);
+}
+
 if (process.argv[2] === "--revert-edit") {
   const edits = readEdits();
   if (!edits.length) {

@@ -71,6 +71,9 @@ entries:
     state: live
     rows: 3
     pr: e794dd8
+    mut_file: lib/case-studies/adapter.ts
+    mut_anchor: "  let runs: RichRun[] = [s];"
+    mut_replacement: "  let runs: RichRun[] = ['MUTANT'];"
     could_not_fail: >-
       a value compared to itself — `t(name, JSON.stringify(parseRich(s)), JSON.stringify(parseRich(s)))`
       — three times. The suite's harness compares with reference equality, unlike every other suite
@@ -125,6 +128,9 @@ entries:
     state: live
     rows: 1
     pr: "1948216"
+    mut_file: ralph/strip-comments.mjs
+    mut_anchor: "      .replace(/\\/\\*[\\s\\S]*?\\*\\//g, (m) => m.replace(/[^\\n]/g, \" \"))"
+    mut_replacement: "      .replace(/\\/\\*[\\s\\S]*?\\*\\//g, \"\")"
     could_not_fail: >-
       the fixture's comment was ONE LINE, so deleting it removed no newline and the row asserting
       that reported line numbers stay true passed under a mutation that replaced blanking with
@@ -202,6 +208,9 @@ entries:
     state: live
     rows: 1
     pr: c3d5279
+    mut_file: components/studio/blocks/fields.tsx
+    mut_anchor: "        aria-describedby={blocker"
+    mut_replacement: "        role=\"alert\"\n        aria-describedby={blocker"
     could_not_fail: >-
       a whole-file check for an ARIA role matched a DIFFERENT field's role — the wrong-subject shape
       inside an assertion. The row asserts the mark is advisory by requiring `role="alert"` to be
