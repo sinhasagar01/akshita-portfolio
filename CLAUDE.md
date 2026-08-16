@@ -3284,11 +3284,20 @@ build a gate for the limit and then believe it.
   line is what lets a gate hold the prose to the data.
 
   **⚠ AND THE GATE DOES NOT RUN THE MUTATIONS, WHICH IS SAID RATHER THAN LEFT TO BE ASSUMED.** It
-  asserts a `kills` was written down, that every LIVE row still resolves in its suite, and that an
-  unpinnable row is a DECLARED state carrying its reason rather than a guess. **Applying each kill
-  belongs to a person with `mutate.mjs --edit`** — a suite that mutates tracked source is one crash
-  away from a dirty tree every later gate then measures, which is the argument `mutate-harness`
-  already makes about its own section B.
+  asserts a `kills` was written down, that every LIVE row still resolves in its suite, that every
+  one carries an EXECUTABLE TRIPLE, and that an unpinnable row is a DECLARED state carrying its
+  reason rather than a guess. **Running each kill belongs to `mutate.mjs --verify-register`** — a
+  suite that mutates tracked source is one crash away from a dirty tree every later gate then
+  measures, which is the argument `mutate-harness` already makes about its own section B.
+
+  **⚠ ALL ELEVEN ARE NOW MECHANISED AND ALL ELEVEN KILL — 11 of 11, exit 0, tree clean.** So `C3`
+  has stopped meaning *somebody wrote a kill down* and started meaning *eleven kills demonstrably
+  redden the rows they name*. **That is the whole distance between a claim and a fix**, and it is
+  the distance this record has spent a dozen entries measuring from the other side.
+
+  **AND `C4` IS WHAT KEEPS IT THAT WAY.** A future entry whose kill is prose alone fails on arrival,
+  rather than joining a register where most members are executed and one is a sentence — which is
+  how a coverage figure quietly stops meaning what it says.
 
   **TWELVE INSTANCES AND FOURTEEN ROWS**, and both numbers are needed because `rich-markers` alone
   was three rows.

@@ -88,6 +88,9 @@ entries:
 
   - suite: theme
     row: V4
+    mut_file: app/globals.css
+    mut_anchor: "--color-vessel-glass:  oklch(94% 0.025 40);"
+    mut_replacement: "--color-vessel-glass:  oklch(94% 0.005 40);"
     state: live
     rows: 1
     pr: 0f9f183
@@ -100,6 +103,9 @@ entries:
 
   - suite: theme-contrast
     row: D12e-a
+    mut_file: app/globals.css
+    mut_anchor: "--color-accent-500: oklch(52.0% 0.16 330);"
+    mut_replacement: "--color-accent-500: oklch(92.0% 0.022 78);"
     state: live
     rows: 1
     pr: 0f9f183
@@ -112,6 +118,9 @@ entries:
 
   - suite: theme-contrast
     row: D12b
+    mut_file: lib/theme.ts
+    mut_anchor: "export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, VERIFY_THEME] as const;"
+    mut_replacement: "export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, VERIFY_THEME] as const;"
     state: live
     rows: 1
     pr: ea87038
@@ -141,6 +150,9 @@ entries:
 
   - suite: unpublished-changes
     row: C2
+    mut_file: lib/studio/unpublished-changes.ts
+    mut_anchor: "  if (input.draftReadError) return { kind: \"unreadable\" };\n  if (input.fetchState === \"loading\") return { kind: \"loading\" };\n  if (input.fetchState === \"failed\") return { kind: \"failed\" };\n  if (input.entryCount === null || input.entryCount === 0) return { kind: \"nothing\" };"
+    mut_replacement: "  if (input.fetchState === \"loading\") return { kind: \"loading\" };\n  if (input.fetchState === \"failed\") return { kind: \"failed\" };\n  if (input.entryCount === null || input.entryCount === 0) return { kind: \"nothing\" };\n  if (input.draftReadError) return { kind: \"unreadable\" };"
     state: live
     rows: 1
     pr: 8a03777
@@ -153,6 +165,9 @@ entries:
 
   - suite: gallery-hero
     row: C4
+    mut_file: components/gallery/GalleryBrowser.tsx
+    mut_anchor: "galleryChipDisabled(k, allCount)"
+    mut_replacement: "galleryChipDisabled(k, byKind[k] ?? 0)"
     state: live
     rows: 1
     pr: d85cb32
@@ -165,6 +180,9 @@ entries:
 
   - suite: gallery-hero
     row: F1
+    mut_file: app/globals.css
+    mut_anchor: "@media (prefers-reduced-motion: no-preference) {\n  .gallery-hero-frame"
+    mut_replacement: ".gallery-hero-strip:hover { opacity: 1; }\n@media (prefers-reduced-motion: no-preference) {\n  .gallery-hero-frame"
     state: live
     rows: 1
     pr: d85cb32
@@ -179,6 +197,9 @@ entries:
 
   - suite: mutate-harness
     row: D6
+    mut_file: ralph/tests/mutate-harness.mjs
+    mut_anchor: "const SANDBOX = mkdtempSync(join(tmpdir(), \"ralph-mutate-harness-\"));"
+    mut_replacement: "const SANDBOX = process.env.TMPDIR ?? \"/tmp\";"
     state: live
     rows: 1
     pr: 4638c69
@@ -191,6 +212,9 @@ entries:
 
   - suite: inspector-validation
     row: B1
+    mut_file: lib/studio/validate-blog-post.ts
+    mut_anchor: "error: { code: \"invalid_blocks\", field: slug, message: `${slug}: ${message}` },"
+    mut_replacement: "error: { code: \"invalid_blocks\", field: slug, message: `${slug}: something went wrong` },"
     state: live
     rows: 1
     pr: 97f3cb9
