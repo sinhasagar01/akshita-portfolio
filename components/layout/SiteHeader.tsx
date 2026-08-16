@@ -554,8 +554,18 @@ export default function SiteHeader({ links }: { links: ElsewhereLink[] }) {
       </div>
 
       {/* Desktop scrolled: floating morph → glass sheet. */}
+      {/* ⚠ `inert` WHEN THE ROW IS SHOWING, BECAUSE THE FAB IS INVISIBLE THEN AND STILL TOOK FOCUS.
+          #573 put `inert` on `#nav-sheet` and stopped there — measured at 1280x800 afterwards, the
+          sheet was correctly guarded while THIS BUTTON, its own toggle, computed `display: block`,
+          `opacity: 0`, `pointer-events: none`, a real 47x47 box at (1192,17), and took focus. The
+          panel was guarded and its handle was not.
+
+          `.is-shown` is what makes it visible, so `!navHidden` is exactly the invisible state. Third
+          spelling of this guard in this file — the mobile drawer, the desktop sheet, and now the
+          control that opens the sheet. */}
       <button
         ref={fabDeskRef}
+        inert={!navHidden}
         className={`nav-morph nav-fab nav-fab-desktop${navHidden ? " is-shown" : ""}${sheetOpen ? " is-open" : ""}`}
         aria-expanded={sheetOpen}
         aria-controls="nav-sheet"
