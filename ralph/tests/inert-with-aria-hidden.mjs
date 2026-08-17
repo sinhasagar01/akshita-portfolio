@@ -128,7 +128,7 @@ console.log("\nC · what this gate cannot reach, by name");
  * defect, and not one of them carries an `aria-hidden` for a source scan to key on. */
 for (const gap of [
   "a zero-size box that is RENDERED — measured, the population is currently EMPTY: every zero-box\n                    focusable sits inside, or is, a `display: none` element, so the browser already refuses it",
-  "`display: contents` — it generates no box, which is what made five footer links unfocusable",
+  "`display: contents` — the INVERSE hazard, visible content whose element takes no focus. It made\n                    five footer links unfocusable once; measured across four pages at both viewports, 98\n                    focusable candidates and ZERO elements use the property at all",
   "an off-screen container positioned outside the viewport",
   "whether a guarded subtree actually contains anything focusable",
 ]) console.log(`      unreachable   ${gap}`);

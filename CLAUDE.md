@@ -3348,6 +3348,33 @@ build a gate for the limit and then believe it.
   the safety net for work that is finished is using it against its own design. **Second instance,
   and the first where the person who re-read the entry that morning is the one who did it.**
 
+- **⚠ THE `display: contents` ROUTE IS EMPTY TOO, AND THE PROBE WAS PROVED TO FIRE BEFORE ITS ZERO
+  WAS BELIEVED.** This is the INVERSE hazard to the rest of the tab-order family — not something
+  invisible that stays focusable, but visible content whose element generates no box and therefore
+  takes no focus. It made five footer links unreachable once, the CV among them.
+
+      home 36 · gallery 30 · blog 21 · boat-crest 11   = 98 focusable candidates
+      visible-but-unfocusable                            0
+      elements using `display: contents` at all          0, on every page and both viewports
+
+  **⚠ A ZERO FROM A PROBE THAT HAS NEVER BEEN SHOWN TO FIRE IS WORTH NOTHING**, which is why the
+  hazard was CONSTRUCTED before the result was accepted. Setting `display: contents` on one footer
+  anchor — the exact element class that carried the original defect — made the scan report exactly
+  one finding, naming it; restoring the style returned it to zero. Clean, dirty, clean.
+
+  **THE PROPERTY IS GONE FROM THE SOURCE ENTIRELY.** The only mentions left are the comments in
+  `SiteFooter.tsx` and `globals.css` explaining why it was removed, which is the record working
+  rather than a leftover.
+
+  **⚠ TWO OF THE FOUR NAMED GAPS NOW HAVE MEASURED-EMPTY POPULATIONS, AND THAT IS A DIFFERENT CLAIM
+  FROM "NO DEFECT FOUND".** A gap with an empty population is one nobody needs to hunt; a gap with
+  an unmeasured population is one nobody has looked at. Section C now distinguishes them, because
+  the zero-box entry spent a week claiming a hazard that could not happen.
+
+  **THE TEST IS THE SAME ONE LINE EVERY TIME: `el.focus()`, THEN READ `activeElement`.** It
+  separates a rect from a hazard, a stylesheet from a behaviour, and a mechanism from its symptom —
+  and writing it against the SYMPTOM is what makes it catch causes nobody has thought of.
+
 - **⚠ THE ZERO-BOX TAB-ORDER ROUTE IS EMPTY, AND MY OWN GATE SAID OTHERWISE FOR A WEEK.**
   `inert-with-aria-hidden` section C named *"a zero-size box — the desktop nav links measure 0x0 at
   mobile and stay tabbable"* as a route it cannot reach. Measured by asking the browser for focus
