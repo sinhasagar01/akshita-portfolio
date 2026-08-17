@@ -78,8 +78,12 @@ export const INSPECTOR_BOUNDS: Record<InspectorSurface, {
 }> = {
   // 267 measured; 640 is CS_CANVAS_MIN_PX (1280 × 0.5).
   cs: { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
-  // 185 measured; 725 is blog's canvas term, 68ch (676.73, Work Sans) plus 48px of padding.
-  blog: { min: 185, max: 725, fallback: 320, cookie: "studio-inspector-w-blog" },
+  // 185 measured; 701 is blog's canvas term, 68ch (652.797, IBM Plex Sans) plus 48px of padding.
+  // ⚠ MOVED WITH THE FACE, AND A GATE IS WHY IT DID. This is a FORCED second copy of
+  // BLOG_CANVAS_MIN_PX — the leaf discipline blocks the import — so nothing here recomputes when
+  // the body family changes. `studio-resize` A1 asserts the ceilings ARE the canvas floors and went
+  // red on the swap, which is the whole reason a hand-pinned duplicate is allowed to exist.
+  blog: { min: 185, max: 701, fallback: 320, cookie: "studio-inspector-w-blog" },
   /* ⚠ 248 IS DERIVED, NOT MEASURED, AND THAT DIFFERENCE IS STATED RATHER THAN ROUNDED AWAY. The
      other two floors above are `min-content` read off the live pane. This one could not be: every
      surface that renders a chip row sits behind /studio's owner gate, and this project's standing

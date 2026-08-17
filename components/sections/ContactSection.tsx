@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import Container from '@/components/layout/Container'
-import SectionHeading from '@/components/ui/SectionHeading'
+import SheetSectionHead from '@/components/sheet/SheetSectionHead'
 import type { SiteSettingsEntry } from '@/lib/keystatic'
 
 // ---------------------------------------------------------------------------
@@ -104,19 +104,27 @@ function StepContent({
 
   return (
     <div className="w-full">
-      {/* Eyebrow — DM Sans 12px 500 uppercase .22em tracking, terracotta */}
-      <span
-        className="block mb-[14px] font-body text-[12px] font-medium tracking-[0.22em] uppercase"
-        style={{ color: 'var(--color-accent)' }}
-      >
+      {/* ⚠ THE SAME DEVICE AS THE PROCESS STAGE HEAD, WHICH IS WHY IT MOVES IN THE SAME CHANGE.
+          These steps are numbered 01 to 03 and each carried an eyebrow in the accent above an
+          italic display head — construction for construction, the pattern the direction retires.
+          Fixing one and leaving the other is how a page ends up speaking two languages in two
+          sections.
+
+          The mark drops the accent for the sheet's mark role, because the accent's four sanctioned
+          uses do not include a step eyebrow. It also drops from .22em to the ONE tracking value the
+          type system allows, and from the body face to mono — the audit that produced this direction
+          found nine mono sizes and eight tracking values in its own first pass, so an extra spelling
+          here is how that comes back. */}
+      <span className="sheet-mono-label block mb-[14px]">
         {step.eyebrow}
       </span>
 
-      {/* Question — Fraunces italic 30px lh 1.2 ink */}
+      {/* Upright at the STUDY role. Still a label rather than a heading — the control it names is
+          the input below, and promoting it to a heading would put a fourth level into a section
+          that has three. */}
       <label
         htmlFor="contact-input"
-        className="block font-display italic text-[30px] leading-[1.2] mb-6 cursor-text"
-        style={{ fontWeight: 400 }}
+        className="sheet-h3 block mb-6 cursor-text"
       >
         {step.question}
       </label>
@@ -169,7 +177,7 @@ function StepContent({
         type="button"
         onClick={() => { if (status === 'idle') onAdvance() }}
         disabled={sending}
-        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-on-accent rounded-full cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_color-mix(in oklch, var(--color-accent) 25%, transparent)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
+        className="group mt-[18px] inline-flex items-center gap-[9px] font-body text-[14px] font-medium text-on-accent cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_8px_20px_color-mix(in oklch, var(--color-accent) 25%, transparent)] transition-[transform,box-shadow] duration-300 disabled:opacity-70 disabled:pointer-events-none"
         style={{
           background: 'var(--color-accent)',
           border: '1.5px solid var(--color-accent)',
@@ -425,12 +433,16 @@ export default function ContactSection({ settings }: Props) {
     <section id="contact" className="scroll-mt-20 py-24 md:py-32">
       <Container>
 
-        <SectionHeading
-          index="06"
+        {/* ⚠ THE CENTRED VARIANT IS GONE AND THAT IS THE DIRECTION RATHER THAN AN OVERSIGHT. This
+            was the one call site using it. A drawing sheet is read from a left margin, so the
+            grammar has no centred device and adding one for a single section would be the second
+            spelling problem in layout instead of colour. The form beneath keeps its own centring,
+            which is a different decision about a different element. */}
+        <SheetSectionHead
+          sheet="06"
           title="Get in touch"
-          subtext="Have a project, a role, or just a hello. I would love to hear it."
-          variant="centered"
-          tone="warm"
+          mark="Issue and contact"
+          lede="Have a project, a role, or just a hello. I would love to hear it."
         />
 
         {/* Form area — centered, max 680px */}
@@ -445,7 +457,6 @@ export default function ContactSection({ settings }: Props) {
             className="relative overflow-hidden"
             style={{
               background: 'var(--color-surface)',
-              borderRadius: 16,
               minHeight: 330,
               padding: '42px 42px 26px',
             }}

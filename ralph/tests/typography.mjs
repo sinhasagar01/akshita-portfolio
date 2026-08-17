@@ -50,13 +50,16 @@ const cssCode = code(css), layoutCode = code(layout);
  * One line each, and they are the only lines the family swap edits. Read from CODE so the
  * migration notes in the surrounding comments cannot satisfy the match. */
 const role = (name) => (new RegExp(`--font-${name}:\\s*var\\((--font-[a-z0-9-]+)\\)`).exec(cssCode) ?? [])[1] ?? null;
-t("A1: --font-display points at Source Serif 4", role("display"), "--font-source-serif");
-t("A2: --font-body points at Work Sans", role("body"), "--font-work-sans");
+t("A1: --font-display points at IBM Plex Sans", role("display"), "--font-ibm-plex-sans");
+/* ⚠ DISPLAY AND BODY RESOLVE TO ONE FAMILY NOW, AND BOTH ROWS STAY. Asserting them separately is
+ * what keeps the two ROLES distinct in the vocabulary; collapsing to one row would make the day
+ * they diverge a row nobody wrote. */
+t("A2: --font-body points at IBM Plex Sans", role("body"), "--font-ibm-plex-sans");
 t("A3: --font-label points at Space Grotesk", role("label"), "--font-space-grotesk");
 /* The faces themselves still resolve through next/font, with a metric-matched stack behind them
  * and never a bare generic — a generic drops to Times or Arial and reflows every measured box. */
-for (const [face, loaded] of [["source-serif", "--font-source-serif-loaded"],
-                              ["work-sans", "--font-work-sans-loaded"],
+for (const [face, loaded] of [["ibm-plex-sans", "--font-ibm-plex-sans-loaded"],
+                              ["ibm-plex-mono", "--font-ibm-plex-mono-loaded"],
                               ["space-grotesk", "--font-space-grotesk-loaded"]]) {
   const decl = (new RegExp(`--font-${face}:\\s*var\\(${loaded},([^;]+)\\);`).exec(cssCode) ?? [])[1];
   t(`A4: --font-${face} reads its next/font variable and carries a named fallback stack`,
@@ -87,13 +90,31 @@ t("B2: …and the mechanism that replaced it is actually present on the h1/h2 re
 /* B3 · THE GENERAL FORM, so a deliberate future pin is still checked rather than trusted. Any
  * `"opsz" N` in the stylesheet must fall inside the LIVE display face's axis. With none present
  * this passes vacuously, which is why B2 above pins the absence separately. */
-const liveDisplay = /--font-source-serif:/.test(cssCode) && role("display") === "--font-source-serif"
-  ? "Source Serif 4" : null;
-const max = axisMax(liveDisplay ?? "", "opsz");
-const overAxis = opszPins
+/* ⚠ THIS HARDCODED THE OUTGOING FACE AND WOULD HAVE PASSED VACUOUSLY WHILE SAYING SO OUT LOUD.
+ * It read `--font-source-serif` directly, so after the swap `liveDisplay` resolved null, `max`
+ * resolved null, the filter could never fire, and the row printed "null tops out at null" as a
+ * PASS. A row naming its own subject as null is the vacuous pass this runner refuses everywhere.
+ * The family is now looked up FROM the role token, so the next swap updates one map entry.
+ *
+ * ⚠ AND THE NO-AXIS CASE IS A DEFECT RATHER THAN A SKIP, WHICH IS WHAT THE SWAP EXPOSED. Plex Sans
+ * is a static family and exposes NO opsz axis, so the old `n > max` test — with `max` null — could
+ * not flag anything at all. Against a face with no axis, ANY pinned optical size is inert: the
+ * declaration is written, nothing reads it, and the screen disagrees with the code. That is the
+ * exact failure this whole suite was built for, so it is asserted rather than skipped. */
+const DISPLAY_FAMILY = {
+  "--font-ibm-plex-sans": "IBM Plex Sans",
+  "--font-source-serif": "Source Serif 4",
+  "--font-fraunces": "Fraunces",
+};
+const liveDisplay = DISPLAY_FAMILY[role("display")] ?? null;
+const max = liveDisplay ? axisMax(liveDisplay, "opsz") : null;
+const pinned = opszPins
   .map((p) => Number((/opsz"?\s*,?\s*(\d+(?:\.\d+)?)/.exec(p) ?? [])[1]))
-  .filter((n) => Number.isFinite(n) && max != null && n > max);
-t(`B3: every pinned optical size fits the live display face's axis (${liveDisplay} tops out at ${max})`,
+  .filter((n) => Number.isFinite(n));
+const overAxis = max == null ? pinned : pinned.filter((n) => n > max);
+t("B3a: the live display family is RESOLVED, not assumed — a null here makes B3 vacuous",
+  liveDisplay, "IBM Plex Sans");
+t(`B3: every pinned optical size fits the live display face's axis (${liveDisplay} exposes ${max == null ? "NO opsz axis, so any pin is inert" : `opsz up to ${max}`})`,
   overAxis, []);
 
 /* ================================================ C. THE PRELOAD BUDGET FOLLOWS THE LIVE FACES
@@ -104,15 +125,31 @@ const preloadOf = (ctor) => {
   const m = new RegExp(`${ctor}\\(\\{([\\s\\S]*?)\\}\\)`).exec(layoutCode);
   return m ? /preload:\s*true/.test(m[1]) : null;
 };
-t("C1: the three LIVE faces are preloaded — Source Serif 4, Work Sans, and Kaushan for the wordmark",
-  [preloadOf("Source_Serif_4"), preloadOf("Work_Sans"), preloadOf("Kaushan_Script")], [true, true, true]);
+/* ⚠ TWO WHERE THERE WERE THREE, AND THE FACE COUNT FELL BECAUSE ONE FAMILY TOOK TWO ROLES.
+ * Display and body were Source Serif 4 and Work Sans; both are IBM Plex Sans now, so the page pays
+ * ONE preload for what cost two. A real reduction rather than bookkeeping, and C4 pins the total. */
+t("C1: the LIVE preloaded faces are IBM Plex Sans for display AND body, and Kaushan for the wordmark",
+  [preloadOf("IBM_Plex_Sans"), preloadOf("Kaushan_Script")], [true, true]);
+/* ⚠ AND THE MONO IS ASSERTED NOT PRELOADED, WHICH IS THE HALF THAT COULD DRIFT SILENTLY. It is a
+ * LIVE face — every sheet mark, plate number and readout key reads it — so C1's rule would naively
+ * demand it. It stays false because none of those is the LCP element and all are legible in the
+ * fallback mono while the file arrives, the same trade the label face lost. Asserting it means a
+ * future author cannot flip it without meeting that argument. */
+t("C1a: IBM Plex Mono is LIVE and deliberately NOT preloaded — small marks, never the LCP element",
+  preloadOf("IBM_Plex_Mono"), false);
 /* ⚠ C2's SUBJECT WAS DELETED, WHICH IS THE THIRD KIND OF CHANGE AND THE EASIEST TO GET WRONG.
  * It asserted the two outgoing faces were not PRELOADED. They are not LOADED at all now, so the
  * old form would read `null` for both and pass by comparing nothing to nothing — a green row
  * about two things that no longer exist. Restated as an absence: they must not be imported.
  * A gate whose subject vanishes is rewritten to assert the vanishing, never left to pass vacuously. */
-t("C2: the two OUTGOING faces are gone entirely — not merely unpreloaded, but not loaded",
-  [/\bFraunces\b/.test(layoutCode), /\bDM_Sans\b/.test(layoutCode)], [false, false]);
+/* ⚠ AND IT HAS TWO MORE MEMBERS NOW, ADDED UNDER C2's OWN RULE. Source Serif 4 and Work Sans are
+ * this swap's outgoing pair, so by the sentence directly above they belong here rather than being
+ * left to pass as `null`. Four names, one absence claim, and the direction is the safe one: if any
+ * of them is reimported this goes red, where a preload check on a face nobody loads cannot. */
+t("C2: every OUTGOING face is gone entirely — not merely unpreloaded, but not loaded",
+  [/\bFraunces\b/.test(layoutCode), /\bDM_Sans\b/.test(layoutCode),
+    /\bSource_Serif_4\b/.test(layoutCode), /\bWork_Sans\b/.test(layoutCode)],
+  [false, false, false, false]);
 /* ⚠ C3's SUBJECT CHANGED AND ITS VALUE DID NOT, WHICH IS THE MORE INTERESTING CASE.
  * It read "Space Grotesk is not preloaded either, BECAUSE --font-label still has no consumer".
  * That reason is gone — the token has two consumers now. The assertion still says `false`, for a
@@ -128,13 +165,38 @@ t("C2: the two OUTGOING faces are gone entirely — not merely unpreloaded, but 
  *
  * The "because" is carried rather than dropped, because a gate that knows why it asserts what it
  * asserts is the part worth preserving through a rewrite. */
-t("C3: Space Grotesk is STILL not preloaded, now because its consumers are studio-only while preload is emitted from the root layout — public pages must not pay for a face they never render",
+/* ⚠ AND THE REASON IS WRONG FOR THE THIRD TIME, CAUGHT BY A FONT CENSUS RATHER THAN BY READING.
+ * This row said public pages "must not pay for a face they never render". Measured on the live home
+ * page by walking every leaf element and reading its computed family: SPACE GROTESK PAINTS TWO
+ * PUBLIC ELEMENTS — `.palette-pill-label` and `.palette-rail-label`, both reading "Theme". So the
+ * consumers are NOT studio-only and the page does render it.
+ *
+ * THE VALUE IS STILL `false` AND NOW FOR A FOURTH REASON, WHICH IS THE POINT OF REWRITING RATHER
+ * THAN DELETING. Two 10px labels on one control do not justify a preload in the critical window —
+ * the same trade Plex Mono loses at C1a. The flag has now survived four different justifications
+ * without moving, and each rewrite has made the claim narrower and truer.
+ *
+ * ⚠ AND THIS WAS ALREADY FALSE BEFORE THE FACE SWAP. The teaser predates it, so nothing in this
+ * change caused the drift — the swap is only what made someone census the families. A claim about
+ * WHERE a face renders cannot be checked by reading the file that loads it. */
+t("C3: Space Grotesk is STILL not preloaded — it has two tiny PUBLIC consumers in the palette teaser, and two 10px labels do not earn a slot in the critical window",
   preloadOf("Space_Grotesk"), false);
-/* The count is what a public page actually pays. It has not moved across the whole arc: the
- * incoming faces swapped places with the outgoing ones rather than joining them. */
-t("C4: exactly three faces are preloaded, the same number as before the arc began — the label face is read but not preloaded, so no public page pays for the studio",
-  ["Source_Serif_4", "Work_Sans", "Kaushan_Script", "Fraunces", "DM_Sans", "Space_Grotesk", "Caveat"]
-    .filter((c) => preloadOf(c) === true).length, 3);
+/* The count is what a public page actually pays.
+ *
+ * ⚠ IT HELD AT THREE FOR THE WHOLE ARC AND HAS NOW FALLEN TO TWO, WHICH IS THE FIRST TIME THIS ROW
+ * HAS MOVED. Every previous swap traded one face for another, so the total was the invariant and the
+ * row read as a budget. This swap collapsed TWO ROLES INTO ONE FAMILY, so the budget genuinely
+ * shrank — display and body are the same file. Verified against the built output as well as the
+ * source: the emitted preload links went 4 to 3, one fewer than the face count because Plex Sans
+ * ships normal and italic as separate files while Kaushan is one.
+ *
+ * THE LIST KEEPS THE RETIRED NAMES ON PURPOSE. A face that is not imported reads `null`, which the
+ * filter drops, so leaving them in costs nothing and means a reimport shows up in the TOTAL rather
+ * than only in C2's absence check. */
+t("C4: exactly two faces are preloaded — one family now serves display AND body, so the budget fell rather than held",
+  ["IBM_Plex_Sans", "IBM_Plex_Mono", "Kaushan_Script", "Source_Serif_4", "Work_Sans",
+    "Fraunces", "DM_Sans", "Space_Grotesk", "Caveat"]
+    .filter((c) => preloadOf(c) === true).length, 2);
 
 /* ================================================ C5. EVERY ROLE TOKEN IS READ BY SOMETHING
  * ⚠ PER TOKEN, NOT OVER THE SET, AND THAT IS THE WHOLE POINT. #260 found `--studio-t0` declared
@@ -276,7 +338,7 @@ t("C4: exactly three faces are preloaded, the same number as before the arc bega
 {
   const og = code(readFileSync(new URL("../../lib/og.tsx", import.meta.url), "utf8"));
   const brand = (/const BRAND_FONT = "([^"]+)"/.exec(og) ?? [])[1] ?? null;
-  t("D1: the OG card names its face in ONE constant, not three string literals", brand, "Source Serif 4");
+  t("D1: the OG card names its face in ONE constant, not three string literals", brand, "IBM Plex Sans");
   t("D2: …and that face is the one --font-display resolves to, so a card and its page cannot disagree",
     brand && role("display") === `--font-${brand.toLowerCase().replace(/ /g, "-").replace("-4", "")}`, true);
   t("D3: the Google query, the applied family and Satori's registration all read the constant",

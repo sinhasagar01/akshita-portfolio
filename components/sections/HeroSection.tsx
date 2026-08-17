@@ -633,7 +633,7 @@ export default function HeroSection({
                     type="button"
                     aria-pressed={i === active}
                     onClick={() => setActive(i)}
-                    className="relative px-[15px] py-[9px] text-[10px] uppercase tracking-[0.15em] font-normal rounded-full transition-colors duration-[var(--duration-base)] select-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-500"
+                    className="relative px-[15px] py-[9px] text-[10px] uppercase tracking-[0.15em] font-normal transition-colors duration-[var(--duration-base)] select-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-500"
                     style={{
                       /* ⚠ `--hx-tab-faint`, NOT `--hx-faint` — see globals.css beside the token.
                          The shared one is `text-subtle`, which measured 3.11 / 3.82 / 4.26 against
@@ -649,7 +649,7 @@ export default function HeroSection({
                       <motion.span
                         layoutId="hero-tab-pill"
                         aria-hidden="true"
-                        className="absolute inset-0 rounded-full"
+                        className="absolute inset-0"
                         style={{
                           /* ⚠ THE FILL IS THE ACCENT ROLE AND THE SHADOW STAYS A TOKEN READ.
                              `vessel-alias` C1 asserts the pill's shadow arrives through

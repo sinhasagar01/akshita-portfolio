@@ -47,8 +47,14 @@ const CREAM_PALETTE: OgPalette = { cream: CREAM, ink: INK, muted: MUTED, accent:
 // applied to the card, and the `fonts` entry Satori registers. They are one constant now, because
 // a mismatch between the registered name and the applied one falls back silently to the built-in
 // face — the card still renders, and it renders in something nobody chose.
+// ⚠ AND IT HAPPENED AGAIN, IN THE SAME PLACE, FOR THE SAME REASON — WHICH IS WHY THE NOTE ABOVE
+// STAYS. `--font-display` repointed a second time, from Source Serif 4 to IBM Plex Sans, and this
+// constant is the one thing on the site that cannot notice. `typography` D2 is what noticed: it
+// asserts this family IS the one the display role resolves to, so the failure arrived as a red row
+// rather than as a feed full of serif cards under a grotesque site. The gate the first incident
+// produced is the reason the second cost one line.
 /** The one name. Used by the Google query, the applied `fontFamily`, and Satori's font entry. */
-const BRAND_FONT = "Source Serif 4";
+const BRAND_FONT = "IBM Plex Sans";
 
 let fontPromise: Promise<ArrayBuffer | null> | null = null;
 function loadBrandFont(): Promise<ArrayBuffer | null> {
@@ -56,7 +62,13 @@ function loadBrandFont(): Promise<ArrayBuffer | null> {
     fontPromise = (async () => {
       try {
         const css = await fetch(
-          `https://fonts.googleapis.com/css2?family=${BRAND_FONT.replace(/ /g, "+")}:opsz,wght@8..60,600`,
+          /* ⚠ NO `opsz` AXIS ANY MORE, AND KEEPING IT WOULD HAVE FAILED SILENTLY. `opsz,wght@8..60,600`
+             is Source Serif's variable axis descriptor. Plex Sans is served as static instances, so
+             that query returns nothing usable, `loadBrandFont` resolves null by design, and the card
+             renders in Satori's built-in face — still a card, still rendering, in a font nobody
+             chose. Exactly the failure mode the constant above was unified to prevent, reachable
+             through the QUERY instead of through the name. */
+          `https://fonts.googleapis.com/css2?family=${BRAND_FONT.replace(/ /g, "+")}:wght@600`,
           {
             headers: {
               "User-Agent":

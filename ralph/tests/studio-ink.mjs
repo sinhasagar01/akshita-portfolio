@@ -1331,8 +1331,18 @@ t("E6: the projects header row colours itself, so its Preview anchor inherits �
   // `tablist` with `aria-selected` driving a tabpanel. The roles differ, so the languages differ —
   // that is the rule working, not an exception to it. Asserted so that "make them match" cannot
   // quietly take the selection language with it.
+  /* ⚠ THE THIRD CONDITION TESTED A BORDER RADIUS AND THE ROW'S TITLE SAYS "FILL", WHICH IS A
+   * VOCABULARY NARROWER THAN ITS OWN CONCEPT. It read `rounded-full` on the button's class string.
+   * The ASYMMETRY is what shows it: the underline row below tests `border-b-2`, and that IS the
+   * underline, so the fill row should test the FILL. A pill's roundness is its shape.
+   *
+   * It went red when the sheet grammar squared the control, which removed the radius and touched
+   * the fill not at all — a true row failing for a property it was never about. Pointed at the
+   * accent background on the animated pill, it now fails only if the fill actually leaves, which is
+   * the thing C-20 forbids taking away. */
   t("J3: the public hero is a GROUP and carries the fill",
-    [/role="group"/.test(heroPub), /layoutId="hero-tab-pill"/.test(heroPub), /rounded-full/.test(pubCls)],
+    [/role="group"/.test(heroPub), /layoutId="hero-tab-pill"/.test(heroPub),
+      /layoutId="hero-tab-pill"[\s\S]{0,400}?backgroundColor:\s*"var\(--hx-accent\)"/.test(heroPub)],
     [true, true, true]);
   t("J3: the studio panel is a real TABLIST and carries the underline",
     [/role="tablist"[\s\S]{0,200}?aria-label="Hero tabs"/.test(heroStudio),

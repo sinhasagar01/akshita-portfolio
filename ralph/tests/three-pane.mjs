@@ -189,10 +189,14 @@ t("A: the dashboard layout clamps the cookie as it reads it",
    * theme it belongs to is the mutation that makes the data a file nobody validates. The body
    * font is the thing the measure is OF, so the two are asserted against each other. */
   t("A0: the recorded body font is the one the site actually ships — the measure is OF that face",
-    m.bodyFont, "Work Sans");
+    m.bodyFont, "IBM Plex Sans");
 }
 
-t("A: PANES_SUM is 989 — list + measure, WITHOUT the sidebar or the inspector", PANES_SUM, 989);
+/* ⚠ 989 -> 965, AND A SECOND FONT CHANGE IS WHAT MOVED IT. `--font-body` went from Work Sans to
+ * IBM Plex Sans, 68ch fell from 676.734px to 652.797px, so the canvas floor is ceil(652.797+48) =
+ * 701 and this sum is 264 + 701. The figure stays PINNED rather than derived: deriving it from
+ * PANES_SUM would compare the constant to itself, which is the row that cannot fail. */
+t("A: PANES_SUM is 965 — list + measure, WITHOUT the sidebar or the inspector", PANES_SUM, 965);
 t("A: the arithmetic reproduces it", 264 + BLOG_CANVAS_MIN_PX, PANES_SUM);
 t("A: INSPECTOR_FOLD_PX is 1100", INSPECTOR_FOLD_PX, 1100);
 t("A: the fold is below the fit threshold at every legal sidebar width",
@@ -220,9 +224,27 @@ const LAPTOP_PAGE = 1521; // a 1536 viewport minus the reserved scrollbar gutter
  * laptop fit at EVERY width fails here and reopens the question honestly. */
 t("A: the 1536 laptop now FITS blog's three panes at the MINIMUM sidebar width — the measure narrowed and the threshold moved with it",
   LAPTOP_PAGE >= SIDEBAR_MIN_PX + PANES_SUM + INSPECTOR_FALLBACK, true);
-t("A: …and still does NOT fit at the DEFAULT sidebar width, which is what keeps the collapse control load-bearing on this machine",
-  LAPTOP_PAGE < SIDEBAR_DEFAULT_PX + PANES_SUM + INSPECTOR_FALLBACK, true);
-t("A: …nor at the widest, so the control spans the band rather than a single width",
+/* ⚠ THE VERDICT FLIPPED A SECOND TIME, AND THE PROPERTY IS RESTATED RATHER THAN THE NUMBER NUDGED
+ * — WHICH IS THE RULE THE COMMENT ABOVE STATES, APPLIED TO ITSELF.
+ *
+ * The face swap to IBM Plex Sans narrowed the measure again, 676.734 to 652.797, so PANES_SUM fell
+ * 989 to 965 and every threshold came down 24px with it:
+ *
+ *     sidebar min      184 + 965 + 320 = 1469   laptop 1521  FITS
+ *     sidebar default  236 + 965 + 320 = 1521   laptop 1521  FITS, EXACTLY
+ *     sidebar widest   288 + 965 + 320 = 1573   laptop 1521  does not fit
+ *
+ * ⚠ THE DEFAULT NOW TIES TO THE PIXEL, AND THAT IS ASSERTED AS AN EQUALITY RATHER THAN SWEPT INTO
+ * A `>=`. A one-pixel move in the measure flips this row's verdict, which is the most fragile state
+ * a threshold can be in, and the honest thing is to make it loud. If the body face changes again by
+ * any amount, this row fails and somebody re-reads the band instead of inheriting a coincidence.
+ *
+ * WHAT THE ORIGINAL ROW PROTECTED SURVIVES: the collapse control is still load-bearing on this
+ * machine, now only in the widest band rather than at the default and above. The claim narrowed
+ * because the geometry moved, not because the assertion was loosened to accommodate it. */
+t("A: …and fits EXACTLY at the DEFAULT sidebar, where the threshold equals the page width to the pixel",
+  SIDEBAR_DEFAULT_PX + PANES_SUM + INSPECTOR_FALLBACK, LAPTOP_PAGE);
+t("A: …and still does NOT fit at the widest, which is what keeps the collapse control load-bearing on this machine",
   LAPTOP_PAGE < SIDEBAR_MAX_PX + PANES_SUM + INSPECTOR_FALLBACK, true);
 
 /* ================================================================= B. the collapse rule

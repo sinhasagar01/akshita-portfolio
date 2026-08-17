@@ -1,6 +1,6 @@
 import Container from "@/components/layout/Container";
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SheetSectionHead from "@/components/sheet/SheetSectionHead";
 import type { ExperienceListItem } from "@/lib/keystatic";
 import { selectCurrentExperience } from "./experience-current";
 
@@ -51,12 +51,11 @@ export default function ExperienceSection({ experience }: Props) {
   return (
     <SectionWrapper id="experience" className="scroll-mt-20">
       <Container>
-        <SectionHeading
-          index="04"
+        <SheetSectionHead
+          sheet="04"
           title="Experience"
-          subtext="Where I have shaped products, the most recent first."
-          variant="default"
-          tone="warm"
+          mark={`Service record · ${experience.length} roles`}
+          lede="Where I have shaped products, the most recent first."
         />
         <div className="mt-8 sm:mt-[52px]">
 
@@ -64,7 +63,7 @@ export default function ExperienceSection({ experience }: Props) {
           {feature && (
           <div
             className="relative overflow-hidden mb-[30px]"
-            style={{ background: "var(--color-cream-200)", borderRadius: "14px", padding: "28px 30px" }}
+            style={{ background: "var(--color-cream-200)", padding: "28px 30px" }}
           >
             {/* Static warm glow — inside the card, clipped by overflow hidden */}
             <div
@@ -118,7 +117,7 @@ export default function ExperienceSection({ experience }: Props) {
                 {previous.map((entry) => (
                   <div
                     key={entry.slug}
-                    className="grid grid-cols-1 lg:grid-cols-[170px_1fr] gap-x-6 gap-y-1 px-3 py-[15px] rounded-[10px] transition-colors duration-300 hover:bg-cream-200 border-b border-[color-mix(in_srgb,_var(--color-ink-800)_9%,_transparent)] last:border-b-0"
+                    className="grid grid-cols-1 lg:grid-cols-[170px_1fr] gap-x-6 gap-y-1 px-3 py-[15px] transition-colors duration-300 hover:bg-cream-200 border-b border-[color-mix(in_srgb,_var(--color-ink-800)_9%,_transparent)] last:border-b-0"
                   >
                     <div className="text-[13.5px] text-text-subtle">
                       {entry.startDate} – {entry.endDate}

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SheetSectionHead from "@/components/sheet/SheetSectionHead";
 import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 import RevealSection from "@/components/motion/RevealSection";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
@@ -104,12 +104,11 @@ export default function AboutSection({ settings }: Props) {
           style={{ padding: "48px 44px" }}
         >
 
-          <SectionHeading
-            index="03"
+          <SheetSectionHead
+            sheet="03"
             title="About"
-            subtext={subtext}
-            variant="default"
-            tone="grey"
+            mark="Drawn by"
+            lede={subtext}
           />
 
           <div className="mt-8 sm:mt-[52px] flex flex-col gap-5">
@@ -160,7 +159,7 @@ export default function AboutSection({ settings }: Props) {
                     color: "var(--color-text-secondary)",
                     backgroundColor: "var(--color-cream-200)",
                     border: "1px solid color-mix(in srgb, var(--color-rule) 16%, transparent)",
-                    borderRadius: "9999px",
+
                     padding: "7px 13px",
                   }}
                 >

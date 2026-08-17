@@ -48,7 +48,7 @@ const shell = code("components/studio/ThreePaneShell.tsx");
    * `A8a` defect, and this file is not going to grow one. */
   t("A1: each surface carries its own floor and its own by-role ceiling", INSPECTOR_BOUNDS, {
     cs:      { min: 267, max: 640, fallback: 320, cookie: "studio-inspector-w-cs" },
-    blog:    { min: 185, max: 725, fallback: 320, cookie: "studio-inspector-w-blog" },
+    blog:    { min: 185, max: 701, fallback: 320, cookie: "studio-inspector-w-blog" },
     /* ⚠ 248 IS DERIVED, NOT MEASURED — labelled HERE as well as at the declaration, because this
      * row is where the number is most likely to be read by someone deciding whether to trust it.
      * A figure carries its provenance or it acquires one from whoever reads it. The surface that
@@ -93,7 +93,7 @@ const shell = code("components/studio/ThreePaneShell.tsx");
   t("A1: …and it stays a leaf, because an import here would break the loader that tests it",
     /^import /m.test(code("lib/studio/inspector-width.ts")), false);
 
-  for (const [surface, min, max] of [["cs", 267, 640], ["blog", 185, 725]]) {
+  for (const [surface, min, max] of [["cs", 267, 640], ["blog", 185, 701]]) {
     const table = {};
     for (const v of [0, 1, Math.floor(min / 2), Math.floor(min / 2) + 1, min - 1, min, min + 1, 320, max, max + 1, 9999, -40, "abc", null])
       table[String(v)] = clampInspectorWidth(v, surface);

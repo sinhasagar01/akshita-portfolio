@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLenis } from "lenis/react";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SheetSectionHead from "@/components/sheet/SheetSectionHead";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
@@ -232,12 +232,11 @@ function LeftColumn({
 }) {
   return (
     <div>
-      <SectionHeading
-        index="02"
+      <SheetSectionHead
+        sheet="02"
         title="Process"
-        subtext="Watch a rough idea grow into the shipped design."
-        variant="default"
-        tone="grey"
+        mark={`Method · ${stages.length} stages`}
+        lede="Watch a rough idea grow into the shipped design."
       />
       <div className="mt-8 sm:mt-[52px]">
         <StageCopy stage={stages[active]} reduced={reduced} />
@@ -303,17 +302,22 @@ function StageCopy({ stage, reduced }: { stage: ResolvedStage; reduced: boolean 
           exit="exit"
           className="flex flex-col"
         >
-          <motion.span
-            variants={line}
-            className="text-meta font-medium uppercase tracking-ui"
-            style={{ color: "var(--color-accent)" }}
-          >
-            {stage.index}
+          {/* ⚠ THE STAGE MARK LOSES THE ACCENT, AND THAT IS THE SPEC RATHER THAN A PREFERENCE.
+              The accent has exactly four sanctioned uses in this direction — the current floor, the
+              readout figures, the outcome column and the resume control — and a stage eyebrow is
+              none of them. On an achromatic medium the illustration is meant to be the only colour,
+              so every unsanctioned accent is a second colour source. It takes the sheet's own mark
+              role, which is where every other sheet number on the page already lives.
+
+              AND IT READS `STAGE 01` RATHER THAN `01`. A bare numeral above a title IS the eyebrow
+              pattern the direction retires; a labelled mark is a drawing convention. The value is
+              unchanged — `stage.index` is already the string. */}
+          <motion.span variants={line} className="sheet-mono-label">
+            {`Stage ${stage.index}`}
           </motion.span>
-          <motion.h3
-            variants={line}
-            className="display-face italic text-subheading leading-snug tracking-snug mt-1 mb-2.5"
-          >
+          {/* Upright, 600, at the STUDY role. The size barely moves — 30px to a 31px clamp — so this
+              is a change of voice rather than of layout. */}
+          <motion.h3 variants={line} className="sheet-h3 mt-[10px] mb-[10px]">
             {stage.name}
           </motion.h3>
           <motion.p
@@ -330,7 +334,7 @@ function StageCopy({ stage, reduced }: { stage: ResolvedStage; reduced: boolean 
             {stage.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-tag px-[11px] py-1 rounded-full text-text-subtle leading-none"
+                className="text-tag px-[11px] py-1 text-text-subtle leading-none"
                 style={{
                   background: "var(--color-cream-200)",
                   border: "1px solid color-mix(in oklch, var(--color-text-primary) 14%, transparent)",

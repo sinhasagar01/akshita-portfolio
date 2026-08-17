@@ -554,12 +554,15 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      of the paragraph directly above it. */
   --color-studio-ground: oklch(92.0% 0.022 78);
 
-  --font-source-serif:  var(--font-source-serif-loaded, "Iowan Old Style", Charter, Georgia, serif);
-  --font-work-sans:     var(--font-work-sans-loaded, Avenir, "Avenir Next", ui-sans-serif, system-ui, sans-serif);
+  /* ⚠ THE FALLBACKS ARE GROTESQUES NOW, AND THEY MATTER MORE THAN THEY LOOK. A fallback is what
+     renders during `swap` and if the file never arrives, so a serif fallback under a grotesque role
+     would reflow the whole page mid-load. `ui-sans-serif` first lets each platform supply its own
+     system grotesque, which is the closest available match to Plex's proportions. */
+  --font-ibm-plex-sans: var(--font-ibm-plex-sans-loaded, ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif);
+  --font-ibm-plex-mono: var(--font-ibm-plex-mono-loaded, ui-monospace, "SF Mono", Menlo, monospace);
   --font-space-grotesk: var(--font-space-grotesk-loaded, "Helvetica Neue", Helvetica, ui-sans-serif, sans-serif);
   --font-script:  var(--font-script-loaded, "Kaushan Script", cursive);
   --font-doodle:  var(--font-doodle-loaded, "Caveat", cursive);
-  --font-mono:    ui-monospace, "JetBrains Mono", monospace;
 
   /* ---- THE ROLES. Three lines, and the swap edits exactly these three. ------------------
      Today two of them point at the outgoing faces, so the rendered result is unchanged.
@@ -576,7 +579,11 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      and meta sharing one tracking, 9px micro. If metadata genuinely needs a different tracking
      from a group heading, that is a case for a second TRACKING token against one size, never
      for a second size. */
-  --font-display: var(--font-source-serif);
+  /* ⚠ DISPLAY AND BODY NOW RESOLVE TO ONE FAMILY, AND THEY STAY TWO TOKENS ON PURPOSE. The
+     direction sets no serif anywhere and names one system for both roles. Collapsing them into a
+     single token would make the vocabulary smaller than the design — the day a display face
+     diverges again, two roles is one edit and one role is a search. */
+  --font-display: var(--font-ibm-plex-sans);
   /* ⚠ THE BODY FAMILY IS A LAYOUT INPUT, NOT A TYPOGRAPHIC ONE, AND THAT IS THIS LINE'S WHOLE
      STORY. `ch` is the width of the `0` glyph in the element's OWN font, and the blog measure is
      `max-w-[68ch]` on a `<main>` that inherits its family from `html`. So repointing this token
@@ -586,9 +593,20 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      Nothing in the typography contract anticipated that a font change reaches the layout.
      THE WORKING RULE, so the next family swap does not rediscover it: a `ch` unit makes the body
      font a layout input, so a family swap is a geometry change wearing a typography change's
-     clothes. Every derived constant moves in this same commit. */
-  --font-body:    var(--font-work-sans);
+     clothes. Every derived constant moves in this same commit.
+
+     ⚠ AND THAT RULE WAS FOLLOWED THIS TIME, WITH ONE CORRECTION TO ITS OWN CLAIM. The named
+     constants are ALREADY DERIVED — `BLOG_CANVAS_MIN_PX` computes from `THEME_METRICS`, `PANES_SUM`
+     computes from that, and `INSPECTOR_FOLD_PX` is chosen rather than summed and does not move. So
+     "every derived constant moves in this commit" reduces to ONE browser-measured number per body
+     face, which is exactly what the metrics map exists to hold. The rule is right; the work it
+     implies is smaller than it sounds, because a previous arc already did the hard half. */
+  --font-body:    var(--font-ibm-plex-sans);
   --font-label:   var(--font-space-grotesk);
+  /* ⚠ MONO IS A ROLE WITH A FILE NOW, WHERE IT WAS A BARE PLATFORM STACK. Every sheet mark, plate
+     number and readout key reads this, and until now they rendered in whatever mono the visitor's
+     OS supplied — so the label system that carries this direction differed per machine. */
+  --font-mono:    var(--font-ibm-plex-mono);
 
   --text-xs:   clamp(0.694rem,  0.67rem  + 0.12vw, 0.75rem);
   --text-sm:   clamp(0.833rem,  0.80rem  + 0.15vw, 0.875rem);
@@ -2536,7 +2554,7 @@ a {
 .hero-tabs {
   position: relative; display: flex; gap: 2px; flex-wrap: wrap;
   margin: 26px 0 0; width: max-content; max-width: 100%;
-  border: 1px solid var(--hx-rule); border-radius: 999px; padding: 3px;
+  border: 1px solid var(--hx-rule); padding: 3px;
   background: color-mix(in srgb, var(--hx-surface) 30%, transparent);
 }
 /* ⚠ THE BODY STARTS AT THE TOP OF ITS ROW RATHER THAN CENTRING IN IT, WHICH IS WHAT CLOSED A 132px
@@ -4096,7 +4114,6 @@ a {
 .work-card:focus-visible {
   outline: 2px solid var(--color-accent-500);
   outline-offset: 10px;
-  border-radius: 14px;
 }
 
 .wc-shot {
@@ -4323,7 +4340,6 @@ a {
   margin-top: 20px;
   padding: 3px;
   border: 1px solid color-mix(in oklch, var(--color-etch) 8%, transparent);
-  border-radius: 99px;
   background: var(--color-surface);
 }
 .wf-thumb {
@@ -4341,7 +4357,6 @@ a {
   top: 3px;
   left: 3px;
   height: calc(100% - 6px);
-  border-radius: 99px;
   /* ⚠ THE ACCENT ROLE, AND IT CLEARS BOTH FLOORS ON ALL NINE — WHICH NOTHING HAD MEASURED.
      This was `text-primary`, an inverted ink ground, chosen because `ink-950` measured 1.17 on
      sapphire. That note is about a RUNG failing on a DARK palette; it was then used to rule out a
@@ -4373,7 +4388,6 @@ a {
   content: "";
   position: absolute;
   inset: -3px 0;
-  border-radius: 99px;
 }
 .work-filter button {
   position: relative;
@@ -4383,7 +4397,6 @@ a {
   cursor: pointer;
   background: transparent;
   padding: 10px 20px;
-  border-radius: 99px;
   font-size: 12.5px;
   font-weight: 500;
   letter-spacing: 0.09em;
@@ -4519,7 +4532,6 @@ a {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   padding: 7px 13px;
-  border-radius: 9999px;
   pointer-events: none;
 }
 
@@ -4535,7 +4547,6 @@ a {
   /* ⚠ `band-dark`, NOT `etch` — see the note on `.ab-cap`. Same defect, same photo, same fix. */
   background: color-mix(in srgb, var(--color-band-dark) 38%, transparent);
   padding: 5px 11px;
-  border-radius: 9999px;
   pointer-events: none;
 }
 
@@ -4880,7 +4891,6 @@ a {
   color: var(--color-text-secondary);
   background: var(--color-cream-200);
   border: 1px solid color-mix(in srgb, var(--color-rule) 16%, transparent);
-  border-radius: 999px;
   cursor: default;
   user-select: none;
   transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s;
@@ -6023,6 +6033,418 @@ a {
     transform: rotate(0deg) translateY(0);
   }
 }
+
+/* ============================================================================================
+   THE SHEET GRAMMAR — six devices, three line weights, three mono sizes, ZERO new tokens.
+
+   The direction is a drawing sheet read through an index rail, section rules, plate frames, a
+   readout band, margin notes and an inspection block. Everything on the page is built from
+   those six, which is what stops eleven case-study sections becoming eleven inventions.
+
+   ⚠ THE SPEC ASKED FOR A NEW `reference` ROLE AND IT IS DELIBERATELY NOT ADDED. That role was
+   justified by a palette named Machine Room, whose reference value was a teal distinct from its
+   secondary text. THAT PALETTE WAS NEVER BUILT. On `drawing-office`, the one medium that
+   shipped, the spec sets reference and secondary text to the SAME value — so on every palette
+   this repository actually has, the new role would resolve identically to a role that already
+   exists. That is a second spelling entering the vocabulary at birth, which this record deletes
+   on sight. The trigger for adding it is a palette where the two genuinely differ.
+
+   ⚠ AND THE SPEC NAMED THE WRONG ROLE FOR THE OBJECT LINE, WHICH IS THE ONE MAPPING WORTH
+   READING TWICE. It calls the object line `border`. In this repository that role aliases the
+   third cream rung, which on `drawing-office` is lightness 88% against a 95.5% ground — it
+   cannot clear the 3.0 non-text floor that the spec ITSELF calls the tightest quantity in the
+   whole direction. `rule` is the role that can: it holds a mid lightness on every palette
+   precisely because, in its own words, an extreme must invert and a mid-tone must not. So the
+   object line is `rule`, the spec's own floor is met, and no token was added to meet it.
+
+   ⚠ AND THE DEVICES CARRY NO HORIZONTAL PADDING, WHICH IS AN ADAPTATION RATHER THAN A DEVIATION.
+   The approved sheet was ONE full-bleed document and paid for its own gutters through a padding
+   custom property. The home page is not that: its sections already sit inside a padded
+   container. Devices that also padded would double-indent every row. The bleed class below is
+   the opt-in for the two devices that genuinely span the viewport, and it is the only place the
+   gutter is spent.
+   ============================================================================================ */
+
+.sheet-scope {
+  /* THE THREE LINE WEIGHTS, AND THERE ARE ONLY THREE. Hair subdivides, object outlines anything
+     drawn, boundary marks a sheet edge and has exactly three uses on the page. A fourth weight
+     is how a drawing stops reading as a drawing. */
+  --sheet-hair: color-mix(in oklch, var(--color-etch) 12%, transparent);
+  --sheet-object: var(--color-rule);
+  --sheet-boundary: var(--color-accent);
+  /* Sheet marks, plate numbers and corner ticks. The quiet text role rather than a new one. */
+  --sheet-mark: var(--color-text-secondary);
+  --sheet-gutter: clamp(20px, 4.6vw, 66px);
+}
+
+/* ⚠ THE RADIUS RESET LIVES IN `base`, NOT UNLAYERED, AND THAT IS A CORRECTION TO THE SPEC'S
+   "one reset" INSTRUCTION RATHER THAN A REFUSAL OF IT. An unlayered universal rule outranks
+   every utility, which is the exact hazard this stylesheet has already logged five times against
+   its own element resets — a class that asks for one thing and draws another. In `base` the
+   reset still covers every child by default, so it is a mechanism rather than a discipline, and
+   a deliberate utility can still win. What catches an ACCIDENTAL radius is a gate, not
+   specificity. */
+@layer base {
+  .sheet-scope * {
+    border-radius: 0;
+  }
+}
+
+/* THE THREE MONO SIZES AND THE ONE TRACKING VALUE. The audit that produced this direction found
+   nine mono sizes and eight tracking values in its own first pass, so this is the part most
+   likely to erode. The single sanctioned exception is the sheet mark's wider tracking, and it is
+   named here so it cannot spread by imitation. */
+.sheet-mono-micro,
+.sheet-mono-label,
+.sheet-mark-text {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  color: var(--sheet-mark);
+}
+.sheet-mono-micro {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  line-height: 1.7;
+}
+.sheet-mono-label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  line-height: 1.6;
+}
+/* The exception, and the only one. */
+.sheet-mark-text {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  line-height: 1.6;
+}
+/* The only mono anyone actually reads, so it takes no tracking and stays sentence case. */
+.sheet-mono-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--color-text-primary);
+}
+
+/* THE SECTION AND LEDE TYPE ROLES, from the specification's own table. Six roles, two families,
+   no serif anywhere. The heading is 600 because a section heading must not be lighter in weight
+   than the heading it outranks — this stylesheet already carries that finding, from a case where
+   size said "more important" and weight said "less" and the two axes cancelled into one level. */
+.sheet-h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(23px, 3.2vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+  color: var(--color-text-primary);
+  max-width: 24ch;
+  text-wrap: balance;
+}
+/* The specification's STUDY role — plate titles and stage heads, the level below a sheet opener.
+   ⚠ NOT ITALIC, AND THE SLANT IS THE WHOLE POINT OF THE ROLE EXISTING. The heads this replaces were
+   the display face at 400 in italic, which the direction retires by name along with the eyebrow
+   numeral above them. The SIZE barely moves: `--text-subheading` is 30px and this clamps to 31px at
+   a wide viewport, so the box stays and the voice changes. Weight goes 400 to 600 for the same
+   reason `.sheet-h2` is 600 — a head must not be lighter than what it outranks. */
+.sheet-h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(21px, 2.5vw, 31px);
+  line-height: 1.12;
+  letter-spacing: -0.019em;
+  color: var(--color-text-primary);
+  text-wrap: balance;
+}
+.sheet-lede {
+  margin: 0;
+  font-size: clamp(15px, 1.15vw, 16.5px);
+  line-height: 1.66;
+  color: var(--color-text-secondary);
+  max-width: 48ch;
+  text-wrap: pretty;
+}
+
+/* DEVICE — THE SECTION RULE. Sheet number left, title right, a 1px object line between.
+   ⚠ IT IS NOT AN EYEBROW ABOVE A HEADING AND IT CARRIES NO HEADING AT ALL. The retired
+   component owned its own heading element, which is why swapping to this device moves the
+   heading OUT to the section that owns it. A rule with labels on it and a heading are two
+   different elements, and collapsing them is what produced the eyebrow pattern this direction
+   retires. */
+.sheet-rule {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+.sheet-rule > .sheet-rule-line {
+  flex: 1;
+  height: 1px;
+  background: var(--sheet-object);
+}
+
+/* DEVICE — THE PLATE FRAME. Everything visual is mounted this way, the illustration included.
+   The ticks sit at two corners rather than four, which is the printed convention and also the
+   thing that stops the frame reading as a card. */
+.sheet-plate {
+  position: relative;
+  border: 1px solid var(--sheet-object);
+  background: var(--color-surface);
+}
+/* ⚠ THE TICKS ARE NOT SCOPED TO `.sheet-plate`, BECAUSE THE FRAME HAS TWO CONSUMERS. They were
+   written as descendants of the plate when it had one. The work card's image is the second, and it
+   is not a `.sheet-plate` — it is an existing frame that becomes one, so a descendant selector
+   would have forced either a class it does not want or a duplicated rule. A tick is a mark, and a
+   mark does not care what it is cornering. */
+/* ⚠ AND THE MARK FALLS BACK TO `transparent`, WHICH IS WHAT MAKES A TICK SAFE TO RENDER
+   UNCONDITIONALLY. `--sheet-mark` is declared on the scope, and `ProjectCard` is mounted outside it
+   too — by the studio's details canvas and by two dev harness routes. With no fallback the shorthand
+   resolves its colour to `currentColor`, so a tick would draw in the TEXT colour on every surface
+   that is not a sheet. Defaulting to transparent means the mark exists in the markup everywhere and
+   paints only where the grammar is in scope, so no consumer needs a flag. */
+.sheet-tick {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--sheet-mark, transparent);
+}
+/* Offset by the frame's own width so the tick sits ON the keyline rather than inside it. */
+.sheet-tick-tl {
+  left: -1px;
+  top: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.sheet-tick-br {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+.sheet-plate > .sheet-plate-caption {
+  position: absolute;
+  right: 9px;
+  bottom: 8px;
+  text-align: right;
+}
+
+/* DEVICE — THE READOUT BAND. Full bleed, a 2px boundary on top, figures at display scale in the
+   signal colour with mono keys beneath. Tabular figures matter here: the numbers are meant to be
+   compared down the row, and proportional digits make that harder for no benefit. */
+.sheet-readout {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 2px solid var(--sheet-boundary);
+  border-bottom: 1px solid var(--sheet-object);
+}
+.sheet-readout > * {
+  flex: 1 1 150px;
+  padding: clamp(15px, 2vw, 24px) 0;
+  border-right: 1px solid var(--sheet-hair);
+}
+.sheet-readout > *:last-child {
+  border-right: 0;
+}
+.sheet-readout .sheet-readout-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(25px, 3.4vw, 42px);
+  line-height: 1;
+  letter-spacing: -0.024em;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+.sheet-readout .sheet-readout-key {
+  margin-top: 10px;
+}
+
+/* DEVICE — THE MARGIN NOTE. Numbered, mono, rule above. This is where the voice lives and on an
+   achromatic medium it is the entire personality budget, which is why it gets a device of its own
+   rather than being a paragraph somewhere. */
+.sheet-note {
+  max-width: 64ch;
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 20px;
+}
+.sheet-note > .sheet-note-number {
+  border-top: 1px solid var(--sheet-mark);
+  padding-top: 10px;
+  color: var(--sheet-mark);
+}
+.sheet-note > .sheet-note-body {
+  border-top: 1px solid var(--sheet-hair);
+  padding-top: 10px;
+}
+
+/* DEVICE — THE INSPECTION BLOCK. Drawn by, base, revision, status. Availability is stated as a
+   FIELD rather than as a banner, which is the whole point of the device: a drawing sheet does not
+   advertise, it records. */
+.sheet-inspection {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--sheet-object);
+}
+.sheet-inspection > * {
+  flex: 1 1 128px;
+  padding: 13px 0 16px;
+  border-right: 1px solid var(--sheet-hair);
+}
+.sheet-inspection > *:last-child {
+  border-right: 0;
+}
+.sheet-inspection .sheet-field-value {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--color-text-primary);
+}
+
+/* The opt-in gutter, for the two devices that genuinely span the viewport. */
+.sheet-bleed {
+  padding-left: var(--sheet-gutter);
+  padding-right: var(--sheet-gutter);
+}
+
+/* ============================================================================================
+   RETIRING THE CARD — a section becomes a BAND of the sheet rather than a panel floating on it.
+
+   The direction retires cards as page structure, all radius and every shadow. On a drawing sheet
+   the regions are divided by RULES, and the section rule above already does that job — so a card
+   ground beneath it is the old language contradicting the new one inside the same element.
+
+   ⚠ THIS IS SCOPED TO `.sheet-scope` AND MUST STAY THAT WAY, BECAUSE `.section-card` IS SHARED
+   WITH TWO SURFACES THIS UNIT DOES NOT OWN. Measured rather than assumed: it is applied by
+   `SectionWrapper`, `RevealSection` and `ProcessSection` on the home page, and ALSO by
+   `CaseStudyView`, five sites in `SectionRenderer` and two in `BeforeAfterStory`. The case-study
+   ones render the public article AND the studio canvas through the same components, so editing
+   the base class would move a box on both sides of the parity contract — which that contract
+   forbids in as many words. The home page carries the scope class; nothing else does.
+
+   ⚠ AND THE GROUND IS `transparent` RATHER THAN THE PAGE GROUND NAMED EXPLICITLY. Naming it would
+   be a component choosing a value for one ground class, and the page ground is a different token
+   on light and dark palettes. Transparent inherits whatever is actually behind it, on all ten,
+   with no per-class decision — the same reasoning that makes an alpha-based role work where a
+   finished colour does not.
+
+   ⚠ AND IT INVALIDATES A RECORDED MEASUREMENT, WHICH IS THE PART TO KNOW BEFORE READING ANY
+   FIGURE NEAR IT. `HomePaletteTeaser` establishes by `elementsFromPoint` that its pill composites
+   onto the PROCESS CARD's opaque ground rather than onto the page, and its contrast figures were
+   re-measured against that ground after two wrong assumptions. Removing the card ground moves the
+   pill onto the page ground, so those numbers describe a stack that no longer exists. Re-measuring
+   the pill belongs to this change rather than to a follow-up.
+   ============================================================================================ */
+.sheet-scope .section-card {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+/* Both reveal states lose the card colour. The reveal itself is unaffected — it is carried by the
+   clip and the visibility switch, so the colour leg becomes a no-op rather than being removed from
+   a shared transition list. */
+.sheet-scope .reveal-panel,
+.sheet-scope .reveal-panel.is-revealed {
+  background-color: transparent;
+}
+
+/* ============================================================================================
+   THE WORK PLATES — the card's image frame BECOMES the plate frame rather than being replaced.
+
+   `.wc-shot` was already a framed box with a keyline, a mount and a fixed ratio. Three things
+   made it a card instead of a plate: a 12px radius, a keyline on the wrong role, and no corner
+   ticks. All three are addressed here and the box does not move, which is what keeps the hover
+   veil, the platform glow, the cascade recede and the filter's repack working untouched.
+
+   ⚠ THE KEYLINE MOVES OFF `border` FOR THE SAME REASON THE SECTION RULE DID, and this is the
+   second consumer to need it. That role aliases the third cream rung — lightness 88% against a
+   95.5% ground on `drawing-office` — so a plate keyline drawn with it cannot clear the 3.0 floor
+   the direction sets for anything drawn. `rule` holds a mid lightness on every palette. Both the
+   section rule and the plate keyline are the OBJECT weight in the spec's own table, so they now
+   resolve to one value rather than to two that happened to look alike on cream.
+
+   ⚠ AND THE MOUNT TAKES `surface-well` RATHER THAN THE CREAM RUNG IT HAD, BECAUSE A RUNG DOES NOT
+   FOLLOW THE GROUND. Read from the dark block: `surface-well` remaps to a mix of the dark
+   foreground over `band-dark`, so the mount is a near-black panel on a dark palette and a light
+   one on a light palette. `cream-200` is declared per palette but is NOT in the dark ground
+   remap, so it stays a light value — a light plate mount on a near-black page, which is the
+   mid-page-ground defect this record already carries. Nothing on screen moves on the five light
+   palettes; the four dark ones stop drawing a pale slab.
+   ============================================================================================ */
+.sheet-scope .wc-shot {
+  border-radius: 0;
+  border-color: var(--sheet-object);
+  background: var(--color-surface-well);
+}
+/* ⚠ THE TICKS PULL IN TO ZERO HERE, AND THE FRAME'S OWN CLIP IS WHY. `.wc-shot` keeps
+   `overflow: hidden` so a filled image cannot escape the box, and a tick at -1px would be cut off
+   by exactly the rule that holds the picture in. Sitting just inside the keyline is one pixel from
+   sitting on it, and it is the pixel that survives. */
+.sheet-scope .wc-shot > .sheet-tick-tl {
+  left: 0;
+  top: 0;
+}
+.sheet-scope .wc-shot > .sheet-tick-br {
+  right: 0;
+  bottom: 0;
+}
+
+/* ============================================================================================
+   THE RADIUS, KILLED AT SOURCE — 41 of the 53 rounded elements on this page, and the 12 that stay.
+
+   ⚠ REMOVED AT EACH SOURCE RATHER THAN OVERRIDDEN BY ONE RESET, WHICH DEPARTS FROM THE SPEC'S
+   INSTRUCTION, AND THE REASON IS THIS STYLESHEET'S OWN HISTORY. The spec says radius is zero
+   everywhere, "enforced by one reset rather than per component". A reset strong enough to do that
+   must outrank the utilities layer, which means unlayered — and this file has already paid for
+   five unlayered element resets that made author utilities inert, then spent four separate changes
+   lifting 92 of them back out. Squaring by override would have left fifty-odd rounding classes in
+   the markup asking for a shape nothing draws, which is a lie in the markup that happens to look
+   right. The declarations are gone instead, so the markup and the render agree. The `base` reset
+   further up stays as the catcher for anything that arrives later.
+
+   SQUARED, and every one is interface chrome drawn in the site's voice — the work filter with its
+   track, thumb and three buttons; twenty skill pills; the About photo caption, its hover hint and
+   four focus chips; the Experience feature block and its four rows; three Process stage tags; the
+   Contact panel and its submit button; the work card's focus ring.
+
+   ⚠ AND THE HERO TAB GROUP MOVED WITH THE WORK FILTER THOUGH THE HERO IS OUTSIDE THE SCOPE,
+   BECAUSE THE RECORD ESTABLISHES THEY ARE ONE LANGUAGE. Both are grouped pressed-state controls,
+   both draw a max-content pill group with a hairline track and a filled selected state, and the
+   entry that settled that says a matched pair with one failing half is the shape to refuse.
+   Squaring one and leaving the other is exactly that. This touches the hero's RADIUS only — the
+   separate entry about the hero owning its own typographic system is about faces, sizes and
+   weights, and is untouched.
+
+   ⚠ AND THE FOCUS RING WAS NEARLY MISSED BY A FIRST-MATCH REGEX, WHICH IS WORTH THE LINE.
+   `.work-card:focus-visible` is declared TWICE — once as a one-line custom-property setter and
+   once as the ring. A sweep keyed to the first occurrence reported "no radius here" and was
+   correct about a block that never had one. The census could not have caught it either, because a
+   focus ring is not rendered until something is focused.
+
+   KEPT, and the discriminator is the one this record already uses for colour — is the thing drawn
+   in the site's voice, or is it the shape the depicted object actually has?
+
+     4  Process illustration cards   248x320 at 18px   depicted paper, not a UI panel
+     4  Process stepper markers      24x24 at 50%      a circle is a shape, not a box radius
+     1  Experience 6px dot           the comp keeps its own dots circular
+     1  Experience decorative blob   280x200 at 50% — an ellipse; squaring makes a square glow
+     1  Skills glow                  560x280 at 50% — same
+     1  cursor glow                  820x820 at 50% — same
+   Re-censused after the change: 12 remain, and they are exactly those. 41 plus 12 is the 53.
+
+   ⚠ AND TWO MORE ARE KEPT THAT WERE NEVER IN THE 53, WHICH IS WORTH STATING SO THE ARITHMETIC IS
+   NOT READ AS THE WHOLE POPULATION. Contact's 14px spinner ring and its 46px success disc render
+   only while sending and after sending, so an idle census cannot see them. Both stay circular — a
+   square spinner is a different object — and neither was touched. A census of a page in one state
+   is a census of that state.
+
+   ⚠ OUT OF SCOPE AND DELIBERATELY UNTOUCHED, so nobody reads this as finished. The nav is on this
+   page and on every other one, so squaring it is a site-wide chrome decision rather than a
+   home-page one. The blog, the gallery, the case studies and the studio's own frozen radius scale
+   all still carry theirs, and the case studies are where the order of work puts them, after this.
+   ============================================================================================ */
 
 /* ============================================================ STUDIO RADIUS SCALE
    Local design vars scoped to /studio — NO new @theme token, the same rule the Pearl
