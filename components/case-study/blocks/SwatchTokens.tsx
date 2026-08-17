@@ -19,7 +19,7 @@ export default function SwatchTokens({ groups }: { groups: TokenGroup[] }) {
               <div key={ti} className="flex items-center gap-2.5">
                 <span
                   aria-hidden="true"
-                  className="size-[34px] shrink-0 rounded-[10px]"
+                  className="size-[34px] shrink-0"
                   style={{ background: t.value, boxShadow: "inset 0 1px 2px color-mix(in srgb, var(--color-white) 40%, transparent)" }}
                 />
                 <span>

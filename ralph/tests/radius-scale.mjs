@@ -129,5 +129,128 @@ if (offenders.length) {
 t(`B1: every radius utility in app + components + lib resolves to a declared @theme step${offenders.length ? " — see above" : ""}`,
   offenders.map((o) => `${o.where} ${o.utility} (--radius-${o.step} undeclared)`), []);
 
+/* ================================================ C. THE CASE-STUDY RADIUS CENSUS
+ * ⚠ THE SHEET GRAMMAR'S RADIUS RESET CANNOT REACH A UTILITY, WHICH IS WHY THIS IS A LIST AND NOT A
+ * RULE. `.sheet-scope * { border-radius: 0 }` sits in `@layer base`, and every radius utility sits
+ * in `@layer utilities`, which comes later and wins. The home page's radius unit therefore did
+ * BOTH — the layered reset for CSS-declared corners and a removal at SOURCE for utilities — and the
+ * four utilities it left behind are the tell: a radial glow, a 6px dot, a spinner ring and a 46px
+ * icon circle. Every one of them IS a circle.
+ *
+ * ⚠ SO THE RULING IS DERIVED FROM WHAT SHIPPED RATHER THAN FROM A PREFERENCE, and it is one
+ * sentence: A BOX AROUND CONTENT LOSES ITS RADIUS. A CIRCLE KEEPS IT BECAUSE IT IS ONE. A DEPICTED
+ * OBJECT KEEPS IT BECAUSE THE THING IT DRAWS IS ROUND. A CONTROL WAITS FOR THE NAV DECISION.
+ *
+ * The depicted half is the artwork rule this repository already states against a mechanical sweep:
+ * a phone bezel is near-black AND round because phones are, and the same six characters on a bezel
+ * and on a dark card mean different things. A blanket `.case-study *` reset would square the phone
+ * mockups and the browser windows, so the reset was NOT extended and 15 sites were judged instead.
+ *
+ * ⚠ AND THE CONTROLS ARE DEFERRED RATHER THAN FORGOTTEN. The nav is still a pill on every page and
+ * that is a standing owner decision; squaring a case study's buttons while the site's primary
+ * control stays round would answer it by accident, in the wrong place.
+ *
+ * ---- ⚠ THE BOUNDARY THIS WALK CANNOT SEE, STATED SO THE CENSUS IS NOT READ AS COMPLETE ---------
+ *
+ * THIS SECTION'S SUBJECT IS UTILITIES IN `.tsx`. Case-study corners also arrive from CSS, and those
+ * are a DIFFERENT POPULATION this walk is blind to by construction — measured on the rendered page:
+ * `.pr-card` at 12px and `.pr-dash` at 2px in the preview rail, `.pr-tick:focus-visible` at 3px,
+ * `.cs-preview-hint` as a pill, and `HeroAura`'s three 50% circles. The rail is a navigation
+ * CONTROL and the hint is an affordance, so both fall under the deferral above, and the aura
+ * circles are circles.
+ *
+ * A denominator computed inside a walk cannot see the walk's own edge, which this repository
+ * records against a `.tsx`-only sweep that missed 81 references in `globals.css`. Naming the second
+ * route here is the whole remedy: a reader who wants "every corner in a case study" needs both. */
+{
+  const dir = new URL("../../components/case-study/", import.meta.url).pathname;
+  const walkCs = (d, out = []) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const p = d + e.name;
+      if (e.isDirectory()) walkCs(p + "/", out);
+      else if (/\.tsx$/.test(e.name)) out.push(p);
+    }
+    return out;
+  };
+  const blank = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  /* ⚠ EVERY SURVIVOR IS NAMED WITH WHAT IT DRAWS, not merely counted. A total goes green when one
+     corner is retired and another added; a list fails ON ARRIVAL with the file that added it — the
+     shape `typography` section E was built for after three miscounts of a different population. */
+  const EXPECTED = {
+    "Annotation.tsx": ["CIRCLE — the 11px callout dot, which is a dot"],
+    "DeviceImage.tsx": [
+      "CONTROL — the studio Replace affordance, deferred with the nav decision",
+      "DEPICTED — the browser window frame the mock draws",
+      "DEPICTED — a chrome dot in the mock's title bar",
+      "DEPICTED — a chrome dot in the mock's title bar",
+      "DEPICTED — a chrome dot in the mock's title bar",
+      "DEPICTED — the url pill in the mock's chrome",
+      "DEPICTED — the laptop screen bezel, round because devices are",
+      "DEPICTED — the laptop's base bar, whose bottom corners are round because the case is",
+      "DEPICTED — the trackpad notch cut into that base bar",
+    ],
+    "ImagePreview.tsx": [
+      "CONTROL — a lightbox button, deferred with the nav decision",
+      "CONTROL — a lightbox button, deferred with the nav decision",
+    ],
+    "blocks/BeforeAfter.tsx": ["CIRCLE — the 6px bullet dot"],
+    "blocks/BeforeAfterStory.tsx": [
+      "CIRCLE — the 9px rail stop, drawn as a ring",
+      "CIRCLE — the 3px progress capsule, whose ends are round because it is a capsule",
+    ],
+    "blocks/FigureGrid.tsx": ["CONTROL — the studio Replace affordance, deferred with the nav decision"],
+    "blocks/Stepper.tsx": ["CIRCLE — the 9px step dot"],
+    "blocks/VideoEmbed.tsx": [
+      "DEPICTED — the browser window frame, sharing DeviceImage's ruling by design",
+      "DEPICTED — a chrome dot in the mock's title bar",
+      "DEPICTED — a chrome dot in the mock's title bar",
+      "DEPICTED — a chrome dot in the mock's title bar",
+      "DEPICTED — the url pill in the mock's chrome",
+      "DEPICTED — the video frame inside the same mock",
+      "CIRCLE — the 1.5px tag dot",
+    ],
+    "blocks/WorkStory.tsx": [
+      "CONTROL — the previous-feature button, deferred with the nav decision",
+      "CIRCLE — the 1.5px live dot",
+      "CONTROL — the next-feature button, deferred with the nav decision",
+    ],
+  };
+  /* ⚠ THE DIRECTIONAL VARIANTS ARE IN THE PATTERN, AND THE FIRST DRAFT LEFT THEM OUT — a matcher
+     narrower than its concept, inside the census written to stop exactly that, on the same day. It
+     read `rounded-(none|sm|…|full|[…])` and so could not see `rounded-b-lg` or `rounded-b-md`, which
+     is the laptop's base bar and its trackpad notch. Both are DEPICTED and neither ruling changed;
+     the COUNT was wrong by two and the census would have reported DeviceImage as complete.
+     Found by looking at the rendered page and asking where the bezels were. */
+  const RADIUS_UTIL = /\brounded(?:-(?:t|b|l|r|tl|tr|bl|br|s|e|ss|se|es|ee))?-(?:none|sm|md|lg|xl|2xl|3xl|full|\[[^\]]+\])/g;
+  const found = {};
+  const csFiles = walkCs(dir);
+  for (const f of csFiles) {
+    const rel = f.slice(dir.length);
+    const hits = blank(readFileSync(f, "utf8")).match(RADIUS_UTIL);
+    if (hits) found[rel] = hits.length;
+  }
+  const expectedCounts = Object.fromEntries(Object.entries(EXPECTED).map(([k, v]) => [k, v.length]));
+  t("C1 ⚠ THE CASE-STUDY RADIUS SURVIVORS ARE NAMED PER FILE — a new corner on a box fails here with the file that added it",
+    found, expectedCounts);
+  /* ⚠ THE DENOMINATOR, because a walk that reads nothing reports the same empty object as a
+     surface with no corners, and this section's subject IS a directory. */
+  t("C1a the case-study walk read real files, against a literal", csFiles.length >= 20, true);
+  t("C2 …and every survivor declares WHAT IT DRAWS in one of the three kinds a reader can disagree with",
+    Object.entries(EXPECTED).flatMap(([k, v]) =>
+      v.filter((r) => !/^(CIRCLE|DEPICTED|CONTROL) — .{12,}/.test(r)).map(() => k)), []);
+  /* ⚠ THE COMPLEMENT, AND IT IS THE HALF A MEMBERSHIP LIST ALWAYS NEEDS. A named list only ever
+     loosens — add a file and its corners become "expected" — so the files this unit squared are
+     asserted as ones it must NOT cover. Same shape as the italic census's E3. */
+  t("C3 ⚠ NO BOX GETS ITS CORNER BACK — the files this unit squared must not reappear",
+    ["StatCard.tsx", "PrincipleCard.tsx", "blocks/GlanceGrid.tsx", "blocks/FeatureRows.tsx",
+     "blocks/DeviceShelf.tsx", "blocks/SwatchTokens.tsx", "blocks/HeroCover.tsx"]
+      .filter((f) => f in found), []);
+  /* ⚠ AND THE KINDS ARE PINNED, so a category that drains cannot sit in the vocabulary unnoticed —
+     the defect `typography` E4 was added for one unit ago, on a different list in the same week. */
+  t("C4 the surviving kinds are exactly CIRCLE, CONTROL and DEPICTED — a fourth needs a decision, not a word",
+    [...new Set(Object.values(EXPECTED).flat().map((r) => r.split(" ")[0]))].sort(),
+    ["CIRCLE", "CONTROL", "DEPICTED"]);
+}
+
 console.log(`\nradius-scale result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

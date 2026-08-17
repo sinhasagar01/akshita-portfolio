@@ -29,8 +29,8 @@ export default function BeforeAfter({
           key={i}
           className={
             wide
-              ? "reveal-card flex flex-col items-center gap-9 rounded-xl border bg-surface p-8"
-              : `reveal-card flex flex-col items-center gap-9 rounded-xl border bg-surface p-8 lg:flex-row lg:items-center lg:gap-12 ${
+              ? "reveal-card flex flex-col items-center gap-9 border bg-surface p-8"
+              : `reveal-card flex flex-col items-center gap-9 border bg-surface p-8 lg:flex-row lg:items-center lg:gap-12 ${
                   i % 2 === 1 ? "lg:flex-row-reverse" : ""
                 }`
           }

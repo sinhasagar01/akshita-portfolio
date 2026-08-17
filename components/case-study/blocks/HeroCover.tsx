@@ -360,7 +360,7 @@ export default function HeroCover({
              `text-secondary` ON ITS JOB, NOT ITS DISTANCE: supporting text beside a figure is that
              role's stated work. `text-subtle` is the quiet layer the population test kept separate,
              and reaching for it here would collapse the distinction that test protected. */
-          className="inline-flex items-center gap-2.5 rounded-full border bg-surface px-4 py-2 text-[0.9rem] font-semibold text-text-secondary mt-4"
+          className="inline-flex items-center gap-2.5 border bg-surface px-4 py-2 text-[0.9rem] font-semibold text-text-secondary mt-4"
           style={{ borderColor: "color-mix(in oklch, var(--color-etch) 12%, transparent)" }}
         >
           <span

@@ -108,7 +108,7 @@ function Frame({
       {...(editable
         ? { "data-edit-block-index": blockIndex, "data-edit-image-path": editPath }
         : {})}
-      className="relative block w-full overflow-hidden rounded-xl border bg-surface-well"
+      className="relative block w-full overflow-hidden border bg-surface-well"
       {...(editable || item.image.preview === false
         ? {}
         : { "data-preview-src": item.image.src, "data-preview-alt": item.image.alt })}

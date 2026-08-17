@@ -138,7 +138,7 @@ export default function VideoEmbed({
             {caption ? renderRich(caption) : null}
           </p>
           {playable && !reduce && (
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-ink-950/8 bg-cream-50 px-2.5 py-1 text-eyebrow uppercase tracking-eyebrow text-ink-600">
+            <span className="inline-flex shrink-0 items-center gap-1.5 border border-ink-950/8 bg-cream-50 px-2.5 py-1 text-eyebrow uppercase tracking-eyebrow text-ink-600">
               <span aria-hidden className="size-1.5 rounded-full bg-accent-500" />
               Loops · muted
             </span>
