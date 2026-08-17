@@ -6270,6 +6270,49 @@ a {
   padding-right: var(--sheet-gutter);
 }
 
+/* ============================================================================================
+   RETIRING THE CARD — a section becomes a BAND of the sheet rather than a panel floating on it.
+
+   The direction retires cards as page structure, all radius and every shadow. On a drawing sheet
+   the regions are divided by RULES, and the section rule above already does that job — so a card
+   ground beneath it is the old language contradicting the new one inside the same element.
+
+   ⚠ THIS IS SCOPED TO `.sheet-scope` AND MUST STAY THAT WAY, BECAUSE `.section-card` IS SHARED
+   WITH TWO SURFACES THIS UNIT DOES NOT OWN. Measured rather than assumed: it is applied by
+   `SectionWrapper`, `RevealSection` and `ProcessSection` on the home page, and ALSO by
+   `CaseStudyView`, five sites in `SectionRenderer` and two in `BeforeAfterStory`. The case-study
+   ones render the public article AND the studio canvas through the same components, so editing
+   the base class would move a box on both sides of the parity contract — which that contract
+   forbids in as many words. The home page carries the scope class; nothing else does.
+
+   ⚠ AND THE GROUND IS `transparent` RATHER THAN THE PAGE GROUND NAMED EXPLICITLY. Naming it would
+   be a component choosing a value for one ground class, and the page ground is a different token
+   on light and dark palettes. Transparent inherits whatever is actually behind it, on all ten,
+   with no per-class decision — the same reasoning that makes an alpha-based role work where a
+   finished colour does not.
+
+   ⚠ AND IT INVALIDATES A RECORDED MEASUREMENT, WHICH IS THE PART TO KNOW BEFORE READING ANY
+   FIGURE NEAR IT. `HomePaletteTeaser` establishes by `elementsFromPoint` that its pill composites
+   onto the PROCESS CARD's opaque ground rather than onto the page, and its contrast figures were
+   re-measured against that ground after two wrong assumptions. Removing the card ground moves the
+   pill onto the page ground, so those numbers describe a stack that no longer exists. Re-measuring
+   the pill belongs to this change rather than to a follow-up.
+   ============================================================================================ */
+.sheet-scope .section-card {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+/* Both reveal states lose the card colour. The reveal itself is unaffected — it is carried by the
+   clip and the visibility switch, so the colour leg becomes a no-op rather than being removed from
+   a shared transition list. */
+.sheet-scope .reveal-panel,
+.sheet-scope .reveal-panel.is-revealed {
+  background-color: transparent;
+}
+
 /* ============================================================ STUDIO RADIUS SCALE
    Local design vars scoped to /studio — NO new @theme token, the same rule the Pearl
    Smoke palette follows on .blog-vessel: it never leaks into the global namespace.

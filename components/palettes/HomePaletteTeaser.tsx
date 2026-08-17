@@ -55,6 +55,32 @@ import { selectableCountWord } from "@/lib/theme";
    21.000 first: nothing below 4.5, lowest 5.35 on sapphire and basalt. The conclusion survived and
    every figure in it changed, which are two different facts and both are stated.
 
+   ⚠ AND THE CARD IS GONE NOW, SO THE STACK ABOVE IS HISTORY RATHER THAN STATE. Retiring the card
+   surfaces under `.sheet-scope` made the section transparent, and re-running the same
+   `elementsFromPoint` walk finds the SECTION IS NO LONGER IN THE PILL'S STACK AT ALL:
+
+     span.palette-pill-label   transparent            draws the text
+     div.palette-pill          srgb(...) / 0.78       its OWN glass fill
+     body                      transparent
+     html                      oklch(0.92 0.022 78)   the page ground, and now the only opaque layer
+
+   Composited in that order by canvas rather than by hand — page ground 237,227,213, then the glass
+   at 78% giving a backdrop of 250,244,235 — the label at 109,100,93 measures 5.29 on cream against
+   the 4.5 floor. So the retirement cost this control about 0.06 and it still clears by 0.79.
+
+   ⚠ THE PER-PALETTE FIGURES ABOVE ARE STALE FOR EVERY PALETTE, NOT JUST THIS ONE, AND NOTHING WENT
+   RED. No suite asserts them — grepped — so they live only in this comment, which is exactly how a
+   correct measurement ages into a false one. The 5.35 was the lowest across nine palettes measured
+   against a ground that no longer exists. Only cream has been re-measured, because cream is what is
+   published; the dark palettes cannot be settled by forcing `data-theme` from a probe, since that
+   produces a state no visitor sees unless `data-ground` moves with it. `paint-sites` is the
+   instrument that drives all nine properly, and it has not been run against this change.
+
+   ⚠ AND THE GENERAL FORM IS THE INVERSE OF THE RULE THIS BLOCK ALREADY TEACHES. That rule says a
+   component which paints its own backdrop invalidates every ratio its foregrounds inherited.
+   REMOVING a backdrop does the same thing, and it is easier to miss, because nothing new appears on
+   screen to prompt the question.
+
    ---- ⚠ THE OBSERVER, NOT A SCROLL HANDLER, AND THERE IS A THIRD REASON HERE ------------------
 
    Beyond not writing style per scroll event: THIS SITE'S SCROLL POSITION IS NOT `window.scrollY`.
