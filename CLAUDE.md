@@ -3348,6 +3348,36 @@ build a gate for the limit and then believe it.
   the safety net for work that is finished is using it against its own design. **Second instance,
   and the first where the person who re-read the entry that morning is the one who did it.**
 
+- **⚠ ALL FIVE `inert` GUARDS PROTECT REAL CONTROLS, AND THE FIRST MEASUREMENT SAID FOUR OF FIVE
+  WERE DECORATIVE.** The gap asked whether a guarded subtree contains anything focusable at all — a
+  guard over nothing reads as coverage and is not. Measured by LIFTING each guard and asking the
+  browser what becomes focusable, at both viewports:
+
+      guard                      390x844                          1280x800
+      .nav-morph  mobile fab     LOAD-BEARING   1                 redundant — display:none itself
+      .nav-morph  desktop fab    redundant — display:none itself  LOAD-BEARING   1
+      #nav-sheet                 redundant — .nav-sheet none      LOAD-BEARING   8
+      #mobile-menu               LOAD-BEARING  13                 LOAD-BEARING  13
+      .palette-pill              redundant — display:none         LOAD-BEARING   6
+
+  **FIVE OF FIVE ARE LOAD-BEARING AT AT LEAST ONE VIEWPORT. ZERO PROTECT NOTHING. 29 CONTROLS.**
+
+  **⚠ AND "REDUNDANT" IS A PROPERTY OF THE VIEWPORT RATHER THAN OF THE GUARD, WHICH IS THE FINDING.**
+  Each fab is load-bearing exactly where it is SHOWN and redundant where it is `display: none` —
+  which is correct design, not duplication to remove. A single-viewport measurement would have
+  reported three of five as unnecessary and invited somebody to delete them.
+
+  **⚠ AND THE FIRST PROBE COUNTED DESCENDANTS ONLY, SO IT CALLED FOUR OF FIVE DECORATIVE.**
+  `.nav-morph` IS a button — the guard protects the ELEMENT, and it has no focusable children — so a
+  descendant count reports zero and reads as "protects nothing". **The subject of a guard on a leaf
+  control is the control**, and the wrong-noun shape arriving in the probe written to check whether
+  guards have a subject at all.
+
+  **⚠ AND `#mobile-menu` IS THE ONE THAT ANSWERS A DIFFERENT GAP.** It is load-bearing at BOTH
+  viewports, 13 controls, because at desktop it is not `display: none` — it is moved out of view.
+  That is the OFF-SCREEN CONTAINER route this same list names as unreachable, and `inert` is already
+  the only thing holding it. The two gaps turned out to share one element.
+
 - **⚠ THE `display: contents` ROUTE IS EMPTY TOO, AND THE PROBE WAS PROVED TO FIRE BEFORE ITS ZERO
   WAS BELIEVED.** This is the INVERSE hazard to the rest of the tab-order family — not something
   invisible that stays focusable, but visible content whose element generates no box and therefore
