@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLenis } from "lenis/react";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SheetSectionHead from "@/components/sheet/SheetSectionHead";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import type { SiteSettingsEntry } from "@/lib/keystatic";
 import { useSmoothScroll } from "@/components/providers/SmoothScrollProvider";
@@ -232,12 +232,11 @@ function LeftColumn({
 }) {
   return (
     <div>
-      <SectionHeading
-        index="02"
+      <SheetSectionHead
+        sheet="02"
         title="Process"
-        subtext="Watch a rough idea grow into the shipped design."
-        variant="default"
-        tone="grey"
+        mark={`Method · ${stages.length} stages`}
+        lede="Watch a rough idea grow into the shipped design."
       />
       <div className="mt-8 sm:mt-[52px]">
         <StageCopy stage={stages[active]} reduced={reduced} />

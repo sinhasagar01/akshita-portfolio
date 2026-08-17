@@ -1,6 +1,6 @@
 import Container from "@/components/layout/Container";
 import RevealSection from "@/components/motion/RevealSection";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SheetSectionHead from "@/components/sheet/SheetSectionHead";
 import CursorGlow from "@/components/motion/CursorGlow";
 import ProjectCard from "./ProjectCard";
 import WorkGridGlow from "./WorkGridGlow";
@@ -25,15 +25,18 @@ export default function ProjectsSection({ projects }: Props) {
       {/* The same ONE cursor glow, in the tan tone (--glow-on-tan). */}
       <CursorGlow />
       <Container>
-        <SectionHeading
-          index="01"
+        {/* ⚠ THE RULE'S LABEL DERIVES ITS COUNT, because an authored "four studies" is the
+            fixed-list defect waiting for a fifth case study. The same `counts` the filter
+            already derives from the rendered list feeds it, so the label and the chips cannot
+            disagree about how many studies exist. */}
+        <SheetSectionHead
+          sheet="01"
           title="Work"
-          subtext="A few projects from the last couple of years, from first sketch to shipped screen."
-          variant="default"
-          tone="warm"
+          mark={`Plate schedule · ${counts.all} studies`}
+          lede="A few projects from the last couple of years, from first sketch to shipped screen."
         />
         {/* Platform filter (PR 4) — its per-bucket counts double as the live count, so the
-            shared SectionHeading stays (no separate "N case studies" line). */}
+            section head stays (no separate "N case studies" line). */}
         <WorkFilter counts={counts} />
         <div className="mt-6 sm:mt-8">
           {/* Overlay grid — two columns above lg, one below (the site's single mobile

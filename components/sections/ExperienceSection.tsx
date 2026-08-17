@@ -1,6 +1,6 @@
 import Container from "@/components/layout/Container";
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SheetSectionHead from "@/components/sheet/SheetSectionHead";
 import type { ExperienceListItem } from "@/lib/keystatic";
 import { selectCurrentExperience } from "./experience-current";
 
@@ -51,12 +51,11 @@ export default function ExperienceSection({ experience }: Props) {
   return (
     <SectionWrapper id="experience" className="scroll-mt-20">
       <Container>
-        <SectionHeading
-          index="04"
+        <SheetSectionHead
+          sheet="04"
           title="Experience"
-          subtext="Where I have shaped products, the most recent first."
-          variant="default"
-          tone="warm"
+          mark={`Service record · ${experience.length} roles`}
+          lede="Where I have shaped products, the most recent first."
         />
         <div className="mt-8 sm:mt-[52px]">
 

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import Container from '@/components/layout/Container'
-import SectionHeading from '@/components/ui/SectionHeading'
+import SheetSectionHead from '@/components/sheet/SheetSectionHead'
 import type { SiteSettingsEntry } from '@/lib/keystatic'
 
 // ---------------------------------------------------------------------------
@@ -425,12 +425,16 @@ export default function ContactSection({ settings }: Props) {
     <section id="contact" className="scroll-mt-20 py-24 md:py-32">
       <Container>
 
-        <SectionHeading
-          index="06"
+        {/* ⚠ THE CENTRED VARIANT IS GONE AND THAT IS THE DIRECTION RATHER THAN AN OVERSIGHT. This
+            was the one call site using it. A drawing sheet is read from a left margin, so the
+            grammar has no centred device and adding one for a single section would be the second
+            spelling problem in layout instead of colour. The form beneath keeps its own centring,
+            which is a different decision about a different element. */}
+        <SheetSectionHead
+          sheet="06"
           title="Get in touch"
-          subtext="Have a project, a role, or just a hello. I would love to hear it."
-          variant="centered"
-          tone="warm"
+          mark="Issue and contact"
+          lede="Have a project, a role, or just a hello. I would love to hear it."
         />
 
         {/* Form area — centered, max 680px */}

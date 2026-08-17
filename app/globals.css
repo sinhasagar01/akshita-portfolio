@@ -6024,6 +6024,252 @@ a {
   }
 }
 
+/* ============================================================================================
+   THE SHEET GRAMMAR — six devices, three line weights, three mono sizes, ZERO new tokens.
+
+   The direction is a drawing sheet read through an index rail, section rules, plate frames, a
+   readout band, margin notes and an inspection block. Everything on the page is built from
+   those six, which is what stops eleven case-study sections becoming eleven inventions.
+
+   ⚠ THE SPEC ASKED FOR A NEW `reference` ROLE AND IT IS DELIBERATELY NOT ADDED. That role was
+   justified by a palette named Machine Room, whose reference value was a teal distinct from its
+   secondary text. THAT PALETTE WAS NEVER BUILT. On `drawing-office`, the one medium that
+   shipped, the spec sets reference and secondary text to the SAME value — so on every palette
+   this repository actually has, the new role would resolve identically to a role that already
+   exists. That is a second spelling entering the vocabulary at birth, which this record deletes
+   on sight. The trigger for adding it is a palette where the two genuinely differ.
+
+   ⚠ AND THE SPEC NAMED THE WRONG ROLE FOR THE OBJECT LINE, WHICH IS THE ONE MAPPING WORTH
+   READING TWICE. It calls the object line `border`. In this repository that role aliases the
+   third cream rung, which on `drawing-office` is lightness 88% against a 95.5% ground — it
+   cannot clear the 3.0 non-text floor that the spec ITSELF calls the tightest quantity in the
+   whole direction. `rule` is the role that can: it holds a mid lightness on every palette
+   precisely because, in its own words, an extreme must invert and a mid-tone must not. So the
+   object line is `rule`, the spec's own floor is met, and no token was added to meet it.
+
+   ⚠ AND THE DEVICES CARRY NO HORIZONTAL PADDING, WHICH IS AN ADAPTATION RATHER THAN A DEVIATION.
+   The approved sheet was ONE full-bleed document and paid for its own gutters through a padding
+   custom property. The home page is not that: its sections already sit inside a padded
+   container. Devices that also padded would double-indent every row. The bleed class below is
+   the opt-in for the two devices that genuinely span the viewport, and it is the only place the
+   gutter is spent.
+   ============================================================================================ */
+
+.sheet-scope {
+  /* THE THREE LINE WEIGHTS, AND THERE ARE ONLY THREE. Hair subdivides, object outlines anything
+     drawn, boundary marks a sheet edge and has exactly three uses on the page. A fourth weight
+     is how a drawing stops reading as a drawing. */
+  --sheet-hair: color-mix(in oklch, var(--color-etch) 12%, transparent);
+  --sheet-object: var(--color-rule);
+  --sheet-boundary: var(--color-accent);
+  /* Sheet marks, plate numbers and corner ticks. The quiet text role rather than a new one. */
+  --sheet-mark: var(--color-text-secondary);
+  --sheet-gutter: clamp(20px, 4.6vw, 66px);
+}
+
+/* ⚠ THE RADIUS RESET LIVES IN `base`, NOT UNLAYERED, AND THAT IS A CORRECTION TO THE SPEC'S
+   "one reset" INSTRUCTION RATHER THAN A REFUSAL OF IT. An unlayered universal rule outranks
+   every utility, which is the exact hazard this stylesheet has already logged five times against
+   its own element resets — a class that asks for one thing and draws another. In `base` the
+   reset still covers every child by default, so it is a mechanism rather than a discipline, and
+   a deliberate utility can still win. What catches an ACCIDENTAL radius is a gate, not
+   specificity. */
+@layer base {
+  .sheet-scope * {
+    border-radius: 0;
+  }
+}
+
+/* THE THREE MONO SIZES AND THE ONE TRACKING VALUE. The audit that produced this direction found
+   nine mono sizes and eight tracking values in its own first pass, so this is the part most
+   likely to erode. The single sanctioned exception is the sheet mark's wider tracking, and it is
+   named here so it cannot spread by imitation. */
+.sheet-mono-micro,
+.sheet-mono-label,
+.sheet-mark-text {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  color: var(--sheet-mark);
+}
+.sheet-mono-micro {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  line-height: 1.7;
+}
+.sheet-mono-label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  line-height: 1.6;
+}
+/* The exception, and the only one. */
+.sheet-mark-text {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  line-height: 1.6;
+}
+/* The only mono anyone actually reads, so it takes no tracking and stays sentence case. */
+.sheet-mono-text {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--color-text-primary);
+}
+
+/* THE SECTION AND LEDE TYPE ROLES, from the specification's own table. Six roles, two families,
+   no serif anywhere. The heading is 600 because a section heading must not be lighter in weight
+   than the heading it outranks — this stylesheet already carries that finding, from a case where
+   size said "more important" and weight said "less" and the two axes cancelled into one level. */
+.sheet-h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(23px, 3.2vw, 40px);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+  color: var(--color-text-primary);
+  max-width: 24ch;
+  text-wrap: balance;
+}
+.sheet-lede {
+  margin: 0;
+  font-size: clamp(15px, 1.15vw, 16.5px);
+  line-height: 1.66;
+  color: var(--color-text-secondary);
+  max-width: 48ch;
+  text-wrap: pretty;
+}
+
+/* DEVICE — THE SECTION RULE. Sheet number left, title right, a 1px object line between.
+   ⚠ IT IS NOT AN EYEBROW ABOVE A HEADING AND IT CARRIES NO HEADING AT ALL. The retired
+   component owned its own heading element, which is why swapping to this device moves the
+   heading OUT to the section that owns it. A rule with labels on it and a heading are two
+   different elements, and collapsing them is what produced the eyebrow pattern this direction
+   retires. */
+.sheet-rule {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+.sheet-rule > .sheet-rule-line {
+  flex: 1;
+  height: 1px;
+  background: var(--sheet-object);
+}
+
+/* DEVICE — THE PLATE FRAME. Everything visual is mounted this way, the illustration included.
+   The ticks sit at two corners rather than four, which is the printed convention and also the
+   thing that stops the frame reading as a card. */
+.sheet-plate {
+  position: relative;
+  border: 1px solid var(--sheet-object);
+  background: var(--color-surface);
+}
+.sheet-plate > .sheet-tick {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--sheet-mark);
+}
+/* Offset by the frame's own width so the tick sits ON the keyline rather than inside it. */
+.sheet-plate > .sheet-tick-tl {
+  left: -1px;
+  top: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.sheet-plate > .sheet-tick-br {
+  right: -1px;
+  bottom: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+.sheet-plate > .sheet-plate-caption {
+  position: absolute;
+  right: 9px;
+  bottom: 8px;
+  text-align: right;
+}
+
+/* DEVICE — THE READOUT BAND. Full bleed, a 2px boundary on top, figures at display scale in the
+   signal colour with mono keys beneath. Tabular figures matter here: the numbers are meant to be
+   compared down the row, and proportional digits make that harder for no benefit. */
+.sheet-readout {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 2px solid var(--sheet-boundary);
+  border-bottom: 1px solid var(--sheet-object);
+}
+.sheet-readout > * {
+  flex: 1 1 150px;
+  padding: clamp(15px, 2vw, 24px) 0;
+  border-right: 1px solid var(--sheet-hair);
+}
+.sheet-readout > *:last-child {
+  border-right: 0;
+}
+.sheet-readout .sheet-readout-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(25px, 3.4vw, 42px);
+  line-height: 1;
+  letter-spacing: -0.024em;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+.sheet-readout .sheet-readout-key {
+  margin-top: 10px;
+}
+
+/* DEVICE — THE MARGIN NOTE. Numbered, mono, rule above. This is where the voice lives and on an
+   achromatic medium it is the entire personality budget, which is why it gets a device of its own
+   rather than being a paragraph somewhere. */
+.sheet-note {
+  max-width: 64ch;
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 20px;
+}
+.sheet-note > .sheet-note-number {
+  border-top: 1px solid var(--sheet-mark);
+  padding-top: 10px;
+  color: var(--sheet-mark);
+}
+.sheet-note > .sheet-note-body {
+  border-top: 1px solid var(--sheet-hair);
+  padding-top: 10px;
+}
+
+/* DEVICE — THE INSPECTION BLOCK. Drawn by, base, revision, status. Availability is stated as a
+   FIELD rather than as a banner, which is the whole point of the device: a drawing sheet does not
+   advertise, it records. */
+.sheet-inspection {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--sheet-object);
+}
+.sheet-inspection > * {
+  flex: 1 1 128px;
+  padding: 13px 0 16px;
+  border-right: 1px solid var(--sheet-hair);
+}
+.sheet-inspection > *:last-child {
+  border-right: 0;
+}
+.sheet-inspection .sheet-field-value {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--color-text-primary);
+}
+
+/* The opt-in gutter, for the two devices that genuinely span the viewport. */
+.sheet-bleed {
+  padding-left: var(--sheet-gutter);
+  padding-right: var(--sheet-gutter);
+}
+
 /* ============================================================ STUDIO RADIUS SCALE
    Local design vars scoped to /studio — NO new @theme token, the same rule the Pearl
    Smoke palette follows on .blog-vessel: it never leaks into the global namespace.

@@ -79,7 +79,13 @@ export default async function HomePage() {
         scrollCue={settings?.heroScrollCue}
         figure={settings?.heroFigure ?? null}
       />
-      <main id="main-content" tabIndex={-1} className="container-x outline-none">
+      {/* ⚠ `sheet-scope` IS WHERE THE GRAMMAR'S LINE WEIGHTS RESOLVE, and it sits on `main` rather
+          than on each section so the three weights are declared ONCE. Putting it per section
+          would be six copies of one decision, which is the parallel-list defect in CSS. The hero
+          is a sibling of `main` and therefore outside it — deliberate for now, because the hero
+          runs its own scoped type system and joining the two is a design decision rather than a
+          scope change. */}
+      <main id="main-content" tabIndex={-1} className="sheet-scope container-x outline-none">
       {/* ⚠ WORK BEFORE PROCESS, AND `SiteHeader`'s `NAV` MOVED WITH IT — the two are one edit.
           `getActiveSection()` iterates NAV IN ORDER and keeps the LAST section whose top is above
           the header, so it depends on NAV being in DOM order. With NAV stale the spy sets
