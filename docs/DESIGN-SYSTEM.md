@@ -81,23 +81,40 @@ reads 4.05.
 
 ### Type
 
-Two families are loaded, `globals.css:112-116`. Fraunces is `--font-display` and DM Sans is
-`--font-body`. Kaushan Script and Caveat are declared and are decorative. A mono stack exists with
-no webfont behind it.
+⚠ THIS SECTION NAMED THE WRONG TYPEFACES FOR THE WHOLE SITE. It read *"Fraunces is `--font-display`
+and DM Sans is `--font-body`"*, cited to `globals.css:112-116`. Grep the declarations: `--font-display`
+resolves to Source Serif and `--font-body` to Work Sans. **Fraunces and DM Sans are loaded by
+`components/sections/hero-fonts.ts` and scoped to the hero alone**, which is a deliberate second
+typographic system rather than the site's.
 
-The fluid ramp is ten `clamp()` steps, `globals.css:118-127`, from `--text-xs` at 0.694rem-0.75rem
-up to `--text-6xl` at 3.5rem-6.5rem.
+⚠ AND THE CITATION POINTED AT AN UNRELATED COMMENT. `globals.css:112-116` is prose about a
+dark-ground token. The two other citations in this section were equally adrift — the ramp cited at
+118-127 and the role tokens at 130-135 sit at 593-602 and 605-610. **All three were in range and all
+three named the wrong lines**, which is why a range check does not catch this.
 
-Six semantic role tokens sit beside the ramp, `globals.css:130-135`.
+⚠ SO THIS SECTION CITES TOKEN NAMES RATHER THAN LINE NUMBERS. A line number is the most decay-prone
+claim a document can carry — every edit above it moves it and nothing re-reads it, and this file has
+grown past 470 lines since these were written. `grep -n -- '--font-display:' app/globals.css` is
+exact, and it stays exact.
+
+**Site-wide, `app/layout.tsx` loads Source Serif, Work Sans, Space Grotesk, Kaushan Script and
+Caveat.** `--font-display` is Source Serif and `--font-body` is Work Sans. Kaushan Script is the
+wordmark and the footer signature; Caveat is `AnnotatedImage`. A mono stack exists with no webfont
+behind it site-wide, though the hero loads JetBrains Mono for its own use.
+
+The fluid ramp is ten `clamp()` steps from `--text-xs` at 0.694rem-0.75rem up to `--text-6xl` at
+3.5rem-6.5rem.
+
+Six semantic role tokens sit beside the ramp, from `--text-section-heading` to `--text-tag`.
 
 | Token | Value | Role |
 |---|---|---|
-| `--text-section-heading` | 2.25rem | Fraunces italic 400, every section h2 |
-| `--text-subheading` | 1.875rem | Fraunces italic 400, item names |
-| `--text-eyebrow` | 0.75rem | DM Sans uppercase, 0.14em tracking |
-| `--text-ui-label` | 0.75rem | DM Sans 500 uppercase, 0.08em tracking |
-| `--text-meta` | 0.75rem | DM Sans 500, 0.08em tracking |
-| `--text-tag` | 0.6875rem | DM Sans 400 |
+| `--text-section-heading` | 2.25rem | display serif italic 400, every section h2 |
+| `--text-subheading` | 1.875rem | display serif italic 400, item names |
+| `--text-eyebrow` | 0.75rem | body sans uppercase, 0.14em tracking |
+| `--text-ui-label` | 0.75rem | body sans 500 uppercase, 0.08em tracking |
+| `--text-meta` | 0.75rem | body sans 500, 0.08em tracking |
+| `--text-tag` | 0.6875rem | body sans 400 |
 
 `--text-eyebrow` is read by sixteen non-studio files, which is why the studio sizes its labels with
 a local literal instead. See B.
