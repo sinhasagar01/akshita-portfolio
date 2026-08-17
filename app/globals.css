@@ -4458,14 +4458,33 @@ a {
    Warm settle reveal — panels and cards
 ============================================================ */
 
+/* ⚠ `visibility` ON THE PANEL TOO, AND THE CARD FIX MISSED THIS BY SITTING ONE LEVEL DOWN.
+   `.reveal-card` gained `visibility: hidden` because four card links were tabbable while invisible.
+   The panel clips itself to nothing with `clip-path: inset(0 0 100% 0)`, and `clip-path` removes an
+   element from SIGHT and from nothing else — so every focusable in an unrevealed panel that is NOT
+   inside a card stayed in the tab order. Measured on a fresh load at 1280x800: the three work
+   filter chips, `All 4` / `Web 2` / `Mobile 2`, took focus while `#work` was clipped to nothing.
+
+   FIXING THE CARDS AND MISSING THE PANEL IS THE FIX-THE-INSTANCE-MISS-THE-SIBLING SHAPE this record
+   carries a dozen times, committed one unit after the card fix by the person who wrote it.
+
+   ⚠ AND IT ADDS NO STATE A READER DOES NOT ALREADY HAVE. No page marks a panel `is-revealed` in
+   SSR — measured, home 3 panels and parity 6, zero revealed — so the clip already hides all of this
+   before JavaScript runs. `visibility` matches that exactly rather than introducing it.
+
+   ⚠ AND `/palettes` HAS NO PANELS AT ALL, which is why `.canvas-static` never needed a panel rule.
+   Its eight `.reveal-card`s sit outside any `.reveal-panel`. Checked before changing this, because
+   the card fix needed three end-state rules and finding only one here looked like an omission. */
 .reveal-panel {
   clip-path: inset(0 0 100% 0);
+  visibility: hidden;
   background-color: var(--color-reveal-sand);
-  transition: clip-path .9s cubic-bezier(.22,1,.36,1), background-color .9s ease;
+  transition: clip-path .9s cubic-bezier(.22,1,.36,1), background-color .9s ease, visibility .9s;
 }
 
 .reveal-panel.is-revealed {
   clip-path: inset(0 0 0% 0);
+  visibility: visible;
   background-color: var(--color-surface);
 }
 
@@ -4735,6 +4754,7 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .reveal-panel {
     clip-path: none;
+    visibility: visible;
     background-color: var(--color-surface);
     transition: none;
   }

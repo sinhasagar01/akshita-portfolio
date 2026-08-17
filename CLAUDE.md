@@ -3348,6 +3348,36 @@ build a gate for the limit and then believe it.
   the safety net for work that is finished is using it against its own design. **Second instance,
   and the first where the person who re-read the entry that morning is the one who did it.**
 
+- **⚠ CLOSING SECTION C FOUND A FIFTH ROUTE NOBODY HAD LISTED, AND THREE LIVE CONTROLS ON IT.** The
+  off-screen gap measured EMPTY — zero focusables outside the document at either viewport, with the
+  probe proved by parking a container at `left: -9999px` and watching it report five. The census
+  that produced that zero is what found the real one.
+
+  **`clip-path` REMOVES AN ELEMENT FROM SIGHT AND FROM NOTHING ELSE.** `.reveal-panel` starts at
+  `clip-path: inset(0 0 100% 0)`, so an unrevealed section is invisible and fully tabbable. Measured
+  on a fresh load at 1280x800, the three work filter chips — **`All 4`, `Web 2`, `Mobile 2`** — took
+  focus while `#work` was clipped to nothing.
+
+  **⚠ AND THIS IS THE FIX-THE-INSTANCE-MISS-THE-SIBLING SHAPE, COMMITTED ONE UNIT AFTER THE CARD
+  FIX BY THE PERSON WHO WROTE IT.** `.reveal-card` got `visibility: hidden` for four card links. The
+  filter chips are not inside a card, they are inside the PANEL, and the panel's own clip was never
+  the subject. One level up, same defect, same page.
+
+  **THE FIX IS THE SAME RULE ON THE PANEL**, and it introduces no state a reader did not already
+  have: **no page marks a panel `is-revealed` in SSR** — home 3, parity 6, zero revealed — so the
+  clip already hid all of it before JavaScript. `visibility` matches that rather than adding to it.
+
+  **⚠ AND TWO FALSE FINDINGS CAME OUT OF THE CLIP PREDICATE FIRST, IN OPPOSITE DIRECTIONS.** It
+  began as "contains a zero", which matched `inset(0px 0px 0%)` — a clip that hides NOTHING, the
+  revealed panel's own end state — and reported seven findings of which all seven were fine. Narrowed
+  to "clips to an EMPTY region", it then flagged `.sr-only`'s `inset(50%)`, which is the skip link
+  and is **supposed** to be focusable while visually hidden. **A hidden element that must stay
+  reachable is not a defect**, and no predicate over CSS can tell it from one — only knowing what the
+  element is for.
+
+  **THE SKIP LINK IS ASSERTED STILL FOCUSABLE AFTER THE FIX**, because it is the one thing in this
+  family that would be broken by getting the rule right in the wrong place.
+
 - **⚠ ALL FIVE `inert` GUARDS PROTECT REAL CONTROLS, AND THE FIRST MEASUREMENT SAID FOUR OF FIVE
   WERE DECORATIVE.** The gap asked whether a guarded subtree contains anything focusable at all — a
   guard over nothing reads as coverage and is not. Measured by LIFTING each guard and asking the

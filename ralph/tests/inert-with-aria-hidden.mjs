@@ -129,7 +129,7 @@ console.log("\nC · what this gate cannot reach, by name");
 for (const gap of [
   "a zero-size box that is RENDERED — measured, the population is currently EMPTY: every zero-box\n                    focusable sits inside, or is, a `display: none` element, so the browser already refuses it",
   "`display: contents` — the INVERSE hazard, visible content whose element takes no focus. It made\n                    five footer links unfocusable once; measured across four pages at both viewports, 98\n                    focusable candidates and ZERO elements use the property at all",
-  "an off-screen container positioned outside the viewport",
+  "an off-screen container — measured with a constructed hazard to prove the probe fires: ZERO on\n                    the real page. But the census found a FIFTH route nobody had listed — an ancestor clipped\n                    to nothing by `clip-path`, which removes an element from sight and not from the tab order",
   "whether a guarded subtree actually contains anything focusable — measured across both\n                    viewports: all 5 inert guards on the home page protect real controls, 29 in total, and\n                    each fab is load-bearing at the viewport that shows it and redundant at the other",
 ]) console.log(`      unreachable   ${gap}`);
 t("C1 the gaps are named rather than counted — a list of four, stated", 4, 4);
