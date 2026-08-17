@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { selectableCountWord } from "@/lib/theme";
 import Link from "next/link";
 import {
   PREVIEW_CHANGED_EVENT, livePreviewTheme, endPreview,
@@ -112,7 +113,7 @@ export default function PreviewIndicator({ publishedTheme }: { publishedTheme: s
           href="/palettes"
           className="rounded-full bg-text-primary px-3 py-1 text-sm font-medium"
         >
-          <span className="text-surface">See all nine</span>
+          <span className="text-surface">See all {selectableCountWord()}</span>
         </Link>
       </div>
     );

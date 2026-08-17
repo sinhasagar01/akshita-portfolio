@@ -37,7 +37,7 @@ import { parseColor, parseOklch } from "../../lib/theme-contrast.ts";
 import { readFileSync } from "node:fs";
 import {
   DEFAULT_THEME, VERIFY_THEME, SECOND_THEME, THEME_NAMES, resolveTheme, isKnownTheme,
-  selectableThemes, unselectableReason, THEME_SPLASH, THEME_OG, BRAND_CHROME_COLOR,
+  selectableThemes, unselectableReason, selectableCountWord, THEME_SPLASH, THEME_OG, BRAND_CHROME_COLOR,
   THEME_GROUND, THEME_COUNTERPART,
 } from "../../lib/theme.ts";
 import { THEME_METRICS, ACTIVE_THEME } from "../../lib/studio/three-pane.ts";
@@ -128,6 +128,20 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * unit that moved underneath them. */
 t("A8a the selectable set is the ten real palettes — six light and four dark",
   selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office"]);
+/* ⚠ AND THE SITE MUST NOT SAY A DIFFERENT NUMBER FROM THE ONE IT OFFERS, WHICH IT DID FOR AS LONG
+ * AS DRAWING-OFFICE HAS BEEN SHIPPED. Three user-facing strings read "nine" against ten selectable
+ * palettes — `All nine` and `See all nine` as visible text, and `See all nine palettes` as an
+ * aria-label. #618 added the palette and none of the three moved.
+ *
+ * ⚠ THE aria-label IS THE WORST OF THE THREE. A sighted reader sees the dots and can count them; a
+ * screen-reader user is told a number and has nothing to check it against, so the only person who
+ * cannot detect the error is the one relying on the label.
+ *
+ * The labels now call `selectableCountWord()`, so this row asserts the WORD EXISTS for the current
+ * count rather than pinning a word. Past twelve the helper falls back to digits, which is correct
+ * and plain — this row is what makes that a safety net rather than the thing that ships. */
+t("A8a-word ⚠ THE PALETTE COUNT HAS A WORD FOR ITS CURRENT SIZE — three labels said `nine` while ten shipped",
+  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["ten", true]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
