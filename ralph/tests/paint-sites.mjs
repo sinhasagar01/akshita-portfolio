@@ -30,6 +30,10 @@
 import { chromium } from "playwright";
 import sharp from "sharp";
 import { readFileSync, writeFileSync } from "node:fs";
+/* ⚠ THE PALETTE SET IS DERIVED FROM THE REGISTRY NOW, AND THE HARDCODED LIST HAD ALREADY DECAYED.
+ * See the note above BASELINE. `theme.mjs` establishes that a `.mjs` suite can import this leaf
+ * directly, so there is no reason to keep a second copy of the population here. */
+import { DEFAULT_THEME, selectableThemes } from "../../lib/theme.ts";
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -146,8 +150,19 @@ const PAGES = [
  * what it never renders. 390 is a phone rather than a hair under the breakpoint, so the mobile
  * layout is measured where people actually meet it. */
 const WIDTHS = [[1440, "desktop"], [390, "mobile"]];
-const BASELINE = "cream";
-const AGAINST = ["harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt"];
+/* ⚠ THIS WAS A HARDCODED LIST OF EIGHT AND IT HAD ALREADY GONE STALE — THE FIXED-LIST SHAPE, IN THE
+ * ONE SUITE THAT EXISTS TO ASK A QUESTION OF EVERY PALETTE.
+ *
+ * `drawing-office` was added to the registry, shipped, and PUBLISHED, and it was never added here.
+ * So the single palette every visitor was actually seeing was the single palette this suite did not
+ * check, while the summary line read "palettes 8/8" and looked complete. Same decay as the two route
+ * lists that held whichever members existed when somebody wrote the line.
+ *
+ * DERIVED FROM `selectableThemes()`, which excludes the verification twin BY A STATED PROPERTY
+ * rather than by name — "permanent verification control, never publishable". A new palette now joins
+ * this suite by existing, and C0 below fails if the derivation ever returns less than the registry. */
+const BASELINE = DEFAULT_THEME;
+const AGAINST = selectableThemes().filter((n) => n !== BASELINE);
 
 /* ⚠ EXEMPT ONLY WITH A REASON THAT SAYS WHEN IT ENDS — the shape `role-layer` section L refuses for
  * ground-invariant tokens, and the shape that let `on-accent`'s exemption outlive its own blocking
@@ -235,7 +250,19 @@ const sites = per.reduce((a, p) => a + p.sites, 0), moved = per.reduce((a, p) =>
 for (const p of per) console.log(`         ${p.name.padEnd(12)} sites ${String(p.sites).padStart(5)}  ground-moved ${String(p.moved).padStart(5)}  palettes ${p.pairs}/${AGAINST.length}`);
 console.log(`         TOTAL ${sites} site-comparisons, ${moved} on a moved ground, ${flagged.length} flagged`);
 
-console.log("A · the subject is real — an error page has zero sites and would read as zero defects");
+/* ⚠ C0 · THE POPULATION ITSELF, ASSERTED BEFORE ANYTHING IS MEASURED ABOUT IT. The palette list was
+ * hardcoded and had already lost `drawing-office` — shipped, published, and absent from the one
+ * suite that asks this question of every palette, while the summary read "8/8" and looked complete.
+ * Deriving it fixes today; this row is what keeps it fixed. It compares the set actually iterated
+ * against the registry rather than against a number, so a palette cannot be added to the site and
+ * silently skipped here, and the derivation cannot quietly return a subset. */
+console.log("C · the population is the registry, not a list somebody typed");
+t("C0 ⚠ EVERY SELECTABLE PALETTE IS EITHER THE BASELINE OR IN THE COMPARISON SET — the fixed list lost one before",
+  selectableThemes().filter((n) => n !== BASELINE && !AGAINST.includes(n)), []);
+t("C0a …and the baseline is a real registry member rather than a string that once matched one",
+  selectableThemes().includes(BASELINE), true);
+
+console.log("\nA · the subject is real — an error page has zero sites and would read as zero defects");
 /* ⚠ THE ROW THAT WOULD HAVE CAUGHT THE DAY THIS WAS BUILT. Two versions of this probe reported
  * "0 defects" against an `Internal Server Error` page — 1137 bytes, no text — because a dev server
  * had been wiped mid-session. A zero denominator is not a pass, and this is where that is enforced
