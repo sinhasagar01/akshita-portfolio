@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { startPreview } from "@/lib/palettes/preview-cookie";
+import { selectableCountWord } from "@/lib/theme";
 
 /* ============================================================================================
    THE HOMEPAGE PALETTE TEASER — `Try across portfolio` ARRIVING FROM A DIFFERENT DOOR.
@@ -145,7 +146,7 @@ export default function HomePaletteTeaser({ swatches }: Props) {
         <span className="palette-dots">{dots}</span>
         <span className="palette-sep" />
         <Link href="/palettes" className="palette-more">
-          All nine <span aria-hidden="true">↗</span>
+          All {selectableCountWord()} <span aria-hidden="true">↗</span>
         </Link>
       </div>
 
@@ -158,7 +159,7 @@ export default function HomePaletteTeaser({ swatches }: Props) {
       <div className="palette-rail">
         <span className="palette-rail-label">Theme</span>
         <span className="palette-dots">{dots}</span>
-        <Link href="/palettes" className="palette-more" aria-label="See all nine palettes">
+        <Link href="/palettes" className="palette-more" aria-label={`See all ${selectableCountWord()} palettes`}>
           <span aria-hidden="true">↗</span>
         </Link>
       </div>

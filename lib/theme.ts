@@ -377,6 +377,27 @@ export function selectableThemes(): string[] {
   return THEME_NAMES.filter((name) => !(name in UNSELECTABLE));
 }
 
+/* ⚠ THE COUNT AS A WORD, BECAUSE THREE USER-FACING STRINGS SAID "nine" WHILE TEN WERE SELECTABLE.
+ * `All nine`, `See all nine` and an `aria-label` of `See all nine palettes` were live on the home
+ * page after the tenth palette shipped — a hardcoded count that drifts the moment the population
+ * grows, which is the same defect as the store rating stated three ways in five files.
+ *
+ * ⚠ AND THE aria-label IS THE ONE THAT MATTERS MOST, because a sighted reader can see the dots and
+ * count them while a screen-reader user is told a number and has nothing to check it against.
+ *
+ * The map stops at twelve deliberately and falls back to digits rather than throwing. A missing
+ * word must degrade to "All 13" — correct and plain — rather than to a blank or a crash on a page
+ * whose only job is to link elsewhere. `theme` section A8b asserts the current count HAS a word, so
+ * the fallback is a safety net rather than the thing that ships. */
+const COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six",
+  "seven", "eight", "nine", "ten", "eleven", "twelve"] as const;
+
+/** How many palettes an author may choose from, spelled for prose. Digits past twelve. */
+export function selectableCountWord(): string {
+  const n = selectableThemes().length;
+  return COUNT_WORDS[n] ?? String(n);
+}
+
 /** Why a resolvable theme cannot be published, or undefined if it can. */
 export function unselectableReason(name: string): string | undefined {
   return UNSELECTABLE[name];
