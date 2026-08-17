@@ -482,7 +482,24 @@ const BANDS = [
    * a judgement moves. Adding an owner's read is one row here, not a rewritten paragraph. */
   { label: "dark", min: 0.150, max: 0.200, hueFloor: 6.1, floorUnit: "dE",
     judged: [
-      { dE: 6.0, read: "one", what: "sapphire h250 vs nocturne h282, page grounds full-bleed, accent held out" },
+      /* ⚠ `colours` IS WHAT THE READING WAS TAKEN ON, AND IT IS NOT WHAT SHIPPED. Chased from the
+       * history because the 6.0 reproduced from nothing — 4.69 on the shipped grounds, 8.37 on
+       * canvas, 1.25 or 12.52 in OKLab. It is exact once the right subject is used:
+       *
+       *     judged    oklch(17.0% 0.016 250) vs oklch(17.0% 0.024 282)   dist3 6.000000
+       *     shipped   oklch(17.0% 0.016 250) vs rgb(13, 14, 25)          dist3 4.690416
+       *
+       * Nocturne did not exist in `globals.css` when this was judged — 0f9f183's own message says
+       * "Nocturne is deferred" — so the render matched both grounds at ONE lightness for a
+       * like-for-like read. The authored preset then shipped at the studio doc's shared D.bg of
+       * .168 in a779868, 0.2 units darker, and nobody re-measured.
+       *
+       * THE JUDGEMENT STANDS AND THE FLOOR DOES NOT MOVE. Somebody rendered two grounds at dE 6.0
+       * and read them as ONE colour; that is a perceptual fact about a separation, not about a
+       * palette, so "at or below 6.0 is refused on evidence" is still exactly what it always was.
+       * What was wrong was a `what` field that reads as the shipped pair. */
+      { dE: 6.0, read: "one", what: "sapphire h250 vs nocturne h282, page grounds full-bleed, accent held out, BOTH MATCHED AT 17.0% — the nocturne ground judged here is 0.2 lightness units lighter than the one that shipped",
+        colours: ["oklch(17.0% 0.016 250)", "oklch(17.0% 0.024 282)"] },
     ],
     why: "the dark class. ⚠ 6.1 IS A CEILING ON THE FLOOR, NOT THE FLOOR — and the difference is the "
        + "whole entry. What is measured on THIS band is ONE judgement: sapphire h250 and nocturne "
@@ -815,8 +832,15 @@ const GROUND_EXEMPT = {
    * BOTH under this ruling. The floor is not wrong and the pair is not an oversight: the owner has
    * ruled the preset's identity worth the collision. A reader finding this without the ruling beside
    * it would call it drift, which is why it is here rather than in a document. */
-  nocturne: AUTHORED_PRESET + " Conflict: dE 6.0 from sapphire's ground, which is the very pair this "
-    + "band's floor was measured from.",
+  /* ⚠ THE FIGURE HERE READ 6.0 AND THE SHIPPED PAIR IS 4.69. Both halves of the old sentence were
+   * wrong: the conflict is not 6.0, and this is NOT "the very pair the floor was measured from" —
+   * the judged pair had nocturne 0.2 lightness units HIGHER, at a value that never shipped. See the
+   * `judged` register below, where the provenance now lives. The exemption itself is unaffected:
+   * the shipped pair is CLOSER than the judged one, so it needs the exemption more rather than
+   * less. */
+  nocturne: AUTHORED_PRESET + " Conflict: dE 4.69 from sapphire's ground as SHIPPED. The judged "
+    + "reading that set this band's floor was 6.0, taken on a nocturne ground 0.2 lightness units "
+    + "lighter than the one that shipped, so this is the same PAIR and not the same COLOURS.",
 };
 
 /* ⚠ THE UNIT COMES FROM THE BAND, AND IT DID NOT USED TO. This row compared a HUE ARC IN DEGREES
@@ -1668,9 +1692,32 @@ t("L3d ⚠ A FLOOR IS COMPUTED FROM ITS JUDGEMENTS — above every separation re
     const tooHigh = twos.length ? b.hueFloor > Math.min(...twos) : ones.length && b.hueFloor > Math.max(...ones) + 0.15;
     return tooLow || tooHigh;
   }).map((b) => `${b.label}: floor ${b.hueFloor}, judged one ${b.judged.filter((j) => j.read === "one").map((j) => j.dE)}, judged two ${b.judged.filter((j) => j.read === "two").map((j) => j.dE)}`), []);
-t("L3e …and every judged reading names what was rendered, so a figure nobody can re-take cannot enter the register",
+t("L3e …and every judged reading names what was rendered, so a figure nobody can re-take cannot re-enter the register",
   withJudged.flatMap((b) => b.judged.filter((j) => !j.what || j.what.length < 25 || !["one", "two"].includes(j.read))
     .map((j) => `${b.label} ${j.dE}`)), []);
+/* ⚠ AND A JUDGED FIGURE MUST CARRY THE COLOURS IT WAS TAKEN ON, BECAUSE THIS ONE DRIFTED FROM ITS
+ * OWN SUBJECT AND NOTHING COULD SEE IT. The dark band's 6.0 reproduced from NOTHING — 4.69 on the
+ * shipped grounds, 8.37 on canvas, 1.25 or 12.52 in OKLab — and it is exact on the colours actually
+ * rendered, which are not the colours that shipped.
+ *
+ * L3e was the closest thing standing here and it asks only that the `what` field be LONG ENOUGH. A
+ * prose description cannot be checked; two colour literals can. This recomputes each reading from
+ * its own stated colours and fails if the arithmetic disagrees with the recorded number, so a
+ * judged figure can never again be a claim nobody can re-derive.
+ *
+ * ⚠ IT DELIBERATELY DOES NOT COMPARE AGAINST THE SHIPPED TOKENS. A reading is allowed to be taken
+ * on a candidate — this one was, correctly, on a palette that did not exist yet — and demanding it
+ * match today's declarations would make every historical judgement illegal the moment a value moved.
+ * The claim being checked is "this number describes these colours", which is the one that was
+ * false. */
+t("L3f ⚠ EVERY JUDGED READING RECOMPUTES FROM ITS OWN STATED COLOURS — a figure that cannot be re-derived is the defect that hid for a week",
+  withJudged.flatMap((b) => b.judged.map((j) => {
+    if (!Array.isArray(j.colours) || j.colours.length !== 2) return `${b.label} ${j.dE}: no colours recorded`;
+    const [x, y] = j.colours.map((c) => parseColor(c));
+    if (!x || !y) return `${b.label} ${j.dE}: a colour did not parse`;
+    const got = Math.round(dist3(x, y) * 100) / 100;
+    return Math.abs(got - j.dE) > 0.005 ? `${b.label}: recorded ${j.dE}, recomputes to ${got}` : null;
+  }).filter(Boolean)), []);
 t("L5 ⚠ EVERY BAND DECLARES ITS FLOOR UNIT — degrees is silent about an achromatic ground, and silence reads as a pass",
   BANDS.filter((b) => !b.floorUnit).map((b) => b.label), []);
 t("L4 every band states WHY it exists and what its floor rests on",
