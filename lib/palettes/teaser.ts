@@ -87,9 +87,26 @@
  *  ground on the site, so the sequence is not monotonic in either direction. Caught because the row
  *  written to assert it had to be given `false` as its expectation to pass — a row agreeing with
  *  broken prose rather than catching it. */
+/* ⚠ THE COUNT SPELLED LOCALLY, AND IT IS A FORCED COPY RATHER THAN A PREFERENCE. `lib/theme.ts`
+   exports `countWord` and importing it here is the obvious move — it was written, `tsc` accepted
+   it, and `ralph` died on it: `Cannot find module .../lib/theme`. Node cannot resolve an
+   extensionless `.ts` and `tsc` rejects the extension, which is the constraint this file's own
+   header states four paragraphs up and which I read after breaking it.
+
+   Third forced copy in this codebase, after `INSPECTOR_BOUNDS` and `COLLECTION_FILE_RE`. The
+   posture is the one this file already names — single source of truth BY ENFORCEMENT rather than
+   by import — so `palette-teaser` asserts this word against `countWord()` in the registry, and a
+   drift between the two is a red row rather than a silent disagreement. */
+const TEASER_COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six",
+  "seven", "eight", "nine", "ten", "eleven", "twelve"] as const;
+
 export const TEASER_THEMES = ["cream", "harbour", "ink-flare", "nocturne", "basalt"] as const;
 
 export type TeaserTheme = (typeof TEASER_THEMES)[number];
+
+/** How many swatches the row offers, spelled for the arrival note. */
+export const TEASER_COUNT_WORD: string =
+  TEASER_COUNT_WORDS[TEASER_THEMES.length] ?? String(TEASER_THEMES.length);
 
 /**
  * Is the published theme one the teaser offers?
@@ -106,13 +123,25 @@ export function publishedIsOffered(publishedTheme: string): boolean {
  * What the teaser says about the state the visitor ARRIVED in, before pressing anything.
  *
  * ⚠ THE ARRIVAL CASE IS A FEATURE OF THE FIXED SET RATHER THAN A COST OF IT. A visitor landing on
- * a palette the five do not contain should be TOLD that — that the site is on a published theme
- * outside this row, and that there are nine. That is the page's whole argument arriving before they
- * press anything, and an indicator that only appears after a press leaves this case silently wrong.
+ * a palette this row does not contain should be TOLD that — that the site is on a published theme
+ * outside the row, and that the full set is larger. That is the page's whole argument arriving
+ * before they press anything, and an indicator that only appears after a press leaves this case
+ * silently wrong.
+ *
+ * ⚠ AND THE COUNT IS DERIVED, BECAUSE THIS SENTENCE WAS ALREADY WRONG ONCE IN THE PARAGRAPH ABOVE
+ * IT. That prose said "there are nine" and there are ten — stale from the moment `drawing-office`
+ * shipped. The user-facing string said "these five" and happened to stay correct only because
+ * `TEASER_THEMES` has not changed since it was typed. Same defect, one comment apart, and the
+ * visible half was right by luck rather than by construction.
+ *
+ * The number now comes from `TEASER_THEMES.length`, so adding or removing a swatch moves the
+ * sentence with it. The full-set figure is deliberately NOT restated here — the link beside this
+ * note already says `All ten` from `selectableCountWord()`, and two derived counts in one breath is
+ * a second place to drift.
  *
  * Returns null when the published theme IS offered, because then the dots explain themselves.
  */
 export function arrivalNote(publishedTheme: string): string | null {
   if (publishedIsOffered(publishedTheme)) return null;
-  return `Published: ${publishedTheme} — not one of these five`;
+  return `Published: ${publishedTheme} — not one of these ${TEASER_COUNT_WORD}`;
 }
