@@ -157,7 +157,7 @@ ink, topping out at `0 12px 32px oklch(14% 0.018 60 / 0.10)`.
 | `--studio-lift-hover` | the card under the pointer, paired with a 3px rise |
 | `--studio-lift-active` | the selected card, deeper than hover and with no rise |
 
-**The studio overlay scale**, `app/globals.css` — ⚠ CITATION UNVERIFIED, the token was not located by name. Surfaces that float over the page.
+**The studio overlay scale**, `app/globals.css`, at `--studio-lift-popover`. Surfaces that float over the page.
 
 | Token | Role |
 |---|---|
@@ -257,7 +257,7 @@ ground, plus a 3px accent-500 left bar.
 | blog list rail post | cream-200 | cream-300 |
 | block strip block | cream-100 | cream-200 |
 
-> The prose table in `app/globals.css` — ⚠ CITATION UNVERIFIED — still records the first row as cream-50 going to
+> The prose table in `app/globals.css`, at `SELECTION: GROUND + 1 STEP`, still records the first row as cream-50 going to
 > cream-100. That is stale. The list column began declaring cream-200 in #242 and the fill moved
 > with it. `studio-ink` G1 reads the live values and is the authority, `ralph/tests/studio-ink.mjs`, at `G1`.
 
@@ -447,7 +447,7 @@ value, so declaring it here would silently shadow the theme token for everything
 `.studio-chrome`. Nothing consumes it today, which is precisely why the shadowing would have gone
 unnoticed.
 
-Hover has its own three durations, `app/globals.css` — ⚠ CITATION UNVERIFIED, no named token found. Lead 200ms, follower 240ms, sheen
+Hover has its own three durations, `app/globals.css`, at `--studio-lift-sheen`. Lead 200ms, follower 240ms, sheen
 620ms. These are not the t-tiers renamed. Twenty milliseconds is below the threshold anyone could
 tell apart, and sharing the names would make a later change to one silently move the other.
 
@@ -595,9 +595,26 @@ comment. The attribute sits on a wrapper so the card's own markup is identical i
 
 ### Hero type
 
-The hero thesis line is Fraunces through `font-display`, `not-italic`, capped at `max-w-[34ch]`,
-`components/sections/HeroSection.tsx` — ⚠ CITATION UNVERIFIED, the cited line holds unrelated code. Its colour, leading and tracking are written in the
-bracket-bare form and **do not render**, see E2.
+⚠ THIS PARAGRAPH WAS WRONG FOUR WAYS AND ONE OF THEM INVENTED A DEFECT. It read *"Fraunces through
+`font-display`, `not-italic`, capped at `max-w-[34ch]`"*, and closed *"its colour, leading and
+tracking are written in the bracket-bare form and **do not render**"*. Measured against `.hero-line`
+in `app/globals.css`:
+
+- the face is `--font-hero-display`, **not** `--font-display` — Fraunces is hero-scoped, the same
+  distinction the Type section above had to be corrected for
+- the cap is **`max-width: 17ch`**, not 34ch. `max-w-[34ch]` belongs to `ContactSection` and
+  `ClosingLine`, which are different components
+- `.hero-line em` **is** italic, deliberately — it is the accent word the contract marks
+- and the colour, leading and tracking are set **in CSS and they render**. The element's entire
+  markup is `className="hero-line"`; there are no bracket-bare classes on it to fail
+
+⚠ THE LAST ONE IS THE COSTLY KIND. A document asserting a rendering defect that does not exist sends
+the next reader hunting for broken classes, and it reads as diligence the whole time — the same
+shape as a "cannot reach" list naming a hazard with an empty population.
+
+The hero thesis line is `.hero-line` in `app/globals.css`: `--font-hero-display` at weight 300,
+`clamp(23px, 2.7vw, 38px)`, leading 1.14, tracking -0.026em, capped at 17ch, with the accent word
+italicised by `.hero-line em`.
 
 ---
 
