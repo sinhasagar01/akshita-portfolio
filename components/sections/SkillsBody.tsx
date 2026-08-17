@@ -79,7 +79,12 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
             style={{
               display: "block",
               fontFamily: "var(--font-display)",
-              fontStyle: "italic",
+              /* ⚠ UPRIGHT, AND IT IS THE ONE ITALIC ON THIS PAGE THAT IS TEXTURE RATHER THAN TYPE —
+                 which is why it needed deciding rather than sweeping. A slanted ghost word reads as
+                 handwriting, and a drawing's background lettering does not slant, so the italic was
+                 the one property here contradicting the idiom the rest of the page now speaks.
+                 Everything else about it is untouched: still 11% alpha, still `data-texture`, still
+                 outside every reading floor for the reasons stated above. */
               fontWeight: 400,
               lineHeight: 1,
               color: "color-mix(in oklch, var(--color-accent) 11%, transparent)",
@@ -105,12 +110,25 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
             className="flex flex-col gap-3 lg:flex-row lg:items-baseline lg:gap-8 reveal-card"
           >
             <div className="lg:w-28 lg:shrink-0">
-              <p
-                className="text-[12px] tracking-[.14em] uppercase leading-none"
-                style={{ color: "var(--color-accent)" }}
-              >
-                {cat.category}
-              </p>
+              {/* ⚠ SIX ACCENT USES IN ONE COMPONENT, AND THEY WERE THE ACCENT DOING HIERARCHY.
+                  These were `12px` tracked uppercase in `--color-accent` — a LABEL using colour to
+                  say "this outranks the pills beside it". The direction sanctions the accent for
+                  four things (the current floor, the readout figures, the outcome column and the
+                  resume control) and a category label is none of them, so on the five light
+                  palettes these were six unbudgeted colour sources.
+
+                  ⚠ AND ON THE PUBLISHED PALETTE THEY WERE DOING ALMOST NOTHING ANYWAY, WHICH IS THE
+                  measurement that makes this cheap rather than a trade. Drawing Office's accent is
+                  pure black and its primary text is near-black, so an accent label differed from
+                  ordinary text by a hair. The colour was carrying hierarchy on light palettes and
+                  carrying nothing on the one people see.
+
+                  IT BECOMES A SHEET LABEL RATHER THAN A RECOLOURED ONE. 12px tracked caps IS the
+                  mono-label register — the grammar already has that role at 11px with the mark
+                  colour — so this is a conversion into the vocabulary rather than a substitution
+                  inside the old one. Hierarchy now rides on register and case, which survive a
+                  change of ground; colour does not. */}
+              <p className="sheet-mono-label">{cat.category}</p>
             </div>
             <ul className="flex flex-wrap gap-[9px] list-none p-0 m-0">
               {cat.items.map((item) => (

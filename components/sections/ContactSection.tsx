@@ -237,11 +237,15 @@ function SuccessScreen() {
           <path d="M5 13l4 4L19 7" />
         </svg>
       </div>
+      {/* ⚠ THE SUCCESS HEAD TAKES THE STUDY ROLE, THE SAME LEVEL ITS SIBLING STEP HEAD ALREADY HAS.
+          It was 30px italic at 400 while the step head three states earlier is now 600 upright at the
+          same size — one section, two voices, never visible together, which is exactly how that goes
+          unnoticed. State-dependent copy is the easiest kind to leave behind in a migration because
+          nothing on screen shows both at once. */}
       <h3
         ref={ref}
         tabIndex={-1}
-        className="display-face italic text-[30px] leading-[1.2] mb-3 outline-none"
-        style={{ fontWeight: 400 }}
+        className="sheet-h3 mb-3 outline-none"
       >
         Thanks, talk soon.
       </h3>
@@ -262,11 +266,14 @@ function ErrorScreen({ email, onRetry }: { email: string; onRetry: () => void })
 
   return (
     <div className="w-full">
+      {/* The error head, same level as the success head above and the step head before it. Kept a
+          `p` rather than promoted to a heading: it is focused programmatically as a status message,
+          and giving it heading semantics would put a level into the outline that only exists in one
+          state. */}
       <p
         ref={ref}
         tabIndex={-1}
-        className="font-display italic text-[30px] leading-[1.2] mb-3 outline-none"
-        style={{ fontWeight: 400 }}
+        className="sheet-h3 mb-3 outline-none"
       >
         That did not send.
       </p>
