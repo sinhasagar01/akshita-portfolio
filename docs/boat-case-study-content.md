@@ -12,7 +12,7 @@ Drawn from your live site and the screenshots, cleaned, and mapped to your fifte
 
 **Title** - boAt Crest
 
-**Summary** - Rebuilding boAt's fitness companion app from a cluttered tracker into a calm, guided experience, and lifting the store rating from 2.3 to 4.
+**Summary** - Rebuilding boAt's fitness companion app from a cluttered tracker into a calm, guided experience, and lifting the store rating from 2.3 to 4.2.
 
 **Facts**
 - Role - Sole product designer, from research through final UI
@@ -40,7 +40,7 @@ Drawn from your live site and the screenshots, cleaned, and mapped to your fifte
 
 **Solution** - A decluttered, personalised app with guided onboarding, customisable watch faces, social challenges, and a unified design system.
 
-**Result** - The app store rating climbed from 2.3 to 4.
+**Result** - The app store rating climbed from 2.3 to 4.2.
 
 ---
 

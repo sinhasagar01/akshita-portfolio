@@ -12556,10 +12556,27 @@ work left is content, and it is the owner's.
    the field into content; **all 28 of boat-crest's images now have an empty `alt` waiting.** The
    field exists, the words are the owner's, and this is the only open item that improves the site
    for someone actually using it.
-3. **boAt Crest's META DESCRIPTION.** The code file carried its own `description`; the `[slug]`
+3. ~~**boAt Crest's META DESCRIPTION.** The code file carried its own `description`; the `[slug]`
    route uses `summary`, as all three others do, so it is now "…from 2.3 to 4" where it was "…up
    from 2.3 to 4.2". One line in the YAML if the longer sentence is wanted — and note the summary
-   and the old description disagreed about the number before either of them moved.
+   and the old description disagreed about the number before either of them moved.~~
+   **CLOSED. The one line was written, and this item is the reason the value is 4.2 rather than 4.**
+
+   ⚠ **AND IT SETTLES WHICH NUMBER WAS THE REGRESSION, WHICH A CENSUS ALONE COULD NOT.** Counted
+   across the repository the split was five instances at 4.2 against one at 4, and a majority is not
+   an argument. This entry is, because it records the DIRECTION of the change: `summary` took over
+   from a `description` that said 4.2, so **4 was what the migration lost** rather than a rounding
+   somebody chose. The record knew before anybody re-derived it.
+
+   **THE ONE INSTANCE THAT DISAGREED WAS THE MOST READ ONE.** `summary` feeds the homepage work
+   card dek AND the `[slug]` meta description, so the wrong figure was on the card a recruiter sees
+   first and in the search result that brings them there, while every detailed instance inside the
+   study was already right.
+
+   ⚠ **THE SIX `docs/*.html` MOCKS ARE DELIBERATELY NOT SWEPT, AND ONE OF THEM CARRIES A THIRD
+   SPELLING.** `work-section-overlay-grid.html` says `2.3 → 4.0`. Those files are dated contracts
+   rather than sources, which this record already states about mocks generally, so editing them
+   would imply they are maintained. The canonical value lives in `content/`.
 4. **KEEP WRITING POSTS THROUGH `/studio`.** The argument is about GATES rather than content: real
    use produced **three defects no gate found** — the blank canvas image, the silently dropped save,
    the ambiguous Publish button — all invisible to lint, tsc and every assertion of the day, and all

@@ -33,7 +33,7 @@ The primary audience is recruiters and hiring managers. The single most importan
 
 ### Case studies at launch, four locked
 
-- boAt Crest redesign, the hero. The most complete story, with interviews, a 100 user survey, personas, an empathy map, competitive analysis, a journey map, a design system, named features like Watchface Studio and guided onboarding, and a real outcome, the app rating rising from 2.3 to 4.
+- boAt Crest redesign, the hero. The most complete story, with interviews, a 100 user survey, personas, an empathy map, competitive analysis, a journey map, a design system, named features like Watchface Studio and guided onboarding, and a real outcome, the app rating rising from 2.3 to 4.2.
 - Fosfor AI, the on trend piece. An AI companion across three personas, with problem framing, objectives, a twelve week timeline, a design process, and a detailed information architecture. Still needs a real outcome or a properly framed close.
 - Fosfor Data Profiling, the enterprise piece. Clear problem, challenge, process, a competitive landscape, and metrics. Needs the borrowed template copy stripped and the metrics reframed as either real results or an honest measurement framework.
 - Elevate ONE View, the current role. A strong enterprise story, with a four stage design process, stakeholder mapping, global reach across APAC, EMEA, NAA and China, a feature breakdown, product gaps, solutions, and a learnings note. Under a confidentiality constraint, so the visible screens are limited and the narrative carries more of the weight.
