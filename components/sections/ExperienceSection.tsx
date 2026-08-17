@@ -31,7 +31,16 @@ function CompanyLine({
     <div className={className}>
       {display}
       {acquiredBy && (
-        <span className="font-display italic normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-accent)" }}>
+        /* ⚠ THE ACCENT LEAVES AN INLINE META PHRASE, WHICH IS NOT ONE OF ITS FOUR SANCTIONED JOBS.
+           "acquired by X" is a fact about the company, at the same size as the line around it, and
+           it was in the signal colour purely to look soft. `text-secondary`'s stated job is
+           "supporting text — meta lines, captions, labels", which is exactly what this is.
+
+           THE ITALIC STAYS AND IS NOT THIS UNIT'S QUESTION. It is one of four italic-prose sites the
+           grammar has not reached, and the display face still loads an italic for them. Deciding
+           those together is what would let that font file go — doing it here would be one quarter of
+           a decision. */
+        <span className="font-display italic normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-text-secondary)" }}>
           {" "}acquired by {acquiredBy}
         </span>
       )}
