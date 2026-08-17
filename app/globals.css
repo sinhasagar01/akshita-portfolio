@@ -4524,8 +4524,18 @@ a {
   left: 1rem;
   bottom: 1rem;
   z-index: 3;
+  /* ⚠ THE ITALIC IS GONE, AND A MARKUP GREP COULD NEVER HAVE FOUND IT. Every other decorative
+     italic on this page was a class or an inline style in a component; this one is set HERE, in CSS,
+     on a caption whose text comes from content. So the five sites found by reading `.tsx` were five
+     of six, and the sixth surfaced only from a computed-style census in the browser — the same
+     presence-versus-render split this repository records against source regexes, arriving in a
+     migration sweep.
+
+     A PLATE CAPTION IS A MONO MARK IN THIS GRAMMAR, and that is the eventual answer for this
+     element. Only the slant is removed here: converting it to the mark register also means moving
+     its size, tracking, case and colour, which is the plate-frame device's own decision rather than
+     the italics unit's. */
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 0.875rem;
   color: var(--color-on-dark);
   background: color-mix(in srgb, var(--color-band-dark) 42%, transparent);

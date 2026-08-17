@@ -113,8 +113,16 @@ export default function AboutSection({ settings }: Props) {
 
           <div className="mt-8 sm:mt-[52px] flex flex-col gap-5">
           {lead && (
+            /* ⚠ UPRIGHT. The specification's type table has SIX roles and NOT ONE OF THEM IS
+               ITALIC, so a slanted display paragraph is outside the system rather than a variant
+               inside it. Technical lettering is upright, which is the idiom argument; the system
+               argument is that this had no role to belong to.
+
+               THE SIZE AND WEIGHT ARE UNTOUCHED, DELIBERATELY. 27px at 400 is a lead paragraph and
+               it stays one — dropping the slant is the change, and re-scaling it would be a second
+               decision riding inside the first. */
             <p
-              className="font-display italic"
+              className="font-display"
               style={{ fontSize: "27px", lineHeight: "1.3", letterSpacing: "var(--tracking-snug)" }}
             >
               {lead}
@@ -132,8 +140,13 @@ export default function AboutSection({ settings }: Props) {
           ))}
 
           {note && (
+            /* ⚠ UPRIGHT, AND THE ACCENT STAYS FOR A REASON STATED ELSEWHERE. This is the voice note,
+               which the direction calls the whole personality budget on an achromatic medium — so it
+               keeps its colour until the MARGIN NOTE device is built, at which point it becomes
+               numbered mono with a rule above and the accent question answers itself. Retiring the
+               slant now and the colour later is two halves of two different units, not one deferred. */
             <p
-              className="font-display italic text-accent max-w-[44ch]"
+              className="font-display text-accent max-w-[44ch]"
               style={{ fontSize: "16px", lineHeight: "1.45" }}
             >
               {note}

@@ -79,7 +79,12 @@ export default function SkillsBody({ categories }: { categories: Category[] }) {
             style={{
               display: "block",
               fontFamily: "var(--font-display)",
-              fontStyle: "italic",
+              /* ⚠ UPRIGHT, AND IT IS THE ONE ITALIC ON THIS PAGE THAT IS TEXTURE RATHER THAN TYPE —
+                 which is why it needed deciding rather than sweeping. A slanted ghost word reads as
+                 handwriting, and a drawing's background lettering does not slant, so the italic was
+                 the one property here contradicting the idiom the rest of the page now speaks.
+                 Everything else about it is untouched: still 11% alpha, still `data-texture`, still
+                 outside every reading floor for the reasons stated above. */
               fontWeight: 400,
               lineHeight: 1,
               color: "color-mix(in oklch, var(--color-accent) 11%, transparent)",

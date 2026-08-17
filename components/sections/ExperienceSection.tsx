@@ -36,11 +36,15 @@ function CompanyLine({
            it was in the signal colour purely to look soft. `text-secondary`'s stated job is
            "supporting text — meta lines, captions, labels", which is exactly what this is.
 
-           THE ITALIC STAYS AND IS NOT THIS UNIT'S QUESTION. It is one of four italic-prose sites the
-           grammar has not reached, and the display face still loads an italic for them. Deciding
-           those together is what would let that font file go — doing it here would be one quarter of
-           a decision. */
-        <span className="font-display italic normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-text-secondary)" }}>
+           ⚠ AND THE ITALIC IS GONE NOW, WITH A CORRECTION TO WHAT THAT WAS SUPPOSED TO BUY. The note
+           above said deciding the italic sites together "is what would let that font file go". IT IS
+           NOT. `parseRich` supports `*italic*` as an AUTHORED mark and `rich.tsx` renders it as an
+           `<em>`, in every case-study rich-text field and every blog paragraph — and it is IN USE, 8
+           occurrences in live content. So the italic file is load-bearing for published prose and
+           stays regardless of what this page does. What retiring these six sites buys is a page whose
+           chrome is upright while emphasis an author writes is still slanted, which is the right
+           split rather than a consolation. */
+        <span className="font-display normal-case tracking-[0] text-[14px]" style={{ color: "var(--color-text-secondary)" }}>
           {" "}acquired by {acquiredBy}
         </span>
       )}
@@ -105,8 +109,14 @@ export default function ExperienceSection({ experience }: Props) {
               location={feature.location}
               className="relative mt-[14px] text-[12px] tracking-[.13em] uppercase text-text-subtle"
             />
-            {/* Role */}
-            <div className="relative font-display italic font-normal text-[23px] sm:text-[28px] leading-[1.15] mt-[6px]">
+            {/* ⚠ THE CURRENT ROLE TAKES THE STUDY ROLE RATHER THAN JUST LOSING ITS SLANT, because it
+                IS a head — the most important line in the feature block — and the grammar already has
+                a level for that. It was `font-normal` at 23/28px italic; `sheet-h3` is 600 at
+                clamp(21px, 2.5vw, 31px) upright, which is the same treatment its siblings got in
+                Process and Contact. Dropping only the italic would have left a 400-weight head above
+                a 600-weight one elsewhere on the page, which is the size-says-more, weight-says-less
+                cancellation this stylesheet already records. */}
+            <div className="relative sheet-h3 mt-[6px]">
               {feature.title}
             </div>
             {/* Date */}
