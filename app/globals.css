@@ -6164,20 +6164,31 @@ a {
   border: 1px solid var(--sheet-object);
   background: var(--color-surface);
 }
-.sheet-plate > .sheet-tick {
+/* ⚠ THE TICKS ARE NOT SCOPED TO `.sheet-plate`, BECAUSE THE FRAME HAS TWO CONSUMERS. They were
+   written as descendants of the plate when it had one. The work card's image is the second, and it
+   is not a `.sheet-plate` — it is an existing frame that becomes one, so a descendant selector
+   would have forced either a class it does not want or a duplicated rule. A tick is a mark, and a
+   mark does not care what it is cornering. */
+/* ⚠ AND THE MARK FALLS BACK TO `transparent`, WHICH IS WHAT MAKES A TICK SAFE TO RENDER
+   UNCONDITIONALLY. `--sheet-mark` is declared on the scope, and `ProjectCard` is mounted outside it
+   too — by the studio's details canvas and by two dev harness routes. With no fallback the shorthand
+   resolves its colour to `currentColor`, so a tick would draw in the TEXT colour on every surface
+   that is not a sheet. Defaulting to transparent means the mark exists in the markup everywhere and
+   paints only where the grammar is in scope, so no consumer needs a flag. */
+.sheet-tick {
   position: absolute;
   width: 10px;
   height: 10px;
-  border: 1px solid var(--sheet-mark);
+  border: 1px solid var(--sheet-mark, transparent);
 }
 /* Offset by the frame's own width so the tick sits ON the keyline rather than inside it. */
-.sheet-plate > .sheet-tick-tl {
+.sheet-tick-tl {
   left: -1px;
   top: -1px;
   border-right: 0;
   border-bottom: 0;
 }
-.sheet-plate > .sheet-tick-br {
+.sheet-tick-br {
   right: -1px;
   bottom: -1px;
   border-left: 0;
@@ -6311,6 +6322,47 @@ a {
 .sheet-scope .reveal-panel,
 .sheet-scope .reveal-panel.is-revealed {
   background-color: transparent;
+}
+
+/* ============================================================================================
+   THE WORK PLATES — the card's image frame BECOMES the plate frame rather than being replaced.
+
+   `.wc-shot` was already a framed box with a keyline, a mount and a fixed ratio. Three things
+   made it a card instead of a plate: a 12px radius, a keyline on the wrong role, and no corner
+   ticks. All three are addressed here and the box does not move, which is what keeps the hover
+   veil, the platform glow, the cascade recede and the filter's repack working untouched.
+
+   ⚠ THE KEYLINE MOVES OFF `border` FOR THE SAME REASON THE SECTION RULE DID, and this is the
+   second consumer to need it. That role aliases the third cream rung — lightness 88% against a
+   95.5% ground on `drawing-office` — so a plate keyline drawn with it cannot clear the 3.0 floor
+   the direction sets for anything drawn. `rule` holds a mid lightness on every palette. Both the
+   section rule and the plate keyline are the OBJECT weight in the spec's own table, so they now
+   resolve to one value rather than to two that happened to look alike on cream.
+
+   ⚠ AND THE MOUNT TAKES `surface-well` RATHER THAN THE CREAM RUNG IT HAD, BECAUSE A RUNG DOES NOT
+   FOLLOW THE GROUND. Read from the dark block: `surface-well` remaps to a mix of the dark
+   foreground over `band-dark`, so the mount is a near-black panel on a dark palette and a light
+   one on a light palette. `cream-200` is declared per palette but is NOT in the dark ground
+   remap, so it stays a light value — a light plate mount on a near-black page, which is the
+   mid-page-ground defect this record already carries. Nothing on screen moves on the five light
+   palettes; the four dark ones stop drawing a pale slab.
+   ============================================================================================ */
+.sheet-scope .wc-shot {
+  border-radius: 0;
+  border-color: var(--sheet-object);
+  background: var(--color-surface-well);
+}
+/* ⚠ THE TICKS PULL IN TO ZERO HERE, AND THE FRAME'S OWN CLIP IS WHY. `.wc-shot` keeps
+   `overflow: hidden` so a filled image cannot escape the box, and a tick at -1px would be cut off
+   by exactly the rule that holds the picture in. Sitting just inside the keyline is one pixel from
+   sitting on it, and it is the pixel that survives. */
+.sheet-scope .wc-shot > .sheet-tick-tl {
+  left: 0;
+  top: 0;
+}
+.sheet-scope .wc-shot > .sheet-tick-br {
+  right: 0;
+  bottom: 0;
 }
 
 /* ============================================================ STUDIO RADIUS SCALE

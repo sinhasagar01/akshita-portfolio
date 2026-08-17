@@ -21,6 +21,21 @@ type Props = {
    * DEFAULTS TO UNDEFINED, so the public render is byte-identical and the DOM gate proves it.
    */
   unoptimized?: boolean;
+  /**
+   * The plate number, printed as given — "01", not 1, because a plate number is a label rather
+   * than a count.
+   *
+   * ⚠ OPTIONAL, AND THE OMISSION IS THE POINT. This component is mounted outside the home page by
+   * the studio's details canvas and by two dev harness routes, and none of those is a plate
+   * schedule. Absent means no number is rendered, so those surfaces are unchanged rather than
+   * needing a flag to opt out.
+   *
+   * ⚠ AND IT MUST BE THE POSITION IN THE FULL ORDERED LIST, NEVER THE FILTERED ONE. The work
+   * filter hides cards and repacks the grid, so numbering the visible set would renumber every
+   * plate whenever a reader pressed a chip — and a plate number is an IDENTITY. `PL 01` is the
+   * same study before and after filtering.
+   */
+  plate?: string;
 };
 
 // Rail label: the category (title-cased) plus facts.platform, but drop the platform
@@ -57,7 +72,7 @@ function railCategory(category: string, platform: string): string {
  *
  * The veil keeps the title and the arrow and stays `aria-hidden`, because it repeats the rail.
  */
-export default function ProjectCard({ project, unoptimized }: Props) {
+export default function ProjectCard({ project, unoptimized, plate }: Props) {
   const { slug, title, summary, facts, category, heroImage } = project;
   // Show the uploaded heroImage when there is one, else the hand-built mock. (elevate-one-view
   // was force-fallen-back while its uploaded hero was a portrait phone shot unusable in the
@@ -95,8 +110,21 @@ export default function ProjectCard({ project, unoptimized }: Props) {
         <div className="wc-veil" aria-hidden="true">
           <p className="vt">{title} →</p>
         </div>
+        {/* ⚠ THE CORNER TICKS, AND THEY ARE THE WHOLE DIFFERENCE BETWEEN A FRAME AND A CARD.
+            Two corners rather than four, which is the printed convention. Rendered
+            unconditionally and INERT outside the sheet scope, because the mark colour falls back
+            to transparent — see the tick rule. `aria-hidden` because a registration mark carries
+            no information a reader needs spoken. */}
+        <span className="sheet-tick sheet-tick-tl" aria-hidden="true" />
+        <span className="sheet-tick sheet-tick-br" aria-hidden="true" />
       </div>
       <div className="wc-rail">
+        {/* ⚠ THE PLATE NUMBER SITS IN THE RAIL RATHER THAN INSET OVER THE PICTURE, AND THAT IS A
+            CONTRAST DECISION RATHER THAN A LAYOUT ONE. The device permits a caption "below or
+            inset", and inset would place mono type over a photograph — a foreground whose ground
+            is an image has no measurable floor, and this record refuses those. In the rail it sits
+            on a known token and can be measured. */}
+        {plate && <span className="sheet-mono-label">{`PL ${plate}`}</span>}
         <span className="name" id={nameId}>
           {title}
         </span>

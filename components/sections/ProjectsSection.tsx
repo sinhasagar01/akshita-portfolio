@@ -43,9 +43,14 @@ export default function ProjectsSection({ projects }: Props) {
               breakpoint), NOT the reference's 760px. Cards keep the reveal-card
               scroll-in. See app/globals.css .work-grid / .work-card. */}
           <ul className="work-grid list-none p-0 m-0">
-            {projects.map((project) => (
+            {/* ⚠ THE PLATE NUMBER COMES FROM THIS LIST, WHICH IS THE FULL ORDERED ONE. The filter
+                hides and repacks cards client-side without re-rendering this map, so the number is
+                fixed to the study rather than to its position on screen — `PL 01` is the same
+                piece whichever chip is pressed. Numbering the visible set would renumber every
+                plate on every press, and a plate number is an identity. */}
+            {projects.map((project, i) => (
               <li key={project.slug} className="reveal-card">
-                <ProjectCard project={project} />
+                <ProjectCard project={project} plate={String(i + 1).padStart(2, "0")} />
               </li>
             ))}
           </ul>
