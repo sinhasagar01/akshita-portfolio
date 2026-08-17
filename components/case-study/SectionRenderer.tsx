@@ -4,7 +4,6 @@ import type { Section } from "@/lib/case-studies/types";
 import CaseSectionHeader from "./CaseSectionHeader";
 import GlowWord from "./GlowWord";
 import BlockRenderer from "./BlockRenderer";
-import PullQuote from "./blocks/PullQuote";
 import { isWideFrame } from "./DeviceImage";
 import { renderRich } from "./rich";
 import { EDIT_AFFORD } from "./editable";
@@ -75,7 +74,17 @@ export default function SectionRenderer({
                   "data-edit-rich": "",
                 }
               : {})}
-            className={`font-display italic font-normal text-3xl text-text-primary leading-[1.3] max-w-[850px] mt-6${editable ? EDIT_AFFORD : ""}`}
+            /* ⚠ THE NORTH STAR IS A STATEMENT, SO IT TAKES THE STUDY ROLE AND STOPS BEING ITALIC.
+               It sat at 30px display italic under a section head — the same slanted-statement
+               treatment `PullQuote` and `ClosingLine` carried, and the specification's six type
+               roles contain no italic. `sheet-h3` puts it one level below the head above it, which
+               is where it belongs; before, its 400 against the head's 400 left the two separated by
+               size alone.
+
+               ⚠ AN AUTHORED `*italic*` INSIDE IT STILL RENDERS ITALIC, AND THAT IS THE POINT OF
+               DOING THIS ON THE PARAGRAPH RATHER THAN THE FACE. `renderRich` emits `<em>` for the
+               author's own emphasis mark; retiring a BLANKET slant does not touch a chosen one. */
+            className={`sheet-h3 max-w-[34ch] mt-6${editable ? EDIT_AFFORD : ""}`}
           >
             {renderRich(section.northStar)}
           </p>
@@ -183,53 +192,37 @@ export default function SectionRenderer({
     );
   }
 
-  // CS-7b — a STANDALONE pullQuote (the only block in its section) under template=web
-  // becomes a Bold-gallery dark quote band: the section identity on-dark, the quote in
-  // on-dark-quote serif, and a giant faint numeral from the section index. A paired
-  // pullQuote (with siblings) stays inline (BlockRenderer's web serif variant). Mobile
-  // and non-standalone are untouched — the standard cream card below.
-  const soleBlock = section.blocks.length === 1 ? section.blocks[0] : undefined;
-  if (web && soleBlock?.kind === "pullQuote") {
-    return (
-      <section
-        id={section.id}
-        /* ⚠ THE SAME DELETION AS THE HERO ABOVE, AND THIS BAND IS WHY THE POPULATION WAS FIVE RATHER
-           THAN TWO. `SiteHeader`'s own comment predicted exactly this — "the dark QUOTE BAND has
-           carried the attribute mid-page since #387, so scrolling the nav over it has the same
-           defect TODAY on the light site" — and named the band while missing the hero in front of
-           it. Both measured 1.09. See the note on the hero branch. */
-        className="section-card py-section relative overflow-hidden scroll-mt-20 m-0"
-      >
-        {section.index && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-6 right-6 z-0 select-none font-display leading-[0.8]"
-            style={{
-              color: "color-mix(in oklch, var(--color-accent-500) 13%, transparent)",
-              fontSize: "clamp(6rem, 14vw, 10rem)",
-            }}
-          >
-            {section.index}
-          </span>
-        )}
-        <div className="relative z-[1]">
-          {section.eyebrow && (
-            <p className="text-eyebrow tracking-[0.16em] uppercase font-semibold text-on-dark-muted">
-              {section.eyebrow}
-            </p>
-          )}
-          {section.title && (
-            <h2 className="font-display font-normal text-[clamp(1.75rem,3vw,2.25rem)] leading-[1.12] tracking-tight mt-3 whitespace-pre-line">
-              {section.title}
-            </h2>
-          )}
-          <div className={section.eyebrow || section.title ? "mt-6" : ""}>
-            <PullQuote text={soleBlock.text} web band editable={editable} blockIndex={0} />
-          </div>
-        </div>
-      </section>
-    );
-  }
+  /* ⚠ THE STANDALONE-pullQuote DARK QUOTE BAND IS DELETED, AND IT WAS AN UNREADABLE REGION ON TWO
+   * LIVE PAGES RATHER THAN A DESIGN BEING RETIRED.
+   *
+   * It rendered a `template: web` section whose sole block is a pullQuote as a Bold-gallery band —
+   * its own eyebrow in `on-dark-muted`, its own `h2`, the quote in `on-dark-quote`, and a giant
+   * faint numeral from the section index. The dark GROUND came from `data-ground="dark"`, which was
+   * correct until the `:root` prefix landed on 2026-08-09 and, rightly, stopped a section from
+   * matching it. The declaration went; the FOREGROUNDS stayed.
+   *
+   * MEASURED ON PRODUCTION, from the paint through a canvas pixel, sanity pair 21.000 first, with
+   * the stack read at the element's own centre because nothing in the ancestor chain paints:
+   *
+   *     on-dark-quote  194,194,194  on the 240,240,240 page ground   1.56   floor 4.5
+   *     on-dark-muted  172,172,172  on the same ground               1.99   floor 4.5
+   *
+   * Three regions, two case studies, and the whole quote paragraph reads as a ghost. The card
+   * retirement moved it from 1.71 to 1.56 by exposing the page ground; it did not cause it.
+   *
+   * ⚠ AND IT WAS A SECOND COPY OF THE SECTION HEADER, WHICH IS WHY NOBODY NOTICED. The eyebrow and
+   * `h2` above were hardcoded here rather than coming from `CaseSectionHeader`, so these three
+   * sections were the only ones the section rule never reached — a duplicate that drifted exactly
+   * the way the record says an unreachable second copy always does.
+   *
+   * THE FIX IS THE DELETION RATHER THAN THE FULFILMENT, WHICH IS THE RULING THE ATTRIBUTE ALREADY
+   * GOT ON THE HERO BRANCH ABOVE. Restoring a dark ground would ship a design nobody has seen, on
+   * two live pages, with the hero art unmeasured against near-black. Deleting the variant removes
+   * the wrong-ground foregrounds entirely, puts these sections on the shared header, and is what
+   * the direction says anyway.
+   *
+   * WHAT GOES WITH IT: the giant faint accent numeral. The section rule already prints `Sheet 03`
+   * from the same field, so the number is still on the page in the vocabulary that owns it. */
 
   // CS-7c — the inline canvas renders in a static panel, so skip RevealSection's
   // in-view clip (which would leave the section hidden) and render a plain card.
