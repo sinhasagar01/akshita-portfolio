@@ -86,6 +86,7 @@ export const PARITY_SCRIPT = String.raw`(() => {
   };
 
   const findings = [];
+  let addedByCanvas = 0;
   for (const pair of document.querySelectorAll('[data-parity-pair]')) {
     const name = pair.dataset.paritySection;
     const L = collect(pair.querySelector('[data-parity-side="live"]'));
@@ -96,17 +97,31 @@ export const PARITY_SCRIPT = String.raw`(() => {
        box" — never ran for any section that had one. The stricter check was hiding the accurate
        one. Boxes are now compared over the common prefix regardless, which is strictly more
        information than a bare count. */
-    if (L.length !== C.length) {
-      findings.push({ section: name, kind: 'block-count',
-        detail: 'live ' + L.length + ' vs canvas ' + C.length +
-                ' — the canvas added or dropped a block-level element' });
+    /* ⚠ THE ASYMMETRY THE CONTRACT ACTUALLY STATES, AND A SYMMETRIC COUNT COULD NOT EXPRESS IT.
+       The rule is that editable and noReveal may ADD affordances but must never move or resize a
+       box. So the two directions are not the same defect:
+
+         a CANVAS element with no live counterpart   an added affordance — PERMITTED
+         a LIVE element with no canvas counterpart   the canvas dropped a block — THE DEFECT
+
+       The old check compared lengths, which fires on both and therefore fires on the permitted
+       one. HeroCover wraps its rating text in a span ONLY when editable — a deliberate choice its
+       own comment states, so the public markup carries no wrapper it does not need — and that one
+       legitimate addition was the whole of the hero's reported mismatch. Counted here rather than
+       reported, so the number stays visible without being a finding. */
+    const byPath = new Map(C.map((x) => [x.path, x]));
+    const livePaths = new Set(L.map((x) => x.path));
+    addedByCanvas += C.filter((x) => !livePaths.has(x.path)).length;
+    const missing = L.filter((x) => !byPath.has(x.path));
+    if (missing.length) {
+      findings.push({ section: name, kind: 'dropped-in-canvas',
+        detail: missing.length + ' live element(s) have no canvas counterpart, first at ' + missing[0].path });
     }
     /* PAIRED BY PATH, NOT BY INDEX, AND THE INDEX VERSION WAS MEASURED BEFORE THIS REPLACED IT.
        One inserted element shifts every index after it, so an index walk turns ONE structural
        difference into a cascade: the hero reported 17 box findings whose canvas value was simply
        the previous live element. A path is stable under insertion, so a real box change is still
        caught and a shifted list is not mistaken for one. 441 elements pair, 0 go unpaired. */
-    const byPath = new Map(C.map((x) => [x.path, x]));
     for (const a of L) {
       const b = byPath.get(a.path);
       if (!b) continue;
@@ -124,6 +139,7 @@ export const PARITY_SCRIPT = String.raw`(() => {
 
   return JSON.stringify({
     sections: document.querySelectorAll('[data-parity-pair]').length,
+    addedByCanvas: addedByCanvas,
     findingCount: findings.length,
     findings: findings.slice(0, 20),
     verdict: findings.length === 0
