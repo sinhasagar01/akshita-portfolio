@@ -170,7 +170,7 @@ export default function ImagePreview() {
             onClick={fn}
             disabled={disabled}
             aria-label={label}
-            className="min-w-[44px] rounded-full border border-on-dark/20 px-3 py-1.5 font-mono text-[12px] text-on-dark disabled:opacity-40"
+            className="min-w-[44px] border border-on-dark/20 px-3 py-1.5 font-mono text-[12px] text-on-dark disabled:opacity-40"
           >
             {glyph}
           </button>
@@ -180,7 +180,7 @@ export default function ImagePreview() {
           type="button"
           onClick={close}
           aria-label="Close preview"
-          className="rounded-full border border-on-dark/20 px-3 py-1.5 font-mono text-[12px] text-on-dark"
+          className="border border-on-dark/20 px-3 py-1.5 font-mono text-[12px] text-on-dark"
         >
           Esc
         </button>

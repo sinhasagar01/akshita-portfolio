@@ -5177,6 +5177,20 @@ a {
   height: 3px;
   opacity: 1 !important;
 }
+/* ⚠ THE 3px STAYS, AND IT IS THE ONE RAIL CORNER THAT DOES. The rail's three radii were deferred
+   with the nav decision and settled by it: the hover card was a BOX AROUND CONTENT and is square
+   now, `.pr-dash` is a 10x2 tick whose 2px is a LINE CAP — the same thing the nav morph's open X
+   keeps — and this is a FOCUS RING.
+
+   Its element is a bare 44x20 hit area with no background, no border and no radius of its own, so
+   strictly the ring is giving it a corner it does not have, and the nav's own focus rules declare
+   outline plus offset and NO radius. That argues for removing it.
+
+   IT IS KEPT BECAUSE THE CHANGE IS ONE NOBODY CAN SEE. A 3px corner on a 2px outline around a 20px
+   box is a bevel, and this record's standing ruling is that a class edit with no observable effect
+   is churn — the same call made against `display: flex` on the work filter and against matching two
+   button heights to equalise a clamped radius. Naming it is cheaper than a value nobody asked for,
+   and it stops the next reader filing it as an oversight. */
 .pr-tick:focus-visible {
   outline: 2px solid var(--color-accent-500);
   outline-offset: 2px;
@@ -5213,7 +5227,7 @@ a {
 .pr-card {
   width: 250px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--color-surface);
   border: 1px solid color-mix(in oklch, var(--color-etch) 8%, transparent);
   box-shadow: 0 18px 44px -18px color-mix(in oklch, var(--color-etch) 45%, transparent);

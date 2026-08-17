@@ -136,7 +136,7 @@ function Frame({
           type="button"
           data-edit-image-replace
           aria-label="Replace image"
-          className="absolute right-2 top-2 z-[20] rounded-full bg-accent px-2.5 py-1 text-[12px] font-medium text-on-accent shadow-sm transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface"
+          className="absolute right-2 top-2 z-[20] bg-accent px-2.5 py-1 text-[12px] font-medium text-on-accent shadow-sm transition-colors hover:bg-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface"
         >
           Replace image
         </button>

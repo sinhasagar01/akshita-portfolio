@@ -176,10 +176,23 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
   /* ⚠ EVERY SURVIVOR IS NAMED WITH WHAT IT DRAWS, not merely counted. A total goes green when one
      corner is retired and another added; a list fails ON ARRIVAL with the file that added it — the
      shape `typography` section E was built for after three miscounts of a different population. */
+  /* ⚠ THE CONTROL CATEGORY HAS DRAINED, AND IT DRAINED IN TWO DIRECTIONS RATHER THAN ONE — which is
+     why the deferral could not be closed by a sweep. #635 squared the nav and gave this the precedent
+     it was waiting for, and that precedent has two halves: the Resume control, a BOX AROUND TEXT, was
+     squared; the morph button, a ROUND ICON BUTTON at 36x36, kept its circle in both states.
+     Applied here, the five deferred controls split four to two:
+
+       squared, boxes around words   the two lightbox zoom buttons · the Esc button ·
+                                     two studio Replace affordances · the rail's hover card
+       kept, and RECLASSIFIED        WorkStory's prev and next buttons — 44px round icon buttons
+                                     holding a 16px chevron, which is the morph's shape and job
+
+     So `ImagePreview` and `FigureGrid` leave this census entirely, `DeviceImage` drops to eight, and
+     the two survivors move from CONTROL to CIRCLE. Nothing is exempt any more: every member is a
+     circle or a depicted object. */
   const EXPECTED = {
     "Annotation.tsx": ["CIRCLE — the 11px callout dot, which is a dot"],
     "DeviceImage.tsx": [
-      "CONTROL — the studio Replace affordance, deferred with the nav decision",
       "DEPICTED — the browser window frame the mock draws",
       "DEPICTED — a chrome dot in the mock's title bar",
       "DEPICTED — a chrome dot in the mock's title bar",
@@ -189,16 +202,11 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
       "DEPICTED — the laptop's base bar, whose bottom corners are round because the case is",
       "DEPICTED — the trackpad notch cut into that base bar",
     ],
-    "ImagePreview.tsx": [
-      "CONTROL — a lightbox button, deferred with the nav decision",
-      "CONTROL — a lightbox button, deferred with the nav decision",
-    ],
     "blocks/BeforeAfter.tsx": ["CIRCLE — the 6px bullet dot"],
     "blocks/BeforeAfterStory.tsx": [
       "CIRCLE — the 9px rail stop, drawn as a ring",
       "CIRCLE — the 3px progress capsule, whose ends are round because it is a capsule",
     ],
-    "blocks/FigureGrid.tsx": ["CONTROL — the studio Replace affordance, deferred with the nav decision"],
     "blocks/Stepper.tsx": ["CIRCLE — the 9px step dot"],
     "blocks/VideoEmbed.tsx": [
       "DEPICTED — the browser window frame, sharing DeviceImage's ruling by design",
@@ -210,9 +218,9 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
       "CIRCLE — the 1.5px tag dot",
     ],
     "blocks/WorkStory.tsx": [
-      "CONTROL — the previous-feature button, deferred with the nav decision",
+      "CIRCLE — the previous-feature button, a 44px round icon button holding a chevron, which is the nav morph's shape",
       "CIRCLE — the 1.5px live dot",
-      "CONTROL — the next-feature button, deferred with the nav decision",
+      "CIRCLE — the next-feature button, the same shape as its pair",
     ],
   };
   /* ⚠ THE DIRECTIONAL VARIANTS ARE IN THE PATTERN, AND THE FIRST DRAFT LEFT THEM OUT — a matcher
@@ -241,15 +249,20 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
   /* ⚠ THE COMPLEMENT, AND IT IS THE HALF A MEMBERSHIP LIST ALWAYS NEEDS. A named list only ever
      loosens — add a file and its corners become "expected" — so the files this unit squared are
      asserted as ones it must NOT cover. Same shape as the italic census's E3. */
-  t("C3 ⚠ NO BOX GETS ITS CORNER BACK — the files this unit squared must not reappear",
+  t("C3 ⚠ NO BOX GETS ITS CORNER BACK — every file these two units squared must not reappear",
     ["StatCard.tsx", "PrincipleCard.tsx", "blocks/GlanceGrid.tsx", "blocks/FeatureRows.tsx",
-     "blocks/DeviceShelf.tsx", "blocks/SwatchTokens.tsx", "blocks/HeroCover.tsx"]
+     "blocks/DeviceShelf.tsx", "blocks/SwatchTokens.tsx", "blocks/HeroCover.tsx",
+     "ImagePreview.tsx", "blocks/FigureGrid.tsx"]
       .filter((f) => f in found), []);
   /* ⚠ AND THE KINDS ARE PINNED, so a category that drains cannot sit in the vocabulary unnoticed —
      the defect `typography` E4 was added for one unit ago, on a different list in the same week. */
-  t("C4 the surviving kinds are exactly CIRCLE, CONTROL and DEPICTED — a fourth needs a decision, not a word",
+  /* ⚠ CONTROL IS GONE FROM THIS LIST AND THAT IS THE POINT OF PINNING THE KINDS. It held five
+     members across three files, deferred by name pending the nav ruling; #635 gave them a precedent
+     and this unit applied it. An emptied word left in the vocabulary is a category a later corner can
+     slip back in under — the defect `typography` E4 was added for, on a different list. */
+  t("C4 the surviving kinds are exactly CIRCLE and DEPICTED — CONTROL drained when the deferral closed, and a fourth needs a decision rather than a word",
     [...new Set(Object.values(EXPECTED).flat().map((r) => r.split(" ")[0]))].sort(),
-    ["CIRCLE", "CONTROL", "DEPICTED"]);
+    ["CIRCLE", "DEPICTED"]);
 }
 
 /* ================================================ D. THE NAV RADIUS CENSUS
@@ -326,6 +339,41 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
     [/background:\s*var\(--glass-fill\)/, /backdrop-filter:\s*var\(--glass-blur\)/,
      /border:\s*0?\.5px solid var\(--glass-stroke\)/, /box-shadow:\s*var\(--glass-shadow\)/]
       .map((re) => re.test(base)), [true, true, true, true]);
+}
+
+/* ================================================ E. THE PREVIEW RAIL
+ * ⚠ THE SITE'S OTHER PIECE OF FIXED CHROME, AND THE LAST OF THE DEFERRALS. The rail is the public
+ * case study's section nav — fixed, on every study, three corners declared in CSS. It was deferred by
+ * name with the nav decision, so it is settled by the same precedent, and it gets rows here rather
+ * than a section of its own: a three-member population does not earn its own vocabulary, and
+ * inventing kinds for two survivors is the shape this repository deletes on sight.
+ *
+ *   the hover card    a BOX AROUND CONTENT   ->  squared
+ *   `.pr-dash`        a 10x2 tick, 2px       ->  kept, a LINE CAP, exactly what the morph's X keeps
+ *   the focus ring    3px on a 2px outline   ->  kept, and the reason is at the line: the change is
+ *                                                one nobody can see, which this record calls churn */
+{
+  const rail = css.slice(css.indexOf(".pr-rail {"), css.indexOf(".pr-k {"));
+  const code = rail.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const radiusIn = (sel) => {
+    const m = new RegExp(sel.replace(/[.:]/g, (c) => "\\" + c) + "\\s*\\{([^}]*)\\}").exec(code);
+    return m ? (/border-radius:\s*([^;]+)/.exec(m[1]) ?? [])[1]?.trim() ?? "(none)" : "(rule not found)";
+  };
+  /* ⚠ THE DENOMINATOR FIRST, because every row below reads one rule out of this slice and a slice
+     that missed its anchors would report "(rule not found)" three times, which is not a pass but
+     reads like one until somebody looks at what it means. */
+  t("E0 the rail slice is real and bounded, and all three rules resolve inside it",
+    [rail.length > 500 && rail.length < 6000,
+     radiusIn(".pr-card") !== "(rule not found)",
+     radiusIn(".pr-dash") !== "(rule not found)",
+     radiusIn(".pr-tick:focus-visible") !== "(rule not found)"],
+    [true, true, true, true]);
+  t("E1 ⚠ THE RAIL'S HOVER CARD IS SQUARE — a box around content, settled by the nav ruling it was deferred with",
+    radiusIn(".pr-card"), "0");
+  t("E2 …and the tick's 2px line cap is untouched, the same thing the nav morph's open X keeps",
+    radiusIn(".pr-dash"), "2px");
+  t("E3 …and the focus ring keeps its 3px, which is a bevel on a 2px outline and a change nobody can see",
+    radiusIn(".pr-tick:focus-visible"), "3px");
 }
 
 console.log(`\nradius-scale result: ${pass} passed, ${fail} failed`);
