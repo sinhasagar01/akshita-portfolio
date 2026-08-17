@@ -870,16 +870,64 @@ const groundSep = (a, b) => bandUnit(a) === "dE"
  * neighbour (basalt) against a shipped minimum of 33.7 — the MOST separated accent the system
  * carries. The pair degrees called a 4-degree collision, cerise, is 239.1 dE away.
  *
- * ⚠ AND THE FLOOR IS THE JUDGED PAIR, WHICH ALREADY EXISTED IN THIS FILE IN THIS UNIT. The note
- * above D12d records sapphire/nocturne at "47.2 in perceptual distance", rendered and read as TWO
- * NAMEABLE COLOURS. That figure is `dist3` to the decimal — measured 47.244 — so the judgement and
- * this measure are already the same quantity and nothing has to be re-judged to change the unit.
- * 47 sits just under it, admitting the pair that was judged distinct and refusing anything closer.
+ * ⚠ AND THE FLOOR IS THE JUDGED PAIR, WHICH ALREADY EXISTED IN THIS FILE IN THIS UNIT. Sapphire and
+ * nocturne's accents were rendered and read as TWO NAMEABLE COLOURS, and that reading is `dist3` in
+ * the same quantity this row measures — so nothing had to be re-judged to change the unit. 47 sits
+ * just under it, admitting the pair judged distinct and refusing anything closer.
+ *
+ * ⚠ THE FIGURE ITSELF IS NOT REPEATED HERE, DELIBERATELY. It lives in `ACCENT_JUDGED` with the two
+ * colours it was taken on, D12j1 recomputes it, and D12j2 holds this floor to it. When this comment
+ * carried the number instead, nothing compared the two — which is the same shape as the dark band's
+ * 6.0 and as A8a's title stating a count its row did not compute.
  *
  * BOUNDED ABOVE AND NOT BELOW, exactly like the light band: no accent pair has ever been rendered
  * and read as ONE colour, so nothing pins this from underneath. Said rather than implied. */
 const ACCENT_FLOOR = 47;
 const accentSep = (a, b) => dist3(rgbOf(a, "accent-500"), rgbOf(b, "accent-500"));
+
+/* ⚠ THE ACCENT JUDGEMENTS, MOVED OUT OF PROSE AFTER THE DARK BAND'S 6.0 TURNED OUT TO DESCRIBE A
+ * COLOUR THAT NEVER SHIPPED. Both of these sat in comments as bare figures — "47.2 in perceptual
+ * distance", "harbour/fern's 95.4" — which is exactly the form that let the 6.0 drift unnoticed for
+ * a week. A number in prose is a claim nobody can re-derive.
+ *
+ * ⚠ AND THE SAME QUESTION WAS ASKED OF THESE BEFORE REGISTERING THEM, BECAUSE THE 6.0 CAME FROM
+ * THIS VERY COMMIT. `0f9f183` recorded all three while nocturne was still deferred, so "was this
+ * taken on the shipped colours" had to be answered rather than assumed. Measured:
+ *
+ *     shipped pair, sap 52% c.174 h272 vs noc 52% c.160 h296     47.244  -> 47.2   MATCHES
+ *     the candidate accent at c.170                              47.053  -> 47.1   does not
+ *     both at the studio doc's accent lightness of 70%           49.497           does not
+ *     harbour/fern, the cited precedent, both shipped            95.431  -> 95.4   MATCHES
+ *
+ * So unlike the ground reading, these two were taken on values that did ship, and they reproduce.
+ * That is a measurement rather than an assumption, and it is the only reason they can be registered
+ * with their colours rather than with a caveat. */
+const ACCENT_JUDGED = [
+  { dE: 47.2, read: "two",
+    what: "sapphire vs nocturne accent-500, each ALONE on a shared neutral ground, switched in "
+        + "sequence rather than shown side by side. Sapphire reads BLUE and nocturne VIOLET — two "
+        + "nameable colours, so two themes. This is the pair that lowered D12d from 30 to 24.",
+    colours: ["oklch(52.0% 0.174 272)", "oklch(52.0% 0.160 296)"] },
+  { dE: 95.4, read: "two",
+    what: "harbour vs fern accent-500, the PRECEDENT the pair above was weighed against — ruled "
+        + "distinct at 31.3 degrees under the old unit, and the widest of the close pairs.",
+    colours: ["oklch(52.5% 0.110 165.3)", "oklch(54.0% 0.136 134)"] },
+];
+
+/* ⚠ CHECKED AT THE PRECISION THEY WERE RECORDED AT, WHICH IS THE ONLY HONEST TOLERANCE. 47.244
+ * recorded as 47.2 is not a drift, it is one decimal place; demanding equality to the hundredth
+ * would fail a figure that is correct as stated. So the computed value is rounded to the recorded
+ * value's OWN number of decimals, and a reading may not be recorded more precisely than it can be
+ * reproduced. */
+const decimalsOf = (n) => { const s = String(n); const i = s.indexOf("."); return i < 0 ? 0 : s.length - i - 1; };
+const recheckJudged = (label, list) => list.map((j) => {
+  if (!Array.isArray(j.colours) || j.colours.length !== 2) return `${label} ${j.dE}: no colours recorded`;
+  const [x, y] = j.colours.map((c) => parseColor(c));
+  if (!x || !y) return `${label} ${j.dE}: a colour did not parse`;
+  const p = 10 ** decimalsOf(j.dE);
+  const got = Math.round(dist3(x, y) * p) / p;
+  return got !== j.dE ? `${label}: recorded ${j.dE}, recomputes to ${got}` : null;
+}).filter(Boolean);
 t("D12u ⚠ EVERY BAND'S FLOOR UNIT IS ONE THIS ROW CAN MEASURE — an unknown unit must not fall back to degrees silently",
   BANDS.filter((b) => !["degrees", "dE"].includes(b.floorUnit)).map((b) => b.label), []);
 t("D12 ⚠ NO TWO GROUNDS IN ONE CLASS ARE ADJACENT — in the band's OWN unit, across classes it does not apply",
@@ -900,10 +948,15 @@ t("D12f ⚠ AND CROSS-BAND PAIRS ARE COUNTED RATHER THAN SILENTLY DROPPED — a 
  * nameable colours, so: two themes.
  *
  * ⚠ AND THE NUMBER THAT MADE IT UNCOMFORTABLE IS RECORDED BESIDE IT, because a floor lowered on a
- * render should carry it. sapphire/nocturne is 47.2 in perceptual distance against harbour/fern's
- * 95.4 — the precedent, ruled distinct at 31.3 degrees — so this pair is 49% OF IT and is now THE
- * CLOSEST PAIR THE SYSTEM CARRIES by both measures. Distinct on the criterion, and the closest it
- * has come. Both halves are true and the second is why 24 is a floor rather than a direction. */
+ * render should carry it. BOTH FIGURES NOW LIVE IN `ACCENT_JUDGED` WITH THE COLOURS THEY WERE TAKEN
+ * ON, and D12j1 recomputes them — they are not restated here, because a number in prose is a claim
+ * nobody can re-derive and that is precisely how the dark band's 6.0 sat wrong for a week.
+ *
+ * WHAT THE PROSE KEEPS IS THE ARGUMENT, WHICH NO ARITHMETIC CARRIES: sapphire/nocturne is roughly
+ * HALF the precedent set by harbour/fern, ruled distinct at 31.3 degrees under the old unit, so
+ * this pair is now THE CLOSEST THE SYSTEM CARRIES by both measures. Distinct on the criterion, and
+ * the closest it has come. Both halves are true and the second is why 24 was a floor rather than a
+ * direction — and why that floor is 47 in dE today, held to these readings by D12j2. */
 t("D12x ⚠ EVERY EXEMPTION NAMES A REAL PALETTE AND AN END CONDITION — an exemption for a palette that does not exist is a rule quietly deleted",
   [...Object.entries(ACCENT_EXEMPT), ...Object.entries(GROUND_EXEMPT)]
     .filter(([n, why]) => !REAL.includes(n) || !/END:/.test(why) || !/Conflict:/.test(why)).map(([n]) => n), []);
@@ -946,6 +999,21 @@ t("D12z ⚠ D12d MEASURES IN dE — proved on ONE pair in both units, so a rever
 t("D12za ⚠ …AND D12d IS THE CALLER THAT USES IT — D12z stays green if D12d reverts to arc(), so the two are not redundant",
   /!\(b in ACCENT_EXEMPT\) && accentSep\(a, b\) < ACCENT_FLOOR\)/.test(
     readFileSync(new URL(import.meta.url), "utf8")), true);
+/* ⚠ AND THE ACCENT FLOOR IS NOW HELD TO ITS JUDGEMENTS THE WAY A BAND'S IS, WHICH IT NEVER WAS.
+ * 47 sat as a literal beside prose citing 47.2, and nothing compared the two — the A8a shape, where
+ * a title states a quantity the row does not compute. These three rows close it: the register is
+ * non-empty, every reading recomputes from its own colours, and the floor sits where its readings
+ * put it. */
+t("D12j0 ⚠ THE ACCENT REGISTER IS NON-EMPTY, against a literal — an empty one makes the two rows below vacuous",
+  ACCENT_JUDGED.length >= 1, true);
+t("D12j1 ⚠ EVERY ACCENT JUDGEMENT RECOMPUTES FROM ITS OWN STATED COLOURS — the dark band's 6.0 sat wrong for a week for want of this",
+  recheckJudged("accent", ACCENT_JUDGED), []);
+/* ⚠ AND IT IS BOUNDED ABOVE ONLY, SAID RATHER THAN IMPLIED. Both readings are TWO — two colours a
+ * viewer could name apart — so they cap the floor and none pins it from below. No accent pair has
+ * ever been rendered and read as ONE. Identical posture to the light band, and the opposite of the
+ * dark band, which has a `one` and no `two`. Not one of the three has both halves. */
+t("D12j2 ⚠ …AND THE FLOOR SITS AT OR BELOW EVERY SEPARATION READ AS TWO — a floor above one of them would refuse a pair somebody judged distinct",
+  ACCENT_JUDGED.filter((j) => j.read === "two" && ACCENT_FLOOR > j.dE).map((j) => `floor ${ACCENT_FLOOR} > judged-two ${j.dE}`), []);
 /* ⚠ ORDERED, BOTH WAYS. The defect is asymmetric — a ground ON another palette's accent — so a
  * pair list that compares each duo once would miss it in one direction.
  *
@@ -1711,13 +1779,7 @@ t("L3e …and every judged reading names what was rendered, so a figure nobody c
  * The claim being checked is "this number describes these colours", which is the one that was
  * false. */
 t("L3f ⚠ EVERY JUDGED READING RECOMPUTES FROM ITS OWN STATED COLOURS — a figure that cannot be re-derived is the defect that hid for a week",
-  withJudged.flatMap((b) => b.judged.map((j) => {
-    if (!Array.isArray(j.colours) || j.colours.length !== 2) return `${b.label} ${j.dE}: no colours recorded`;
-    const [x, y] = j.colours.map((c) => parseColor(c));
-    if (!x || !y) return `${b.label} ${j.dE}: a colour did not parse`;
-    const got = Math.round(dist3(x, y) * 100) / 100;
-    return Math.abs(got - j.dE) > 0.005 ? `${b.label}: recorded ${j.dE}, recomputes to ${got}` : null;
-  }).filter(Boolean)), []);
+  withJudged.flatMap((b) => recheckJudged(b.label, b.judged)), []);
 t("L5 ⚠ EVERY BAND DECLARES ITS FLOOR UNIT — degrees is silent about an achromatic ground, and silence reads as a pass",
   BANDS.filter((b) => !b.floorUnit).map((b) => b.label), []);
 t("L4 every band states WHY it exists and what its floor rests on",
