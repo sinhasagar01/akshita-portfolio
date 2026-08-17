@@ -55,7 +55,19 @@ export const PARITY_SCRIPT = String.raw`(() => {
   const collect = (root) => {
     const out = [];
     const walk = (el, path) => {
-      if (el.matches && el.matches('[data-edit-image-replace]')) return; // out of flow
+      /* BOTH ARMS OF THE OVERLAY TERNARY, NOT ONE. DeviceImage renders
+           editable ? <ReplaceImageButton/> : previewSrc ? <PreviewHint/> : null
+         so it is one element per side, by design. This list excluded only the CANVAS arm, so every
+         section holding an image counted the live arm against nothing and reported a block-count
+         mismatch. Excluding one half of a one-for-one swap guarantees the difference it reports.
+
+         AND data-edit-value-path IS DELIBERATELY NOT EXCLUDED, which was measured rather than
+         reasoned. It marks REAL CONTENT wearing an affordance class — .cs-editable sets cursor,
+         outline and background and NO display, precisely so it cannot move a box. Excluding it
+         drops that element's whole subtree from the canvas census: tried, and the mismatch count
+         went from 3 to 8. */
+      if (el.matches && (el.matches('[data-edit-image-replace]')
+                      || el.matches('.cs-preview-hint'))) return; // affordances, out of flow
       const cs = getComputedStyle(el);
       if (!cs.display.startsWith('inline') || cs.display === 'inline-block') {
         const r = el.getBoundingClientRect();
@@ -78,14 +90,26 @@ export const PARITY_SCRIPT = String.raw`(() => {
     const name = pair.dataset.paritySection;
     const L = collect(pair.querySelector('[data-parity-side="live"]'));
     const C = collect(pair.querySelector('[data-parity-side="canvas"]'));
+    /* ⚠ THE continue IS GONE, AND IT WAS SUPPRESSING THE CHECK THAT MATCHES THE CONTRACT.
+       A count difference used to skip the rest of the section, so the BOX comparison — the one the
+       parity rule is actually written in, "may ADD affordances but must never move or resize a
+       box" — never ran for any section that had one. The stricter check was hiding the accurate
+       one. Boxes are now compared over the common prefix regardless, which is strictly more
+       information than a bare count. */
     if (L.length !== C.length) {
       findings.push({ section: name, kind: 'block-count',
         detail: 'live ' + L.length + ' vs canvas ' + C.length +
                 ' — the canvas added or dropped a block-level element' });
-      continue;
     }
-    for (let i = 0; i < L.length; i++) {
-      const a = L[i], b = C[i];
+    /* PAIRED BY PATH, NOT BY INDEX, AND THE INDEX VERSION WAS MEASURED BEFORE THIS REPLACED IT.
+       One inserted element shifts every index after it, so an index walk turns ONE structural
+       difference into a cascade: the hero reported 17 box findings whose canvas value was simply
+       the previous live element. A path is stable under insertion, so a real box change is still
+       caught and a shifted list is not mistaken for one. 441 elements pair, 0 go unpaired. */
+    const byPath = new Map(C.map((x) => [x.path, x]));
+    for (const a of L) {
+      const b = byPath.get(a.path);
+      if (!b) continue;
       if (a.visible && !b.visible) {
         findings.push({ section: name, kind: 'invisible-in-canvas',
           detail: a.tag + ' @' + a.path + ' renders live (opacity ' + a.opacity +
