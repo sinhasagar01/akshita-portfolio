@@ -261,6 +261,26 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
       element: "main.mx-auto.max-w-[68ch].px-6",
     },
   },
+
+  /* ⚠ THE ACHROMATIC PALETTE INHERITS FOR THE SAME REASON EVERY OTHER ENTRY DOES, AND IT IS WORTH
+     SAYING BECAUSE THE DIRECTION IT BELONGS TO WILL EVENTUALLY BREAK THAT. It changes colours and
+     nothing else, so `68ch` resolves against Work Sans exactly as it does on cream.
+
+     The visual direction this palette was drawn for proposes a different body face, and the note
+     at the top of this map already states the rule: the day a theme changes the body face, that
+     theme needs its own measurement. That day is coming for this entry specifically. Until the
+     face actually moves, deriving is correct and measuring again would be a second reading of the
+     same font. */
+  "drawing-office": {
+    bodyFont: "Work Sans",
+    measure68chPx: 676.734,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1440x900",
+      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+    },
+  },
 };
 
 /** The theme the site currently ships. Repointed by the theme reader in a later step. */

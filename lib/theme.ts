@@ -104,8 +104,19 @@ export const SEVENTH_THEME = "ink-flare";
 export const EIGHTH_THEME = "nocturne";
 export const NINTH_THEME = "basalt";
 
+/* ⚠ THE FIRST PALETTE WITH NO ACCENT HUE AT ALL, AND THE FIRST THE HUE FLOOR COULD NOT HAVE
+   ADMITTED. #616 moved the light band from degrees to dE for exactly this member, after measuring
+   that the old floor would have REFUSED an achromatic ground unconditionally rather than being
+   silent about one — a chroma-0 ground still carries a hue DIGIT that `arc()` reads, and none of
+   the 360 spellings clears 60 degrees against all five shipped hues.
+
+   IT IS FIVE VALUES FROM `basalt`, WHICH IS WHY IT IS ITS COUNTERPART. Basalt already carried a
+   fully achromatic light ladder that nothing on a basalt page drew, and this is that ladder given
+   a page. Same lightnesses, so the ratios are basalt's rather than new. */
+export const TENTH_THEME = "drawing-office";
+
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, TENTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -162,6 +173,9 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   [SEVENTH_THEME]: "dark",
   [EIGHTH_THEME]: "dark",
   [NINTH_THEME]: "dark",
+  /* Light, and the only member of that class carrying zero chroma. Its page ground is `canvas`
+     like every other light palette; what it does not have is a hue anywhere. */
+  [TENTH_THEME]: "light",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
   [VERIFY_THEME]: "light",
 };
@@ -239,6 +253,11 @@ export const THEME_COUNTERPART: Record<string, string> = {
   [SEVENTH_THEME]: DEFAULT_THEME,
   [EIGHTH_THEME]: THIRD_THEME,
   [NINTH_THEME]: FIFTH_THEME,
+  /* ⚠ THE ONE PAIR WHERE THE MATCH IS EXACT RATHER THAN NEAREST. Every other entry pairs on accent
+     hue distance and the pigeonhole above forces one unreciprocated. These two share a ladder and
+     both carry zero chroma, so there is no hue to be near — basalt IS this palette on a dark
+     ground. Unreciprocated by the same rule as cerise, since basalt answers to fern on accent. */
+  [TENTH_THEME]: NINTH_THEME,
 };
 
 export type ThemeName = (typeof THEME_NAMES)[number];
@@ -409,6 +428,11 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
   [SEVENTH_THEME]: { cream: "#fef9f7", ink: "#130804", muted: "#504540", accent: "#a24e02" },
   [EIGHTH_THEME]: { cream: "#f9faff", ink: "#09081b", muted: "#454658", accent: "#734fb9" },
   [NINTH_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#527700" },
+  /* ⚠ THREE OF THE FOUR ARE BYTE-IDENTICAL TO BASALT'S AND THAT IS DERIVATION, NOT A COPY. Both
+     palettes read the same achromatic ladder, so `cream-50`, `ink-950` and `ink-600` resolve to
+     the same paint. Only the accent differs, and it differs to the one value an achromatic palette
+     can give it. */
+  [TENTH_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -423,6 +447,7 @@ export const THEME_SPLASH: Record<string, string> = {
   [SEVENTH_THEME]: "#FEF9F7",
   [EIGHTH_THEME]: "#F9FAFF",
   [NINTH_THEME]: "#FAFAFA",
+  [TENTH_THEME]: "#FAFAFA",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };
