@@ -61,3 +61,22 @@ public/images/**/content/
 # record of the site, and this repository already keeps its durable findings in CLAUDE.md and
 # docs/. Anything from a critique worth surviving belongs there instead.
 .impeccable/
+
+# ⚠ AND THE TWO FILES THAT SKILL WRITES AT THE REPOSITORY ROOT, FOR THE SAME REASON AND ONE MORE.
+# `PRODUCT.md` and `DESIGN.md` are the same kind of artifact as the directory above — a tool's
+# working notes about this project, derived from CLAUDE.md, TASKS.md and the shipped code rather
+# than authored here. Keeping them local is the same trade: a clone starts without them and loses
+# nothing, because everything durable already lives in CLAUDE.md and docs/.
+#
+# ⚠ `PRODUCT.md` WAS TRACKED FOR ONE COMMIT AND IS UNTRACKED HERE. It reached main inside #603, a
+# commit whose subject is about parity panels, because `git add -A` stages whatever is in the tree.
+# The file was harmless and the defect was that A COMMIT CARRIED SOMETHING ITS MESSAGE DID NOT
+# DESCRIBE. Removing it is the smaller half of that correction; `ralph/tests/no-dev-injection.mjs`
+# is the larger half, because the same command nearly shipped a localhost script tag into the root
+# layout on the same afternoon.
+#
+# A DERIVED DOCUMENT IN A REPOSITORY IS A SECOND SOURCE OF TRUTH THAT NOBODY UPDATES. That is the
+# durable reason to keep it out, independent of how it got in — this record already carries a dozen
+# entries about a claim that ages into being false while still reading as verification.
+PRODUCT.md
+DESIGN.md
