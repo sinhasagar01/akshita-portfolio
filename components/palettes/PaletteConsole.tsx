@@ -440,9 +440,17 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                 }}
               />
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {/* ⚠ A REAL FIGURE IN A DEMO FIXTURE, AND IT DRIFTED BECAUSE IT LIVES WHERE NOBODY
+                    LOOKS FOR CONTENT. This read `2.3 → 4.0` while the case study and the work card
+                    said 4.2 — a third spelling of one number, live on two public pages. #615
+                    corrected the rating in the content and in the case study, which is where anyone
+                    fixing a rating would search; a hardcoded prop inside a design-system page is
+                    outside that walk entirely, the same shape as the `app/dev` paths a
+                    content-only image sweep would have deleted.
+                    `ralph/tests/rating-agreement.mjs` is why it cannot drift a third time. */}
                 <StatCard
                   stat={{
-                    value: "2.3 → 4.0",
+                    value: "2.3 → 4.2",
                     tag: "store rating",
                     body: "What the boAt Crest redesign moved, drawn in whichever palette is pressed.",
                   }}

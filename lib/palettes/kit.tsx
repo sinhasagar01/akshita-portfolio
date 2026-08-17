@@ -131,7 +131,13 @@ export const KIT: KitPart[] = [
     render: (
       <StatCard
         stat={{
-          value: "2.3 → 4.0",
+          /* ⚠ THE SECOND STALE COPY, AND ONLY A GATE FOUND IT. The identical fixture in
+             `PaletteConsole` was spotted by looking at a render; this one was not, and it would
+             have survived the fix to that one — leaving the site still stating two figures after a
+             correction that felt complete. `ralph/tests/rating-agreement.mjs` found it on its first
+             run, which is the whole argument for deriving the subject rather than fixing the
+             instance somebody happened to see. */
+          value: "2.3 → 4.2",
           tag: "store rating",
           body: "What the boAt Crest redesign moved, drawn in whichever palette is pressed.",
         }}
