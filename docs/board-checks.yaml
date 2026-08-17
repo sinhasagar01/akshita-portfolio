@@ -47,21 +47,6 @@ entries:
   # A block-count difference makes the row `continue`, so the BOX comparison — the one that matches
   # the stated contract — never runs for those three sections. Closing this means deciding whether
   # affordance spans belong in the count, which is a ruling rather than a tidy.
-  - match: "THE PARITY HARNESS REPORTS THREE MISMATCHES ON `boat-crest`"
-    kind: structural
-    holds_while:
-      file: ralph/tests/parity.mjs
-      pattern: "block-count"
-      expect: present
-    note: >-
-      Open while the parity script counts every non-inline element, affordance spans included. If
-      that row is retitled or the count learns to skip them, somebody has taken the decision and
-      this entry describes a harness that no longer exists.
-
-  # ⚠ THIS CHECK FIRED ON THE GATE'S SECOND RUN, ON THE UNIT THAT CLOSED THE ITEM. It read
-  # `expect: absent` because the item was open while both consumers shared `.next`. Adding `distDir`
-  # made the entry stale and B2 said so, naming the entry rather than the code — which is the
-  # behaviour the gate exists for, arriving twenty minutes after it merged.
   - match: "AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE"
     kind: absence
     holds_while:
@@ -150,26 +135,6 @@ entries:
       different items" — a condition about content that is a judgement about when the cost matters,
       not a fact about the tree.
 
-  - match: "THE ORPHAN POPULATION IS ELEVEN"
-    kind: absence
-    holds_while:
-      file: ralph/tests/image-orphans.mjs
-      pattern: rmSync|unlinkSync
-      expect: absent
-    note: >-
-      The entry says the GC is the census and nothing is deleted. A delete call in that suite means
-      the item's own statement has stopped being true.
-
-  - match: "THE SECOND ORPHANED GALLERY BLOB"
-    kind: judgement
-    why: >-
-      Superseded framing, kept for the path-not-hash argument. It carries reasoning rather than a
-      condition.
-
-  # ⚠ THIS CHECK FIRED ON THE GATE'S FIRST RUN AND THE ENTRY WAS THE THING THAT WAS WRONG. It read
-  # `expect: absent` on `Save draft` in GalleryEditPanel, because the entry claimed no such control
-  # existed. One arrived in b64ec2e — the PR the entry cites as the correct fix — and NINE panels
-  # carry one. The entry is now the correction and the condition is inverted with it.
   - match: "A SOURCE REGEX CANNOT SEE REACHABILITY"
     kind: absence
     holds_while:
@@ -179,16 +144,6 @@ entries:
     note: >-
       The entry counted six message-presence rows owed an extraction. Two suites now call a leaf;
       if those calls disappear the extraction has been undone.
-
-  - match: "THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`"
-    kind: absence
-    holds_while:
-      file: ralph/tests/colour-census.mjs
-      pattern: blankCommentBodies
-      expect: present
-    note: >-
-      The open half was colour-census counting a colour named in a comment. It now blanks; losing
-      that import reopens the entry.
 
   - match: "Content. Writing posts through /studio"
     kind: measurement
