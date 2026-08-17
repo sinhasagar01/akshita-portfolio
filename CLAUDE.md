@@ -3379,6 +3379,45 @@ build a gate for the limit and then believe it.
   the safety net for work that is finished is using it against its own design. **Second instance,
   and the first where the person who re-read the entry that morning is the one who did it.**
 
+- **⚠ `git add -A` SHIPPED A FILE THE COMMIT MESSAGE NEVER MENTIONED, AND ALMOST SHIPPED A
+  localhost SCRIPT TAG INTO EVERY PAGE.** Two facts from one habit, one harmless and one not.
+
+  **THE HARMLESS ONE: `PRODUCT.md` WENT OUT IN #603**, a commit whose subject is about parity
+  panels. The file is legitimate — derived from this repo's own documents, inferences marked
+  `INFERRED` — and it was created earlier in the session and left in the tree. Nothing about it is
+  wrong except that **a commit carried something its message does not describe**, which is the one
+  property that makes a history readable.
+
+  **⚠ THE NEAR-MISS IS THE ENTRY.** A live-editing tool had injected this into `app/layout.tsx`,
+  inside `<body>`:
+
+      <script src="http://localhost:8400/live.js?token=…"></script>
+
+  It was never committed — `git log -S` across all refs finds nothing, and the live page carries
+  zero occurrences. **It missed by ORDERING alone**: the `git add -A` ran minutes before the tool
+  injected. Had those two swapped, a localhost script tag would have shipped in the ROOT LAYOUT,
+  which is every route on the site.
+
+  **⚠ AND IT WOULD HAVE BEEN SILENT IN EXACTLY THE WAY THAT MATTERS.** `next build` succeeds — it
+  is valid JSX and a build has no opinion about a script `src`. The machine that shipped it sees
+  the page work perfectly, because `localhost:8400` is up FOR THEM. Every visitor gets a request to
+  a host that does not exist. **The author is the one person who cannot observe the defect.**
+
+  **`ralph/tests/no-dev-injection.mjs` IS THE MECHANISM, AND ITS SUBJECT IS TRACKED SOURCE RATHER
+  THAN THE WORKING TREE.** A tool injecting while somebody works IS the tool working; a gate over
+  the tree would go red during normal use, which is the benign-common-failure shape this record
+  already refuses twice. `git ls-files` is the boundary between the two.
+
+  **⚠ AND B1 BLANKS COMMENTS WHILE C1 READS THEM RAW, ONE SECTION APART, FOR OPPOSITE REASONS.** A
+  comment explaining why a localhost URL must not ship is not a localhost URL — that is the
+  explaining-it-requires-writing-it trap, hit in five scanners here. But the live-edit MARKERS *are*
+  comments, since the wrapper around the injected tag is one, so blanking would blind C1 to the
+  exact thing it looks for. Proved with the real injection: both rows red, naming the file and line.
+
+  **THE HABIT IS THE CAUSE AND `git add <paths>` IS THE FIX**, but this record's oldest lesson is
+  that only a mechanism prevents a failure mode — so the gate is what closes it rather than the
+  resolution.
+
 - **⚠ CLOSING SECTION C FOUND A FIFTH ROUTE NOBODY HAD LISTED, AND THREE LIVE CONTROLS ON IT.** The
   off-screen gap measured EMPTY — zero focusables outside the document at either viewport, with the
   probe proved by parking a container at `left: -9999px` and watching it report five. The census
