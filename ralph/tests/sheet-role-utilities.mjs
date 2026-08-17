@@ -41,11 +41,26 @@
 // The complement is what makes it worth running: a NEW inert utility fails on arrival, and the
 // blog surface is asserted at ZERO so the conversion that found this cannot reintroduce it.
 //
-// ⚠ COMMENTS ARE BLANKED ON BOTH SIDES, AND ON THE CSS SIDE THAT IS LOAD-BEARING RATHER THAN
-// TIDY. The prose in `globals.css` names `margin: 0` and `max-width: 24ch` while explaining them,
-// and a declaration parser reading its own explanation is the self-reading defect this repository
-// has now recorded in five scanners. On the `.tsx` side the comments quote retired class strings
-// for the same reason, and one of them is the very `mb-4` this unit walked into.
+// ⚠ COMMENTS ARE BLANKED ON BOTH SIDES, AND THE TWO SIDES ARE NOT IN THE SAME STATE — WHICH IS A
+// CORRECTION TO THIS HEADER'S OWN FIRST DRAFT. It claimed both were load-bearing "for the same
+// reason" and cited the `mb-4` this unit walked into. Mutation refuted the `.tsx` half: removing
+// that blanking leaves all twelve rows green.
+//
+//   CSS side    LOAD-BEARING, proved. The prose in `globals.css` names `margin: 0` and
+//               `max-width: 24ch` while explaining them, so without blanking the role table
+//               reads its own explanation and six rows go red. Fifth scanner in this repository
+//               to need this, and the only one where the prose IS the subject.
+//   .tsx side   POPULATION MEASURED EMPTY. No comment in the tree currently spells a role and a
+//               competing utility inside one `className` shape — the `mb-4` above is discussed in
+//               a sentence, which the matcher never looks at, so citing it was wrong.
+//
+// IT IS KEPT ANYWAY, AND SECTION D IS WHY THAT IS NOT A FREE PASS. A change that moves no total
+// is a change the next author reverts by accident, and this repository already carries that exact
+// ruling from two earlier comment strips. The trigger is one comment away: `not-found.tsx`'s
+// header quotes retired class strings by design, and the moment one of them is quoted as markup
+// rather than as prose the blanking becomes the only thing keeping it out of the census. D1 and D2
+// assert it against a constructed fixture, in both directions, so the guard cannot pass by
+// guarding nothing.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
@@ -182,6 +197,40 @@ t("C1a …and the blog surface is genuinely in the walk, so C1's zero is a measu
   files.filter((f) => /blog/.test(f)).length > 4, true);
 t("C2 no file outside the named eleven carries one, so a new instance fails on arrival",
   Object.keys(counts).filter((f) => !(f in EXPECTED)), []);
+
+console.log("\n--- D. THE .tsx COMMENT STRIP, ASSERTED AGAINST A FIXTURE ---");
+// The census reduced to a pure function of one source string, so the guard can be driven with
+// inputs rather than inferred from a total that does not move. Both directions are asserted
+// because a strip that removed everything would satisfy D1 alone.
+const inertIn = (src) => {
+  const out = new Set();
+  for (const m of blankTsx(src).matchAll(/className\s*=\s*\{?[`"']([^`"']*)/g)) {
+    const cls = m[1].replace(/\s+/g, " ");
+    const used = TYPE_ROLES.filter((r) => new RegExp(`\\b${r}\\b`).test(cls));
+    if (used.length === 0) continue;
+    const declared = new Set(used.flatMap((r) => [...(roles.get(r) ?? [])]));
+    for (const [prop, re] of Object.entries(COMPETE)) {
+      if (!declared.has(prop)) continue;
+      for (const hit of cls.match(re) ?? []) if (!used.some((u) => hit.startsWith(u))) out.add(hit);
+    }
+  }
+  return [...out];
+};
+// ⚠ THE FIXTURE IS THREE LINES RATHER THAN ONE, WHICH THIS REPOSITORY LEARNED THE HARD WAY. A
+// one-line comment cannot tell BLANKING from DELETION, because deleting it removes no newline and
+// every position after it still lines up. `cascade-public`'s A0c is the entry that records it.
+const FIXTURE_COMMENTED = [
+  "/* a retired head, quoted as markup:",
+  '   <h2 className="sheet-h2 mt-8"> */',
+  '<h2 className="sheet-h2">Live</h2>',
+].join("\n");
+const FIXTURE_REAL = '<h2 className="sheet-h2 mt-8">Live</h2>';
+t("D1 a competing utility quoted inside a comment is NOT counted",
+  inertIn(FIXTURE_COMMENTED), []);
+t("D2 …and the same string in real markup IS counted, so D1 cannot pass by counting nothing",
+  inertIn(FIXTURE_REAL), ["mt-8"]);
+t("D3 …and a line comment is stripped too, which is the form every note in this repository uses",
+  inertIn('// <h2 className="sheet-h2 mt-8">\n<h2 className="sheet-h2">Live</h2>'), []);
 
 console.log(`\nsheet-role-utilities result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
