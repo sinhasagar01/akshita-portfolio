@@ -6384,6 +6384,42 @@ a {
 }
 
 /* ============================================================================================
+   AND THE SAME RETIREMENT FOR THE CASE STUDIES, SCOPED TO `.case-study` RATHER THAN TO THE SHEET.
+
+   ⚠ `.case-study` IS THE CLASS BOTH SURFACES ALREADY CARRY, WHICH IS WHY IT IS THE RIGHT SCOPE AND
+   `.sheet-scope` IS NOT. The public article is `<article class="case-study">` and the studio canvas
+   wrapper is `class="case-study canvas-static …"`, so one selector reaches both and they change
+   IDENTICALLY — which is what keeps the parity contract satisfied by construction rather than by a
+   re-run happening to pass. Adding `sheet-scope` to the article instead would also have dragged the
+   home page's plate overrides and its reveal-panel transparency onto a surface that has neither, and
+   it would have put a second scope on the canvas whose own wrapper carries FROZEN studio radius.
+
+   ⚠ AND THE EMPTY-STATE SECTION CARRIES BOTH CLASSES ON ONE ELEMENT, SO A DESCENDANT SELECTOR MISSES
+   IT. `CaseStudyView` renders `class="case-study section-card …"` for a study with zero sections —
+   same element, not a child. It is unreachable today because all four studies have sections, but a
+   scaffolded fifth would render a rounded card in a flat article and nothing would say why. Both
+   forms are matched rather than only the one that is currently exercised.
+
+   ⚠ THE GROUND UNDERNEATH IS NOT CHANGED, AND THAT IS DELIBERATE. `.case-study-bg` is a fixed layer
+   at `case-study-sand`, which is a DARKER ground than the home page's canvas by design. Retiring the
+   cards exposes it continuously; whether an article should sit on the same ground as the home page is
+   a separate design decision with its own measurement, and folding it in here would be two changes
+   under one justification.
+   ============================================================================================ */
+.case-study .section-card,
+.case-study.section-card {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+.case-study .reveal-panel,
+.case-study .reveal-panel.is-revealed {
+  background-color: transparent;
+}
+
+/* ============================================================================================
    THE WORK PLATES — the card's image frame BECOMES the plate frame rather than being replaced.
 
    `.wc-shot` was already a framed box with a keyline, a mount and a fixed ratio. Three things
