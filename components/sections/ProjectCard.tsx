@@ -46,7 +46,7 @@ function railCategory(category: string, platform: string): string {
  *
  * At 375px `matchMedia("(hover: hover)")` is FALSE, so the veil never opened and no phone
  * visitor ever read it. The grid showed four bare names. The one sentence on this site that
- * converts a hiring manager — boAt Crest lifting a store rating from 2.3 to 4 — was written,
+ * converts a hiring manager — boAt Crest lifting a store rating from 2.3 to 4.2 — was written,
  * was in the DOM, and was unreachable on the viewport most recruiters use.
  *
  * ⚠ AND IT WAS DUPLICATED INTO AN `sr-only` NODE, WHICH IS WHAT MAKES IT A DEFECT RATHER THAN A
