@@ -392,10 +392,14 @@ export function selectableThemes(): string[] {
 const COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six",
   "seven", "eight", "nine", "ten", "eleven", "twelve"] as const;
 
+/** A small count spelled for prose. Digits past twelve. */
+export function countWord(n: number): string {
+  return COUNT_WORDS[n] ?? String(n);
+}
+
 /** How many palettes an author may choose from, spelled for prose. Digits past twelve. */
 export function selectableCountWord(): string {
-  const n = selectableThemes().length;
-  return COUNT_WORDS[n] ?? String(n);
+  return countWord(selectableThemes().length);
 }
 
 /** Why a resolvable theme cannot be published, or undefined if it can. */

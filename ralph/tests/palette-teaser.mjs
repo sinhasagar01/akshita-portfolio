@@ -12,8 +12,8 @@
 // So section B asserts the single mechanism. The ARRIVAL state — five of nine publishable themes are
 // not in the four — is `palette-arrival`'s subject, because the strip that states it is site-wide and
 // this teaser is not.
-import { TEASER_THEMES, publishedIsOffered, arrivalNote } from "../../lib/palettes/teaser.ts";
-import { THEME_NAMES, VERIFY_THEME, THEME_GROUND, selectableThemes } from "../../lib/theme.ts";
+import { TEASER_THEMES, publishedIsOffered, arrivalNote, TEASER_COUNT_WORD } from "../../lib/palettes/teaser.ts";
+import { THEME_NAMES, VERIFY_THEME, THEME_GROUND, selectableThemes, countWord } from "../../lib/theme.ts";
 import { readPaletteSource, layerPalette, oklchOf } from "../../lib/theme-contrast.ts";
 import { DEFAULT_THEME, THEME_COUNTERPART, GROUND_TOKEN } from "../../lib/theme.ts";
 import { readFileSync } from "node:fs";
@@ -208,6 +208,22 @@ t("E2 ⚠ AND ITS PRESENCE IS NOT — nothing there hides it, which would take t
   /(display:\s*none|opacity:\s*0)/.test(reducedMotion), false);
 t("E3 the reveal is an IntersectionObserver on the hero, not a scroll handler writing style per event",
   /new IntersectionObserver/.test(component) && !/addEventListener\(\s*["']scroll["']/.test(component), true);
+
+/* ⚠ THE FORCED COPY IS ENFORCED HERE RATHER THAN IMPORTED THERE. `teaser.ts` spells its own count
+ * because `ralph` loads it raw and cannot resolve `lib/theme.ts` — the constraint that file's header
+ * states and that I broke before reading. This suite CAN import both, so it is the one place the two
+ * spellings can be compared, which is this repo's standing answer to a copy it cannot remove.
+ *
+ * ⚠ AND THE VISIBLE STRING IS ASSERTED WITH ITS NUMBER, WHICH IT NEVER WAS. `palette-arrival` checks
+ * `/not one of these/` — a PREFIX — so the note could have said "these nine" and stayed green. An
+ * assertion that matches a prefix tells you nothing about the rest of the string, and the count was
+ * the part nobody looked at. */
+t("F1 ⚠ THE TEASER'S OWN COUNT WORD AGREES WITH THE REGISTRY'S — a forced copy is only safe while something compares it",
+  TEASER_COUNT_WORD, countWord(TEASER_THEMES.length));
+t("F2 ⚠ AND THE ARRIVAL NOTE CARRIES THAT NUMBER — the existing row matches a prefix and never saw the count",
+  (arrivalNote("drawing-office") ?? "").endsWith(`not one of these ${countWord(TEASER_THEMES.length)}`), true);
+t("F3 …and the note is only offered for a palette the row does NOT contain, so F2 is not asserted on a null",
+  arrivalNote(TEASER_THEMES[0]), null);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
