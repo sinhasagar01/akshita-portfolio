@@ -3411,7 +3411,39 @@ a {
 }
 
 /* THE MATERIAL. overflow stays visible so the logo grid (which overhangs) is never
-   clipped; the sheens are pseudos clipped by their own border-radius, not the box. */
+   clipped; the sheens are pseudos clipped by their own border-radius, not the box.
+
+   ⚠ THE CORNER IS 0 AND THE MATERIAL IS UNTOUCHED, WHICH IS THE WHOLE OF THE DECISION. The owner
+   was shown three states at full size over live page content — the capsule as built, this, and a
+   title block with no material at all — and chose this one. So the fill, the 22px blur, the
+   half-pixel stroke, the drop shadow and both speculars are exactly as they were, and every one of
+   the 20 `--glass-*` tokens still resolves the same value. The pill stopped being a pill; it did
+   not stop being glass.
+
+   ⚠ AND THE SHEENS FOLLOW BY `inherit` RATHER THAN BY A SECOND EDIT. Both pseudos declare
+   `border-radius: inherit`, so squaring this box squares them, and there is no way for the specular
+   to keep a corner the box has lost. That is why this is one declaration rather than three.
+
+   ---- WHAT ELSE MOVED, AND THE RULE IT MOVED UNDER --------------------------------------------
+
+   The site's own rule, settled in #634 for the case studies: A BOX AROUND CONTENT LOSES ITS
+   CORNER, A CIRCLE KEEPS IT BECAUSE IT IS ONE. Seven boxes and eight circles, censused rather
+   than swept:
+
+     SQUARED   this capsule · the link hit area · the sliding hover highlight · the Resume
+               control · the mobile menu sheet · a mobile menu row · the mobile Resume control
+     KEPT      the 3px separator dot · the morph button, its halo and its three bar caps · the
+               two 2px line caps on its open state · both sheens, which inherit
+
+   ⚠ THE MOBILE HALF MOVED WITH THE DESKTOP HALF ON PURPOSE. Squaring the capsule and leaving the
+   menu sheet at 18px would split the nav at the breakpoint, and this site goes mobile all at once
+   at `lg` — a convention `CLAUDE.md` states and every other surface follows.
+
+   ⚠ AND THIS DOES NOT SETTLE THE THREE DEFERRED CONTROLS, WHICH IS SAID BECAUSE THE PRECEDENT NOW
+   EXISTS AND SOMEBODY WILL READ IT AS ONE. `WorkStory`'s prev/next buttons, `ImagePreview`'s
+   lightbox controls and the preview rail were left round in #634 pending the NAV decision, and the
+   option chosen here was explicitly the one that answers the corner and leaves the material
+   question open. They are now unblocked to be decided on their own terms — not decided. */
 .nav-glass {
   position: relative;
   isolation: isolate;
@@ -3421,7 +3453,7 @@ a {
      width:auto (shrink-to-fit), so there is no free space and this is a no-op there. */
   justify-content: space-between;
   width: 100%;
-  border-radius: 999px;
+  border-radius: 0;
   padding: 8px 14px 8px 18px;
   background: var(--glass-fill);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -3572,7 +3604,7 @@ a {
   z-index: 2;
   font-size: 14px;
   padding: 9px 16px;
-  border-radius: 999px;
+  border-radius: 0;
   white-space: nowrap;
   color: var(--color-text-secondary);
   transition: color 0.28s ease;
@@ -3585,7 +3617,7 @@ a {
   left: 0;
   height: 34px;
   width: 0;
-  border-radius: 999px;
+  border-radius: 0;
   transform: translate(0, -50%) scaleX(0.6);
   opacity: 0;
   background: color-mix(in srgb, var(--color-white) 78%, transparent);
@@ -3598,7 +3630,7 @@ a {
 .nav-cta {
   font-size: 13.5px;
   padding: 9px 18px;
-  border-radius: 999px;
+  border-radius: 0;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -3875,7 +3907,7 @@ a {
   z-index: 44;
   min-width: 210px;
   padding: 9px;
-  border-radius: 18px;
+  border-radius: 0;
   background: var(--glass-fill-strong);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
@@ -3893,7 +3925,7 @@ a {
 .nav-sheet a {
   display: block;
   padding: 10px 14px;
-  border-radius: 11px;
+  border-radius: 0;
   font-size: 15px;
   font-family: var(--font-display);
   color: var(--color-text-primary);
@@ -3985,7 +4017,7 @@ a {
   width: 100%;
   border: 1px solid color-mix(in srgb, var(--color-accent-500) 55%, transparent);
   color: var(--color-accent-500);
-  border-radius: 999px;
+  border-radius: 0;
   padding: 12px 0;
   text-align: center;
   font-size: 14px;
