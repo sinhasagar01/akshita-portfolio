@@ -213,37 +213,6 @@ gates.
 
 
 
-- **⚠ THE PARITY HARNESS REPORTS THREE MISMATCHES ON `boat-crest`, AND ITS BLOCK-COUNT CHECK IS
-  STRICTER THAN THE CONTRACT IT ENFORCES.** Run by hand — `parity` is skipped by `run.mjs` because
-  it needs a browser — against the live page and the canvas:
-
-      hero      live 39 vs canvas 38     onlyInLive: 2x span.cs-preview-hint
-      problem   live 36 vs canvas 35     onlyInLive: 1x span.cs-preview-hint
-      system    live 41 vs canvas 39     onlyInLive: 2x span.cs-preview-hint
-                                         onlyInCanvas: 1x span.cs-editable
-
-  **EVERY ONE IS AN AFFORDANCE SPAN, WHICH THE CONTRACT EXPLICITLY ALLOWS.** The rule is that
-  `editable` and `noReveal` *"may ADD affordances but must never move or resize a box"* — and the
-  boxes are identical: **all nine pairs match to the pixel**, 1265 wide and the same height on each.
-  So the design property holds and the CHECK is what disagrees.
-
-  **⚠ THE BLOCK-COUNT ROW COUNTS ANY NON-INLINE ELEMENT, AND AN AFFORDANCE SPAN IS NON-INLINE.**
-  `collect()` keeps everything whose display does not start with `inline`, so a hint span rendered
-  `inline-block` or `block` joins the census and the two sides differ by construction. The row then
-  `continue`s, **so the BOX comparison for those three sections never runs at all** — the strict
-  check is suppressing the one that matches the contract.
-
-  **THE DECISION IS WHETHER THE COUNT SHOULD IGNORE AFFORDANCE SPANS**, and it is not taken here.
-  Loosening a parity check is a real ruling: the count is what would catch the canvas dropping a
-  block entirely, which is the defect that arc was built for. Exempting a class name is the
-  fixed-list shape; keying on a marker attribute the affordances already carry is not.
-
-  **⚠ AND THIS IS PRE-EXISTING RATHER THAN CAUSED BY THE `visibility` WORK, PROVED RATHER THAN
-  ASSERTED.** The pre-change `globals.css` was checked out over the current one and the run repeated:
-  **identical three findings, same sections, same numbers.** The rule touches `visibility` and
-  `collect()` filters on `display`, so it could not have moved the count — but that was the reasoning,
-  and the swap is the measurement.
-
 - **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
   IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
   kind, the gallery image fields — were inert EVERYWHERE: the UI offered a value and nothing
@@ -480,52 +449,6 @@ gates.
   the strip and the first row show different items**, at which point the eager row is paying for
   content the hero has already loaded.
 
-- **⚠ THE ORPHAN POPULATION IS ELEVEN, NOT TWO — AND THE PRECONDITION FOR A GC IS NOW BUILT AND
-  MEASURED RATHER THAN ARGUED.** `ralph/tests/image-orphans.mjs` walks by PATH:
-
-      32 block images on disk   ·   21 live   ·   11 orphaned
-      2 shared basenames, not 1
-
-  **⚠ THE SECOND PAIR IS WITHIN ONE COLLECTION AND NOBODY HAD LOOKED.** `edaa53ebfee8` sits under
-  `gallery/akshita` AND `gallery/waves` — the same photograph uploaded to two gallery items, bytes
-  verified identical. The record knew only about `926214f008d6` crossing gallery and blog. **A
-  hash-keyed GC would collect one of a pair and delete the other's copy**, and `C3` fails if that
-  hazard's population ever reads empty, because a warning nobody can trigger is one the next author
-  deletes.
-
-  **⚠ AND `edaa53ebfee8` IS SAFE BY LUCK RATHER THAN BY RULE — BOTH ITS COPIES ARE ORPHANED.**
-  Referencing either one makes the other unsafe, with no edit anywhere near it. The report prints
-  every shared basename live-or-not for exactly that reason; `unsafeToDeleteByName` only sees pairs
-  where one side is already live.
-
-  **⚠ THE WALK'S BOUNDARY WAS THE OTHER HALF, AND A CONTENT-ONLY GC WOULD HAVE DELETED TWO LIVE
-  FILES.** `app/dev` harness pages reference project block images directly — 20 live paths in
-  `content`, two more in `app`. Same shape as the `.tsx`-only sweep that missed 81 rung references,
-  caught here BEFORE the tool that would have acted on it existed. `A3` asserts the `app` part is
-  non-empty by name.
-
-  **⚠ AND THE CENSUS READ ITS OWN LEAF'S EXAMPLE PATH AS A LIVE REFERENCE ON ITS FIRST RUN — SECOND
-  INSTANCE TODAY.** `image-reachability.ts` documents its input with `…/blocks/abc123.webp`, and the
-  walk counted it. **The failure direction is the dangerous one: a comment cannot make a file an
-  orphan, only make an orphan look LIVE** — so had the example named a real file, this census would
-  have protected it from deletion forever and nothing would have gone red. `B2` caught it only
-  because the example was invented. Third tool today to need comment-blanking, which is now the
-  default for any scanner over source.
-
-  **NOTHING IS DELETED AND THAT IS DELIBERATE.** An orphan is not a defect — it is a replaced image
-  whose bytes stopped being referenced, which content addressing makes free to leave. **What was
-  missing was the reachability rule, and that is what this is.**
-
-  **THE BOARDED FRAMING, KEPT BECAUSE ITS ARGUMENT IS WHY THE RULE IS PATH-KEYED:**
-
-- **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
-  GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
-  `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
-  orphan is recovered by re-upload at no storage cost. **Its hash is ALSO the hash of a live blog
-  image**, because content addressing gives identical bytes an identical hash under different
-  paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
-  against hashes would have deleted the blog's copy while "collecting" the gallery's.
-
 - **⚠ A SOURCE REGEX CANNOT SEE REACHABILITY, AND THE STANDING ANSWER FOR ANY ASSERTION ABOUT COPY
   IS TO EXTRACT AND CALL.** `PublishBar`'s status sentence was a ternary chain guarded by regexes
   over that component. Setting the first-failure binding to `null` makes the per-entry sentence
@@ -548,40 +471,6 @@ gates.
   **⚠ THE ASYMMETRY IS THE USEFUL PART: ABSENCE-BY-REGEX IS SOUND AND PRESENCE-BY-REGEX IS NOT.**
   `hero-contract-copy` asserts two strings are GONE, and that direction holds — if the words are not
   in the file, nothing can render them. Only the presence direction needs the extraction.
-
-- **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`, AND THE HEADLINE IS THE ASYMMETRY
-  RATHER THAN THE SEVEN INSTANCES.** One suite carried TWO scanners over two languages. The CSS side
-  blanked comments before parsing and its own note called the order load-bearing, because a construct
-  named inside prose reconfigures the parser. **The JSX side read raw source.** That is a coverage
-  difference INSIDE A SINGLE FILE, and it produced **seven false positives against zero measured
-  cost** — the last of them a note explaining that a heading's family utility was inert, which made
-  the count go UP.
-
-  **THE COST WAS MEASURED BEFORE THE CHANGE, NOT ARGUED AFTER IT.** Blanking left the census output
-  byte-identical — 4 public collisions and 19 inert, unchanged — across 178 files.
-
-  **⚠ AND IT FINDS MORE THAN IT REMOVES, WHICH WAS NOT THE POINT.** A `>` inside an
-  attribute-position comment terminated the raw element match early, so a real class after it was
-  never seen. Sixty files carry such a comment.
-
-  **THE BODY IS BLANKED AND NOT DELETED, AND A MUTATION IS WHY THAT IS ASSERTED.** `line` is computed
-  from the match index, so deleting would shift every reported line after the first comment in a
-  file. **The first fixture could not tell the two apart** — its comment was one line, so deletion
-  removed no newline and the line row passed under a mutation that replaced blanking with deletion.
-  A three-line fixture fires both. That is the *assertion that cannot fail for the reason it names*,
-  caught by mutation rather than by reading.
-
-  **⚠ THE TDZ SHAPE ARRIVED FOR THE THIRD TIME, IN THE FIXTURE.** The block called `elements()` above
-  `COMPONENT_TAG`'s declaration, which parses perfectly and throws at run time. `node --check` sees
-  none of it. Running the row is the only thing that does.
-
-  **SCOPED TO ONE SCANNER, DELIBERATELY.** `colour-census` also reads `.tsx` and its subject is
-  colour LITERALS rather than elements — a different question with a different blast radius, and the
-  precedent is `css-comment-trap`'s reverted string-blanking, which was right as an idea and broke
-  five assertions that read string contents. **That half is still open and is the trigger for the
-  next look: a comment naming a colour is still counted as a colour.**
-
-
 
 - **Content. Writing posts through /studio, AND THE EXERCISE HAS NOW PAID FOR ITSELF TWICE IN ONE
   SESSION.** It was ranked highest on the argument that three defects came from an author using the
@@ -629,6 +518,155 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ THE SECOND BOARD PASS: FOUR MORE ENTRIES CLOSED, AND THREE OF THEM BY WORK DONE THE SAME DAY.**
+  The first pass moved nine that were marked closed and left in the action list. These four were not
+  marked at all — each still read as an open question whose answer had arrived.
+
+      parity harness      closed by the ruling it asked for, hours later
+      orphan population   closed by the collector this entry specified
+      the shared blob     its cross-reference is now a line of code
+      the comment strip   closed by earlier work, with the closure already in `Recorded`
+
+  **⚠ THE LAST ONE IS THE WARNING RATHER THAN THE TIDYING.** Its closure was ALREADY RECORDED under
+  `Recorded`, so the file simultaneously said the question was open and that it was answered. Two
+  entries, one subject, opposite claims about the present — and nothing compares one board entry
+  against another.
+
+  **AND THE OTHER THREE ARE THE COST OF A PRODUCTIVE DAY.** An entry written in the morning is a
+  claim about the present; work that afternoon is what falsifies it. **The board decays fastest on
+  exactly the days it is most used.**
+
+- **⚠ THE PARITY HARNESS REPORTS THREE MISMATCHES ON `boat-crest`, AND ITS BLOCK-COUNT CHECK IS
+  STRICTER THAN THE CONTRACT IT ENFORCES.** Run by hand — `parity` is skipped by `run.mjs` because
+  it needs a browser — against the live page and the canvas:
+
+      hero      live 39 vs canvas 38     onlyInLive: 2x span.cs-preview-hint
+      problem   live 36 vs canvas 35     onlyInLive: 1x span.cs-preview-hint
+      system    live 41 vs canvas 39     onlyInLive: 2x span.cs-preview-hint
+                                         onlyInCanvas: 1x span.cs-editable
+
+  **EVERY ONE IS AN AFFORDANCE SPAN, WHICH THE CONTRACT EXPLICITLY ALLOWS.** The rule is that
+  `editable` and `noReveal` *"may ADD affordances but must never move or resize a box"* — and the
+  boxes are identical: **all nine pairs match to the pixel**, 1265 wide and the same height on each.
+  So the design property holds and the CHECK is what disagrees.
+
+  **⚠ THE BLOCK-COUNT ROW COUNTS ANY NON-INLINE ELEMENT, AND AN AFFORDANCE SPAN IS NON-INLINE.**
+  `collect()` keeps everything whose display does not start with `inline`, so a hint span rendered
+  `inline-block` or `block` joins the census and the two sides differ by construction. The row then
+  `continue`s, **so the BOX comparison for those three sections never runs at all** — the strict
+  check is suppressing the one that matches the contract.
+
+  **THE DECISION IS WHETHER THE COUNT SHOULD IGNORE AFFORDANCE SPANS**, and it is not taken here.
+  Loosening a parity check is a real ruling: the count is what would catch the canvas dropping a
+  block entirely, which is the defect that arc was built for. Exempting a class name is the
+  fixed-list shape; keying on a marker attribute the affordances already carry is not.
+
+  **⚠ AND THIS IS PRE-EXISTING RATHER THAN CAUSED BY THE `visibility` WORK, PROVED RATHER THAN
+  ASSERTED.** The pre-change `globals.css` was checked out over the current one and the run repeated:
+  **identical three findings, same sections, same numbers.** The rule touches `visibility` and
+  `collect()` filters on `display`, so it could not have moved the count — but that was the reasoning,
+  and the swap is the measurement.
+
+  **⚠ CLOSED THE SAME DAY IT WAS BOARDED, AND THE DECISION IT SAYS IS "NOT TAKEN HERE" WAS TAKEN.**
+  The count now reports a DROPPED block and counts an ADDED affordance, which is the asymmetry the
+  contract always had. Measured across the whole corpus afterwards: **4 case studies, 53 sections,
+  1,548 elements paired, 1 permitted addition, 0 findings.** The three mismatches were the harness's
+  own, and the `continue` that came with them was suppressing the box check in exactly those
+  sections.
+- **⚠ THE ORPHAN POPULATION IS ELEVEN, NOT TWO — AND THE PRECONDITION FOR A GC IS NOW BUILT AND
+  MEASURED RATHER THAN ARGUED.** `ralph/tests/image-orphans.mjs` walks by PATH:
+
+      32 block images on disk   ·   21 live   ·   11 orphaned
+      2 shared basenames, not 1
+
+  **⚠ THE SECOND PAIR IS WITHIN ONE COLLECTION AND NOBODY HAD LOOKED.** `edaa53ebfee8` sits under
+  `gallery/akshita` AND `gallery/waves` — the same photograph uploaded to two gallery items, bytes
+  verified identical. The record knew only about `926214f008d6` crossing gallery and blog. **A
+  hash-keyed GC would collect one of a pair and delete the other's copy**, and `C3` fails if that
+  hazard's population ever reads empty, because a warning nobody can trigger is one the next author
+  deletes.
+
+  **⚠ AND `edaa53ebfee8` IS SAFE BY LUCK RATHER THAN BY RULE — BOTH ITS COPIES ARE ORPHANED.**
+  Referencing either one makes the other unsafe, with no edit anywhere near it. The report prints
+  every shared basename live-or-not for exactly that reason; `unsafeToDeleteByName` only sees pairs
+  where one side is already live.
+
+  **⚠ THE WALK'S BOUNDARY WAS THE OTHER HALF, AND A CONTENT-ONLY GC WOULD HAVE DELETED TWO LIVE
+  FILES.** `app/dev` harness pages reference project block images directly — 20 live paths in
+  `content`, two more in `app`. Same shape as the `.tsx`-only sweep that missed 81 rung references,
+  caught here BEFORE the tool that would have acted on it existed. `A3` asserts the `app` part is
+  non-empty by name.
+
+  **⚠ AND THE CENSUS READ ITS OWN LEAF'S EXAMPLE PATH AS A LIVE REFERENCE ON ITS FIRST RUN — SECOND
+  INSTANCE TODAY.** `image-reachability.ts` documents its input with `…/blocks/abc123.webp`, and the
+  walk counted it. **The failure direction is the dangerous one: a comment cannot make a file an
+  orphan, only make an orphan look LIVE** — so had the example named a real file, this census would
+  have protected it from deletion forever and nothing would have gone red. `B2` caught it only
+  because the example was invented. Third tool today to need comment-blanking, which is now the
+  default for any scanner over source.
+
+  **NOTHING IS DELETED AND THAT IS DELIBERATE.** An orphan is not a defect — it is a replaced image
+  whose bytes stopped being referenced, which content addressing makes free to leave. **What was
+  missing was the reachability rule, and that is what this is.**
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS ARGUMENT IS WHY THE RULE IS PATH-KEYED:**
+
+  **⚠ CLOSED: THE ELEVEN WERE COLLECTED, AND "NOTHING IS DELETED AND THAT IS DELIBERATE" IS NO
+  LONGER TRUE.** `ralph/collect-images.mjs` was built to this entry's own rule — keyed on the PATH,
+  walking `content`, `app`, `components` and `lib` — and ran once: **33 files to 24, 664,764 B
+  freed, 9 deleted, 2 held.** The reachability rule this entry described as the missing piece is
+  what made the collector safe to write, which is why the reasoning stays rather than the numbers.
+- **⚠ THE SECOND ORPHANED GALLERY BLOB, BOARDED WITH THE IMAGE GC — AND CROSS-REFERENCED, BECAUSE A
+  GC MATCHING ON HASHES WOULD DELETE A FILE ANOTHER COLLECTION IS USING.**
+  `public/images/gallery/akshita/blocks/926214f008d6.webp` is unreferenced and stays so; the other
+  orphan is recovered by re-upload at no storage cost. **Its hash is ALSO the hash of a live blog
+  image**, because content addressing gives identical bytes an identical hash under different
+  paths. **The path-not-hash entry is the precondition for building the GC at all** — a GC written
+  against hashes would have deleted the blog's copy while "collecting" the gallery's.
+
+  **⚠ CLOSED BY THE COLLECTOR EXISTING, AND THIS BLOB IS THE REASON IT HOLDS RATHER THAN DELETES.**
+  `926214f008d6` is still orphaned under `gallery/akshita` and still LIVE under the blog post, and
+  the collector reports it as `HELD name` on every run. The cross-reference this entry exists to
+  make is now a line of code rather than a warning: a hash-keyed rule would take the live copy, so
+  the tool keys on the path and holds the pair anyway.
+- **⚠ THE `.tsx` COMMENT STRIP IS CLOSED FOR `cascade-public`, AND THE HEADLINE IS THE ASYMMETRY
+  RATHER THAN THE SEVEN INSTANCES.** One suite carried TWO scanners over two languages. The CSS side
+  blanked comments before parsing and its own note called the order load-bearing, because a construct
+  named inside prose reconfigures the parser. **The JSX side read raw source.** That is a coverage
+  difference INSIDE A SINGLE FILE, and it produced **seven false positives against zero measured
+  cost** — the last of them a note explaining that a heading's family utility was inert, which made
+  the count go UP.
+
+  **THE COST WAS MEASURED BEFORE THE CHANGE, NOT ARGUED AFTER IT.** Blanking left the census output
+  byte-identical — 4 public collisions and 19 inert, unchanged — across 178 files.
+
+  **⚠ AND IT FINDS MORE THAN IT REMOVES, WHICH WAS NOT THE POINT.** A `>` inside an
+  attribute-position comment terminated the raw element match early, so a real class after it was
+  never seen. Sixty files carry such a comment.
+
+  **THE BODY IS BLANKED AND NOT DELETED, AND A MUTATION IS WHY THAT IS ASSERTED.** `line` is computed
+  from the match index, so deleting would shift every reported line after the first comment in a
+  file. **The first fixture could not tell the two apart** — its comment was one line, so deletion
+  removed no newline and the line row passed under a mutation that replaced blanking with deletion.
+  A three-line fixture fires both. That is the *assertion that cannot fail for the reason it names*,
+  caught by mutation rather than by reading.
+
+  **⚠ THE TDZ SHAPE ARRIVED FOR THE THIRD TIME, IN THE FIXTURE.** The block called `elements()` above
+  `COMPONENT_TAG`'s declaration, which parses perfectly and throws at run time. `node --check` sees
+  none of it. Running the row is the only thing that does.
+
+  **SCOPED TO ONE SCANNER, DELIBERATELY.** `colour-census` also reads `.tsx` and its subject is
+  colour LITERALS rather than elements — a different question with a different blast radius, and the
+  precedent is `css-comment-trap`'s reverted string-blanking, which was right as an idea and broke
+  five assertions that read string contents. **That half is still open and is the trigger for the
+  next look: a comment naming a colour is still counted as a colour.**
+
+  **⚠ CLOSED: THE OPEN HALF WAS SHUT BY LATER WORK AND THE ENTRY WENT ON ASKING.** It ends *"that
+  half is still open and is the trigger for the next look: a comment naming a colour is still
+  counted as a colour."* Measured: `colour-census` imports `blankCommentBodies` and applies it on
+  its `.tsx` walk, with a row asserting the blanking works — and `Recorded` already carries the
+  entry that closed it. **Two entries, one subject, opposite claims about the present.**
 
 - **⚠ RULED NO: `unchecked-joins` DOES NOT WIDEN TO SHAPE-BEARING CASTS, AND THE CENSUS IS WHY
   RATHER THAN A PREFERENCE.** The entry asked whether a cast onto a schema-owned SHAPE is the same
