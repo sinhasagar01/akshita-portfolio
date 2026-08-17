@@ -616,8 +616,27 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      reset's reach entirely by taking a class that beats it, rather than a utility starting to win.
      Same mechanism that moved S2 from 21 to 14, counted in the other inventory. Seven times this
      count has moved and seven times which kind it was has been worth writing down — the number alone
-     still cannot say. */
-  inert.filter(outside).length, 7);
+     still cannot say.
+
+     ⚠ 7 -> 3 WITH THE BLOG'S HEADS, AND IT IS THE SAME PAIR-TWICE SHAPE A THIRD TIME. The article
+     head's `h1` and the index masthead's `h1` each carried the display family class and a weight
+     utility, both agreeing with the unlayered `h1, h2` reset they could not beat — two per element,
+     two elements, four. Both took `.sheet-h2`, which declares its own family and weight on the
+     CLASS, so there is nothing left for the element rule to win.
+
+     ⚠ AND THE DEPARTURES WERE DIFFED BY MEASUREMENT RATHER THAN BY READING THE DIFF, because a count
+     that falls by exactly the number you predicted is the pre-confirmed hypothesis this repository
+     refuses. The two files were checked out at the parent commit and the suite re-run: 7 before, 3
+     after, with 183 files and 1 public collision unchanged on both sides. The fall is entirely those
+     two files and nothing else changed category.
+
+     ⚠ AND FIVE OTHER MENTIONS OF THE DISPLAY FAMILY CLASS IN THOSE FILES DID NOT COUNT, WHICH IS WHY
+     THE FIGURE IS FOUR RATHER THAN MORE. Four of them sit on a `<p>`, and the `p` reset declares
+     `max-width` and `line-height` and NO family — so those were live utilities all along. An inert
+     count is per PROPERTY, never per class name, and reading the diff would have given five.
+
+     THE EIGHTH MOVE, AND STILL THE SIXTH KIND. */
+  inert.filter(outside).length, 3);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);

@@ -28,14 +28,36 @@ export const metadata: Metadata = {
   twitter: { images: [absoluteUrl("/opengraph-image.png")] },
 };
 
-function Masthead() {
+// ⚠ THE COUNT IS A PROP RATHER THAN A SECOND READ, AND IT IS THE RULE'S RIGHT MARK. The section
+// rule takes an identity one side and a status the other, and this masthead had only the identity
+// — a standalone tracked-caps eyebrow, the construction the direction retires by name. The honest
+// status of a blog index is how many notes are in it, which the caller already holds as
+// `posts.length` and which no other element on the page states.
+//
+// ⚠ AND ZERO OMITS THE MARK RATHER THAN READING "0 NOTES". `Masthead` has two call sites and one
+// of them is the empty branch, so the collapse is not hypothetical — it renders today whenever the
+// collection is empty. Same single-device, two-states shape as the article head's absent topic.
+function Masthead({ count }: { count: number }) {
   return (
-    <header className="border-b border-etch/8 pb-[30px] pt-16">
-      <p className="text-[12px] uppercase tracking-[0.16em] text-text-secondary">Blog</p>
-      <h1 className="mt-3.5 max-w-[16ch] font-display text-[clamp(2.25rem,5vw,3.25rem)] font-normal leading-[1.02] tracking-[-0.015em] text-text-primary">
-        {MASTHEAD.title}
-      </h1>
-      <p className="mt-3.5 max-w-[54ch] text-base leading-[1.6] text-text-lead">{MASTHEAD.dek}</p>
+    // The spacing is a column gap for the reason BlogArticleHead records at length — the type
+    // roles declare `margin: 0` unlayered, so an `mt-*` on one of them draws nothing.
+    <header className="flex flex-col gap-[clamp(12px,1.4vw,18px)] border-b border-etch/8 pb-[30px] pt-16">
+      <div className="sheet-rule flex-wrap">
+        <span className="sheet-mark-text">Blog</span>
+        <span className="sheet-rule-line" aria-hidden="true" />
+        {count > 0 ? (
+          <span className="sheet-mark-text">
+            {count} {count === 1 ? "note" : "notes"}
+          </span>
+        ) : null}
+      </div>
+      {/* ⚠ THE TITLE AND DEK TAKE THE ROLES' OWN MEASURES, WHICH IS A CHANGE. This title asked for
+          16ch and this dek for 54ch, and both were inert against the roles' 24ch and 48ch — so the
+          title WIDENS from three lines to two and the dek narrows by six characters. Named because
+          it is a visible change to a live page rather than a silent tidy, and kept because a role
+          that every other heading on the site obeys should not be overridden by the index alone. */}
+      <h1 className="sheet-h2">{MASTHEAD.title}</h1>
+      <p className="sheet-lede">{MASTHEAD.dek}</p>
     </header>
   );
 }
@@ -105,12 +127,26 @@ function PostCard({ post }: { post: BlogCard }) {
 
 function EmptyState() {
   return (
-    <section className="relative overflow-hidden py-24 text-center">
-      <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-text-subtle">Blog</p>
-      <p className="mt-4 font-display text-4xl font-normal italic text-text-primary">Coming soon</p>
-      <p className="mx-auto mt-4 max-w-[52ch] text-lg leading-[1.6] text-text-secondary">
-        The first notes are being written. Check back shortly.
-      </p>
+    // ⚠ THE EYEBROW IS DELETED RATHER THAN CONVERTED, BECAUSE THE MASTHEAD DIRECTLY ABOVE IT
+    // ALREADY SAYS "BLOG". Two identical tracked-caps marks a few rem apart is the read-twice shape
+    // `Shot` records against the index's title plate, and it was invisible here for the same reason
+    // — the empty state has never rendered, so nothing has ever shown the two together.
+    //
+    // ⚠ AND THE ITALIC IS THE LAST OF ITS KIND ON THIS SURFACE. It was a 36px display italic, which
+    // is the retired vocabulary exactly; upright at the heading role, it says the same thing.
+    // Centred is kept — an empty state is the one place on the site where centring is the message.
+    // ⚠ THE CENTRING IS `items-center` ON THE PARENT RATHER THAN `mx-auto` ON THE CHILDREN. Both
+    // roles declare `margin` and are unlayered, so `mx-auto` on either resolves to zero and the
+    // capped boxes would sit hard left inside a centred text block. A flex column that centres its
+    // items cannot be overruled that way, and the gap replaces the margin for the same reason.
+    //
+    // ⚠ AND THE GAP IS ON THE PARENT BECAUSE THE FIRST DRAFT OF THIS BLOCK PUT AN `mb-4` ON THE
+    // HEADING — the exact defect described in the paragraph above it, committed while writing that
+    // paragraph. Eleventh instance in this repository of explaining a trap by walking into it, and
+    // the argument for the gate this unit ships rather than for a firmer note.
+    <section className="relative flex flex-col items-center gap-4 overflow-hidden py-24 text-center">
+      <h2 className="sheet-h2">Coming soon</h2>
+      <p className="sheet-lede">The first notes are being written. Check back shortly.</p>
     </section>
   );
 }
@@ -135,7 +171,7 @@ async function BlogIndexBody() {
   if (posts.length === 0) {
     return (
       <>
-        <Masthead />
+        <Masthead count={0} />
         <EmptyState />
       </>
     );
@@ -147,7 +183,7 @@ async function BlogIndexBody() {
     // P2 — ONE batched request for every card. The provider is keyed by slug and each card
     // names its own, so the featured card cannot pick up a stream card's number.
     <LoveProvider slugs={posts.map((p) => p.slug)}>
-      <Masthead />
+      <Masthead count={posts.length} />
       <FeaturedCard post={featured} />
       {rest.length > 0 ? (
         <div className="mt-12 grid gap-x-8 gap-y-12 lg:grid-cols-2">
