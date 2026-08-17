@@ -3505,6 +3505,37 @@ build a gate for the limit and then believe it.
   separates a rect from a hazard, a stylesheet from a behaviour, and a mechanism from its symptom —
   and writing it against the SYMPTOM is what makes it catch causes nobody has thought of.
 
+- **⚠ THE PARITY CONTRACT HOLDS ACROSS ALL FOUR CASE STUDIES, MEASURED FOR THE FIRST TIME — AND THE
+  HARNESS ONLY BECAME CAPABLE OF SAYING SO THIS SESSION.**
+
+      case study                sections   paired   canvas-added   findings
+      boat-crest                       9      441              1          0
+      fosfor-ai                       15      374              0          0
+      fosfor-data-profiling           15      432              0          0
+      elevate-one-view                14      301              0          0
+      TOTAL                           53    1,548              1          0
+
+  **⚠ THE CLAIM WAS OLDER THAN ITS EVIDENCE.** The convention says the canvas and the public page
+  must render identically and names `/dev/parity/<slug>` as the check. `parity` is browser-bound, so
+  `run.mjs` skips it BY NAME and nothing runs it unless a person does — and **the only slug anyone
+  had ever driven was `boat-crest`.** Three of four case studies had never been compared at all.
+
+  **AND ON `boat-crest` THE HARNESS WAS REPORTING THREE FINDINGS OF ITS OWN** while box-checking
+  **zero** elements in those three sections, because a count mismatch `continue`d past them. So the
+  one slug that had been run was returning noise, and the noise was suppressing the real check.
+
+  **THE ONE ADDITION IS `boat-crest`'s RATING CHIP AND IT IS THE ONLY ONE IN THE CORPUS.**
+  `HeroCover` wraps that text only when editable, deliberately, so the public markup carries no
+  wrapper it does not need — and `ratingChip` is a field only that case study uses. A single
+  permitted addition across 1,548 elements is the honest shape of "the flags may add affordances".
+
+  **⚠ AND A CLEAN RUN IS ONLY WORTH THE INSTRUMENT BEHIND IT, WHICH IS WHY THIS IS RECORDED WITH THE
+  ARC RATHER THAN AS A FIGURE.** Four separate runs during that arc produced wrong answers — a
+  general exclusion that tripled the mismatches, an index walk that cascaded one difference into
+  seventeen, a run missing the harness's own setup that produced ninety-three, and a symmetric count
+  that fired on the permitted direction. **Zero findings means something now because those four were
+  found first.**
+
 - **⚠ THE ZERO-BOX TAB-ORDER ROUTE IS EMPTY, AND MY OWN GATE SAID OTHERWISE FOR A WEEK.**
   `inert-with-aria-hidden` section C named *"a zero-size box — the desktop nav links measure 0x0 at
   mobile and stay tabbable"* as a route it cannot reach. Measured by asking the browser for focus
