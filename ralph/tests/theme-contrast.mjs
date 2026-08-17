@@ -801,8 +801,12 @@ const AUTHORED_PRESET = "owner ruling — an independently authored dark preset 
   + "is not constrained against it. END: the exemption is reviewed if the preset is ever re-derived "
   + "from the palette system rather than authored.";
 const ACCENT_EXEMPT = {
-  "ink-flare": AUTHORED_PRESET + " Conflict: 10 degrees from cream's accent.",
-  basalt: AUTHORED_PRESET + " Conflict: 6 degrees from fern's accent.",
+  /* ⚠ THE FIGURES CARRY dE NOW, BECAUSE D12d DOES. Stating a conflict in a unit the rule no longer
+   * measures is the comment-and-code drift this file records six times — and here it would be worse
+   * than usual, since D12y proves these exemptions are EARNED by re-running the rule. A reader
+   * checking "6 degrees" against a dE floor has no way to tell whether the exemption still holds. */
+  "ink-flare": AUTHORED_PRESET + " Conflict: 44.1 dE from cream's accent (10 degrees).",
+  basalt: AUTHORED_PRESET + " Conflict: 33.7 dE from fern's accent (6 degrees).",
 };
 const GROUND_EXEMPT = {
   /* ⚠ THE ACCEPTED CONTRADICTION, STATED SO IT CANNOT READ AS DRIFT. Sapphire and nocturne at dE 6.0
@@ -827,6 +831,31 @@ const bandUnit = (n) => bandFor(n)?.floorUnit ?? "degrees";
 const groundSep = (a, b) => bandUnit(a) === "dE"
   ? dist3(groundRgb(a), groundRgb(b))
   : arc(HUES[a].ground, HUES[b].ground);
+
+/* ⚠ ACCENTS MOVE TO dE FOR THE SAME REASON GROUNDS DID, AND THE ACHROMATIC CASE BREAKS DIFFERENTLY
+ * HERE — WHICH IS WHY THIS IS NOT THE SAME EDIT TWICE. A chroma-0 colour has no hue and still
+ * carries a hue DIGIT that `arc()` reads. On the GROUND floor that refused an achromatic palette
+ * unconditionally, 0 of 360 spellings passing. On this one, 104 OF 360 PASS.
+ *
+ * That is the worse failure of the two. Unconditional refusal is at least visible; here the verdict
+ * on a colour with no hue depends entirely on which meaningless digit somebody typed, so the row
+ * REFUSES a black accent spelled h4 and ADMITS the identical black spelled h80. It can therefore be
+ * wrong in the permissive direction, which the ground case could not.
+ *
+ * MEASURED, THE PHANTOM IS ENORMOUS. A pure black accent sits 144.5 dE from its NEAREST shipped
+ * neighbour (basalt) against a shipped minimum of 33.7 — the MOST separated accent the system
+ * carries. The pair degrees called a 4-degree collision, cerise, is 239.1 dE away.
+ *
+ * ⚠ AND THE FLOOR IS THE JUDGED PAIR, WHICH ALREADY EXISTED IN THIS FILE IN THIS UNIT. The note
+ * above D12d records sapphire/nocturne at "47.2 in perceptual distance", rendered and read as TWO
+ * NAMEABLE COLOURS. That figure is `dist3` to the decimal — measured 47.244 — so the judgement and
+ * this measure are already the same quantity and nothing has to be re-judged to change the unit.
+ * 47 sits just under it, admitting the pair that was judged distinct and refusing anything closer.
+ *
+ * BOUNDED ABOVE AND NOT BELOW, exactly like the light band: no accent pair has ever been rendered
+ * and read as ONE colour, so nothing pins this from underneath. Said rather than implied. */
+const ACCENT_FLOOR = 47;
+const accentSep = (a, b) => dist3(rgbOf(a, "accent-500"), rgbOf(b, "accent-500"));
 t("D12u ⚠ EVERY BAND'S FLOOR UNIT IS ONE THIS ROW CAN MEASURE — an unknown unit must not fall back to degrees silently",
   BANDS.filter((b) => !["degrees", "dE"].includes(b.floorUnit)).map((b) => b.label), []);
 t("D12 ⚠ NO TWO GROUNDS IN ONE CLASS ARE ADJACENT — in the band's OWN unit, across classes it does not apply",
@@ -856,10 +885,43 @@ t("D12x ⚠ EVERY EXEMPTION NAMES A REAL PALETTE AND AN END CONDITION — an exe
     .filter(([n, why]) => !REAL.includes(n) || !/END:/.test(why) || !/Conflict:/.test(why)).map(([n]) => n), []);
 t("D12y ⚠ AND EVERY EXEMPTION IS EARNED — a palette that would pass the rule must not be exempt from it",
   Object.keys(ACCENT_EXEMPT).filter((n) =>
-    !PAIRS.some(([a, b]) => (a === n || b === n) && arc(HUES[a].accent, HUES[b].accent) < 24)), []);
-t("D12d ⚠ NOR TWO ACCENTS — cross-band ON PURPOSE, and 24 was lowered from 30 on a render",
-  PAIRS.filter(([a, b]) => !(a in ACCENT_EXEMPT) && !(b in ACCENT_EXEMPT) && arc(HUES[a].accent, HUES[b].accent) < 24)
-    .map(([a, b]) => `${a}/${b} ${arc(HUES[a].accent, HUES[b].accent)}`), []);
+    !PAIRS.some(([a, b]) => (a === n || b === n) && accentSep(a, b) < ACCENT_FLOOR)), []);
+t("D12d ⚠ NOR TWO ACCENTS — cross-band ON PURPOSE, in dE because an achromatic accent has no hue to compare",
+  PAIRS.filter(([a, b]) => !(a in ACCENT_EXEMPT) && !(b in ACCENT_EXEMPT) && accentSep(a, b) < ACCENT_FLOOR)
+    .map(([a, b]) => `${a}/${b} ${accentSep(a, b).toFixed(1)} dE`), []);
+/* ⚠ AND THE UNIT NEEDS ITS OWN ROW, BECAUSE D12d STAYS GREEN UNDER A REVERT TO DEGREES. Every
+ * shipped accent pair clears 47 dE and also clears 24 degrees, so swapping `accentSep` back to
+ * `arc()` changes no verdict on today's palettes — the row goes on passing while measuring the
+ * wrong quantity, which is precisely how this defect survived in the first place.
+ *
+ * The two units have to DISAGREE on a real case for the row to be worth anything, and a chroma-0
+ * accent is that case. Against CERISE, one pair in both units: 4 degrees and 239.1 dE.
+ *
+ * ⚠ AND THE FIRST VERSION OF THIS ROW MIXED TWO PAIRS, WHICH THE ROW ITSELF CAUGHT. It asserted
+ * "4 degrees, 144.5 dE" — but 4 degrees is black against CERISE and 144.5 is black against BASALT,
+ * its nearest neighbour. Two true figures about two different pairs, read as one comparison. The
+ * wrong-subject defect this file names a dozen times, committed inside the assertion written to
+ * stop a unit confusion, and caught because the expectation was computed rather than quoted.
+ *
+ * ⚠ AND D12z ALONE DOES NOT CLOSE IT EITHER, WHICH I CLAIMED IT DID IN THIS VERY COMMENT. It read
+ * "same lesson as L3u/L3v, applied here BEFORE shipping rather than after" — and the mutation
+ * reverting D12d to `arc()` came back with NOTHING RED, because D12z calls `accentSep` itself and
+ * cannot see what D12d's filter calls. The exact shape L3u had, repeated one section away, by the
+ * hand that had just fixed it and written the lesson down.
+ *
+ * That is worth more than the fix: knowing the rule is not applying it, because applying it means
+ * noticing that THIS row is an instance, and an instance does not announce itself. So D12za is the
+ * L3v-equivalent, and D12d is proved to EXECUTE AND BIND by the other two mutations rather than by
+ * either row — raising the floor to 48 and dropping the exemption filter both redden it. */
+const BLACK_ACCENT = [0, 0, 0];
+t("D12z ⚠ D12d MEASURES IN dE — proved on ONE pair in both units, so a revert to degrees cannot pass",
+  [Math.round(accentSep("sapphire", "nocturne") * 10) / 10,
+   Math.round(dist3(BLACK_ACCENT, rgbOf("cerise", "accent-500")) * 10) / 10,
+   arc(0, HUES.cerise.accent)],
+  [47.2, 239.1, 4]);
+t("D12za ⚠ …AND D12d IS THE CALLER THAT USES IT — D12z stays green if D12d reverts to arc(), so the two are not redundant",
+  /!\(b in ACCENT_EXEMPT\) && accentSep\(a, b\) < ACCENT_FLOOR\)/.test(
+    readFileSync(new URL(import.meta.url), "utf8")), true);
 /* ⚠ ORDERED, BOTH WAYS. The defect is asymmetric — a ground ON another palette's accent — so a
  * pair list that compares each duo once would miss it in one direction.
  *
