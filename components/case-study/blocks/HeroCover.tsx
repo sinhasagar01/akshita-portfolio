@@ -148,7 +148,36 @@ export default function HeroCover({
             {...mp}
             variants={fadeUp(0.09)}
             {...edit("eyebrow", "Edit hero eyebrow")}
-            className={`text-[12px] md:text-eyebrow tracking-[0.14em] uppercase font-semibold text-on-dark-muted${aff}`}
+            /* ⚠ `on-dark-muted` WAS PAINTING 1.99 ON A LIGHT HERO, MEASURED ON PRODUCTION. This
+               branch was authored for a dark full-bleed hero. That ground came from
+               `data-ground="dark"`, which the `:root` prefix correctly killed on 2026-08-09 because
+               a section can never match `:root` — the declaration went and the FOREGROUND stayed.
+               `.hero-ground.is-dark` resolves to `oklch(0.985 0 0)`, near-white; `is-dark` sets
+               `--glow-color` and has never set a ground.
+
+               THE SIBLING BRANCH IS THE EVIDENCE, NOT MY READING OF IT. The two-phone hero below
+               draws this same element with `text-text-subtle`, a page-following ROLE. One component,
+               one job, two branches, and only one of them names a colour that cannot remap.
+
+               ⚠ AND `--hero-facts-line` IN THIS SAME HERO GOT IT RIGHT, WHICH IS WHAT MAKES THE
+               DIFFERENCE INSTRUCTIVE RATHER THAN UNLUCKY. Its dark answer is declared inside
+               `:root[data-ground="dark"]` with a light FALLBACK at the use site, so when the page
+               ground went away the hairline fell back and stayed visible. A dark value belongs in
+               the ground block; these two put theirs in the component.
+
+               `sheet-mono-label` rather than a recoloured version of the old string: tracked
+               uppercase IS the mono label register, so this is a conversion INTO the vocabulary.
+               `font-semibold` goes with it — the grammar's marks are regular weight, and hierarchy
+               here rides on register and case, which survive a change of ground.
+
+               THE BREAKPOINT HALF OF THE OLD SIZE PAIR WAS INERT AND IS NOT MOURNED: the eyebrow
+               token is 0.75rem, so both halves resolved to 12px and the `md` step changed nothing.
+
+               ⚠ AND THAT SENTENCE SPELLED THE RETIRED UTILITY ON ITS FIRST DRAFT, WHICH TURNED THE
+               COMMENT INTO THE ONLY THING GENERATING IT. `css-comment-trap` A5 went red naming this
+               file — the seventh instance of explaining-it-requires-writing-it in this repository,
+               caught by the gate written for it. Describe a retired utility; never transcribe it. */
+            className={`sheet-mono-label${aff}`}
           >
             {data.eyebrow}
           </motion.div>
@@ -198,7 +227,16 @@ export default function HeroCover({
             <div key={i}>
               <dt
                 {...edit(`meta.${i}.label`, "Edit fact label")}
-                className={`text-[9.5px] tracking-[0.15em] uppercase text-on-dark-quote mb-[3px]${aff}`}
+                /* ⚠ `on-dark-quote` AT 9.5px MEASURED 1.71 ON THIS HERO'S 250,250,250 GROUND — the
+                   smallest text on the page, six labels of it, in the first thing a visitor sees.
+                   Same cause as the eyebrow above. `sheet-mono-micro` is the grammar's smallest
+                   label size and carries the mark colour.
+
+                   THE VALUE BELOW SETS NO COLOUR AND THAT IS FINE, CHECKED RATHER THAN ASSUMED. It
+                   inherits from the page, which DOES follow the ground — unlike the rung this label
+                   named. That is the difference between the two halves of the rating chip's
+                   recorded defect, and here only one half was ever wrong. */
+                className={`sheet-mono-micro mb-[3px]${aff}`}
               >
                 {item.label}
               </dt>
@@ -237,7 +275,20 @@ export default function HeroCover({
           <span aria-hidden="true" className="h-[2px] w-[34px] bg-accent-500" />
           <span
             {...edit("eyebrow", "Edit hero eyebrow")}
-            className={`text-[12px] md:text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle${aff}`}
+            /* ⚠ THIS BRANCH WAS NEVER BROKEN AND IT MOVES ANYWAY, WHICH IS THE POINT. `text-subtle`
+               is a role and it measured fine. Converting only the failing branch would leave the
+               component speaking two languages — two studies with mono labels and two with sans —
+               so a legibility fix would have shipped a typographic split. The tracking collapses
+               0.2em and 0.14em to the grammar's single value, and `sheet-mark-text`'s wider 0.2em is
+               deliberately NOT reached for: its own declaration says the exception is named there so
+               it cannot spread by imitation.
+
+               THE 34px ACCENT HAIRLINE BESIDE IT STAYS AND IS NAMED SO IT IS NOT MISTAKEN FOR AN
+               OVERSIGHT. It is 2px of `accent-500` with no text on it, so no pair can fail, and 2px
+               of accent is the boundary weight the readout device already uses. It is still a RUNG
+               rather than the role, so it does not remap on a dark ground — a latent question with
+               no measured failure, which is why it is not repaired inside a fix for measured ones. */
+            className={`sheet-mono-label${aff}`}
           >
             {data.eyebrow}
           </span>
@@ -347,7 +398,12 @@ export default function HeroCover({
           <div key={i}>
             <dt
               {...edit(`meta.${i}.label`, "Edit fact label")}
-              className={`text-[9.5px] tracking-[0.15em] uppercase text-text-subtle mb-[3px]${aff}`}
+              /* ⚠ THIS ONE CHANGES COLOUR AND THE STEP IS STATED RATHER THAN ROUNDED AWAY. It went
+                 `text-subtle` and the grammar's mark colour is `text-secondary`, one step stronger.
+                 That is TWO ELEMENTS adopting a label role, not the quiet layer being folded into
+                 the secondary one — the fold this repository refused, on a population test that
+                 counted 49 elements becoming 89. Two is not a fold. */
+              className={`sheet-mono-micro mb-[3px]${aff}`}
             >
               {item.label}
             </dt>
