@@ -55,18 +55,60 @@ export default function BlogArticleHead({
   canvas?: boolean;
 }) {
   return (
-    <header id={canvas ? undefined : "blog-article-head"} className="pt-11">
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] uppercase tracking-[0.13em] text-text-secondary">
-        <span>{formatLongDate(date)}</span>
-        <span>{readingTime} min read</span>
-        {topic ? <span>{topic}</span> : null}
+    // ⚠ THE SPACING IS A COLUMN GAP AND NOT A MARGIN, BECAUSE A MARGIN HERE DRAWS NOTHING. The
+    // sheet type roles declare `margin: 0` as a SHORTHAND and they are UNLAYERED, so any `mt-*` on
+    // one is a class that reads as working and resolves to zero — measured, not reasoned: the first
+    // draft of this head asked for 30px above the title and rendered the title's top edge one pixel
+    // from the rule's baseline.
+    //
+    // A column gap cannot be overruled that way, because `gap` belongs to the PARENT and no role
+    // declares it. It is also the convention this project already states — lay sibling groups out
+    // with flex and `gap`, not per-element margins that silently collapse or double.
+    //
+    // The rule keeps a bottom margin because `.sheet-rule` declares no margin of its own, so that
+    // one is live. 18px of gap throughout plus 12px under the rule is the 30 / 18 the head wants.
+    <header
+      id={canvas ? undefined : "blog-article-head"}
+      className="flex flex-col gap-[clamp(12px,1.4vw,18px)] pt-11"
+    >
+      {/* THE META ROW BECOMES THE SECTION RULE, WHICH IS WHAT IT ALREADY WAS. Three tracked-caps
+          fields in a wrapping flex row is a title block that had never been drawn as one, so the
+          conversion adds an object line and changes nothing about what the head says.
+          Topic left, because it is the identity of the sheet. Date and reading time right, because
+          they are its issue data. That is the same left-identity, right-status split the rule
+          carries on every case-study section, on the 404 and on the error boundary.
+
+          ⚠ THE TOPIC IS OPTIONAL AND THE RULE COLLAPSES RATHER THAN INVENTING A WORD. With no
+          topic there is no left mark, the line takes the whole slack, and the issue data sits
+          right. All four published posts carry a topic, so this branch is latent — which is
+          exactly the kind of branch that ships wrong, so it is a real state of one device rather
+          than a fallback string nobody chose.
+
+          ⚠ AND THE TWO RIGHT FIELDS ARE SEPARATE MARKS RATHER THAN ONE STRING JOINED BY A DOT,
+          BECAUSE OF MOBILE. At the mark's wider tracking the worst case runs 31 characters, about
+          257px, and the article measure at a 390px viewport is 342px wide. One joined mark
+          overflows there. Two marks under `flex-wrap` each keep their own box and the second drops
+          to a new row, and the row gap does the separating, which is what a title block does. */}
+      <div className="sheet-rule mb-[clamp(2px,1vw,12px)] flex-wrap">
+        {topic ? <span className="sheet-mark-text">{topic}</span> : null}
+        <span className="sheet-rule-line" aria-hidden="true" />
+        <span className="sheet-mark-text">{formatLongDate(date)}</span>
+        <span className="sheet-mark-text">{readingTime} min read</span>
       </div>
-      <h1 className="mt-[18px] font-display text-[clamp(2.25rem,5vw,3.125rem)] font-normal leading-[1.06] tracking-[-0.018em] text-text-primary">
-        {title}
-      </h1>
-      {dek ? (
-        <p className="mt-[18px] font-display text-xl leading-[1.55] text-text-lead">{dek}</p>
-      ) : null}
+
+      {/* ⚠ THE TITLE TAKES THE ROLE'S OWN 24ch MEASURE, AND THE OVERRIDE THAT WAS HERE WAS BOTH
+          INERT AND UNNECESSARY. It asked for 30ch on the reasoning that the four published titles
+          run 41 to 53 characters and the longest would set three lines of 40px type inside the
+          article's 640px column. Two things were wrong with that. The role declares `max-width`
+          and is unlayered, so the utility resolved to nothing — and the render sets the longest
+          title in TWO lines at 24ch anyway, so there was no third line to prevent.
+
+          A CHARACTER COUNT IS NOT A LINE COUNT. `ch` is the advance of the digit zero and the
+          display face is proportional, so 53 characters of this title occupy about 41 zeroes. The
+          arithmetic said three lines, the paint says two, and the paint is the authority. */}
+      <h1 className="sheet-h2">{title}</h1>
+
+      {dek ? <p className="sheet-lede">{dek}</p> : null}
     </header>
   );
 }
