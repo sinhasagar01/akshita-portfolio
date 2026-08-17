@@ -71,10 +71,28 @@ import { selectableCountWord } from "@/lib/theme";
    ⚠ THE PER-PALETTE FIGURES ABOVE ARE STALE FOR EVERY PALETTE, NOT JUST THIS ONE, AND NOTHING WENT
    RED. No suite asserts them — grepped — so they live only in this comment, which is exactly how a
    correct measurement ages into a false one. The 5.35 was the lowest across nine palettes measured
-   against a ground that no longer exists. Only cream has been re-measured, because cream is what is
-   published; the dark palettes cannot be settled by forcing `data-theme` from a probe, since that
-   produces a state no visitor sees unless `data-ground` moves with it. `paint-sites` is the
-   instrument that drives all nine properly, and it has not been run against this change.
+   against a ground that no longer exists. The dark palettes cannot be settled by forcing
+   `data-theme` from a probe, since that produces a state no visitor sees unless `data-ground` moves
+   with it. `paint-sites` is the instrument that drives all ten properly and has not been run.
+
+   ⚠ AND THIS PARAGRAPH SAID "cream is what is published" AND WAS FALSE WITHIN THE HOUR, WHICH IS
+   THE SAME DEFECT IT IS ABOUT. `drawing-office` was published while the branch carrying that
+   sentence was still open, so the claim aged between being written and being pushed. Re-measured on
+   the palette that actually ships, no forcing required because it renders naturally:
+
+     html            oklch(0.955 0 0)        240,240,240   the page ground
+     div.palette-pill  srgb(...) / 0.78      248,248,248   its own glass over that
+     label                                    95,95,95     6.01 against a 4.5 floor
+
+   So the control reads BETTER on the published palette than on cream, 6.01 against 5.29, and the
+   measurement this block flagged as open is closed for the one palette a visitor sees.
+
+   ⚠ AND THE PROBE NEARLY MEASURED CREAM AND CALLED IT drawing-office. A preview cookie from an
+   earlier session was still set, so the page was rendering cream while `site-settings.yaml` said
+   otherwise. THE PAGE ITSELF CAUGHT IT — the arrival strip reads "Previewing cream across the
+   site", which is the one thing in this system that states which palette you are actually looking
+   at. A probe that trusted the published value would have produced a clean, plausible, mislabelled
+   figure. Clear the cookie before measuring a published theme.
 
    ⚠ AND THE GENERAL FORM IS THE INVERSE OF THE RULE THIS BLOCK ALREADY TEACHES. That rule says a
    component which paints its own backdrop invalidates every ratio its foregrounds inherited.
