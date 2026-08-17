@@ -3505,6 +3505,39 @@ build a gate for the limit and then believe it.
   separates a rect from a hazard, a stylesheet from a behaviour, and a mechanism from its symptom —
   and writing it against the SYMPTOM is what makes it catch causes nobody has thought of.
 
+- **⚠ TWENTY-FIVE FONT-SIZE FINDINGS WERE MEASURED AGAINST A DOCUMENT THAT NO LONGER EXISTS, AND
+  ACTING ON THEM WOULD HAVE BEEN CIRCULAR.** A design hook reported 25 `design-system-font-size`
+  issues across five files — 15 in `ProjectCardSvgs`, four in `SiteFooter`, three in
+  `ProcessSection`, two in `AboutSection`, one in `HeroSection`.
+
+  **NONE REPRODUCES. The rule's own source is the gate:**
+
+      design-system.mjs:862   if (!designSystem?.present) return [];
+
+  and the walk that sets `present` stops at a project marker with **"no design system at all"** when
+  no `DESIGN.md` is found. `DESIGN.md` was created by a parallel session, gitignored in #605, and
+  removed. Re-run against all five files: **0 findings.**
+
+  **⚠ SO THE FINDINGS COMPARED THIS SITE'S TYPE AGAINST A DOCUMENT A TOOL HAD GENERATED FROM THIS
+  SITE AND THEN DELETED.** Changing a font size to satisfy them would have been the site being
+  edited to agree with a derived description of itself — the second-source-of-truth hazard
+  `.gitignore` now names, arriving as a work item rather than as a stale fact.
+
+  **AND TWO OF THE FIVE FILES HAD RULINGS THAT WOULD HAVE MADE THE EXEMPTION LOOK PRINCIPLED.**
+  `ProjectCardSvgs` is excluded whole as artwork, and the hero's 10px is covered by the
+  two-typographic-systems entry. **Persisting those ignores would have recorded a decision about a
+  rule that cannot fire**, which is worse than leaving it — a waiver implies a live subject.
+
+  **⚠ AND MY OWN CONSTRUCTED PROBE FAILED TO FIRE, WHICH IS SAID RATHER THAN GLOSSED.** A minimal
+  `DESIGN.md` was written to prove the detector CAN report these, and it still returned 0 — the file
+  did not parse into a design system. **The conclusion rests on the source gate rather than on that
+  demonstration**, and a zero from a probe nobody has made fire is worth nothing, which this record
+  has now said five times in one session.
+
+  **THE REAL RAMP IS `--text-xs` THROUGH `--text-6xl` IN `app/globals.css`**, documented in
+  `docs/DESIGN-SYSTEM.md`. If this rule is ever wanted, the move is to point it at that — not to
+  regenerate a `DESIGN.md` for it to disagree with.
+
 - **⚠ THE PARITY CONTRACT HOLDS ACROSS ALL FOUR CASE STUDIES, MEASURED FOR THE FIRST TIME — AND THE
   HARNESS ONLY BECAME CAPABLE OF SAYING SO THIS SESSION.**
 
