@@ -1327,7 +1327,24 @@ t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never
  * RATHER THAN LEFT TO LOOK LIKE A TYPO. `accent-500` and `accent-600` are both pure black in
  * Drawing Office, so this pair cannot distinguish them and a resolver that confused the two would
  * still agree on this member. Every other palette separates them by 1.3 to 3.8, so the check keeps
- * its power on the population and loses it on exactly one row. */
+ * its power on the population and loses it on exactly one row.
+ *
+ * ⚠ AND A `curl` OF THE PALETTE'S OWN PAGE CANNOT RE-TAKE ANY OF THESE READINGS — IT WOULD MEASURE
+ * CREAM AND LABEL IT WITH THE PALETTE IN THE URL. `PaletteConsole` writes `data-theme` and
+ * `data-ground` onto `<html>` CLIENT-SIDE, so the SSR document carries the PUBLISHED theme and the
+ * palette arrives only after hydration. Measured on the live site:
+ *
+ *     GET /palettes/drawing-office   ->   <html lang="en" data-theme="cream" …>
+ *     title "drawing-office — palette", 19 occurrences of the slug in the body
+ *
+ * So every signal on that page NAMES the palette while the token scope resolves the published one.
+ * A reader that fetches the URL, greps the scope and records a pair gets cream's numbers under
+ * drawing-office's label — the wrong-subject shape this file records a dozen times, pre-loaded onto
+ * the exact URL somebody reaches for when skipping the browser step.
+ *
+ * THE READINGS ABOVE WERE TAKEN FROM THE POST-HYDRATION DOM, WHICH IS WHAT PAINTS. Re-taking one
+ * means a real browser and a settle past the transitions, per this block's closing line. There is no
+ * shortcut and this note exists so nobody spends an afternoon discovering that. */
 const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
   basalt: [3.65, 2.69], cream: [4.70, 7.22],
