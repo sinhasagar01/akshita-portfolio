@@ -447,15 +447,34 @@ t("D11 …and it declares the same token set as the others, so nothing inherits 
  * ground at c 0.016 needs 117 degrees where c 0.030 needs 61. A band with one member has no
  * separation to enforce, and saying so beats inheriting 60 from a class it was measured on. */
 const BANDS = [
-  { label: "light", min: 0.920, max: 0.962, hueFloor: 60, floorUnit: "degrees",
-    why: "the five shipped palettes. 60 degrees is measured on THIS band and the palette count is "
-       + "bounded by it — seven hues on a circle are 51.4 apart, so five real palettes is the ceiling. "
-       + "⚠ AND DEGREES IS PROBABLY THE WRONG UNIT HERE TOO, LATENT RATHER THAN BROKEN. It works only "
-       + "because every shipped light ground carries chroma (0.016 to 0.022) and NOTHING FORBIDS ZERO. "
-       + "An achromatic light palette — a paper or newsprint theme — has no hue, and this floor would "
-       + "be silent about it exactly as the dark band's would have been about Basalt. The hole is "
-       + "identical and only the dark band has met a member that exposes it. Move this to dE when one "
-       + "is proposed, or when the dark band's value is set and the two can share a unit." },
+  { label: "light", min: 0.920, max: 0.962, hueFloor: 12.5, floorUnit: "dE",
+    why: "the five shipped palettes, measured on THIS band. ⚠ 12.5 IS A CEILING ON THE FLOOR RATHER "
+       + "THAN A JUDGED THRESHOLD, and the difference is the whole entry. It sits just under the "
+       + "SMALLEST separation among the ten shipped light pairs, cream/cerise at 12.529964, every one of which went "
+       + "through the render protocol and reads as its own colour. So the evidence bounds this floor "
+       + "from ABOVE — nothing at or over 12.53 may be refused, because all ten shipped — and NOTHING "
+       + "BOUNDS IT FROM BELOW, because no light pair has ever been rendered side by side and read as "
+       + "ONE colour. The dark band is the mirror: it has a `one` at 6.0 and no `two`, so its floor is "
+       + "pinned from below and free above. Neither band has both, and saying which half is missing "
+       + "beats a number that reads as fully derived. "
+       + "⚠ AND THE UNIT MOVED BECAUSE DEGREES DID NOT MERELY GO SILENT ON AN ACHROMATIC GROUND — IT "
+       + "REFUSED ONE UNCONDITIONALLY. This entry predicted silence. Measured, a chroma-0 ground still "
+       + "carries a hue DIGIT that `arc()` happily reads, and of the 360 spellings available NOT ONE "
+       + "clears 60 degrees against all five shipped hues. The colour is rgb(228,228,228) in every one "
+       + "of them and sits dE 12.04 to 17.52 away, which is ordinary for this band. So the old floor "
+       + "reported a phantom collision whose only cure was rotating a digit to satisfy a gate, which "
+       + "this project refuses by name. "
+       + "⚠ AND THE TWO UNITS DISAGREE ABOUT WHICH PAIR IS TIGHTEST, WHICH IS WHY THIS IS NOT A "
+       + "RELABELLING. By degrees the binding pair is orchid/cerise at exactly 60.0; by dE it is "
+       + "cream/cerise at 12.53, which sits 63.0 degrees apart. Both tightest-by-dE pairs involve "
+       + "cerise, whose ground chroma is forced to 0.016 by the gamut rather than chosen — the record "
+       + "already names cerise as the palette degrees flatter most. "
+       + "⚠ AND THE FLOOR IS 12.5 RATHER THAN 12.53 BECAUSE THE ROUNDED FIGURE REFUSED ITS OWN SOURCE "
+       + "PAIR. The true separation is 12.529964, which is BELOW the two-decimal form it prints as, so "
+       + "a floor set to the displayed 12.53 failed cream/cerise — the pair the floor was derived "
+       + "from, refused by its own derivation. `measure through the string that gets written` is this "
+       + "repository's own rule and this is it arriving in a band floor, caught by the row going red "
+       + "rather than by reading." },
   /* ⚠ THE EVIDENCE IS DATA, NOT PROSE, BECAUSE A MUTATION RAISED THIS FLOOR TO 10.5 AND THE `why`
    * WENT ON SAYING 6.1 WAS THE ONLY JUDGED FIGURE. Nothing compared the number to the sentence —
    * the A8a shape, written by the same hand in the same moment, one more time. `judged` holds every
@@ -1458,11 +1477,70 @@ t("L2 ⚠ HUE STILL MATTERS ACROSS EVERY BAND'S FULL WIDTH — a band wider than
  * ground by 0.1%. This row is the same assertion, scoped. */
 const bandPairs = BANDS.map((b) => [b, REAL.filter((n) => bandOf(Ls[n])?.label === b.label)]);
 for (const [b, members] of bandPairs) console.log(`         ${b.label}: ${members.length} member(s)${b.hueFloor === null ? " — no floor measured yet" : ""}`);
-t("L3 ⚠ EVERY BAND'S MEMBERS CLEAR THAT BAND'S OWN FLOOR — and a band with no measured floor enforces none",
+/* ⚠ AND THIS ROW MEASURED IN DEGREES AGAINST WHATEVER UNIT THE BAND DECLARED — THE SIBLING OF THE
+ * D12 DEFECT, FIXED THERE AND MISSED HERE. `bandUnit`/`groundSep` were added at D12 precisely
+ * because comparing a hue arc against the dark band's dE floor is two quantities and one
+ * comparison. L3 is that same assertion SCOPED, by its own comment one paragraph up, and it went on
+ * calling `arc()` unconditionally — so the dark band's 6.1 dE was enforced as 6.1 DEGREES here.
+ *
+ * The practical reach was small and the claim was still false: 6.1 degrees is so weak that no dark
+ * pair could fail it, and D12 catches the real dE case, so nothing shipped wrong. A row asserting
+ * something it does not measure is a defect the day the other row stops covering it.
+ *
+ * ⚠ IT KEYS ON `b.floorUnit` RATHER THAN CALLING `bandUnit(a)`, DELIBERATELY. `bandUnit` resolves
+ * through `THEME_GROUND` — the DECLARED class — while these members were selected by `bandOf(Ls[n])`,
+ * the MEASURED lightness. Those two agree today and L0/L1 are what assert it. Reading the band we
+ * are already iterating removes the seam entirely rather than trusting it. */
+const sepIn = (unit, a, c) => unit === "dE"
+  ? dist3(groundRgb(a), groundRgb(c))
+  : arc(HUES[a].ground, HUES[c].ground);
+/* ⚠ AND IT HONOURS `GROUND_EXEMPT`, WHICH IT NEVER DID — INVISIBLE UNTIL THE UNIT WAS RIGHT. D12
+ * has always skipped exempt palettes; L3 never has. In degrees that cost nothing, because the
+ * exempt pair measures 32 degrees against a 6.1 floor and could not fire. Measuring in the declared
+ * unit, sapphire and nocturne come out at 4.69 and L3 reported an ACCEPTED, OWNER-RULED
+ * contradiction as a finding — the one this band's floor was measured from and which
+ * `GROUND_EXEMPT` documents by name.
+ *
+ * Two rows, one assertion, one of them reading the exemption register: a gate that fires on a
+ * ruling somebody already made is a gate people learn to skip. */
+t("L3 ⚠ EVERY BAND'S MEMBERS CLEAR THAT BAND'S OWN FLOOR — in the band's OWN unit, minus the exemptions D12 already honours",
   bandPairs.flatMap(([b, members]) => b.hueFloor === null ? []
     : members.flatMap((a, i) => members.slice(i + 1)
-        .filter((c) => arc(HUES[a].ground, HUES[c].ground) < b.hueFloor)
-        .map((c) => `${a}/${c} in ${b.label}: ${arc(HUES[a].ground, HUES[c].ground)} < ${b.hueFloor}`))), []);
+        .filter((c) => !(a in GROUND_EXEMPT) && !(c in GROUND_EXEMPT))
+        .filter((c) => (sepIn(b.floorUnit, a, c) ?? Infinity) < b.hueFloor)
+        .map((c) => `${a}/${c} in ${b.label}: ${sepIn(b.floorUnit, a, c)?.toFixed(2)} ${b.floorUnit} < ${b.hueFloor}`))), []);
+/* ⚠ AND WITHOUT THIS ROW THE FIX ABOVE IS UNASSERTED, WHICH IS THE SHAPE THIS FILE CATALOGUES.
+ * Reverting L3 to a bare `arc()` leaves L3 GREEN — every light pair is 60 to 177 degrees apart and
+ * the floor is 12.5, so a degree measurement sails over a dE floor and the row goes on passing.
+ * That is exactly how the defect survived in the first place: L3 asserted members clear the floor,
+ * which stayed true while the QUANTITY was wrong.
+ *
+ * So the unit itself needs an assertion, and it is only worth anything because the two units
+ * DISAGREE on a real pair — cream/cerise is 63.0 degrees and 12.53 dE, and a row comparing two
+ * measures that happened to coincide would pass under either.
+ *
+ * ⚠ AND L3u ALONE DOES NOT CLOSE IT, WHICH WAS FOUND BY MUTATION AND NOT BY WRITING IT. L3u calls
+ * `sepIn` itself, so replacing the call INSIDE L3's filter with a bare `arc()` leaves L3u green —
+ * the row written to catch that revert cannot see it. The assertion-that-cannot-fail shape,
+ * committed in the row added to prevent it, which is this file's most repeated lesson arriving one
+ * more time.
+ *
+ * IT TAKES TWO ROWS AND NEITHER IS SUFFICIENT. L3u proves `sepIn` is unit-sensitive; L3v proves
+ * L3's filter is the thing that reads `b.floorUnit`. And L3's filter is proved to EXECUTE AND BIND
+ * by mutation rather than by either row — raising the floor to 13 and dropping the exemption filter
+ * both redden L3 — so a source check here is not standing in for reachability that nothing else
+ * establishes. That is the only reason a source regex is admissible at all, and it is stated
+ * because the standing rule in this repository is that a source regex cannot see reachability. */
+const lightBand = BANDS.find((b) => b.label === "light");
+t("L3u ⚠ sepIn IS UNIT-SENSITIVE — proved on a pair where the two units disagree, so a coincidence cannot carry it",
+  [lightBand.floorUnit,
+   Math.round(sepIn("dE", "cream", "cerise") * 100) / 100,
+   Math.round(sepIn("degrees", "cream", "cerise") * 10) / 10,
+   sepIn(lightBand.floorUnit, "cream", "cerise") === sepIn("dE", "cream", "cerise")],
+  ["dE", 12.53, 63, true]);
+t("L3v ⚠ …AND L3 IS THE CALLER THAT READS THE BAND'S UNIT — L3u stays green if this call reverts to a bare arc(), so the two rows are not redundant",
+  /\.filter\(\(c\) => \(sepIn\(b\.floorUnit, a, c\)/.test(
+    readFileSync(new URL(import.meta.url), "utf8")), true);
 /* ⚠ THE FIELD AND ITS REASON MUST AGREE, IN BOTH DIRECTIONS — and the first version only checked
  * one. It asserted that a NULL floor explains itself, which a mutation walked straight through:
  * setting `hueFloor: 60` left the `why` still saying no floor had been measured, and the row passed
