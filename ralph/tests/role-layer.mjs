@@ -454,11 +454,22 @@ const CONSTANTS = {
     depicts: "the same browser window shape, deliberately — a video and a screenshot must read as "
            + "the same kind of object on the page, so they share the chrome and share this ruling.",
   },
-  "components/case-study/blocks/HeroCover.tsx": {
-    rung: "on-dark",
-    depicts: "text that ALWAYS sits on the dark hero band. Naming the dark vocabulary there is not "
-           + "a component choosing its context — it is a component that has only one.",
-  },
+  /* ⚠ `HeroCover.tsx` WAS HERE AND ITS REASON WAS FALSE, WHICH IS A DIFFERENT FAILURE FROM
+     `SectionRenderer`'s BELOW AND THE MORE INSTRUCTIVE ONE. That entry read "text that ALWAYS sits
+     on the dark hero band … a component that has only one ground". The component did have only one
+     ground. IT WAS LIGHT. `.hero-ground.is-dark` resolves to `oklch(0.985 0 0)`, and `is-dark` sets
+     `--glow-color` and has never set a background — so `on-dark-muted` measured 1.99 and
+     `on-dark-quote` 1.71 on two production pages, at 12px and 9.5px, against a 4.5 floor.
+
+     ⚠ THE ENTRY DID NOT GO STALE. IT WAS WRONG WHEN IT WAS WRITTEN, and it read as protection for
+     as long as it existed — every reader who checked this registry was told the hero was dark by
+     the document whose job is to record why a colour may stay raw. H1 asks each entry to say what
+     it DEPICTS rather than why it is exempt, precisely so a reader can disagree with it; nobody
+     did, because "the dark hero band" names a thing that used to exist.
+
+     THE FILE ALSO STOPS BEING SKIPPED BY THE CONSUMER CENSUS, which is the half nobody would have
+     noticed. A registry entry excludes the whole FILE at line ~725, so every role HeroCover legitimately
+     consumes was uncounted for as long as it sat here. */
   /* ⚠ `SectionRenderer.tsx` WAS HERE AND ITS SUBJECT NO LONGER EXISTS, WHICH IS WHY IT IS DELETED
      RATHER THAN LEFT. The entry read "the same dark band, for the same reason — the quote band's
      identity line and numeral", and the band was retired: its ground had been gone since the
@@ -510,13 +521,52 @@ t("H2 ⚠ THE BEZEL STILL NAMES ITS RUNG RAW — a sweep that gives it a role fa
  * "verified" two shadowed values by proving both present.
  *
  * Comments are blanked before the test, so only a real utility or token reference counts. */
+/* ⚠ THE on-dark CATEGORY IS NOW EMPTY, AND ITS TWO MEMBERS BOTH LEFT BY BEING WRONG RATHER THAN BY
+ * BEING TIDIED. `SectionRenderer`'s band and `HeroCover`'s hero were each registered as "a component
+ * with only one ground, and it is dark". Neither was: both painted the dark vocabulary onto a light
+ * page, at 1.56 to 1.99 across five regions on two live case studies.
+ *
+ * ⚠ AND THE CATEGORY'S REAL MEMBERS WERE NEVER IN IT. Derived across 306 non-studio source files with
+ * comments blanked, FIVE name the dark vocabulary in code — `ImagePreview`, three gallery components
+ * and the gallery dev harness — and not one has ever been registered here. So the register held two
+ * files that did not belong and none of the five that did, which is what a registry written while
+ * looking at one surface produces. They are NOT added by this unit: the case study is its subject and
+ * a gallery overlay that paints `bg-band-dark` on the same element is a different claim.
+ *
+ * The rows below therefore split into three jobs rather than the two that were here. */
 const H3_FILES = Object.entries(CONSTANTS).filter(([, v]) => /^on-dark$/.test(v.rung)).map(([k]) => k);
-t("H3a the on-dark constants are DERIVED from the registry, and there is at least one — a hand list two lines from the registry is the parallel-list shape",
-  H3_FILES.length >= 1, true);
-t("H3 …and the on-dark constants still name the dark vocabulary IN CODE rather than in a comment about it",
+/* ⚠ AGAINST A LITERAL, NOT `>= 1`, AND THE PREVIOUS FORM WOULD HAVE GONE RED FOR THE RIGHT REASON AND
+ * BEEN "FIXED" BY DELETING IT. A count derived from the subject it guards is the shape this file
+ * records six times; a literal makes an emptying population a DECISION somebody writes down. */
+t("H3a the on-dark constants are DERIVED from the registry, and the category size is pinned — it is 0 today, and a new entry must move this number deliberately",
+  H3_FILES.length, 0);
+/* ⚠ VACUOUS TODAY BY CONSTRUCTION, KEPT DELIBERATELY, AND H3a IS WHAT MAKES THAT HONEST. It guards
+ * the NEXT entry: a file registered as an on-dark constant whose only mention is prose fails here.
+ * Both halves were proven by mutation when this row was written — putting `SectionRenderer` back
+ * reddens it, and removing the comment-blanking below makes the same mutation SURVIVE. */
+t("H3 …and any on-dark constant names the dark vocabulary IN CODE rather than in a comment about it",
   H3_FILES.filter((f) => !/on-dark/.test(
     readFileSync(new URL("../../" + f, import.meta.url), "utf8")
       .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1"))), []);
+/* ⚠ THE ROW WITH TEETH, AND IT IS THE ABSENCE DIRECTION BECAUSE THAT IS THE ONE A REGEX CAN SOUND.
+ * H3 and H3a are both about the REGISTRY; neither can see a component that names a dark colour
+ * without being registered — which is exactly what the hero did for a week after its ground went
+ * away. Scoped to the case-study surface because that is where the five regions were, and because a
+ * dark overlay elsewhere is a legitimate member of the category this one is asserting is empty. */
+/* ⚠ `tsxFiles`, NOT `srcFiles` — AND THE FIRST DRAFT USED THE LATTER, WHICH IS DECLARED TWO HUNDRED
+ * LINES BELOW THIS ROW. `node --check` parses that perfectly and it throws a `ReferenceError` at run
+ * time: the temporal dead zone, fifth instance in this repository, caught by RUNNING the suite and
+ * by nothing else. Section I already walks `tsxFiles`, which is the right set for a `.tsx` census. */
+const caseStudyDark = tsxFiles
+  .map((f) => f.replace(new URL("../../", import.meta.url).pathname, ""))
+  .filter((rel) => /^components\/case-study\/.*\.tsx$/.test(rel) && !/ImagePreview/.test(rel))
+  .filter((rel) => /\b(?:text|bg|border|fill|stroke|ring|from|via|to|divide|outline)-(?:on-dark(?:-muted|-quote)?|band-dark|accent-on-dark)\b/
+    .test(readFileSync(new URL("../../" + rel, import.meta.url), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1")));
+t("H3b ⚠ NO CASE-STUDY COMPONENT NAMES THE DARK VOCABULARY — the hero and the quote band both did, on a light ground, and no registry row could see it",
+  caseStudyDark.sort(), []);
+/* ⚠ AND ITS DENOMINATOR, because an empty file walk reports the same zero as a clean surface. */
+t("H3b-denom the case-study walk read real files, against a literal", tsxFiles.length >= 50, true);
 
 console.log("\nI · ⚠ NO COMPONENT CHOOSES BY GROUND — the acceptance test, fired and passed");
 
