@@ -347,5 +347,88 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
   t("D4: no literal Fraunces survives in the card renderer", /"Fraunces"/.test(og), false);
 }
 
+/* ================================================ E. THE CASE-STUDY ITALIC CENSUS
+ * ⚠ THIS EXISTS BECAUSE THE POPULATION WAS STATED WRONG THREE TIMES IN THREE CONSECUTIVE UNITS, BY
+ * SOMEBODY WHO HAD READ THE FILES EACH TIME.
+ *
+ *     "the last two italics in the case studies"   ->  TWENTY sites across twelve files
+ *     "index numerals: Stepper 7"                  ->  Stepper's italic is the step LABEL, not an
+ *                                                      index; it has no numeral, it has a dot
+ *     a class matcher anchored to a quoted run     ->  missed five files, every one of them a
+ *                                                      template literal carrying an interpolation
+ *
+ * Each was a claim about a population, offered in a report, and each scoped the next unit's work.
+ * This record's own rule is that a claim about a CLASS of thing is a COUNT and counts are cheap; the
+ * repair is to take it mechanically rather than to be more careful, which is what three careful
+ * attempts already were.
+ *
+ * ⚠ THE MEMBERS ARE NAMED RATHER THAN COUNTED, AND THAT IS THE WHOLE DESIGN. A bare total goes green
+ * when one site is retired and another is added — the compensating-error shape. Naming them makes a
+ * new italic fail ON ARRIVAL with the file that introduced it, and makes a retirement a line
+ * somebody deletes on purpose.
+ *
+ * ⚠ AND THE CATEGORIES ARE STATED, BECAUSE ALL THREE MISCOUNTS WERE CATEGORY ERRORS RATHER THAN
+ * ARITHMETIC ONES. What remains is not a backlog of oversights — each group is a decision:
+ *
+ *   WATERMARK   decorative, aria-hidden, pointer-events-none. A giant slanted word behind content is
+ *               a texture rather than type, and the direction has not ruled on it.
+ *   HEADING     a display-italic head. These are the next unit, and they are NOT numerals — which is
+ *               exactly the confusion this census was built after.
+ *   THESIS      `CLAUDE.md`'s spine specifies "one italic thesis sentence" for the hero. A written
+ *               decision, so the owner's to change and not a gate's.
+ *
+ * `rich.tsx` is excluded by construction: its `<em>` is the AUTHOR's own emphasis mark, in use
+ * across live content, and retiring a blanket slant never touched a chosen one. */
+{
+  const dir = new URL("../../components/case-study/", import.meta.url).pathname;
+  const walk = (d, out = []) => {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const p = d + e.name;
+      if (e.isDirectory()) walk(p + "/", out);
+      else if (/\.tsx$/.test(e.name)) out.push(p);
+    }
+    return out;
+  };
+  const EXPECTED = {
+    "GlowWord.tsx": "WATERMARK — the faint word behind a section",
+    "blocks/FeatureRows.tsx": "WATERMARK — the giant numeral behind the rows",
+    "blocks/WorkStory.tsx": "WATERMARK — the ghost numeral behind the stage",
+    "blocks/FigureGrid.tsx": "HEADING — a display-italic head, next unit",
+    "blocks/PrincipleCards.tsx": "HEADING — the block's own h3, next unit",
+    "blocks/Stepper.tsx": "HEADING — the step LABEL, which is not an index; the web branch already draws it upright",
+    "CaseStudyView.tsx": "HEADING — the `Coming soon` h1, on the empty state a study with zero sections "
+      + "renders. Unreachable on all four today, which is why it is a member nobody has ever seen and "
+      + "the reason E2 asked for a real one rather than a label",
+    "blocks/HeroCover.tsx": "THESIS — the spine specifies an italic thesis sentence, in both branches",
+  };
+  const files = walk(dir);
+  const found = [];
+  for (const f of files) {
+    const rel = f.slice(dir.length);
+    if (rel === "rich.tsx") continue;
+    const body = code(readFileSync(f, "utf8"));
+    /* MATCHED ACROSS THE WHOLE className EXPRESSION, NOT A QUOTED RUN WITH NO QUOTES IN IT. The
+       census that missed five files anchored on a character class excluding quotes and backticks,
+       and every miss was a template literal carrying an interpolation. A class-string question needs
+       the expression. */
+    if (/className\s*=\s*[{"'`][\s\S]{0,400}?\bitalic\b/.test(body)) found.push(rel);
+  }
+  t("E1 ⚠ THE CASE-STUDY ITALIC POPULATION IS NAMED, NOT COUNTED — a new slanted site fails here with the file that added it",
+    found.sort(), Object.keys(EXPECTED).sort());
+  /* ⚠ THE DENOMINATOR, and it is not decoration: a walk that reads nothing reports the same empty
+     array as a surface with no italics, and this section's subject IS a directory. */
+  t("E1a the walk read the real component tree, against a literal", files.length >= 20, true);
+  t("E2 …and every member declares its CATEGORY, because all three miscounts were category errors rather than arithmetic",
+    Object.entries(EXPECTED).filter(([, v]) => !/^(WATERMARK|HEADING|THESIS) — .{20,}/.test(v)).map(([k]) => k), []);
+  /* ⚠ THE COMPLEMENT, AND IT IS THE HALF THAT IS EASY TO SKIP. A membership list only ever loosens —
+     add a file and the population is "expected" — so the files #630 to #632 converted are named as
+     ones it must NOT cover. Same shape as the exemption complement this repository recorded for
+     `collection-exercise`'s blog row. */
+  t("E3 ⚠ NO STATEMENT, INDEX OR LABEL ITALIC SURVIVES — the files those units converted must not reappear",
+    ["blocks/PullQuote.tsx", "blocks/ClosingLine.tsx", "blocks/IssueList.tsx", "PrincipleCard.tsx",
+     "blocks/BeforeAfterStory.tsx", "SectionRenderer.tsx", "CaseSectionHeader.tsx"]
+      .filter((f) => found.includes(f)), []);
+}
+
 console.log(`\ntypography result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

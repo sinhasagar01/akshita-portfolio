@@ -211,7 +211,10 @@ function ChangeNotes({
               : { opacity: 0.25, transform: "translateX(-6px)", transition: "opacity .4s, transform .4s" }
           }
         >
-          <span className="w-[18px] shrink-0 font-display italic text-[14px] leading-[1.5] text-accent">
+          {/* A numbered change list is a SCHEDULE, so its index takes the smallest mono size — the
+              same ruling `IssueList` took in #630, and off the accent for the same reason: a row
+              number is none of the direction's four sanctioned uses. */}
+          <span className="w-[18px] shrink-0 sheet-mono-micro leading-[1.5]">
             {String(j + 1).padStart(2, "0")}
           </span>
           <span className="text-[12.5px] leading-[1.45] text-text-secondary">
@@ -384,7 +387,10 @@ export default function BeforeAfterStory({
               >
                 {/* screen name + step (stands in for the rail on mobile) */}
                 <div className="flex items-baseline gap-3">
-                  <span className="font-display italic text-2xl leading-none text-accent">
+                  {/* The mobile screen number, standing in for the rail. A mark rather than a
+                      figure, so it drops from 24px display italic to the mono label and off the
+                      accent — the rail it replaces already numbers its stops the same way. */}
+                  <span className="sheet-mono-label leading-none">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
