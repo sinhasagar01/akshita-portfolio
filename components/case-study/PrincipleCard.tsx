@@ -57,7 +57,7 @@ export default function PrincipleCard({
   }
   return (
     <div
-      className="relative z-[1] rounded-lg border bg-cream-200 p-7"
+      className="relative z-[1] border bg-cream-200 p-7"
       style={{ borderColor: LINE }}
     >
       <div {...idxProps} className={`sheet-mono-label leading-none${aff}`}>

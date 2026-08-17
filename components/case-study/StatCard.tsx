@@ -18,7 +18,7 @@ export default function StatCard({
   const aff = editable ? EDIT_AFFORD : "";
   return (
     <div
-      className={`relative z-[1] rounded-lg border p-7 ${
+      className={`relative z-[1] border p-7 ${
         stat.highlighted ? "bg-cream-200" : "bg-surface"
       }`}
       style={{ borderColor: stat.highlighted ? ACCENT_RING : LINE }}

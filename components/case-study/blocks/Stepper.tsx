@@ -52,7 +52,7 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
   }
   return (
     <div
-      className="grid grid-cols-1 overflow-hidden rounded-lg border bg-surface lg:grid-cols-4"
+      className="grid grid-cols-1 overflow-hidden border bg-surface lg:grid-cols-4"
       style={{ borderColor: LINE }}
     >
       {steps.map((s, i) => (

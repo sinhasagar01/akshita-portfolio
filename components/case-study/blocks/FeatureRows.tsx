@@ -29,8 +29,8 @@ export default function FeatureRows({
             key={f.index}
             className={
               wide
-                ? "reveal-card relative overflow-hidden rounded-xl border bg-surface flex flex-col items-center gap-9 p-8 lg:px-14"
-                : `reveal-card relative overflow-hidden rounded-xl border bg-surface flex flex-col items-center gap-9 p-8 lg:flex-row lg:gap-[52px] lg:px-14 ${
+                ? "reveal-card relative overflow-hidden border bg-surface flex flex-col items-center gap-9 p-8 lg:px-14"
+                : `reveal-card relative overflow-hidden border bg-surface flex flex-col items-center gap-9 p-8 lg:flex-row lg:gap-[52px] lg:px-14 ${
                     reversed ? "lg:flex-row-reverse" : ""
                   }`
             }

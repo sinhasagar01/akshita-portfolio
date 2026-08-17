@@ -39,7 +39,7 @@ export default function GlanceGrid({ items, web = false, editable = false, block
   }
   return (
     <div
-      className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border sm:grid-cols-2 lg:grid-cols-4"
+      className="grid grid-cols-1 gap-px overflow-hidden border sm:grid-cols-2 lg:grid-cols-4"
       style={{ background: LINE, borderColor: LINE }}
     >
       {items.map((it, i) => (

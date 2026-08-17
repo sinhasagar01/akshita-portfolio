@@ -57,8 +57,8 @@ export default function DeviceShelf({
     <div
       className={
         wide
-          ? "relative overflow-hidden rounded-xl border flex flex-col items-center gap-10 px-8 pt-11 lg:px-10"
-          : "relative overflow-hidden rounded-xl border flex flex-wrap items-end justify-center gap-8 px-8 pt-11 lg:px-10"
+          ? "relative overflow-hidden border flex flex-col items-center gap-10 px-8 pt-11 lg:px-10"
+          : "relative overflow-hidden border flex flex-wrap items-end justify-center gap-8 px-8 pt-11 lg:px-10"
       }
       style={{ background: SHELF_GRADIENT, borderColor: LINE, minHeight }}
     >
@@ -76,7 +76,7 @@ export default function DeviceShelf({
           {d.label && (
             <span
               {...editLabel(i)}
-              className={`mt-4 -translate-y-3.5 rounded-full border bg-surface px-3.5 py-1.5 text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle${aff}`}
+              className={`mt-4 -translate-y-3.5 border bg-surface px-3.5 py-1.5 text-eyebrow tracking-[0.14em] uppercase font-semibold text-text-subtle${aff}`}
               style={{ borderColor: LINE }}
             >
               {d.label}
