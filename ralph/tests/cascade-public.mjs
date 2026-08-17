@@ -529,11 +529,32 @@ t("C1: the public collision census is exactly this — a change here is a dead u
      LOOSER tracking than the reset's -0.03em. 18 measures, 12 weights, 58 leadings, 4 trackings —
      the item said 58 and one change, and it was 92 across four properties.
 
-     ⚠ WHAT REMAINS IS `color`: SIX `<a>` SITES, AND IT IS A DIFFERENT QUESTION. The unlayered
+     ⚠ WHAT REMAINS IS `color`: `<a>` SITES, AND IT IS A DIFFERENT QUESTION. The unlayered
      `a { color: inherit }` exists so links inherit their context rather than turning blue, and
      `studio-cascade`'s whole premise rests on it. Lifting it is not the fifth step of this
-     sequence — it is a new one, with its own reason to exist. */
-  census, { color: 4 });
+     sequence — it is a new one, with its own reason to exist.
+
+     ⚠ 4 -> 1, AND THREE OF THE FOUR PUBLIC COLOUR COLLISIONS IN THE WHOLE REPOSITORY WERE ON TWO
+     PAGES NOBODY LOOKS AT. The 404 and the public error boundary each drew an accent-filled anchor
+     whose colour utility lost to that unlayered rule, plus a hover colour on the same element:
+
+       not-found   the accent foreground on the primary control   MEASURED 1.07 ON ITS OWN FILL
+       error       the primary-ink foreground on the secondary    inert, and CORRECT BY COINCIDENCE
+       error       the hover colour on that same anchor           inert, removed
+
+     ⚠ THE FIRST ONE WAS LIVE, AND THE SECOND IS THE MORE INSTRUCTIVE. `text-on-accent` on an anchor
+     computed `oklch(0.15 0 0)` on an `oklch(0 0 0)` fill — near-black on pure black, against a 4.5
+     floor — because the class never applied and the label inherited the page's ink. The secondary
+     asked for the ink it inherits ANYWAY, so an equally inert class drew the right pixels and nothing
+     could have found it except this census.
+
+     ⚠ AND THE TOKENS WERE RIGHT THE WHOLE TIME, WHICH IS WHY `role-layer` R2b MISSED IT. That row's
+     subject is the accent foreground paired with the RUNG; these paired it with the ROLE, which is the
+     correct token and measures 4.63 to 7.52 on all nine palettes. Not a colour defect. An ELEMENT that
+     cannot receive a colour, which is a different question and the one this `color` row is about.
+
+     All three were repaired the way R2b's own three sites were: the colour moved to a child span. */
+  census, { color: 1 });
 t("C2: /studio still has ZERO collisions — studio-cascade's clean bill, re-checked by a second instrument",
   collisions.filter((h) => !outside(h)), []);
 t("C3: the inert inventory outside /studio is pinned too — inert is not safe, it is a place an edit will silently do nothing",
@@ -583,8 +604,20 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
 
      AND NOT ONE RENDERED BOX MOVED. All eight read `want=auto got=auto`, so every consumer already
      agreed with the value the reset gave; the utility simply became the thing that supplies it.
-     That is why this lift could be taken whole where the four type lifts each had to be split. */
-  inert.filter(outside).length, 11);
+     That is why this lift could be taken whole where the four type lifts each had to be split.
+
+     ⚠ 11 -> 7 WITH THE 404 AND THE ERROR BOUNDARY, AND ALL FOUR ARE ONE PAIR TWICE. Each page's `h1`
+     carried the display class with a weight utility and a line-height utility, both agreeing with the
+     unlayered `h1, h2` reset they could not beat — two inert utilities per file, two files, four.
+     Both headings moved to `.sheet-h2`, which sets its own weight and line-height on the CLASS, so
+     there is nothing left to lose to the element rule.
+
+     THE SIXTH KIND OF FALL, AND IT IS THE `CaseSectionHeader` KIND: a heading leaving the element
+     reset's reach entirely by taking a class that beats it, rather than a utility starting to win.
+     Same mechanism that moved S2 from 21 to 14, counted in the other inventory. Seven times this
+     count has moved and seven times which kind it was has been worth writing down — the number alone
+     still cannot say. */
+  inert.filter(outside).length, 7);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);
