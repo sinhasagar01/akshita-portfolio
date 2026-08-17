@@ -393,10 +393,16 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
      THAN A FOURTH GUESS. `FigureGrid`, `PrincipleCards`, `Stepper` and `CaseStudyView` were the four
      it named; all four moved together, and the two block headings turned out to be BYTE-IDENTICAL
      strings in separate files — an agreement by copy that only a list of members surfaces. */
+  /* ⚠ THE WATERMARK CATEGORY HAS DRAINED TOO, AND THE OWNER RULED IT RATHER THAN A SWEEP FINDING IT.
+     Four states were built at full size behind real section copy — as built, deleted, a large mono
+     stamp, and a small stamp in a ruled box — and the box was chosen. All three watermark files now
+     render the STAMP device, which is upright mono, so they leave this census entirely.
+
+     ⚠ SO ONE FILE IS LEFT AND IT IS THE ONE THE SPINE ASKS FOR. That is worth stating plainly: the
+     case-study italic population is no longer a backlog with a reason attached to each member. It is
+     a single written decision in `CLAUDE.md`, and the only way this census grows again is a new
+     slanted site, which E1 will name on arrival. */
   const EXPECTED = {
-    "GlowWord.tsx": "WATERMARK — the faint word set behind a section, aria-hidden and unselectable",
-    "blocks/FeatureRows.tsx": "WATERMARK — the giant numeral behind the feature rows, decorative only",
-    "blocks/WorkStory.tsx": "WATERMARK — the ghost numeral behind the pinned stage, decorative only",
     "blocks/HeroCover.tsx": "THESIS — `CLAUDE.md`'s spine specifies one italic thesis sentence for the "
       + "hero, so the slant is a written decision rather than drift. Both branches carry it",
   };
@@ -423,18 +429,23 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
      add a file and the population is "expected" — so the files #630 to #632 converted are named as
      ones it must NOT cover. Same shape as the exemption complement this repository recorded for
      `collection-exercise`'s blog row. */
-  t("E3 ⚠ NO STATEMENT, INDEX, LABEL OR HEADING ITALIC SURVIVES — the files those units converted must not reappear",
+  t("E3 ⚠ NO STATEMENT, INDEX, LABEL, HEADING OR WATERMARK ITALIC SURVIVES — every file these units converted must not reappear",
     ["blocks/PullQuote.tsx", "blocks/ClosingLine.tsx", "blocks/IssueList.tsx", "PrincipleCard.tsx",
      "blocks/BeforeAfterStory.tsx", "SectionRenderer.tsx", "CaseSectionHeader.tsx",
-     "blocks/FigureGrid.tsx", "blocks/PrincipleCards.tsx", "blocks/Stepper.tsx", "CaseStudyView.tsx"]
+     "blocks/FigureGrid.tsx", "blocks/PrincipleCards.tsx", "blocks/Stepper.tsx", "CaseStudyView.tsx",
+     "GlowWord.tsx", "blocks/FeatureRows.tsx", "blocks/WorkStory.tsx"]
       .filter((f) => found.includes(f)), []);
   /* ⚠ AND THE THREE CATEGORIES ARE NOT ALL STILL POPULATED, WHICH THE VOCABULARY ROW ALONE CANNOT
      SAY. E2 checks that each MEMBER declares a known category; it is silent about a category that
      has drained. HEADING is empty as of this unit, so the vocabulary is pinned to what remains —
      and a heading italic reappearing has to be declared deliberately rather than slipping back in
      under a word the register still recognises. */
-  t("E4 the surviving categories are exactly WATERMARK and THESIS — HEADING drained, and an empty category must not stay in the vocabulary unnoticed",
-    [...new Set(Object.values(EXPECTED).map((v) => v.split(" ")[0]))].sort(), ["THESIS", "WATERMARK"]);
+  /* ⚠ TWO CATEGORIES HAVE NOW DRAINED IN SUCCESSIVE UNITS — HEADING, then WATERMARK — and this row is
+     the only thing that noticed either. E2 checks that each MEMBER declares a known category and is
+     silent about a category with no members left, which is how an emptied word sits in a vocabulary
+     until a later italic slips back in under it. */
+  t("E4 the surviving category is exactly THESIS — HEADING drained when the heads converted and WATERMARK when the stamp landed",
+    [...new Set(Object.values(EXPECTED).map((v) => v.split(" ")[0]))].sort(), ["THESIS"]);
 }
 
 console.log(`\ntypography result: ${pass} passed, ${fail} failed`);

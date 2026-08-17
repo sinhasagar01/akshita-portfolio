@@ -255,6 +255,17 @@ export default function HeroCover({
         <motion.div {...mp} variants={stackV} className="hero-visual mt-[30px] flex w-full justify-center">
           <DeviceImage image={dashboard} editable={editable} blockIndex={blockIndex} editPath={`devices.${dashIdx}`} priority />
         </motion.div>
+
+        {/* ⚠ THIS BRANCH NEVER RENDERED `data.glow` AND TWO STUDIES AUTHORED ONE — authorable and
+            inert, on two live pages, for as long as the branch has existed. The mobile hero below
+            draws it; the wide hero drew `watermark` and silently dropped `glow`, so `guided` on
+            fosfor-ai and `trust` on fosfor-data-profiling have never appeared on the site.
+
+            ⚠ FOUND BY ARITHMETIC RATHER THAN BY READING, WHICH IS THE ONLY REASON IT WAS FOUND. The
+            stamp census derived 30 rendered elements and the browser measured 28. Two short, both on
+            the two `template: web` studies, both the hero. A count that reconciles is evidence the
+            population was understood; this one did not, and the gap was the defect. */}
+        {data.glow && <GlowWord word={data.glow} />}
       </div>
     );
   }
