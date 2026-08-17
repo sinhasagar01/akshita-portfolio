@@ -43,6 +43,21 @@
 # move unbound every one of them and the gate named all nine rather than letting the registry rot
 # into keys that match nothing.
 entries:
+  # ⚠ THE CHECK IS STRICTER THAN THE CONTRACT IT ENFORCES, AND THE `continue` IS WHY IT MATTERS.
+  # A block-count difference makes the row `continue`, so the BOX comparison — the one that matches
+  # the stated contract — never runs for those three sections. Closing this means deciding whether
+  # affordance spans belong in the count, which is a ruling rather than a tidy.
+  - match: "THE PARITY HARNESS REPORTS THREE MISMATCHES ON `boat-crest`"
+    kind: structural
+    holds_while:
+      file: ralph/tests/parity.mjs
+      pattern: "block-count"
+      expect: present
+    note: >-
+      Open while the parity script counts every non-inline element, affordance spans included. If
+      that row is retitled or the count learns to skip them, somebody has taken the decision and
+      this entry describes a harness that no longer exists.
+
   # ⚠ THIS CHECK FIRED ON THE GATE'S SECOND RUN, ON THE UNIT THAT CLOSED THE ITEM. It read
   # `expect: absent` because the item was open while both consumers shared `.next`. Adding `distDir`
   # made the entry stale and B2 said so, naming the entry rather than the code — which is the

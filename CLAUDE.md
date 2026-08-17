@@ -213,6 +213,37 @@ gates.
 
 
 
+- **⚠ THE PARITY HARNESS REPORTS THREE MISMATCHES ON `boat-crest`, AND ITS BLOCK-COUNT CHECK IS
+  STRICTER THAN THE CONTRACT IT ENFORCES.** Run by hand — `parity` is skipped by `run.mjs` because
+  it needs a browser — against the live page and the canvas:
+
+      hero      live 39 vs canvas 38     onlyInLive: 2x span.cs-preview-hint
+      problem   live 36 vs canvas 35     onlyInLive: 1x span.cs-preview-hint
+      system    live 41 vs canvas 39     onlyInLive: 2x span.cs-preview-hint
+                                         onlyInCanvas: 1x span.cs-editable
+
+  **EVERY ONE IS AN AFFORDANCE SPAN, WHICH THE CONTRACT EXPLICITLY ALLOWS.** The rule is that
+  `editable` and `noReveal` *"may ADD affordances but must never move or resize a box"* — and the
+  boxes are identical: **all nine pairs match to the pixel**, 1265 wide and the same height on each.
+  So the design property holds and the CHECK is what disagrees.
+
+  **⚠ THE BLOCK-COUNT ROW COUNTS ANY NON-INLINE ELEMENT, AND AN AFFORDANCE SPAN IS NON-INLINE.**
+  `collect()` keeps everything whose display does not start with `inline`, so a hint span rendered
+  `inline-block` or `block` joins the census and the two sides differ by construction. The row then
+  `continue`s, **so the BOX comparison for those three sections never runs at all** — the strict
+  check is suppressing the one that matches the contract.
+
+  **THE DECISION IS WHETHER THE COUNT SHOULD IGNORE AFFORDANCE SPANS**, and it is not taken here.
+  Loosening a parity check is a real ruling: the count is what would catch the canvas dropping a
+  block entirely, which is the defect that arc was built for. Exempting a class name is the
+  fixed-list shape; keying on a marker attribute the affordances already carry is not.
+
+  **⚠ AND THIS IS PRE-EXISTING RATHER THAN CAUSED BY THE `visibility` WORK, PROVED RATHER THAN
+  ASSERTED.** The pre-change `globals.css` was checked out over the current one and the run repeated:
+  **identical three findings, same sections, same numbers.** The rule touches `visibility` and
+  `collect()` filters on `display`, so it could not have moved the count — but that was the reasoning,
+  and the swap is the measurement.
+
 - **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
   IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
   kind, the gallery image fields — were inert EVERYWHERE: the UI offered a value and nothing
