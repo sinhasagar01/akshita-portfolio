@@ -6075,7 +6075,20 @@ a {
    gutter is spent.
    ============================================================================================ */
 
-.sheet-scope {
+/* ⚠ THE DEVICE TOKENS SIT ON `:root`, NOT ON THE SCOPE CLASS, AND THE CASE STUDIES ARE WHY.
+   They were declared on `.sheet-scope` when the home page was the only consumer. The case-study
+   section header is the second, and case-study pages are NOT inside that scope — so
+   `background: var(--sheet-object)` on the rule's line resolved to NOTHING and the line rendered
+   INVISIBLE while every class name looked correct. A line with no colour is the hardest kind of
+   miss: the markup reads right, no gate sees a missing custom property, and only looking finds it.
+
+   THE FACTORING IS THE FIX RATHER THAN A SECOND DECLARATION. A device's tokens are a VOCABULARY and
+   a vocabulary does not belong to a region — the three line weights mean the same thing wherever
+   something is drawn. `.sheet-scope` keeps what is genuinely regional: the radius reset, the card
+   retirement and the plate overrides, all of which are statements about THIS PAGE rather than about
+   the grammar. Copying the tokens into a second scope would have been the parallel-list defect in
+   CSS, which is the thing this file spends the most words refusing. */
+:root {
   /* THE THREE LINE WEIGHTS, AND THERE ARE ONLY THREE. Hair subdivides, object outlines anything
      drawn, boundary marks a sheet edge and has exactly three uses on the page. A fourth weight
      is how a drawing stops reading as a drawing. */
@@ -6205,12 +6218,22 @@ a {
    is not a `.sheet-plate` — it is an existing frame that becomes one, so a descendant selector
    would have forced either a class it does not want or a duplicated rule. A tick is a mark, and a
    mark does not care what it is cornering. */
-/* ⚠ AND THE MARK FALLS BACK TO `transparent`, WHICH IS WHAT MAKES A TICK SAFE TO RENDER
-   UNCONDITIONALLY. `--sheet-mark` is declared on the scope, and `ProjectCard` is mounted outside it
-   too — by the studio's details canvas and by two dev harness routes. With no fallback the shorthand
-   resolves its colour to `currentColor`, so a tick would draw in the TEXT colour on every surface
-   that is not a sheet. Defaulting to transparent means the mark exists in the markup everywhere and
-   paints only where the grammar is in scope, so no consumer needs a flag. */
+/* ⚠ THE `transparent` FALLBACK IS NOW REDUNDANT, AND THE COMMENT IT CARRIED IS CORRECTED RATHER
+   THAN DELETED. It read: "`--sheet-mark` is declared on the scope … defaulting to transparent means
+   the mark paints only where the grammar is in scope, so no consumer needs a flag." That was true
+   and stopped being true in the same change that gave the case studies their section rule — the
+   token moved to `:root` so a device could work outside the home page, and the fallback lost its
+   subject the moment it did.
+
+   ⚠ AND THE CONSEQUENCE IS THAT TICKS NOW PAINT ON THE STUDIO'S DETAILS CANVAS, WHICH IS CORRECT
+   RATHER THAN A LEAK. That canvas previews `ProjectCard` itself and already draws its every other
+   colour from public roles; a preview that omitted the frame's marks would be a preview that
+   disagreed with the page, which is what the parity convention exists to prevent. No gate objected,
+   which is the check rather than the reassurance.
+
+   THE FALLBACK STAYS ANYWAY, AT ZERO COST. If a future change re-scopes these tokens for a reason
+   nobody has thought of yet, a tick drawing in `currentColor` on every non-sheet surface is the
+   failure it would produce, and one word prevents it. */
 .sheet-tick {
   position: absolute;
   width: 10px;
