@@ -252,5 +252,81 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
     ["CIRCLE", "CONTROL", "DEPICTED"]);
 }
 
+/* ================================================ D. THE NAV RADIUS CENSUS
+ * ⚠ THIS ONE IS CSS RATHER THAN UTILITIES, WHICH IS THE OTHER HALF SECTION C NAMES AND CANNOT SEE.
+ * C walks `.tsx` for `rounded-*`; the nav declares every corner in `globals.css`, so a census of one
+ * says nothing about the other. Both routes are now covered and each says which it is.
+ *
+ * THE DECISION: the owner was shown three states of the nav at full size over live page content —
+ * the capsule as built, a squared capsule, and a title block with no material at all — and chose the
+ * SQUARED CAPSULE. So this section pins a corner that was deliberately changed and a material that
+ * was deliberately kept, which is a pairing a value check alone cannot express.
+ *
+ * THE RULE IS THE SITE'S OWN, from #634: a BOX around content loses its corner, a CIRCLE keeps it
+ * because it is one. Seven boxes and eight circles, and both halves are asserted — squaring the
+ * circles would be as wrong as rounding the boxes, and only naming both directions says so. */
+{
+  const header = css.slice(css.indexOf(".nav-glass {"), css.indexOf(".header-mob-resume-pill") + 900);
+  /* ⚠ COMMENTS BLANKED, because the note above this rule DESCRIBES the retired 999px capsule and a
+     raw read would count the prose as a declaration — the presence-versus-resolution defect this
+     repository records against a bundle grep, arriving in a stylesheet. */
+  const code = header.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const radii = [...code.matchAll(/border-radius:\s*([^;]+);/g)].map((m) => m[1].trim());
+  /* ⚠ AND THE DENOMINATOR, because a slice that missed its end anchor reports an empty list and an
+     empty list satisfies every assertion below it. This repository already carries an extractor
+     whose end ran to the end of the file and whose guard was satisfied by the whole stylesheet. */
+  t("D0 the header slice is real and bounded — an empty slice would satisfy every row below it",
+    radii.length === 15 && header.length < 30000, true);
+
+  const squared = radii.filter((r) => r === "0").length;
+  const circles = radii.filter((r) => r === "50%").length;
+  const inherits = radii.filter((r) => r === "inherit").length;
+  const caps = radii.filter((r) => r === "2px").length;
+  const capsules = radii.filter((r) => /^999px$|^18px$|^11px$/.test(r));
+
+  t("D1 ⚠ THE NAV'S BOXES ARE SQUARE — the capsule, the link hit area, the hover highlight, the Resume control, the mobile sheet, a sheet row and the mobile Resume",
+    squared, 7);
+  /* ⚠ THE COMPLEMENT, AND IT IS THE HALF THAT PROTECTS THE OTHER DIRECTION. A future sweep reading
+     "the nav is square now" would take the morph button and the separator dot with it. They are
+     round because they ARE round, which is the same ruling the phone bezel gets in section C.
+     ⚠ AND THIS ROW WANTED 5 ON ITS FIRST RUN BECAUSE I COUNTED ELEMENTS WHERE IT COUNTS
+     DECLARATIONS. The morph's three bars share ONE rule, so they are one `border-radius`, not
+     three — the wrong-unit defect this repository records a dozen times, caught by the row going
+     red rather than by the prose being re-read. */
+  t("D2 …and its circles are still circles — the 3px separator dot, the morph button, its halo, and the one rule its three bars share",
+    circles, 4);
+  /* The morph's OPEN state swaps its bars for an X, whose 1.8px strokes take a 2px cap. A line end,
+     not a box corner, and it lives on a button that is itself a circle. */
+  t("D2a …and the two line caps on the morph's open X are untouched",
+    caps, 2);
+  t("D3 the two sheens still follow the box by `inherit`, so a specular can never keep a corner the box has lost",
+    inherits, 2);
+  /* ⚠ THE ROW THAT WOULD CATCH A REVERT, stated as an ABSENCE because that direction is sound by
+     regex: if the string is not in the file, nothing can render it. */
+  t("D4 ⚠ NO CAPSULE SURVIVES IN THE NAV — a 999px, 18px or 11px corner here means the decision was undone",
+    capsules, []);
+  /* ⚠ AND THE MATERIAL IS ASSERTED KEPT, WHICH IS THE OTHER HALF OF THE CHOICE. The option the owner
+     picked was "square it, keep the glass"; a later unit that squared the corner AND stripped the
+     blur would satisfy D1 to D4 completely while shipping the option they did not choose.
+     ⚠ SCOPED TO THE BASE RULE, AND THE FIRST DRAFT WAS NOT — IT COULD NOT FAIL FOR THE REASON IT
+     NAMES. It searched the whole header slice, and `.nav-glass.is-ghost` inside the desktop media
+     query RE-DECLARES the fill and the blur to restore the material there. So stripping both from
+     the base rule left the row green: it was reading the restore block and reporting the base one.
+     Caught by mutation and by nothing else, in a row written the same hour, which is what the
+     unfalsifiable-row register in this repository exists to say happens to everyone. */
+  const base = code.slice(0, code.indexOf("\n}"));
+  /* ⚠ AND THIS GUARD DOES NOT TEST D5's OWN SUBJECT, WHICH ITS FIRST DRAFT DID. It also asserted the
+     slice contains the fill token — so it failed for the SAME reason as D5, which is a denominator
+     derived from the thing it guards and therefore no guard at all. It now asserts only what a slice
+     can be wrong about: that it is non-empty, that it stopped at the first close, and that the ghost
+     block whose re-declaration caused the original defect is OUTSIDE it. */
+  t("D5a the base-rule slice is bounded and stops before the ghost block — a runaway slice is what made D5 unfalsifiable",
+    base.length > 200 && base.length < 2400 && !base.includes("is-ghost"), true);
+  t("D5 …and the glass is untouched — the fill, the blur, the stroke and the shadow are all still declared on the capsule ITSELF",
+    [/background:\s*var\(--glass-fill\)/, /backdrop-filter:\s*var\(--glass-blur\)/,
+     /border:\s*0?\.5px solid var\(--glass-stroke\)/, /box-shadow:\s*var\(--glass-shadow\)/]
+      .map((re) => re.test(base)), [true, true, true, true]);
+}
+
 console.log(`\nradius-scale result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
