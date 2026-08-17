@@ -1308,10 +1308,31 @@ t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never
  *
  * These literals are the oracle. If the resolver drifts, they fail; if the PALETTE moves, they fail
  * too and should be re-measured in a browser rather than edited to match. */
+/* ⚠ `drawing-office` WAS MEASURED THE SAME WAY RATHER THAN COMPUTED AND PASTED, because this block's
+ * own closing line says a moved palette is re-measured in a browser rather than edited to match.
+ * Read on `/palettes/drawing-office` under `next start` on a production build — dev overlay absent,
+ * ZERO HMR scripts, title naming the palette — settled 1600ms past any transition, sanity pair
+ * 21.000 with both samples asserted to have LANDED on 255,255,255 and 0,0,0 rather than merely to
+ * differ. Pixels: `on-accent` 250,250,250 against `accent-500` and `accent-600` both 0,0,0.
+ *
+ * ⚠ AND THE CONVERSION HAD TO COME FROM THE BROWSER, WHICH THIS FILE'S OWN HISTORY EXPLAINS.
+ * `getComputedStyle(el).color` returns `oklch(0.985 0 0)` in this engine rather than an `rgb()`
+ * string, and a digit-run parse of it yields 0, 985, 0 — the exact shape that once reported the work
+ * filter passing at 5.41 where it measured 3.11. So the value is painted to a 1x1 canvas and the
+ * PIXEL is read, and each fill is primed with a magenta sentinel and read back first, because an
+ * unparseable colour leaves the previous fill in place and returns a plausible number. Zero parse
+ * failures, and the sanity pair ran through the identical path rather than beside it.
+ *
+ * ⚠ AND THIS PALETTE'S TWO ENTRIES ARE EQUAL, WHICH MAKES THE ROW WEAKER HERE THAN ELSEWHERE — SAID
+ * RATHER THAN LEFT TO LOOK LIKE A TYPO. `accent-500` and `accent-600` are both pure black in
+ * Drawing Office, so this pair cannot distinguish them and a resolver that confused the two would
+ * still agree on this member. Every other palette separates them by 1.3 to 3.8, so the check keeps
+ * its power on the population and loses it on exactly one row. */
 const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
   basalt: [3.65, 2.69], cream: [4.70, 7.22],
   harbour: [4.87, 7.11], orchid: [5.76, 8.45], cerise: [4.66, 7.75], fern: [4.63, 6.88],
+  "drawing-office": [20.12, 20.12],
 };
 /* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
  * to this map fails here instead of being quietly unmeasured — which is the whole defect above,

@@ -168,8 +168,14 @@ const visited = [...pagesBlock.matchAll(/\["([^"]+)",/g)].map((m) => m[1]).sort(
  * ⚠ THIS IS A PROPERTY, NOT A NAME, WHICH IS THE WHOLE POINT. It reads "a route whose only
  * difference from a page already visited is the palette it opens on". A tenth palette matches it
  * automatically; a genuinely new page under `/palettes/` would not, because it would render
- * something else. Excluding the nine by listing them would be the fixed-list shape returning
+ * something else. Excluding them by listing them would be the fixed-list shape returning
  * inside the gate written to remove it.
+ *
+ * ⚠ AND THE TENTH ARRIVED, SO THAT SENTENCE IS NOW A MEASUREMENT RATHER THAN A FORECAST.
+ * `drawing-office` added `/palettes/drawing-office`, and **C1 and C2 both stayed green** — the
+ * property matched the new route with no edit, exactly as predicted. The only thing that moved
+ * was C3's literal beside it, which is the honest split between a derived subject and a pinned
+ * count rather than a defect in either.
  */
 const opensAPaletteOnly = (r) => /^\/palettes\/[a-z-]+$/.test(r);
 const shouldVisit = PAGES.filter((p) => !opensAPaletteOnly(p));
@@ -182,9 +188,20 @@ t("C1 ⚠ EVERY PUBLIC PAGE IS UNDER THE RATCHET — `/palettes` sat outside it 
 t("C2 …and it visits nothing that was not built, which would render the 404 page and read as thin",
   visited.filter((v) => !PAGES.includes(v)), []);
 /* ⚠ AND THE EXCLUSION MATCHES SOMETHING. A property that selects nothing is a rule with no
- * subject, and C1 would pass identically whether the reasoning were sound or not. */
+ * subject, and C1 would pass identically whether the reasoning were sound or not.
+ *
+ * ⚠ AND THE COUNT IS A LITERAL ON PURPOSE — DERIVING IT FROM `PALETTE_SLUGS` WOULD MAKE THIS ROW
+ * UNFALSIFIABLE, WHICH IS THE ONE THING IT MUST NOT BE. `PAGES` is read from the built prerender
+ * manifest, and that manifest is BUILT FROM `PALETTE_SLUGS` by `generateStaticParams`. So
+ * comparing its length against `PALETTE_SLUGS.length` compares the output against the input that
+ * produced it, and no palette change could ever redden it. The literal is the independent route,
+ * which is why a new palette is expected to move this line by hand.
+ *
+ * ⚠ AND MOVING IT IS THE NOTIFICATION, NOT THE CHORE. This row is the only thing in the suite that
+ * tells you a palette changed the public page count — it caught `drawing-office` arriving. A
+ * derived form would have been silent, which is strictly worse than being edited. */
 t("C3 …and the declared exclusion has real members, so C1 is not passing over an empty rule",
-  PAGES.filter(opensAPaletteOnly).length, 9);
+  PAGES.filter(opensAPaletteOnly).length, 10);
 
 console.log(`\nroute-coverage result: ${pass} passed, ${fail} failed  ·  ${PAGES.length} public pages, ${listed.length} in sitemap, ${visited.length} under the ratchet`);
 process.exit(fail === 0 ? 0 : 1);
