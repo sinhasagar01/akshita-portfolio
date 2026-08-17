@@ -73,7 +73,11 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
             <p className="text-eyebrow tracking-[0.2em] uppercase font-semibold text-text-subtle">
               {study.title}
             </p>
-            <h1 className="font-display italic font-normal text-4xl text-text-primary mt-4">
+            {/* ⚠ THE ONE MEMBER OF THE ITALIC CENSUS NOBODY HAS EVER SEEN. This renders only for a
+                study with zero sections, and all four have some — so it has been unreachable for as
+                long as it has existed, which is precisely the kind that decays without a gate.
+                `typography` E1 names it, which is how it got converted at all. */}
+            <h1 className="sheet-h2 mx-auto mt-4">
               Coming soon
             </h1>
             <p className="text-lg text-text-secondary mt-4 max-w-[52ch] mx-auto">

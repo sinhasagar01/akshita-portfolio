@@ -389,17 +389,16 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
     }
     return out;
   };
+  /* ⚠ THE HEADING CATEGORY IS NOW EMPTY, AND THE CENSUS IS WHAT MADE THAT A FOUR-FILE UNIT RATHER
+     THAN A FOURTH GUESS. `FigureGrid`, `PrincipleCards`, `Stepper` and `CaseStudyView` were the four
+     it named; all four moved together, and the two block headings turned out to be BYTE-IDENTICAL
+     strings in separate files — an agreement by copy that only a list of members surfaces. */
   const EXPECTED = {
-    "GlowWord.tsx": "WATERMARK — the faint word behind a section",
-    "blocks/FeatureRows.tsx": "WATERMARK — the giant numeral behind the rows",
-    "blocks/WorkStory.tsx": "WATERMARK — the ghost numeral behind the stage",
-    "blocks/FigureGrid.tsx": "HEADING — a display-italic head, next unit",
-    "blocks/PrincipleCards.tsx": "HEADING — the block's own h3, next unit",
-    "blocks/Stepper.tsx": "HEADING — the step LABEL, which is not an index; the web branch already draws it upright",
-    "CaseStudyView.tsx": "HEADING — the `Coming soon` h1, on the empty state a study with zero sections "
-      + "renders. Unreachable on all four today, which is why it is a member nobody has ever seen and "
-      + "the reason E2 asked for a real one rather than a label",
-    "blocks/HeroCover.tsx": "THESIS — the spine specifies an italic thesis sentence, in both branches",
+    "GlowWord.tsx": "WATERMARK — the faint word set behind a section, aria-hidden and unselectable",
+    "blocks/FeatureRows.tsx": "WATERMARK — the giant numeral behind the feature rows, decorative only",
+    "blocks/WorkStory.tsx": "WATERMARK — the ghost numeral behind the pinned stage, decorative only",
+    "blocks/HeroCover.tsx": "THESIS — `CLAUDE.md`'s spine specifies one italic thesis sentence for the "
+      + "hero, so the slant is a written decision rather than drift. Both branches carry it",
   };
   const files = walk(dir);
   const found = [];
@@ -424,10 +423,18 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
      add a file and the population is "expected" — so the files #630 to #632 converted are named as
      ones it must NOT cover. Same shape as the exemption complement this repository recorded for
      `collection-exercise`'s blog row. */
-  t("E3 ⚠ NO STATEMENT, INDEX OR LABEL ITALIC SURVIVES — the files those units converted must not reappear",
+  t("E3 ⚠ NO STATEMENT, INDEX, LABEL OR HEADING ITALIC SURVIVES — the files those units converted must not reappear",
     ["blocks/PullQuote.tsx", "blocks/ClosingLine.tsx", "blocks/IssueList.tsx", "PrincipleCard.tsx",
-     "blocks/BeforeAfterStory.tsx", "SectionRenderer.tsx", "CaseSectionHeader.tsx"]
+     "blocks/BeforeAfterStory.tsx", "SectionRenderer.tsx", "CaseSectionHeader.tsx",
+     "blocks/FigureGrid.tsx", "blocks/PrincipleCards.tsx", "blocks/Stepper.tsx", "CaseStudyView.tsx"]
       .filter((f) => found.includes(f)), []);
+  /* ⚠ AND THE THREE CATEGORIES ARE NOT ALL STILL POPULATED, WHICH THE VOCABULARY ROW ALONE CANNOT
+     SAY. E2 checks that each MEMBER declares a known category; it is silent about a category that
+     has drained. HEADING is empty as of this unit, so the vocabulary is pinned to what remains —
+     and a heading italic reappearing has to be declared deliberately rather than slipping back in
+     under a word the register still recognises. */
+  t("E4 the surviving categories are exactly WATERMARK and THESIS — HEADING drained, and an empty category must not stay in the vocabulary unnoticed",
+    [...new Set(Object.values(EXPECTED).map((v) => v.split(" ")[0]))].sort(), ["THESIS", "WATERMARK"]);
 }
 
 console.log(`\ntypography result: ${pass} passed, ${fail} failed`);

@@ -431,9 +431,23 @@ t("S1: every shadowed utility is `font-weight` under `.case-study .font-display`
  * Seven consumers removed, 21 - 7 = 14, and the arithmetic reconciles against the diff rather than
  * against an expectation. `IssueList`'s index is deliberately NOT among them — it carried
  * `font-display italic` with no `font-normal`, so it never asked 400 and was never in this
- * population, which is the kind of thing only counting finds. */
-t("S2: ⚠ 14 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
-  shadowedPub.length, 14);
+ * population, which is the kind of thing only counting finds.
+ *
+ * ⚠ 14 -> 10, AND THIS DROP WAS PREDICTED BEFORE THE RUN RATHER THAN EXPLAINED AFTER IT. The
+ * case-study HEADING italics moved to `.sheet-h3`, and four of them paired the display class with
+ * the weight class:
+ *
+ *     PrincipleCards   1   the block's own heading
+ *     FigureGrid       1   the identical string, in a second file
+ *     Stepper          1   the WEB branch's stage name
+ *     CaseStudyView    1   the `Coming soon` empty-state h1
+ *
+ * `Stepper`'s MOBILE branch is deliberately not among them — it carried the display class without
+ * the weight class, so it asked nothing and was never a member. The same distinction `IssueList`
+ * made above, in the same suite, one unit later: reading the diff is what separates a repair from a
+ * coincidence, and the number alone still cannot. */
+t("S2: ⚠ 10 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
+  shadowedPub.length, 10);
 t("S3: …and the population is real, so S1 and S2 cannot pass by finding nothing",
   shadowedPub.every((h) => h.want === "400" && h.got === "500"), true);
 
