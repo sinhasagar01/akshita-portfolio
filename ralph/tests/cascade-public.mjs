@@ -405,8 +405,21 @@ const outside = (h) => !/\/studio\//.test(h.where);
 const shadowedPub = shadowed.filter(outside);
 t("S1: every shadowed utility is `font-weight` under `.case-study .font-display` — a NEW shape here means a third party nobody has modelled",
   [...new Set(shadowedPub.map((h) => `${h.property} by ${h.by}`))], ["font-weight by .case-study .font-display"]);
-t("S2: ⚠ 22 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
-  shadowedPub.length, 22);
+/* ⚠ 22 -> 21, AND IT IS A REPAIR RATHER THAN A LOSS, WHICH IS THE DISTINCTION THIS ROW EXISTS TO
+ * FORCE. C1 below states the rule: a change here is a dead utility GAINED or REPAIRED, and the number
+ * alone cannot say which. This one is a repair, and the mechanism is checkable rather than asserted.
+ *
+ * `CaseSectionHeader`'s section head carried `font-display` and `font-normal` together, so it asked
+ * for 400 while `.case-study .font-display` drew 500 — one of the 22. The sheet grammar moved that
+ * element onto `.sheet-h2`, which sets its weight directly and carries NEITHER class, so the rule no
+ * longer matches it and there is no utility left to shadow. The weight that renders is the declared
+ * 600 rather than a silently-promoted 500.
+ *
+ * SO THE POPULATION SHRANK BY REMOVING A CONSUMER, NOT BY WEAKENING THE MATCHER. S1 still pins the
+ * SHAPE to one party and S3 still pins every member to the same 400-asks-500 form, so a loosened
+ * detector could not produce this number. */
+t("S2: ⚠ 21 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
+  shadowedPub.length, 21);
 t("S3: …and the population is real, so S1 and S2 cannot pass by finding nothing",
   shadowedPub.every((h) => h.want === "400" && h.got === "500"), true);
 
