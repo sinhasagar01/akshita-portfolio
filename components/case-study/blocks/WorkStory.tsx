@@ -221,7 +221,12 @@ export default function WorkStory({
 
         {/* copy */}
         <div className="relative z-[2] w-full max-w-[430px] lg:flex-1">
-          <div ref={numRef} className="font-display italic text-[1.1875rem] text-accent">
+          {/* ⚠ A LABEL WEARING A HEADING'S CLOTHES. `Feature 01` is not a title — it names which of
+              the five you are looking at, which is the mono label register's whole job. It was the
+              display face at 19px in the accent, and a running index is none of the direction's four
+              sanctioned accent uses. The `numRef` handle is untouched: GSAP animates this element
+              by ref, so the class change cannot reach the animation. */}
+          <div ref={numRef} className="sheet-mono-label">
             Feature {f.index}
           </div>
           <div
@@ -384,7 +389,17 @@ export default function WorkStory({
               ref={(el) => {
                 dotRefs.current[k] = el;
               }}
-              className="w-[34px] text-center font-display italic text-[12px] lg:text-[14px]"
+              /* ⚠ THIS ONE KEEPS ITS ACCENT AND THE OTHER FIVE DO NOT, WHICH IS THE BUDGET RATHER
+                 THAN AN EXEMPTION. The inline colour is STATE — accent up to the current feature,
+                 quiet beyond it — and "the current floor" is the first of the direction's four
+                 sanctioned accent uses. #627 kept the stepper's active stage label on the same
+                 argument.
+
+                 ⚠ SO `sheet-mono-micro`'s OWN COLOUR NEVER APPLIES HERE, DELIBERATELY. An inline
+                 style outranks the class, which makes one third of that class inert at this site —
+                 overridden on purpose rather than dead by accident, and worth writing down because
+                 the two are indistinguishable from a computed value. */
+              className="w-[34px] text-center sheet-mono-micro"
               style={{ color: k <= current ? "var(--color-accent)" : "var(--color-text-subtle)" }}
             >
               {feat.index}

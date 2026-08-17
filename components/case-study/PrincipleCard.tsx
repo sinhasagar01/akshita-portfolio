@@ -3,9 +3,24 @@ import { renderRich } from "./rich";
 import { LINE } from "./styles";
 import { EDIT_AFFORD, inlineEditProps } from "./editable";
 
-/** `.pcard` — italic index, Fraunces title, description. Under template=web (CS-7b),
- *  the Bold-gallery bordered card: a 2px accent top rule, a serif index, and no card
- *  fill/full border. Mobile renders the filled card, byte-identically. */
+/** `.pcard` — index, title, description. Under template=web (CS-7b), the bordered card: a 2px
+ *  accent top rule and no card fill. Mobile renders the filled card.
+ *
+ *  ⚠ THE INDEX IS A MARK, SO IT TAKES THE MONO LABEL REGISTER — AND IT DROPS FROM 30px TO 11px,
+ *  WHICH IS A COMPOSITION CHANGE AND IS SAID RATHER THAN BURIED. It was the display face at
+ *  `text-3xl` in the accent, and on the mobile branch it was the only strong element in a filled
+ *  card. In a sheet set a card's number is a small tracked mark and the TITLE carries the weight —
+ *  which is what `CaseSectionHeader` did to the same construction when `Sheet 01` replaced an
+ *  italic accent numeral, and what `IssueList` did in #630 at 17px.
+ *
+ *  ⚠ AND BOTH BRANCHES MOVE THOUGH ONLY ONE WAS ITALIC. Web drew this index upright and mobile drew
+ *  it slanted — one job, two branches, the exact split the hero had. Converting only the italic one
+ *  would leave two studies numbering their cards in mono and two in the display face.
+ *
+ *  THE ACCENT GOES WITH IT, ON BOTH. The direction sanctions the accent for four things — the
+ *  current floor, the readout figures, the outcome column and the resume control — and a card index
+ *  is none of them. The web card keeps its 2px accent top rule, which is the boundary weight the
+ *  readout device already uses, so the accent still marks the card without being spent on a number. */
 export default function PrincipleCard({
   principle,
   web = false,
@@ -28,7 +43,7 @@ export default function PrincipleCard({
   if (web) {
     return (
       <div className="relative z-[1] border-t-2 border-accent pt-4">
-        <div {...idxProps} className={`font-display text-3xl text-accent leading-none${aff}`}>
+        <div {...idxProps} className={`sheet-mono-label leading-none${aff}`}>
           {principle.index}
         </div>
         <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3${aff}`}>
@@ -45,7 +60,7 @@ export default function PrincipleCard({
       className="relative z-[1] rounded-lg border bg-cream-200 p-7"
       style={{ borderColor: LINE }}
     >
-      <div {...idxProps} className={`font-display italic text-3xl text-accent leading-none${aff}`}>
+      <div {...idxProps} className={`sheet-mono-label leading-none${aff}`}>
         {principle.index}
       </div>
       <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3.5${aff}`}>
