@@ -30,7 +30,7 @@ names the ground it belongs to, because a ratio without a ground is not a number
 
 ## A. Tokens
 
-All of these live in one `@theme` block, `app/globals.css:19` to `app/globals.css:227`.
+All of these live in one `@theme` block, the `@theme` block in `app/globals.css`.
 
 ### The colour scales
 
@@ -43,7 +43,7 @@ All of these live in one `@theme` block, `app/globals.css:19` to `app/globals.cs
 | on-dark | band-dark, on-dark, on-dark-muted, on-dark-quote, on-dark-line | globals.css:66-70 |
 | single-purpose | danger-600, glow-web, draft-600, canvas, reveal-sand, case-study-sand | globals.css:50, 58, 93, 24, 29, 30 |
 
-Semantic aliases sit on top, `globals.css:95-106`. `text-primary` is ink-950, `text-secondary` is
+Semantic aliases sit on top, `app/globals.css`, at `--color-text-primary`. `text-primary` is ink-950, `text-secondary` is
 ink-600, and `text-muted` and `text-subtle` are both `oklch(51% 0.016 66)`, a value tuned to the
 lightest warm ink that still clears 4.5 on the hardest light surface.
 
@@ -121,7 +121,7 @@ a local literal instead. See B.
 
 ### Radius, and the two inherited steps that are live
 
-Declared, `globals.css:187-191`.
+Declared in `app/globals.css` at `--radius-sm`.
 
 | Step | Value |
 |---|---|
@@ -146,10 +146,10 @@ see F.
 These are three different families for three different jobs. Reaching into the wrong one is a
 regression wearing a migration's clothes.
 
-**The site scale**, `globals.css:197-199`. `--shadow-sm`, `--shadow-md`, `--shadow-lg`, warm oklch
+**The site scale**, `app/globals.css`, at `--shadow-sm`. `--shadow-sm`, `--shadow-md`, `--shadow-lg`, warm oklch
 ink, topping out at `0 12px 32px oklch(14% 0.018 60 / 0.10)`.
 
-**The studio card-lift scale**, `globals.css:3072-3081`. A card lifting off a grid.
+**The studio card-lift scale**, `app/globals.css`, at `--studio-lift-rest`. A card lifting off a grid.
 
 | Token | Role |
 |---|---|
@@ -157,7 +157,7 @@ ink, topping out at `0 12px 32px oklch(14% 0.018 60 / 0.10)`.
 | `--studio-lift-hover` | the card under the pointer, paired with a 3px rise |
 | `--studio-lift-active` | the selected card, deeper than hover and with no rise |
 
-**The studio overlay scale**, `globals.css:3106-3114`. Surfaces that float over the page.
+**The studio overlay scale**, `app/globals.css` — ⚠ CITATION UNVERIFIED, the token was not located by name. Surfaces that float over the page.
 
 | Token | Role |
 |---|---|
@@ -177,8 +177,8 @@ than being folded onto a token that would move every floating surface.
 
 ### Motion, and the namespace that generates nothing
 
-Easings, `globals.css:205-207`. `--ease-spring`, `--ease-out-expo`, `--ease-in-expo`.
-Durations, `globals.css:209-213`. `--duration-fast` 150ms through `--duration-crawl` 1200ms.
+Easings, `app/globals.css`, at `--ease-spring`. `--ease-spring`, `--ease-out-expo`, `--ease-in-expo`.
+Durations, `app/globals.css`, at `--duration-fast`. `--duration-fast` 150ms through `--duration-crawl` 1200ms.
 
 **`--duration-*` is not a Tailwind v4 namespace and `--ease-*` is.** Asked directly, the compiler
 returns nothing for `duration-fast`, `duration-base` and `duration-slow`, and a real rule for
@@ -198,7 +198,7 @@ All three verified in the built bundle, not inferred. The last one works because
 
 ### Z index
 
-Eight tokens, `globals.css:219-226`, from `--z-below` at -1 to `--z-toast` at 60. **`--z-*` is not
+Eight tokens, `app/globals.css`, at `--z-below`, from `--z-below` at -1 to `--z-toast` at 60. **`--z-*` is not
 a namespace either.** The compiler returns nothing for `z-modal` and `z-overlay`, so these are
 consumable only through `var()` or by writing the number. `--z-overlay` at 40 and `--z-modal` at 50
 are the two that reach the bundle, because those are the two something references.
@@ -212,7 +212,7 @@ are the two that reach the bundle, because those are the two something reference
 Every studio scale is named by what a thing **is**, never by what it is worth, so a new element can
 be placed without reading every call site to infer the rule.
 
-**Radius**, scoped custom properties at `globals.css:2746-2757`.
+**Radius**, scoped custom properties at `app/globals.css`, at `--studio-radius-panel`.
 
 | Token | Value | Applies to |
 |---|---|---|
@@ -225,7 +225,7 @@ hierarchy. Halving 24, 16 and 8 lands on 12, 8 and 4, and there is no 12 in `@th
 card coincide with the site's sm and md today and are still declared separately, so a change to one
 scale cannot drag the other.
 
-**Ground**, a ladder of three existing cream tokens, documented at `globals.css:2858-2908`.
+**Ground**, a ladder of three existing cream tokens, documented at `app/globals.css`, at `--color-studio-ground`.
 
 | Ground | Role |
 |---|---|
@@ -257,9 +257,9 @@ ground, plus a 3px accent-500 left bar.
 | blog list rail post | cream-200 | cream-300 |
 | block strip block | cream-100 | cream-200 |
 
-> The prose table at `globals.css:2891` still records the first row as cream-50 going to
+> The prose table in `app/globals.css` — ⚠ CITATION UNVERIFIED — still records the first row as cream-50 going to
 > cream-100. That is stale. The list column began declaring cream-200 in #242 and the fill moved
-> with it. `studio-ink` G1 reads the live values and is the authority, `ralph/tests/studio-ink.mjs:1010`.
+> with it. `studio-ink` G1 reads the live values and is the authority, `ralph/tests/studio-ink.mjs`, at `G1`.
 
 **The fill is not the signal and no cream fill could be.** Measured, each step of the ladder
 separates by 1.05 to 1.19, and the accent tint the bar replaced sat at 1.15, inside that same band.
@@ -296,7 +296,7 @@ the pane's name. The blog inspector has two sections on screen at once, so it ta
 case-study inspector's section heads are alternatives, hidden by selection, so at most one is ever
 visible and a band would divide nothing. `studio-ink` E5 pins that property directly, so if two
 section editors ever become co-visible the gate fails and the question reopens,
-`ralph/tests/studio-ink.mjs:495`.
+`ralph/tests/studio-ink.mjs`, at `THE CASE-STUDY INSPECTOR HAS NOTHING TO DIVIDE`.
 
 **Selection, by function.** This is the rule that was restated in #263 when the owner overruled the
 earlier by-role wording. The role was never what decided the treatment. Shape and function were.
@@ -310,11 +310,11 @@ earlier by-role wording. The role was never what decided the treatment. Shape an
 The two live examples that look identical and are deliberately not. The blog status filter swaps
 which posts are shown, so each option owns its own set, so it takes the underline. The view
 switcher beside it shows the same posts arranged differently, so it is a mode switch and takes the
-fill. Both keep full tablist semantics either way, `components/studio/BlogStatusTabs.tsx:8`.
+fill. Both keep full tablist semantics either way, `components/studio/BlogStatusTabs.tsx`.
 
 ### The label scale
 
-Two steps, named by role, `components/studio/blocks/fields.tsx:345` and `:349`.
+Two steps, named by role, `components/studio/blocks/fields.tsx`.
 
 | Constant | Value | Role |
 |---|---|---|
@@ -336,7 +336,7 @@ can move for the canvas without dragging the studio.
 
 ### Input geometry
 
-`components/studio/blocks/fields.tsx:202`, `:220` and `:230`.
+`components/studio/blocks/fields.tsx`, at `inputCls`.
 
 ```
 w-full min-h-11 rounded-[var(--studio-radius-control,4px)] border border-ink-950/12
@@ -357,20 +357,20 @@ changes, and its only visible moment is a rejected value.
 `FIELD_MEASURE` is `max-w-[760px]`, one definition applied per site rather than through a shared
 seam. Textareas are excluded because they hold paragraphs and use the room. Three plausible shared
 seams were tried and each failed differently, which is why the constant is applied rather than
-inherited, `components/studio/blocks/fields.tsx:165-200`.
+inherited, `components/studio/blocks/fields.tsx`, at `THE FIELD MEASURE`.
 
 The note on declaring a ground has **inverted** since it was first written. It used to pin the
 absence of a background, so that adding one became a deliberate act. #242 was that act. The list
 column now declares cream-200 and the selected fill moved to cream-300 with it, which is strictly
 stronger because the step is derivable from source rather than from whatever page happens to host
-the component, `ralph/tests/studio-ink.mjs:1102-1117`.
+the component, `ralph/tests/studio-ink.mjs`, at `border-l-studio-accent`.
 
 ### The save bar
 
-One shape across nine surfaces, `components/studio/SaveBar.tsx:182`. Ground is cream-200, chrome on
+One shape across nine surfaces, `components/studio/SaveBar.tsx`, at its `@container grid` row. Ground is cream-200, chrome on
 the ladder, with a `border-t border-ink-950/12` hairline.
 
-Four derived states, `lib/studio/save-state.ts:39` and `:69`.
+Four derived states, `lib/studio/save-state.ts`, at `deriveSaveState`.
 
 | State | Dot | Phrase |
 |---|---|---|
@@ -399,7 +399,7 @@ would float mid-pane while every class-string gate still passed.
 
 ### Scrollbars
 
-`globals.css:2977-3042`. Scoped to `.studio-chrome`, 6px, transparent track, no buttons.
+`app/globals.css`, at `.studio-chrome ::-webkit-scrollbar`. Scoped to `.studio-chrome`, 6px, transparent track, no buttons.
 
 **The thumb is an alpha over its surface rather than a fixed colour, and that is a correction to
 the contract.** A fixed cream-300 lands at 1.37, 1.30 and 1.19 on the three grounds, worst on the
@@ -426,7 +426,7 @@ Firefox takes the fenced path and is recorded as **unverified**, not assumed.
 
 ### Motion tiers and the reduced-motion posture
 
-`globals.css:2788-2823`. Named by tier because the order is the design.
+`app/globals.css`, at `--studio-t0`. Named by tier because the order is the design.
 
 | Token | Value | Tier |
 |---|---|---|
@@ -447,11 +447,11 @@ value, so declaring it here would silently shadow the theme token for everything
 `.studio-chrome`. Nothing consumes it today, which is precisely why the shadowing would have gone
 unnoticed.
 
-Hover has its own three durations, `globals.css:3135-3147`. Lead 200ms, follower 240ms, sheen
+Hover has its own three durations, `app/globals.css` — ⚠ CITATION UNVERIFIED, no named token found. Lead 200ms, follower 240ms, sheen
 620ms. These are not the t-tiers renamed. Twenty milliseconds is below the threshold anyone could
 tell apart, and sharing the names would make a later change to one silently move the other.
 
-**Reduced motion**, `globals.css:2839-2856`. The global `*` reset zeroes `transition-duration` but
+**Reduced motion**, `app/globals.css`, at its `prefers-reduced-motion` block. The global `*` reset zeroes `transition-duration` but
 **not** `transition-delay`. With four delay tokens that leaves a 190ms dead pause followed by a
 snap, which is jank rather than stillness and worse than the motion it replaces. So the studio
 scopes both.
@@ -475,7 +475,7 @@ The public gap is real and is recorded as a hazard rather than fixed from here.
 
 Two scoped blocks, and the discipline is the same one the studio radius scale follows.
 
-`.blog-article, .blog-index`, `globals.css:2287-2293`.
+`.blog-article, .blog-index`, `app/globals.css`, at `.blog-article`.
 
 | Property | Value |
 |---|---|
@@ -484,7 +484,7 @@ Two scoped blocks, and the discipline is the same one the studio radius scale fo
 | `--blog-ease-settle` | `cubic-bezier(0.16, 0.9, 0.28, 1)` |
 | `--blog-rule` | ink-950 at 8 percent |
 
-The **Pearl Smoke** palette, scoped to the two liquid components only, `globals.css:2466-2473`.
+The **Pearl Smoke** palette, scoped to the two liquid components only, `app/globals.css`, at `--color-vessel-pearl`.
 
 | Property | Value |
 |---|---|
@@ -518,13 +518,13 @@ A consequence falls out. The unlayered `p { max-width: 68ch }` rule resolves to 
 `.blog-prose`, which is wider than the 676.74px column, so it never binds there. It is inert on the
 blog and live elsewhere.
 
-The canvas side is bounded separately by `BLOG_CANVAS_MIN_PX = 794`, `lib/studio/three-pane.ts:85`.
+The canvas side is bounded separately by `BLOG_CANVAS_MIN_PX = 794`, `lib/studio/three-pane.ts`.
 That is the pane floor the layout protects, not the measure itself.
 
 ### The prefix rule
 
 Every blog selector in `globals.css` is `blog-` prefixed and matches only elements the blog routes
-render, `globals.css:2278-2285`. The vessel's liquid glass, the capsule, the prose column and the
+render, `app/globals.css`, at `.blog-vessel`. The vessel's liquid glass, the capsule, the prose column and the
 plate are what Tailwind cannot express. The masthead, the cards and the grid are bare utilities in
 the components. **This rule has no gate**, see F.
 
@@ -542,8 +542,8 @@ precisely, because the exception is the largest image on the page.
 The optimizer refetches its source server-side **without** the session cookie, so `/_next/image`
 cannot read an owner-gated proxy URL and a `blob:` object URL cannot go through it at all.
 `next/image` would also wrap the element in some configurations, which is the editable-only-wrapper
-failure the parity contract forbids. Sources are `components/blog/BlogHero.tsx:14-31` and
-`components/blog/BlogProse.tsx:125-135`.
+failure the parity contract forbids. Sources are `components/blog/BlogHero.tsx` and
+`components/blog/BlogProse.tsx`, at `The inline figure`.
 
 Body figures carry no explicit width or height because the schema holds no intrinsic dimensions, so
 aspect is left to CSS and `loading="lazy"` keeps them off the critical path. `alt=""` on a
@@ -588,7 +588,7 @@ Under reduced motion the image zoom is removed and the veil copy is left untrans
 is trapped in a half state and the story stays reachable.
 
 **The studio Details canvas re-asserts every one of these against `[data-card-state="hover"]`**,
-`globals.css:3170-3208`, because `:hover` cannot be set from script and the summary is invisible at
+`app/globals.css`, at `.palette-dot.is-on`, because `:hover` cannot be set from script and the summary is invisible at
 rest. If a hover property is added publicly and not there, the canvas silently stops matching what
 it claims to preview. `studio-ink` asserts the two property sets agree rather than trusting the
 comment. The attribute sits on a wrapper so the card's own markup is identical in both copies.
@@ -596,7 +596,7 @@ comment. The attribute sits on a wrapper so the card's own markup is identical i
 ### Hero type
 
 The hero thesis line is Fraunces through `font-display`, `not-italic`, capped at `max-w-[34ch]`,
-`components/sections/HeroSection.tsx:355`. Its colour, leading and tracking are written in the
+`components/sections/HeroSection.tsx` — ⚠ CITATION UNVERIFIED, the cited line holds unrelated code. Its colour, leading and tracking are written in the
 bracket-bare form and **do not render**, see E2.
 
 ---
@@ -635,7 +635,7 @@ review, and #205's own gate asserted the band header's class string while the he
 Fraunces 400. A gate reading a class cannot see a class that does nothing.
 
 The repair is a class declared **outside** any layer. `.studio-chrome .sechead`,
-`globals.css:2924`, sets family, weight, size, tracking, leading and case together, at specificity
+`app/globals.css` at `.blog-prose h2`, sets family, weight, size, tracking, leading and case together, at specificity
 0,2,0 against the reset's 0,0,2. A class rather than re-asserted utilities because four properties
 must land together and one is an arbitrary tracking.
 
@@ -732,7 +732,7 @@ anything.
 There is no static check for this and none is proposed. The fix is to write the value out in the
 server component and **assert the pair**, plus an assertion that the import has not come back.
 `OverviewRow.tsx` is the one site, and `studio-labels` E3 holds both halves,
-`ralph/tests/studio-labels.mjs:193-201`.
+`ralph/tests/studio-labels.mjs`, at `OverviewRow`.
 
 ### E5. Prose ships CSS
 
@@ -748,9 +748,9 @@ The price is paid in prose. Some utilities are ordinary English words, so those 
 written bare in a scanned file. Substitutes exist for each, and the rule is uniform. Describe the
 value, never spell the class.
 
-**This document is exempt, and that is checked rather than assumed.** `globals.css:10` carries
+**This document is exempt, and that is checked rather than assumed.** `app/globals.css`'s own file header carries
 `@source not "../docs"`, and `css-comment-trap` skips `docs` in its own file walk,
-`ralph/tests/css-comment-trap.mjs:89`. Both exclusions are why a design system reference can name
+`ralph/tests/css-comment-trap.mjs`, at `EXTS`. Both exclusions are why a design system reference can name
 utilities at all. The proof that it changed nothing is in the PR body.
 
 ---
@@ -782,7 +782,7 @@ These are the ones to be careful with, because nothing will tell you.
 | Rule | Status |
 |---|---|
 | The bracket-bare `utility-[--token]` form is dead | **51 live sites across 11 files**, all public. Recorded in `CLAUDE.md`, gated nowhere |
-| Every blog selector is `blog-` prefixed | Stated at `globals.css:2278`, proven once in its PR, not re-checked |
+| Every blog selector is `blog-` prefixed | Stated in `app/globals.css` at `.blog-vessel`, proven once in its PR, not re-checked |
 | The public reduced-motion reset zeroes duration but not delay | Recorded as a hazard. The studio scopes its own fix, the public gap stands |
 | Firefox scrollbar rendering | Explicitly **unverified**. Only Chromium was available |
 | `--duration-*` and `--z-*` generate no utilities | True and verified here, gated only for the studio's half by `studio-motion` |
