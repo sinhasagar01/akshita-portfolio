@@ -116,8 +116,18 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * The title described the intended end state and the value described the held one, and nothing
  * compared them. Sapphire unheld on its second end condition: the work filter's defect is
  * pre-existing on light and shipped by six palettes, so it is not this theme's blocker. */
-t("A8a the selectable set is the nine real palettes — five light and four dark",
-  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt"]);
+/* ⚠ TEN NOW, AND THE SIXTH LIGHT MEMBER ARRIVED WITHOUT LOWERING ANY FLOOR — WHICH THE TWO NOTES
+ * ABOVE BOTH SAID WAS IMPOSSIBLE. Each states that five is the light ceiling because seven hues on
+ * a circle sit 51.4 degrees apart and a sixth would require lowering D12's 60 DEGREE floor. Both
+ * were correct about a floor measured in DEGREES and neither could see past that unit.
+ *
+ * `drawing-office` clears the band by having NO HUE AT ALL. #616 moved this band to dE for exactly
+ * such a member, so the sixth light palette separates on lightness rather than on an arc, and the
+ * pigeonhole those notes describe never applies to it. The ceiling was a property of the unit, not
+ * of the circle. They are kept rather than corrected, because the reasoning was sound and it is the
+ * unit that moved underneath them. */
+t("A8a the selectable set is the ten real palettes — six light and four dark",
+  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office"]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
@@ -502,6 +512,14 @@ const TINT_EXEMPT = {
   basalt: "owner ruling — an independently authored achromatic preset. Its ground is c 0 by design, "
         + "so the chroma step has nothing to act on. END: the exemption is reviewed if the preset's "
         + "ground ever carries chroma, or if the vessel gains an achromatic derivation of its own.",
+  "drawing-office": "the SECOND member of the class basalt's exemption already describes, and it "
+        + "joins that exemption rather than widening the band — V4 is the achromatic tripwire and it "
+        + "fired correctly. Its whole design is zero chroma, so the tint's step has nothing to act "
+        + "on, exactly as basalt's does not. ⚠ TWO MEMBERS IS THE TRIGGER RATHER THAN THE SETTLEMENT: "
+        + "one exempt palette is a preset nobody derived, two is a CLASS, and a class wants the "
+        + "achromatic vessel derivation this entry keeps deferring instead of a third exemption. "
+        + "END: the exemption is reviewed the moment a third achromatic palette is proposed, or when "
+        + "the vessel gains a derivation that separates its tones on lightness alone.",
 };
 
 const vBlocks = {};
