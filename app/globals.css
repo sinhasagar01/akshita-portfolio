@@ -2536,7 +2536,7 @@ a {
 .hero-tabs {
   position: relative; display: flex; gap: 2px; flex-wrap: wrap;
   margin: 26px 0 0; width: max-content; max-width: 100%;
-  border: 1px solid var(--hx-rule); border-radius: 999px; padding: 3px;
+  border: 1px solid var(--hx-rule); padding: 3px;
   background: color-mix(in srgb, var(--hx-surface) 30%, transparent);
 }
 /* ⚠ THE BODY STARTS AT THE TOP OF ITS ROW RATHER THAN CENTRING IN IT, WHICH IS WHAT CLOSED A 132px
@@ -4096,7 +4096,6 @@ a {
 .work-card:focus-visible {
   outline: 2px solid var(--color-accent-500);
   outline-offset: 10px;
-  border-radius: 14px;
 }
 
 .wc-shot {
@@ -4323,7 +4322,6 @@ a {
   margin-top: 20px;
   padding: 3px;
   border: 1px solid color-mix(in oklch, var(--color-etch) 8%, transparent);
-  border-radius: 99px;
   background: var(--color-surface);
 }
 .wf-thumb {
@@ -4341,7 +4339,6 @@ a {
   top: 3px;
   left: 3px;
   height: calc(100% - 6px);
-  border-radius: 99px;
   /* ⚠ THE ACCENT ROLE, AND IT CLEARS BOTH FLOORS ON ALL NINE — WHICH NOTHING HAD MEASURED.
      This was `text-primary`, an inverted ink ground, chosen because `ink-950` measured 1.17 on
      sapphire. That note is about a RUNG failing on a DARK palette; it was then used to rule out a
@@ -4373,7 +4370,6 @@ a {
   content: "";
   position: absolute;
   inset: -3px 0;
-  border-radius: 99px;
 }
 .work-filter button {
   position: relative;
@@ -4383,7 +4379,6 @@ a {
   cursor: pointer;
   background: transparent;
   padding: 10px 20px;
-  border-radius: 99px;
   font-size: 12.5px;
   font-weight: 500;
   letter-spacing: 0.09em;
@@ -4519,7 +4514,6 @@ a {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   padding: 7px 13px;
-  border-radius: 9999px;
   pointer-events: none;
 }
 
@@ -4535,7 +4529,6 @@ a {
   /* ⚠ `band-dark`, NOT `etch` — see the note on `.ab-cap`. Same defect, same photo, same fix. */
   background: color-mix(in srgb, var(--color-band-dark) 38%, transparent);
   padding: 5px 11px;
-  border-radius: 9999px;
   pointer-events: none;
 }
 
@@ -4880,7 +4873,6 @@ a {
   color: var(--color-text-secondary);
   background: var(--color-cream-200);
   border: 1px solid color-mix(in srgb, var(--color-rule) 16%, transparent);
-  border-radius: 999px;
   cursor: default;
   user-select: none;
   transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s;
@@ -6364,6 +6356,61 @@ a {
   right: 0;
   bottom: 0;
 }
+
+/* ============================================================================================
+   THE RADIUS, KILLED AT SOURCE — 41 of the 53 rounded elements on this page, and the 12 that stay.
+
+   ⚠ REMOVED AT EACH SOURCE RATHER THAN OVERRIDDEN BY ONE RESET, WHICH DEPARTS FROM THE SPEC'S
+   INSTRUCTION, AND THE REASON IS THIS STYLESHEET'S OWN HISTORY. The spec says radius is zero
+   everywhere, "enforced by one reset rather than per component". A reset strong enough to do that
+   must outrank the utilities layer, which means unlayered — and this file has already paid for
+   five unlayered element resets that made author utilities inert, then spent four separate changes
+   lifting 92 of them back out. Squaring by override would have left fifty-odd rounding classes in
+   the markup asking for a shape nothing draws, which is a lie in the markup that happens to look
+   right. The declarations are gone instead, so the markup and the render agree. The `base` reset
+   further up stays as the catcher for anything that arrives later.
+
+   SQUARED, and every one is interface chrome drawn in the site's voice — the work filter with its
+   track, thumb and three buttons; twenty skill pills; the About photo caption, its hover hint and
+   four focus chips; the Experience feature block and its four rows; three Process stage tags; the
+   Contact panel and its submit button; the work card's focus ring.
+
+   ⚠ AND THE HERO TAB GROUP MOVED WITH THE WORK FILTER THOUGH THE HERO IS OUTSIDE THE SCOPE,
+   BECAUSE THE RECORD ESTABLISHES THEY ARE ONE LANGUAGE. Both are grouped pressed-state controls,
+   both draw a max-content pill group with a hairline track and a filled selected state, and the
+   entry that settled that says a matched pair with one failing half is the shape to refuse.
+   Squaring one and leaving the other is exactly that. This touches the hero's RADIUS only — the
+   separate entry about the hero owning its own typographic system is about faces, sizes and
+   weights, and is untouched.
+
+   ⚠ AND THE FOCUS RING WAS NEARLY MISSED BY A FIRST-MATCH REGEX, WHICH IS WORTH THE LINE.
+   `.work-card:focus-visible` is declared TWICE — once as a one-line custom-property setter and
+   once as the ring. A sweep keyed to the first occurrence reported "no radius here" and was
+   correct about a block that never had one. The census could not have caught it either, because a
+   focus ring is not rendered until something is focused.
+
+   KEPT, and the discriminator is the one this record already uses for colour — is the thing drawn
+   in the site's voice, or is it the shape the depicted object actually has?
+
+     4  Process illustration cards   248x320 at 18px   depicted paper, not a UI panel
+     4  Process stepper markers      24x24 at 50%      a circle is a shape, not a box radius
+     1  Experience 6px dot           the comp keeps its own dots circular
+     1  Experience decorative blob   280x200 at 50% — an ellipse; squaring makes a square glow
+     1  Skills glow                  560x280 at 50% — same
+     1  cursor glow                  820x820 at 50% — same
+   Re-censused after the change: 12 remain, and they are exactly those. 41 plus 12 is the 53.
+
+   ⚠ AND TWO MORE ARE KEPT THAT WERE NEVER IN THE 53, WHICH IS WORTH STATING SO THE ARITHMETIC IS
+   NOT READ AS THE WHOLE POPULATION. Contact's 14px spinner ring and its 46px success disc render
+   only while sending and after sending, so an idle census cannot see them. Both stay circular — a
+   square spinner is a different object — and neither was touched. A census of a page in one state
+   is a census of that state.
+
+   ⚠ OUT OF SCOPE AND DELIBERATELY UNTOUCHED, so nobody reads this as finished. The nav is on this
+   page and on every other one, so squaring it is a site-wide chrome decision rather than a
+   home-page one. The blog, the gallery, the case studies and the studio's own frozen radius scale
+   all still carry theirs, and the case studies are where the order of work puts them, after this.
+   ============================================================================================ */
 
 /* ============================================================ STUDIO RADIUS SCALE
    Local design vars scoped to /studio — NO new @theme token, the same rule the Pearl

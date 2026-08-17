@@ -329,7 +329,7 @@ function StageCopy({ stage, reduced }: { stage: ResolvedStage; reduced: boolean 
             {stage.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-tag px-[11px] py-1 rounded-full text-text-subtle leading-none"
+                className="text-tag px-[11px] py-1 text-text-subtle leading-none"
                 style={{
                   background: "var(--color-cream-200)",
                   border: "1px solid color-mix(in oklch, var(--color-text-primary) 14%, transparent)",

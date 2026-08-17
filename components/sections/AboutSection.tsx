@@ -159,7 +159,7 @@ export default function AboutSection({ settings }: Props) {
                     color: "var(--color-text-secondary)",
                     backgroundColor: "var(--color-cream-200)",
                     border: "1px solid color-mix(in srgb, var(--color-rule) 16%, transparent)",
-                    borderRadius: "9999px",
+
                     padding: "7px 13px",
                   }}
                 >
