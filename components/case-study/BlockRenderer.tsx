@@ -55,7 +55,12 @@ export default function BlockRenderer({
         />
       );
     case "pullQuote":
-      return <PullQuote text={block.text} web={web} editable={editable} blockIndex={blockIndex} />;
+    /* ⚠ `web` IS NO LONGER PASSED, AND THAT IS THE POINT RATHER THAN A TIDY-UP. PullQuote had three
+       treatments; two of them were one job authored twice, once per template, at different sizes and
+       different colours. A quoted statement does not change kind with the template, so the block now
+       has one treatment and takes no template flag. The band — the third — is retired with its
+       ground; see the note in `SectionRenderer`. */
+      return <PullQuote text={block.text} editable={editable} blockIndex={blockIndex} />;
     case "glanceGrid":
       return <GlanceGrid items={block.items} web={web} editable={editable} blockIndex={blockIndex} />;
     case "issueList":

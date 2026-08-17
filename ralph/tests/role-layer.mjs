@@ -459,10 +459,16 @@ const CONSTANTS = {
     depicts: "text that ALWAYS sits on the dark hero band. Naming the dark vocabulary there is not "
            + "a component choosing its context — it is a component that has only one.",
   },
-  "components/case-study/SectionRenderer.tsx": {
-    rung: "on-dark",
-    depicts: "the same dark band, for the same reason — the quote band's identity line and numeral.",
-  },
+  /* ⚠ `SectionRenderer.tsx` WAS HERE AND ITS SUBJECT NO LONGER EXISTS, WHICH IS WHY IT IS DELETED
+     RATHER THAN LEFT. The entry read "the same dark band, for the same reason — the quote band's
+     identity line and numeral", and the band was retired: its ground had been gone since the
+     `:root[data-ground="dark"]` prefix landed, so `on-dark-muted` and `on-dark-quote` were painting
+     1.99 and 1.56 on a light page ground across three live regions.
+
+     A registry row whose subject has gone exempts nothing while reading like protection — the exact
+     stale-exemption shape `H0` was written to catch one step earlier, at a path that stopped
+     existing. This one is worse than a dead path, because the FILE is still there: `H0` would stay
+     green forever while the reason underneath it had expired. */
   "components/sections/ProjectCardSvgs.tsx": {
     rung: "several",
     depicts: "ILLUSTRATIONS of four products. 77 of the site's 82 SVG colour attributes live here; "
@@ -489,9 +495,28 @@ t("H1 ⚠ EVERY ENTRY SAYS WHAT IT DEPICTS — 'excluded because artwork' is a l
  * sweep gives it a role, this goes red instead of the phone turning white on a dark page. */
 t("H2 ⚠ THE BEZEL STILL NAMES ITS RUNG RAW — a sweep that gives it a role fails here rather than in a render",
   /bg-ink-950/.test(readFileSync(new URL("../../components/case-study/DeviceImage.tsx", import.meta.url), "utf8")), true);
-t("H3 …and the on-dark constants still name the dark vocabulary rather than a page-following role",
-  ["components/case-study/blocks/HeroCover.tsx", "components/case-study/SectionRenderer.tsx"]
-    .filter((f) => !/on-dark/.test(readFileSync(new URL("../../" + f, import.meta.url), "utf8"))), []);
+/* ⚠ H3 IS DERIVED FROM THE REGISTRY AND READS CODE RATHER THAN PROSE, AND BOTH CHANGES WERE FORCED
+ * BY THE SAME EDIT.
+ *
+ * It named its two files by hand, so removing `SectionRenderer` from `CONSTANTS` would have left the
+ * row asserting a claim about a file the registry no longer covers — a parallel list, two lines from
+ * the list it was supposed to read.
+ *
+ * ⚠ AND IT TESTED RAW FILE TEXT, SO IT WOULD HAVE PASSED ON A COMMENT. `SectionRenderer` now carries
+ * a long note explaining why the dark band went, and that note contains `on-dark-muted` and
+ * `on-dark-quote` by name. The row would have gone on reporting that the file "still names the dark
+ * vocabulary" on the strength of prose describing its removal — presence-by-regex answering a
+ * question about what RESOLVES, which this repository records against a bundle grep that once
+ * "verified" two shadowed values by proving both present.
+ *
+ * Comments are blanked before the test, so only a real utility or token reference counts. */
+const H3_FILES = Object.entries(CONSTANTS).filter(([, v]) => /^on-dark$/.test(v.rung)).map(([k]) => k);
+t("H3a the on-dark constants are DERIVED from the registry, and there is at least one — a hand list two lines from the registry is the parallel-list shape",
+  H3_FILES.length >= 1, true);
+t("H3 …and the on-dark constants still name the dark vocabulary IN CODE rather than in a comment about it",
+  H3_FILES.filter((f) => !/on-dark/.test(
+    readFileSync(new URL("../../" + f, import.meta.url), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/.*$/gm, "$1"))), []);
 
 console.log("\nI · ⚠ NO COMPONENT CHOOSES BY GROUND — the acceptance test, fired and passed");
 

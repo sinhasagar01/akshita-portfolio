@@ -32,7 +32,20 @@ const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 const config = [
   {
     ignores: [
-      ".next/**",
+      /* ⚠ THE PATTERN DESCRIBES BUILD OUTPUT RATHER THAN NAMING ONE DIRECTORY, AND IT READ
+         `.next/**` UNTIL A SECOND BUILD DIRECTORY EXISTED. The `distDir` split gave the dev
+         server its own `.next-dev`, so any tree where a dev server has run had **30 problems in
+         generated output** — 325 errors and 3,565 warnings reported by `npm run lint`, every one
+         of them in `.next-dev`, with the application source clean. A gate that goes red for an
+         environmental reason is one people learn to skip.
+
+         SECOND INSTANCE OF THE SAME SHAPE, and this repository already records the first:
+         `consumer-count` excluded `.next` by exact NAME and descended into `.next-dev`, reporting
+         13 Tailwind internals as orphaned public tokens. There the exclusion that happened to be
+         a loose substring match was the one that survived. The lesson written down then is the fix
+         applied here — when a matcher excludes something, ask whether it NAMES the thing or
+         DESCRIBES it. */
+      ".next*/**",
       "node_modules/**",
       "public/**",
       // Design references and explorations, not source. Six of them are untracked.

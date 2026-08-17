@@ -417,9 +417,23 @@ t("S1: every shadowed utility is `font-weight` under `.case-study .font-display`
  *
  * SO THE POPULATION SHRANK BY REMOVING A CONSUMER, NOT BY WEAKENING THE MATCHER. S1 still pins the
  * SHAPE to one party and S3 still pins every member to the same 400-asks-500 form, so a loosened
- * detector could not produce this number. */
-t("S2: ⚠ 21 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
-  shadowedPub.length, 21);
+ * detector could not produce this number.
+ *
+ * ⚠ 21 -> 14, AND ALL SEVEN ARE ATTRIBUTED BY NAME, BECAUSE A SEVEN-STEP DROP IS EXACTLY THE SIZE
+ * WHERE "IT LOOKS LIKE A REPAIR" STOPS BEING GOOD ENOUGH. The case-study statement italics moved to
+ * `.sheet-h3`, which carries neither `font-display` nor `font-normal`:
+ *
+ *     PullQuote           3   its three branches, all `font-display italic font-normal`
+ *     ClosingLine         2   both branches, same string
+ *     SectionRenderer     1   the north star
+ *     SectionRenderer     1   the retired quote band's own `h2`
+ *
+ * Seven consumers removed, 21 - 7 = 14, and the arithmetic reconciles against the diff rather than
+ * against an expectation. `IssueList`'s index is deliberately NOT among them — it carried
+ * `font-display italic` with no `font-normal`, so it never asked 400 and was never in this
+ * population, which is the kind of thing only counting finds. */
+t("S2: ⚠ 14 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
+  shadowedPub.length, 14);
 t("S3: …and the population is real, so S1 and S2 cannot pass by finding nothing",
   shadowedPub.every((h) => h.want === "400" && h.got === "500"), true);
 
