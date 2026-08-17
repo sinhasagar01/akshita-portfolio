@@ -554,12 +554,15 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      of the paragraph directly above it. */
   --color-studio-ground: oklch(92.0% 0.022 78);
 
-  --font-source-serif:  var(--font-source-serif-loaded, "Iowan Old Style", Charter, Georgia, serif);
-  --font-work-sans:     var(--font-work-sans-loaded, Avenir, "Avenir Next", ui-sans-serif, system-ui, sans-serif);
+  /* ⚠ THE FALLBACKS ARE GROTESQUES NOW, AND THEY MATTER MORE THAN THEY LOOK. A fallback is what
+     renders during `swap` and if the file never arrives, so a serif fallback under a grotesque role
+     would reflow the whole page mid-load. `ui-sans-serif` first lets each platform supply its own
+     system grotesque, which is the closest available match to Plex's proportions. */
+  --font-ibm-plex-sans: var(--font-ibm-plex-sans-loaded, ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif);
+  --font-ibm-plex-mono: var(--font-ibm-plex-mono-loaded, ui-monospace, "SF Mono", Menlo, monospace);
   --font-space-grotesk: var(--font-space-grotesk-loaded, "Helvetica Neue", Helvetica, ui-sans-serif, sans-serif);
   --font-script:  var(--font-script-loaded, "Kaushan Script", cursive);
   --font-doodle:  var(--font-doodle-loaded, "Caveat", cursive);
-  --font-mono:    ui-monospace, "JetBrains Mono", monospace;
 
   /* ---- THE ROLES. Three lines, and the swap edits exactly these three. ------------------
      Today two of them point at the outgoing faces, so the rendered result is unchanged.
@@ -576,7 +579,11 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      and meta sharing one tracking, 9px micro. If metadata genuinely needs a different tracking
      from a group heading, that is a case for a second TRACKING token against one size, never
      for a second size. */
-  --font-display: var(--font-source-serif);
+  /* ⚠ DISPLAY AND BODY NOW RESOLVE TO ONE FAMILY, AND THEY STAY TWO TOKENS ON PURPOSE. The
+     direction sets no serif anywhere and names one system for both roles. Collapsing them into a
+     single token would make the vocabulary smaller than the design — the day a display face
+     diverges again, two roles is one edit and one role is a search. */
+  --font-display: var(--font-ibm-plex-sans);
   /* ⚠ THE BODY FAMILY IS A LAYOUT INPUT, NOT A TYPOGRAPHIC ONE, AND THAT IS THIS LINE'S WHOLE
      STORY. `ch` is the width of the `0` glyph in the element's OWN font, and the blog measure is
      `max-w-[68ch]` on a `<main>` that inherits its family from `html`. So repointing this token
@@ -586,9 +593,20 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      Nothing in the typography contract anticipated that a font change reaches the layout.
      THE WORKING RULE, so the next family swap does not rediscover it: a `ch` unit makes the body
      font a layout input, so a family swap is a geometry change wearing a typography change's
-     clothes. Every derived constant moves in this same commit. */
-  --font-body:    var(--font-work-sans);
+     clothes. Every derived constant moves in this same commit.
+
+     ⚠ AND THAT RULE WAS FOLLOWED THIS TIME, WITH ONE CORRECTION TO ITS OWN CLAIM. The named
+     constants are ALREADY DERIVED — `BLOG_CANVAS_MIN_PX` computes from `THEME_METRICS`, `PANES_SUM`
+     computes from that, and `INSPECTOR_FOLD_PX` is chosen rather than summed and does not move. So
+     "every derived constant moves in this commit" reduces to ONE browser-measured number per body
+     face, which is exactly what the metrics map exists to hold. The rule is right; the work it
+     implies is smaller than it sounds, because a previous arc already did the hard half. */
+  --font-body:    var(--font-ibm-plex-sans);
   --font-label:   var(--font-space-grotesk);
+  /* ⚠ MONO IS A ROLE WITH A FILE NOW, WHERE IT WAS A BARE PLATFORM STACK. Every sheet mark, plate
+     number and readout key reads this, and until now they rendered in whatever mono the visitor's
+     OS supplied — so the label system that carries this direction differed per machine. */
+  --font-mono:    var(--font-ibm-plex-mono);
 
   --text-xs:   clamp(0.694rem,  0.67rem  + 0.12vw, 0.75rem);
   --text-sm:   clamp(0.833rem,  0.80rem  + 0.15vw, 0.875rem);

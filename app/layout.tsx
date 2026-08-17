@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import {
   Kaushan_Script,
   Caveat,
-  Source_Serif_4,
-  Work_Sans,
+  IBM_Plex_Sans,
+  IBM_Plex_Mono,
   Space_Grotesk,
 } from "next/font/google";
 import {
@@ -38,8 +38,31 @@ const caveat = Caveat({
 });
 
 /* ============================================================================================
-   THE THREE FACES THIS SITE IS SET IN. Source Serif 4 for display, Work Sans for body,
-   Space Grotesk for labels.
+   THE FACES THIS SITE IS SET IN. IBM Plex Sans for display AND body, IBM Plex Mono for the
+   sheet's marks and labels, Space Grotesk for the studio's own label role.
+
+   ⚠ THE SERIF IS GONE AND SO IS THE SECOND SANS, WHICH IS THE DIRECTION RATHER THAN A CLEANUP.
+   Source Serif 4 was the display face and Work Sans the body one. The sheet-set direction sets
+   NO SERIF ANYWHERE, and it names one system for both roles, so two families collapse into one.
+   Display and body still take SEPARATE role tokens even though both resolve to Plex today — the
+   roles are the vocabulary, and keeping them distinct means a future divergence is one edit rather
+   than a search.
+
+   ⚠ AND PLEX MONO IS AN ADDITION RATHER THAN A REPOINT, BECAUSE `--font-mono` HAD NO FILE.
+   That token was a bare `ui-monospace` stack, so every sheet mark and plate number on the page has
+   been rendering in whatever mono the operating system supplies — measured as `ui-monospace` in the
+   browser. The direction leans on three mono sizes for its whole label system, so leaving that to
+   the platform means the labels differ per visitor. Plex Mono also carries real tabular figures,
+   which the readout band and the plate numbers both want.
+
+   WHY PLEX AND NOT THE OBVIOUS ALTERNATIVES, recorded because they are the tempting ones. Inter is
+   named on the AI-cluster list as the safe default, so adopting it to escape a default is the same
+   mistake in new clothes. Space Grotesk is on that list too and already loads here. Geist is
+   excellent, purpose-built and OFL — and it is the current dev-tool default, which is the identical
+   failure one generation later. Plex is a SYSTEM rather than a face, drawn together so the sans and
+   the mono harmonise by construction, and its flared terminals come from a typewriter, which is
+   this direction's own subject. The paid answer, named because it is the honest one, is ABC Diatype
+   with Diatype Mono.
 
    ⚠ EVERY ONE IS `preload: false`, AND THAT IS LOAD-BEARING RATHER THAN TIDY. Nothing reads
    these tokens yet, so a preload link would download three unused webfonts in the critical
@@ -47,31 +70,46 @@ const caveat = Caveat({
    established that reasoning for a face that IS used; it applies harder to one that is not.
    The outgoing families have since been deleted outright, so the budget holds one set.
 
-   ⚠ ITALIC IS LOADED FOR THE SERIF AND NOT FOR THE OTHER TWO. The section headings are display
-   italic 400, so the display face needs a real italic or the site ships a synthesised oblique.
-   Work Sans loads normal only. Space Grotesk HAS no italic upstream, which costs nothing because
-   a tracked uppercase label never sets one.
+   ⚠ ITALIC IS STILL LOADED, AND IT IS NOT FOR HEADINGS ANY MORE. The sheet grammar made every
+   stage head and section head UPRIGHT, so the reason the old serif carried an italic is gone. But
+   italic prose survives in four places the grammar has not reached — About's lead paragraph and
+   its note, Experience's role titles and its inline "acquired by" — and without a real italic the
+   browser synthesises an oblique by shearing the upright. Dropping the style would trade a font
+   file for a worse glyph on live copy, so it stays until those four are decided.
+
+   Plex Mono loads normal only: a tracked uppercase mark never sets an italic. Space Grotesk has
+   none upstream, which costs nothing for the same reason.
 ============================================================================================ */
 
-/* ⚠ PRELOADED FROM HERE, because it IS the display face now — every h1 and h2 on every page, and
-   the LCP element on the home page and every case study. */
-const sourceSerif = Source_Serif_4({
+/* ⚠ PRELOADED, because it IS the display AND the body face — every heading and every paragraph on
+   every page, and the family the LCP text is set in. One family now serves both roles, so this is
+   ONE preload where the outgoing pair was two.
+ *
+ * ⚠ AND THE WEIGHTS ARE ENUMERATED RATHER THAN LEFT TO A VARIABLE AXIS, WHICH IS A FACT ABOUT THE
+ * UPSTREAM FILE RATHER THAN A CHOICE. Plex Sans is served as static instances, so `next/font`
+ * requires the set. Four are declared because four are used: 400 body, 500 for the studio's
+ * incumbent mid-weight sites, 600 for every sheet head, 700 for the hero's own heavy sites. */
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
-  axes: ["opsz"],
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
-  variable: "--font-source-serif-loaded",
+  variable: "--font-ibm-plex-sans-loaded",
   display: "swap",
   preload: true,
 });
 
-/* ⚠ WORK SANS IS PRELOADED FROM HERE, because it IS the body face now — every paragraph on every
-   page, and the family the LCP text is set in. */
-const workSans = Work_Sans({
+/* ⚠ NOT PRELOADED, AND THE ASYMMETRY IS DELIBERATE. Plex Mono sets the sheet marks, the plate
+   numbers and the readout keys — all small, none of them the LCP element, and every one of them
+   legible in the fallback mono while the file arrives. Preloading it would put a second font in
+   the critical window to improve a 10px label, which is the trade the label face already lost. */
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-work-sans-loaded",
+  weight: ["400", "500"],
+  variable: "--font-ibm-plex-mono-loaded",
   display: "swap",
-  preload: true,
+  preload: false,
 });
+
 
 /* ⚠ NOT PRELOADED, AND THE REASON CHANGED WITHOUT THE VALUE CHANGING — WHICH IS WHY THE COMMENT
    IS REWRITTEN RATHER THAN LEFT ALONE. Through the arc it was `false` because `--font-label` had
@@ -83,8 +121,20 @@ const workSans = Work_Sans({
    preload on every public page for a face no public page renders. MEASURED IN THE BUILD, 4 -> 5,
    after a comment here had already claimed the public count was unaffected. It was not.
 
-   SO THE STUDIO TAKES A SWAP INSTEAD. The label face arrives a frame late on an owner-only
-   surface, which is the cheaper side of the trade by a wide margin. */
+   ⚠ AND "EVERY CONSUMER IS UNDER /studio" IS FALSE, MEASURED FROM THE PAINT DURING THE FACE SWAP.
+   Walking every leaf element on the live home page and reading its computed family finds TWO public
+   consumers: `.palette-pill-label` and `.palette-rail-label`, the palette teaser's two "Theme"
+   labels. The flag is still `false` and now for a fourth reason — two 10px labels on one control do
+   not earn a slot in the critical window — but the sentence above overstated the case and would have
+   told the next reader this face never reaches a visitor. It reaches every one of them.
+
+   THIS WAS ALREADY WRONG BEFORE THE SWAP. The teaser predates it; the swap is only what made
+   somebody census the families. A claim about WHERE a face renders cannot be checked by reading the
+   file that loads it, which is why it took a browser to find.
+
+   SO EVERY CONSUMER TAKES A SWAP INSTEAD. The label face arrives a frame late — on the studio for
+   the many consumers there, and on two 10px teaser labels for the public ones. That is the cheaper
+   side of the trade by a wide margin either way. */
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk-loaded",
@@ -182,7 +232,7 @@ export default async function RootLayout({
       lang="en"
       data-theme={theme}
       data-ground={ground === "dark" ? "dark" : undefined}
-      className={`${kaushanScript.variable} ${caveat.variable} ${sourceSerif.variable} ${workSans.variable} ${spaceGrotesk.variable}`}
+      className={`${kaushanScript.variable} ${caveat.variable} ${plexSans.variable} ${plexMono.variable} ${spaceGrotesk.variable}`}
     >
       <head>
         {/* Runs at parse time, before any hydration or browser scroll restoration.

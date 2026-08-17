@@ -108,6 +108,29 @@
    reaches for it as the obvious simplification.
 ============================================================================================ */
 
+/* ⚠ THE FACE MOVED TO IBM PLEX SANS AND THE MEASURE WAS RE-TAKEN, 676.734 -> 652.797, A COLUMN
+   23.937px NARROWER. Read on the route below with `document.fonts.ready` awaited first, because
+   measuring during `swap` measures the FALLBACK — a different family and therefore a different `0`
+   advance, which is the one way this reading can be silently wrong.
+
+   TWO INDEPENDENT METHODS, AGREEING TO 0.01: a `width: 68ch` probe inside the wrapper resolved
+   652.797, and the `0` advance measured over 200 glyphs is 9.6px, giving 68 x 9.6 = 652.8 exactly.
+   Neither was derived from the other.
+
+   ⚠ AND THE QUANTITY IS VIEWPORT-INDEPENDENT, DEMONSTRATED RATHER THAN ASSUMED. The same 652.797
+   came back at 1456x795 and at 1920x928. That is expected — `ch` is a font fact at a fixed 16px —
+   but the provenance field names a viewport, so a reader comparing two entries taken at different
+   widths deserves to know the width is not what makes them agree.
+
+   ⚠ AND THE RECORDED ELEMENT SELECTOR HAD ALREADY GONE STALE, WHICH IS THE FINDING RATHER THAN THE
+   NUMBER. Every entry named `main.mx-auto.max-w-[68ch].px-6`. That element does not exist: the
+   wrapper now reads `max-w-[var(--blog-measure)]`, so the markup moved and the provenance did not.
+   The whole point of these four fields is that the number can be RE-TAKEN, and a selector that
+   matches nothing is the one field whose decay makes it unre-takeable. Corrected on all eleven.
+   Nothing checked it, because a gate can assert a string is PRESENT and not that it still resolves
+   — the presence-versus-reachability split this record names against source regexes, arriving in a
+   provenance field. */
+
 /** Horizontal padding on the blog measure column, `px-6` on both sides. */
 const MEASURE_PADDING_PX = 48;
 
@@ -124,13 +147,13 @@ export type ThemeMetrics = {
  *  the leaf reason at the top. `ralph/tests/theme.mjs` asserts the two key sets are identical. */
 export const THEME_METRICS: Record<string, ThemeMetrics> = {
   cream: {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6",
     },
   },
 
@@ -141,13 +164,13 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
      mistakes it for a second browser session. The day a theme changes the body face, that theme
      needs its own measurement and this note is where they will find out. */
   harbour: {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
@@ -155,13 +178,13 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
      inherits the same figure for the same reason harbour does. Recorded rather than omitted,
      because `theme` B1 asserts this key set equals `THEME_NAMES` exactly. */
   orchid: {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
@@ -170,24 +193,24 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
      so a reader can tell a derived entry from a measured one WITHOUT reading the comment beside
      it. The day a theme changes the body face is the day one of these needs a real session. */
   cerise: {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
   fern: {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
@@ -195,48 +218,48 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
      inherits for the same reason harbour and orchid do. */
   /* Dark preset. Inherits for the same reason sapphire does — it changes no font. */
   "ink-flare": {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
   /* Dark preset. Inherits for the same reason sapphire does — it changes no font. */
   "nocturne": {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
   /* Dark preset. Inherits for the same reason sapphire does — it changes no font. */
   "basalt": {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
   sapphire: {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
@@ -252,33 +275,36 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
      twin beside the real themes, so it can be neither dropped nor multiplied. The full reasoning
      is in `lib/theme.ts`, which is also where the reversal is recorded. */
   "cream-verify": {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6",
     },
   },
 
-  /* ⚠ THE ACHROMATIC PALETTE INHERITS FOR THE SAME REASON EVERY OTHER ENTRY DOES, AND IT IS WORTH
-     SAYING BECAUSE THE DIRECTION IT BELONGS TO WILL EVENTUALLY BREAK THAT. It changes colours and
-     nothing else, so `68ch` resolves against Work Sans exactly as it does on cream.
+  /* ⚠ THIS ENTRY PREDICTED THE DAY THE FACE WOULD MOVE, AND THE DAY ARRIVED. It read: "The visual
+     direction this palette was drawn for proposes a different body face … That day is coming for
+     this entry specifically." It came. The face is now IBM Plex Sans.
 
-     The visual direction this palette was drawn for proposes a different body face, and the note
-     at the top of this map already states the rule: the day a theme changes the body face, that
-     theme needs its own measurement. That day is coming for this entry specifically. Until the
-     face actually moves, deriving is correct and measuring again would be a second reading of the
-     same font. */
+     ⚠ AND THE PREDICTION WAS RIGHT ABOUT THE EVENT AND WRONG ABOUT THE SCOPE, WHICH IS THE PART
+     WORTH KEEPING. It expected ONE theme to need its own measurement, because it read the body face
+     as something a palette could carry. It is not — `--font-body` is declared once at the root and
+     no palette block touches it, so when the face moved it moved for ALL ELEVEN entries at once.
+     The rule stated at the top of this map — "the day a theme changes the body face, that theme
+     needs its own measurement" — describes a per-theme divergence this system cannot actually
+     express. One face, one reading, eleven identical entries. If a palette ever DID set its own
+     body family, that would be a new capability rather than a new measurement. */
   "drawing-office": {
-    bodyFont: "Work Sans",
-    measure68chPx: 676.734,
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1440x900",
-      element: "main.mx-auto.max-w-[68ch].px-6 (inherited: same body font as cream)",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 };
