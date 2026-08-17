@@ -10,12 +10,23 @@ type Props = {
   blockIndex?: number;
 };
 
-/** Grid of `.pcard` cards with an optional display heading and subhead. */
+/** Grid of `.pcard` cards with an optional heading and subhead.
+ *
+ *  ⚠ THIS HEADING AND `FigureGrid`'s WERE BYTE-IDENTICAL STRINGS — the display face, slanted, at the
+ *  third heading step, in the primary ink, with a tight line-height — which is two files agreeing by
+ *  COPY rather than by a role. Both take `sheet-h3` now, so the agreement is a shared declaration
+ *  instead of a shared accident, and the next edit to one cannot silently diverge from the other.
+ *
+ *  ⚠ AND THE FIRST DRAFT OF THAT SENTENCE TRANSCRIBED THE STRING, WHICH MADE THIS COMMENT THE ONLY
+ *  THING GENERATING ITS LINE-HEIGHT UTILITY. `css-comment-trap` A5 went red naming this file —
+ *  EIGHTH instance of explaining-it-requires-writing-it, and the SECOND I have committed in this
+ *  arc, two units after writing "describe a retired utility, never transcribe it" into `HeroCover`.
+ *  Knowing the rule is not applying it; the gate is what applies it. */
 export default function PrincipleCards({ heading, subhead, cards, web = false, editable = false, blockIndex }: Props) {
   return (
     <div>
       {heading && (
-        <h3 className="font-display italic font-normal text-3xl text-text-primary leading-[1.15]">
+        <h3 className="sheet-h3">
           {heading}
         </h3>
       )}

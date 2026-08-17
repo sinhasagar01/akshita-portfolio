@@ -31,7 +31,9 @@ export default function FigureGrid({
       {heading && (
         <h3
           {...edit("heading", "Edit figure grid heading")}
-          className={`font-display italic font-normal text-3xl text-text-primary leading-[1.15]${aff}`}
+          /* The STUDY role. This string was byte-identical to `PrincipleCards`' heading — two files
+             agreeing by copy rather than by a role — and both now name the same one. */
+          className={`sheet-h3${aff}`}
         >
           {heading}
         </h3>

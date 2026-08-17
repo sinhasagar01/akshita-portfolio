@@ -28,7 +28,14 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
           >
             <h3
               {...inlineEditProps(editable, blockIndex, `steps.${i}.label`, "Edit step label")}
-              className={`font-display text-2xl font-normal text-accent-text leading-[1.1]${aff}`}
+              /* ⚠ A STAGE NAME, AND THE HOME PAGE ALREADY SHIPPED THE ANSWER. `ProcessSection` draws
+                 its stage as `sheet-mono-label` over `sheet-h3`, so a process step's name is the
+                 STUDY role — the same construction, one page over.
+
+                 THE ACCENT GOES. A stage name is none of the direction's four sanctioned uses, and
+                 the mobile branch below never used it, so the two branches were disagreeing about
+                 colour as well as slant. */
+              className={`sheet-h3${aff}`}
             >
               {s.label}
             </h3>
@@ -58,7 +65,28 @@ export default function Stepper({ steps, web = false, editable = false, blockInd
             <span aria-hidden="true" className="size-[9px] shrink-0 rounded-full bg-accent" />
             <span
               {...inlineEditProps(editable, blockIndex, `steps.${i}.label`, "Edit step label")}
-              className={`font-display italic text-[1.1875rem] text-text-primary${aff}`}
+              /* ⚠ THE SAME STAGE NAME IN A NARROWER BOX, AND IT IS NOT `sheet-h3`. The web branch
+                 above sets this label across a full row; here it sits in one cell of a four-column
+                 grid, roughly 200px of content at desktop, over a 13.4px sentence. `sheet-h3` clamps
+                 on the VIEWPORT rather than the container, so a 200px cell would get the same 31px a
+                 full-width row gets, and "Discover" would set at nearly twice its own column's body.
+
+                 A CLAMP IS A VIEWPORT MEASUREMENT AND THIS IS A CONTAINER PROBLEM — which is why the
+                 role is right one branch up and wrong here rather than right in both.
+                 `sheet-mono-label` is the register that fits a cell this size, and the render is what
+                 settled it: a dot, a tracked mono phrase, a sentence, reading as a schedule row.
+
+                 ⚠ AND THE LABELS ARE PHRASES RATHER THAN WORDS, WHICH I ASSUMED WRONG BEFORE LOOKING.
+                 They run to `PRODUCT PLANNING AND REQUIREMENT GATHERING` — four to five words, two
+                 lines in a 240px cell. That is fine at this register and it would have been absurd at
+                 the STUDY role's 31px, so the measurement strengthened the choice rather than
+                 changing it. Recorded because the first draft of this note argued from "one word".
+
+                 ⚠ SO THE TWO BRANCHES DELIBERATELY DIVERGE, WHICH IS THE OPPOSITE OF THE LAST THREE
+                 UNITS AND IS STATED SO IT IS NOT "FIXED" LATER. The hero and the principle card each
+                 had two branches doing ONE job at two sizes for no reason. Here the two branches do
+                 one job in two BOXES, and a role that ignores the box is not a shared answer. */
+              className={`sheet-mono-label${aff}`}
             >
               {s.label}
             </span>
