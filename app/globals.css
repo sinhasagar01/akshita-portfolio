@@ -6386,6 +6386,55 @@ a {
   padding-right: var(--sheet-gutter);
 }
 
+/* DEVICE — THE STAMP. What replaces thirty-four giant slanted words behind the case-study copy.
+   ⚠ THE OWNER CHOSE IT FROM FOUR STATES SHOWN AT FULL SIZE, so the reasoning is a decision rather
+   than a derivation: as built, deleted, a large mono stamp, and this. A print does carry a mark
+   across it — PRELIMINARY, NOT FOR CONSTRUCTION — so the DEVICE was never foreign to the language;
+   the slanted display face was. This is the print convention properly: small, tracked, in a ruled
+   box, nothing filled.
+
+   ⚠ IT IS NOT A WATERMARK ANY MORE AND CALLING IT ONE WOULD BE THE WRONG NOUN. A watermark is a
+   wash you read past; this is a mark you read. That is the whole of what the owner chose, and it is
+   why the component is `SheetStamp` rather than a restyled `GlowWord`.
+
+   `etch` IS THE ROLE, NOT A LITERAL PAIR. It resolves to an INK rather than a finished colour, so
+   one role serves the text and the rule at two different weights — which is the property this
+   stylesheet already records as the reason `etch` collapsed seven tokens to one, and the reason its
+   alphas survive a change of ground within 6%. The retired `GLOW` was `accent-500` at 10%: a RUNG
+   at an alpha, which is why a stamp in the accent would have been the fifth accent use on a page
+   whose direction sanctions four. */
+.sheet-stamp {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: clamp(1.05rem, 1.9vw, 1.6rem);
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: color-mix(in oklch, var(--color-etch) 26%, transparent);
+  border: 2px solid color-mix(in oklch, var(--color-etch) 16%, transparent);
+  /* the right pad is short by the trailing letter-space, which tracking adds after the last glyph */
+  padding: 0.42em 0.62em 0.42em 0.78em;
+}
+/* ⚠ FOUR CORNERS RATHER THAN THE AUTHORED OFFSETS, AND THE OFFSETS ARE WHY. They were written for a
+   9rem word that BLEEDS off the edge — `bottom: -30px`, `left: 30px` — so reusing the magnitudes
+   would cut a small stamp in half. The authored SIDE survives, because which corner is free is a
+   real compositional choice the author made per section; the magnitude does not. */
+.sheet-stamp--tl { top: 22px; left: 28px; }
+.sheet-stamp--tr { top: 22px; right: 28px; }
+.sheet-stamp--bl { bottom: 22px; left: 28px; }
+.sheet-stamp--br { bottom: 22px; right: 28px; }
+/* Desktop only, exactly as the watermark was — a phone never had one and does not gain one. */
+@media (max-width: 1023px) {
+  .sheet-stamp { display: none; }
+}
+
 /* ============================================================================================
    RETIRING THE CARD — a section becomes a BAND of the sheet rather than a panel floating on it.
 

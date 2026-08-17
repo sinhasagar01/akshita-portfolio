@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useReducedMotion } from "motion/react";
 import type { Feature } from "@/lib/case-studies/types";
 import { renderRich } from "../rich";
-import { GLOW } from "../styles";
+import SheetStamp from "../SheetStamp";
 import { BEZEL_W, BEZEL_H, SCREEN_BG, clamp, lerp, eIO, unitGeo, EDGE } from "./deviceScroller";
 import { EDIT_AFFORD, inlineEditProps } from "../editable";
 import bezel from "@/public/work/boat-crest/scroll-assets/phone-frame-bezel.png";
@@ -121,9 +121,15 @@ export default function WorkStory({
         }
       });
 
+      /* ⚠ THE `translateY(-50%)` IS GONE WITH THE ELEMENT THAT NEEDED IT. It compensated a `top: 50%`
+         on the old 20rem ghost numeral; the stamp that replaced it is placed by its own corner, so
+         carrying the translate forward would lift it half its height off the top edge. The fade and
+         the scale are the entrance and they stay. A transform written against one element and applied
+         to its replacement is the wrong-subject shape arriving in an imperative handler, where no
+         gate reads it. */
       if (ghostRef.current) {
         ghostRef.current.style.opacity = String(clamp(eP / 0.6));
-        ghostRef.current.style.transform = `translateY(-50%) scale(${lerp(0.92, 1, enter)})`;
+        ghostRef.current.style.transform = `scale(${lerp(0.92, 1, enter)})`;
       }
 
       setLine(numRef.current, 0, false, eP);
@@ -209,15 +215,14 @@ export default function WorkStory({
     <div ref={rootRef} className="mx-auto w-full max-w-[1000px]">
       {/* Stage */}
       <div className="relative flex flex-col items-center gap-8 lg:min-h-[470px] lg:flex-row lg:items-center lg:gap-9">
-        {/* ghost numeral (decorative, behind) */}
-        <span
-          ref={ghostRef}
-          aria-hidden="true"
-          className="pointer-events-none absolute right-0 top-1/2 z-0 select-none font-display italic leading-[0.7]"
-          style={{ color: GLOW, fontSize: "clamp(9rem, 24vw, 20rem)" }}
-        >
-          {f.index}
-        </span>
+        {/* ⚠ THE 20rem GHOST NUMERAL BECOMES A STAMP, AND ITS ENTRANCE TRANSFORM HAD TO CHANGE WITH
+            IT. The scroll handler wrote `translateY(-50%) scale(…)`, where the translate existed only
+            because the old numeral was `top: 50%` and had to be pulled back by half its own height. A
+            corner stamp is placed by its corner, so carrying that translate forward would have lifted
+            it half its height off the top edge — a transform that was correct for the element it was
+            written against and wrong for the one that replaced it. The scale and the fade stay; see
+            the handler. */}
+        <SheetStamp text={f.index} corner="tr" elementRef={ghostRef} />
 
         {/* copy */}
         <div className="relative z-[2] w-full max-w-[430px] lg:flex-1">

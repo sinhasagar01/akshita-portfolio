@@ -1,10 +1,11 @@
 import type { Feature } from "@/lib/case-studies/types";
 import DeviceImage, { isWideFrame } from "../DeviceImage";
 import { renderRich } from "../rich";
-import { LINE, GLOW } from "../styles";
+import { LINE } from "../styles";
+import SheetStamp from "../SheetStamp";
 import { EDIT_AFFORD, inlineEditProps } from "../editable";
 
-/** `.feat` — alternating image/text rows, each with a giant faint number. */
+/** `.feat` — alternating image/text rows, each stamped with its index. */
 export default function FeatureRows({
   features,
   editable = false,
@@ -36,13 +37,12 @@ export default function FeatureRows({
             }
             style={{ borderColor: LINE }}
           >
-            <span
-              aria-hidden="true"
-              className="pointer-events-none select-none absolute top-1/2 -translate-y-1/2 font-display italic font-normal leading-[0.7] z-0 text-[clamp(9rem,18vw,15.5rem)]"
-              style={{ color: GLOW, [reversed ? "left" : "right"]: "38px" }}
-            >
-              {f.index}
-            </span>
+            {/* ⚠ THE 15.5rem GHOST NUMERAL BECOMES A STAMP, AND THE CORNER FOLLOWS THE ROW'S OWN
+                MIRRORING. The row alternates which side the image sits on and the numeral always sat
+                on the empty side, so the stamp keeps that by reading the same `reversed` flag. It
+                moves from vertically centred to a top corner because a mark on a print sits in a
+                corner, where a 15.5rem wash sat wherever there was room. */}
+            <SheetStamp text={f.index} corner={reversed ? "tl" : "tr"} />
 
             <div
               className={
