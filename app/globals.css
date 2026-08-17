@@ -6122,6 +6122,22 @@ a {
   max-width: 24ch;
   text-wrap: balance;
 }
+/* The specification's STUDY role — plate titles and stage heads, the level below a sheet opener.
+   ⚠ NOT ITALIC, AND THE SLANT IS THE WHOLE POINT OF THE ROLE EXISTING. The heads this replaces were
+   the display face at 400 in italic, which the direction retires by name along with the eyebrow
+   numeral above them. The SIZE barely moves: `--text-subheading` is 30px and this clamps to 31px at
+   a wide viewport, so the box stays and the voice changes. Weight goes 400 to 600 for the same
+   reason `.sheet-h2` is 600 — a head must not be lighter than what it outranks. */
+.sheet-h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(21px, 2.5vw, 31px);
+  line-height: 1.12;
+  letter-spacing: -0.019em;
+  color: var(--color-text-primary);
+  text-wrap: balance;
+}
 .sheet-lede {
   margin: 0;
   font-size: clamp(15px, 1.15vw, 16.5px);

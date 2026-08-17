@@ -302,17 +302,22 @@ function StageCopy({ stage, reduced }: { stage: ResolvedStage; reduced: boolean 
           exit="exit"
           className="flex flex-col"
         >
-          <motion.span
-            variants={line}
-            className="text-meta font-medium uppercase tracking-ui"
-            style={{ color: "var(--color-accent)" }}
-          >
-            {stage.index}
+          {/* ⚠ THE STAGE MARK LOSES THE ACCENT, AND THAT IS THE SPEC RATHER THAN A PREFERENCE.
+              The accent has exactly four sanctioned uses in this direction — the current floor, the
+              readout figures, the outcome column and the resume control — and a stage eyebrow is
+              none of them. On an achromatic medium the illustration is meant to be the only colour,
+              so every unsanctioned accent is a second colour source. It takes the sheet's own mark
+              role, which is where every other sheet number on the page already lives.
+
+              AND IT READS `STAGE 01` RATHER THAN `01`. A bare numeral above a title IS the eyebrow
+              pattern the direction retires; a labelled mark is a drawing convention. The value is
+              unchanged — `stage.index` is already the string. */}
+          <motion.span variants={line} className="sheet-mono-label">
+            {`Stage ${stage.index}`}
           </motion.span>
-          <motion.h3
-            variants={line}
-            className="display-face italic text-subheading leading-snug tracking-snug mt-1 mb-2.5"
-          >
+          {/* Upright, 600, at the STUDY role. The size barely moves — 30px to a 31px clamp — so this
+              is a change of voice rather than of layout. */}
+          <motion.h3 variants={line} className="sheet-h3 mt-[10px] mb-[10px]">
             {stage.name}
           </motion.h3>
           <motion.p

@@ -104,19 +104,27 @@ function StepContent({
 
   return (
     <div className="w-full">
-      {/* Eyebrow — DM Sans 12px 500 uppercase .22em tracking, terracotta */}
-      <span
-        className="block mb-[14px] font-body text-[12px] font-medium tracking-[0.22em] uppercase"
-        style={{ color: 'var(--color-accent)' }}
-      >
+      {/* ⚠ THE SAME DEVICE AS THE PROCESS STAGE HEAD, WHICH IS WHY IT MOVES IN THE SAME CHANGE.
+          These steps are numbered 01 to 03 and each carried an eyebrow in the accent above an
+          italic display head — construction for construction, the pattern the direction retires.
+          Fixing one and leaving the other is how a page ends up speaking two languages in two
+          sections.
+
+          The mark drops the accent for the sheet's mark role, because the accent's four sanctioned
+          uses do not include a step eyebrow. It also drops from .22em to the ONE tracking value the
+          type system allows, and from the body face to mono — the audit that produced this direction
+          found nine mono sizes and eight tracking values in its own first pass, so an extra spelling
+          here is how that comes back. */}
+      <span className="sheet-mono-label block mb-[14px]">
         {step.eyebrow}
       </span>
 
-      {/* Question — Fraunces italic 30px lh 1.2 ink */}
+      {/* Upright at the STUDY role. Still a label rather than a heading — the control it names is
+          the input below, and promoting it to a heading would put a fourth level into a section
+          that has three. */}
       <label
         htmlFor="contact-input"
-        className="block font-display italic text-[30px] leading-[1.2] mb-6 cursor-text"
-        style={{ fontWeight: 400 }}
+        className="sheet-h3 block mb-6 cursor-text"
       >
         {step.question}
       </label>
