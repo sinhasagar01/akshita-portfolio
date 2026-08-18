@@ -260,11 +260,11 @@ const got = (k) => cream.rows.find((r) => r.key === k)?.got;
    4.07 that stood here was `accent-500 on cream-200`, whose UI row was deleted because both of its
    declared consumers had migrated away and no public mark draws that pairing. The two values below
    are unchanged, which is what says the token did not move — only the map's claim about it did. */
-t("A5 accent-500's cream ladder, computed", [got("accent-500 on cream-50"),
-  got("accent-500 on cream-100 (non-text)")], [4.7, 4.48]);
+t("A5 the DEFAULT's accent ladder, computed — drawing-office's accent is pure black, so both rungs read high", [got("accent-500 on cream-50"),
+  got("accent-500 on cream-100 (non-text)")], [20.12, 19.09]);
 t("A6 the ground ladder, computed", [got("ground step cream-50 / cream-100"),
   got("ground step cream-100 / cream-200"), got("ground step cream-200 / cream-300"),
-  got("ground step cream-300 / canvas")], [1.05, 1.1, 1.19, 1.13]);
+  got("ground step cream-300 / canvas")], [1.05, 1.1, 1.19, 1.26]);
 
 console.log("\nB · it REFUSES — both verdict types, not just the mechanism");
 
@@ -391,8 +391,11 @@ const onFloor = (rep) => rep.rows.filter((r) => r.got !== null && r.got - r.min 
  * count I had already corrected once (from a hand-picked three to a computed six) was still
  * carrying the redundancy it was counting. A duplicate name inflates every measurement taken over
  * the names, which is a quieter cost than a wrong colour and is why the merge was worth doing. */
-t("D6 cream sits inside 0.1 of five DISTINCT floors — computed, and one fewer since #330",
-  onFloor(cream).length, 5);
+/* ⚠ FIVE BECAME TWO WITH THE DEFAULT, AND THAT IS THE PALETTE RATHER THAN THE ROW. cream sat
+   inside 0.1 of five floors because its ladder was tuned to the edge of them. drawing-office is
+   achromatic with a pure-black accent, so most of its pairs clear by a wide margin. */
+t("D6 the DEFAULT sits inside 0.1 of two DISTINCT floors — computed, not carried from the palette before it",
+  onFloor(cream).length, 2);
 
 
 /* ⚠ THE INSTRUMENT RUNS FIRST AND THE RENDER SECOND, AND NEITHER IS OPTIONAL. `SHIPPABLE` means
@@ -789,7 +792,11 @@ const ACCENT_EXEMPT = {
    * measures is the comment-and-code drift this file records six times — and here it would be worse
    * than usual, since D12y proves these exemptions are EARNED by re-running the rule. A reader
    * checking "6 degrees" against a dE floor has no way to tell whether the exemption still holds. */
-  "ink-flare": AUTHORED_PRESET + " Conflict: 44.1 dE from cream's accent (10 degrees).",
+  /* ⚠ `ink-flare`'s EXEMPTION WENT THE SAME WAY AS BASALT'S. It read "44.1 dE from cream's accent",
+     and cream is gone — removed rather than renamed, because a warm cream ground with a terracotta
+     accent is the default look this direction exists to get away from. D12y fired on it for the
+     same reason it fired on basalt: an exemption for a collision that no longer exists is a rule
+     quietly switched off. The register is now EMPTY, and that is the assertion. */
   /* ⚠ `basalt`'s EXEMPTION IS GONE BECAUSE ITS CONFLICT IS. It read "33.7 dE from fern's accent",
      and fern retired with the four chromatic lights. D12y fired on exactly that — an exemption for
      a collision that no longer exists is a rule quietly switched off, so the row removing it is
@@ -1410,7 +1417,7 @@ t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never
  * shortcut and this note exists so nobody spends an afternoon discovering that. */
 const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
-  basalt: [3.65, 2.69], cream: [4.70, 7.22],
+  basalt: [3.65, 2.69],
   "drawing-office": [20.12, 20.12], redline: [7.32, 9.57],
 };
 /* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
@@ -1696,10 +1703,10 @@ t("L3 ⚠ EVERY BAND'S MEMBERS CLEAR THAT BAND'S OWN FLOOR — in the band's OWN
 const lightBand = BANDS.find((b) => b.label === "light");
 t("L3u ⚠ sepIn IS UNIT-SENSITIVE — proved on a pair where the two units disagree, so a coincidence cannot carry it",
   [lightBand.floorUnit,
-   Math.round(sepIn("dE", "cream", "drawing-office") * 100) / 100,
-   Math.round(sepIn("degrees", "cream", "drawing-office") * 10) / 10,
-   sepIn(lightBand.floorUnit, "cream", "drawing-office") === sepIn("dE", "cream", "drawing-office")],
-  ["dE", 30.12, 78, true]);
+   Math.round(sepIn("dE", "sapphire", "nocturne") * 100) / 100,
+   Math.round(sepIn("degrees", "sapphire", "nocturne") * 10) / 10,
+   sepIn(lightBand.floorUnit, "sapphire", "nocturne") === sepIn("dE", "sapphire", "nocturne")],
+  ["dE", 4.69, 32, true]);
 t("L3v ⚠ …AND L3 IS THE CALLER THAT READS THE BAND'S UNIT — L3u stays green if this call reverts to a bare arc(), so the two rows are not redundant",
   /\.filter\(\(c\) => \(sepIn\(b\.floorUnit, a, c\)/.test(
     readFileSync(new URL(import.meta.url), "utf8")), true);

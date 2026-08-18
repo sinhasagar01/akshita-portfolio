@@ -146,16 +146,7 @@ export type ThemeMetrics = {
 /** One entry per theme, keyed by the names in `lib/theme.ts` — which this file CANNOT import, for
  *  the leaf reason at the top. `ralph/tests/theme.mjs` asserts the two key sets are identical. */
 export const THEME_METRICS: Record<string, ThemeMetrics> = {
-  cream: {
-    bodyFont: "IBM Plex Sans",
-    measure68chPx: 652.797,
-    provenance: {
-      method: "browser",
-      route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1456x795",
-      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6",
-    },
-  },
+
 
   /* ⚠ THE MEASURE IS A PROPERTY OF THE BODY FONT, NOT OF THE PALETTE, so harbour carries cream's
      number rather than a fresh browser reading. `68ch` resolves against the `0` advance of
@@ -238,14 +229,14 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
      `ralph/tests/theme.mjs` asserts these two resolve identically AND that there is EXACTLY ONE
      twin beside the real themes, so it can be neither dropped nor multiplied. The full reasoning
      is in `lib/theme.ts`, which is also where the reversal is recorded. */
-  "cream-verify": {
+  "drawing-office-verify": {
     bodyFont: "IBM Plex Sans",
     measure68chPx: 652.797,
     provenance: {
       method: "browser",
       route: "/blog/what-a-data-table-teaches-you-about-trust",
       viewport: "1456x795",
-      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
     },
   },
 
@@ -283,7 +274,7 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
 };
 
 /** The theme the site currently ships. Repointed by the theme reader in a later step. */
-export const ACTIVE_THEME = "cream";
+export const ACTIVE_THEME = "drawing-office";
 
 /** Blog's canvas floor: the active theme's measure plus its horizontal padding.
  *

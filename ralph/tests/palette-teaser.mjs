@@ -112,9 +112,9 @@ t("A6a …and the WARM dark really is less chromatic than the COLOURED one, so t
    LITERAL. It asserted ONE pair, cream and ink-flare. With drawing-office in harbour's place EVERY
    member's counterpart is also in the set, so any dot press shows that identity on the other ground
    rather than only two of them doing it. A literal left at the old pair goes red on an improvement. */
-t("A7 ⚠ FOUR OF THE FIVE PAIR INSIDE THE SET — nocturne's partner is redline, which the teaser does not carry",
+t("A7 ⚠ FOUR OF THE FIVE PAIR INSIDE THE SET — redline's partner is sapphire, which the teaser does not carry",
   TEASER_THEMES.filter((n) => TEASER_THEMES.includes(THEME_COUNTERPART[n])).sort(),
-  ["basalt", "cream", "drawing-office", "ink-flare"]);
+  ["basalt", "drawing-office", "ink-flare", "nocturne"]);
 
 console.log("\nB · ONE mechanism — the dots are a door onto the preview, not a second one");
 t("B0 the component was found and has code — a zero here makes every row below vacuous",

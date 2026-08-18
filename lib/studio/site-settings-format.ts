@@ -135,13 +135,13 @@ const LINK_KEYS = ["label", "url"] as const;
  * module cannot import for the same plain-Node reason SITE_SETTINGS_FIELD_ORDER is local — it is
  * loaded raw by ralph/tests/settings-photo.mjs. `ralph/tests/theme.mjs` asserts the two agree.
  *
- * ⚠ THE VERIFICATION TWIN IS ABSENT ON PURPOSE. `cream-verify` resolves but is not selectable, so
+ * ⚠ THE VERIFICATION TWIN IS ABSENT ON PURPOSE. `drawing-office-verify` resolves but is not selectable, so
  * the fixture cannot be published by accident.
  */
 /* ⚠ ONE OF THE THREE SURFACES THAT CANNOT IMPORT `lib/theme.ts`, so `ralph/tests/theme.mjs`
  * enforces their agreement. Themes four and five are wedged onto D12's 60 degree floor and a
  * SIXTH CANNOT BE ADDED without lowering it — see FOURTH_THEME in lib/theme.ts. */
-const SETTINGS_THEME_VALUES = ["cream", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office", "redline"] as const;
+const SETTINGS_THEME_VALUES = ["drawing-office", "sapphire", "ink-flare", "nocturne", "basalt", "redline"] as const;
 /* ⚠ SAPPHIRE IS ABSENT ON PURPOSE — it is HELD in `lib/theme.ts` until globals.css's raw rungs
  * migrate to roles, so it is resolvable but not publishable. `theme` B3 asserts this list equals
  * `selectableThemes()`, which is what keeps a held palette out of the author's reach. */

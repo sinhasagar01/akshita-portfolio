@@ -53,24 +53,24 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      looking large or small. Run `theme-contrast` section K after ANY lightness move here, and read
      its overshoot against CLIP_EPSILON rather than against zero — six declarations sit legitimately
      between the two. */
-  --color-canvas:    oklch(92.0% 0.022 78);   /* darker warm beige — page canvas behind cards */
-  --color-cream-50:  oklch(98.5% 0.012 80);
-  --color-cream-100: oklch(96.8% 0.018 78);
-  --color-cream-200: oklch(93.5% 0.025 76);
-  --color-cream-300: oklch(88.0% 0.032 74);
-  --color-reveal-sand: oklch(85.0% 0.040 67);   /* #E3CFB6 approx — panel start color */
-  --color-case-study-sand: oklch(88.5% 0.030 80); /* warm sand behind a case study — the
+  --color-canvas: oklch(95.5% 0.000 0);   /* darker warm beige — page canvas behind cards */
+  --color-cream-50: oklch(98.5% 0.000 0);
+  --color-cream-100: oklch(96.8% 0.000 0);
+  --color-cream-200: oklch(93.5% 0.000 0);
+  --color-cream-300: oklch(88.0% 0.000 0);
+  --color-reveal-sand: oklch(85.0% 0.000 0);   /* #E3CFB6 approx — panel start color */
+  --color-case-study-sand: oklch(88.5% 0.000 0); /* warm sand behind a case study — the
      backdrop cards sit on. A token because the studio canvas has to match it exactly;
      two literals would drift and the preview would quietly stop looking like the page. */
 
-  --color-ink-950: oklch(14.0% 0.018 60);
-  --color-ink-800: oklch(26.0% 0.018 60);
-  --color-ink-600: oklch(44.0% 0.016 60);
-  --color-ink-400: oklch(62.0% 0.014 60);
-  --color-ink-200: oklch(80.0% 0.010 60);
+  --color-ink-950: oklch(15.0% 0.000 0);
+  --color-ink-800: oklch(26.2% 0.000 0);
+  --color-ink-600: oklch(40.0% 0.000 0);
+  --color-ink-400: oklch(56.0% 0.000 0);
+  --color-ink-200: oklch(80.0% 0.000 0);
 
-  --color-accent-500: oklch(56.0% 0.14 42);
-  --color-accent-600: oklch(46.0% 0.13 42);
+  --color-accent-500: oklch(0.0% 0.000 0);
+  --color-accent-600: oklch(0.0% 0.000 0);
 
   /* The one REJECTION colour, added for the studio's link popover. The palette had no
      red: errors elsewhere borrow accent-600, which is fine for "uploading failed" but
@@ -86,7 +86,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      the only one of its kind on the same principle as the danger-600 colour token above — a
      palette of per-platform tints is how an editorial system slides into a brand kit.
      Stored as a base oklch; alpha comes from color-mix scaled by the cascade's --gl. */
-  --color-glow-web: oklch(48.0% 0.115 266);
+  --color-glow-web: oklch(48.0% 0.000 0);
 
   /* ⚠ THE DARK SURFACE STEP IS ~1.19 AND IT IS A DECISION, NOT A DRIFT. Three figures were on the
    table for the authored presets: their preview's own ladder produces 1.093 to 1.101, the mock
@@ -132,10 +132,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      Both declarations are deleted rather than wired up. The figure above stands as the measurement
      if an on-dark accent is ever actually needed, and it would then be added to BOTH palettes
      deliberately. `colour-census` section T is what now stops a token existing on one theme only. */
-  --color-band-dark:    oklch(16.5% 0.022 60);  /* warm near-black hero band surface */
-  --color-on-dark:      oklch(95.5% 0.013 82);  /* primary text/marks on the band */
-  --color-on-dark-muted: oklch(77.0% 0.014 74); /* labels, facts — AA-safe dimmed light */
-  --color-on-dark-quote: oklch(81.5% 0.063 49); /* the italic tagline/quote on dark — a warm peach, 10:1 on band */
+  --color-band-dark: rgb(15, 15, 15);  /* warm near-black hero band surface */
+  --color-on-dark: rgb(243, 243, 243);  /* primary text/marks on the band */
+  --color-on-dark-muted: rgb(172, 172, 172); /* labels, facts — AA-safe dimmed light */
+  --color-on-dark-quote: oklch(81.5% 0.000 0); /* the italic tagline/quote on dark — a warm peach, 10:1 on band */
 
   /* ⚠ `--color-mark` AND `--color-mark-on-dark` LIVED HERE AND ARE DELETED. THE REASONING THAT PUT
      THEM HERE IS KEPT, because a reversal whose reasoning is deleted leaves two contradictory
@@ -175,7 +175,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      token is role-scoped to the dark band and is never drawn on cream — so its light-ground figure
      is not a cost. Judged on the band alone: 60% gives 4.65 and 4.5 is the floor, a margin of .15
      on a palette that already sits inside 0.1 of five floors. 65% gives 5.74 and 6.16. */
-  --color-accent-on-dark: oklch(65.0% 0.12 42);
+  --color-accent-on-dark: oklch(95.0% 0.000 0);
 
   /* ============================================================
      TWO COLOURS THE DESIGN HAS ALWAYS USED AND THE SYSTEM NEVER HAD A WORD FOR.
@@ -200,7 +200,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      two-spellings defect sitting in the token layer. That is a deletion of its own and is recorded
      rather than fixed here, because merging two names is a change to 16+ call sites and this PR
      is byte-identical by construction. */
-  --color-text-body: oklch(38.4% 0.018 70.5);
+  --color-text-body: oklch(37.5% 0.000 0);
 
   /* The warm hairline. Six public sites draw it at five different alphas — About, Contact x3,
      SiteFooter, FooterClock — and it is 35 from `ink-600`, the nearest token, so it was never a
@@ -210,7 +210,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      different scope, so no collision — but `--blog-rule` is `color-mix(ink-950 8%)`, THEMEABLE,
      while these six were literals. The blog solved this and the public sections did not, which is
      the whole finding in one comparison. */
-  --color-rule: rgb(120, 90, 60);
+  --color-rule: oklch(48.5% 0.000 0);
 
   /* ============================================================
      ⚠ A RAMP, WHICH IS A NEW KIND OF ENTRY IN THIS NAMESPACE.
@@ -227,10 +227,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      THEY ARE NOT NEW COLOURS. They existed as `--smoke-1..4`, live and load-bearing; this brings
      them into the namespace so a theme can reach them. Values unchanged.
   ============================================================ */
-  --color-smoke-1: oklch(0.84 0.014 58 / 0.74);
-  --color-smoke-2: oklch(0.9 0.018 52 / 0.74);
-  --color-smoke-3: oklch(0.97 0.01 70 / 0.74);
-  --color-smoke-4: oklch(0.87 0.015 48 / 0.74);
+  --color-smoke-1: oklch(0.84 0.000 0 / 0.74);
+  --color-smoke-2: oklch(0.90 0.000 0 / 0.74);
+  --color-smoke-3: oklch(0.97 0.000 0 / 0.74);
+  --color-smoke-4: oklch(0.87 0.000 0 / 0.74);
 
   /* The cursor-following glow on the light ground. Its own colour rather than a misspelling of one
      — #327's finding, taking the naming route. The original measurement read "22 from `accent-400`,
@@ -280,16 +280,16 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      ⚠ AND IT IS THE TERM THAT BLOCKS AN ACHROMATIC PALETTE. At chroma 0 the -0.011 goes NEGATIVE and
      clamps, collapsing the four tones onto 4.0 L units alone where every shipped palette carries the
      separation in lightness AND chroma together. */
-  --vessel-dark-n: 5%;
-  --color-vessel-ink:     rgb(23, 20, 18);
-  --color-vessel-capsule: rgb(222, 213, 199);
-  --color-vessel-glass:  oklch(94% 0.025 40);
-  --color-vessel-pearl:  oklch(96% 0.012 40);
-  --color-vessel-shadow: oklch(92% 0.02 40);
+  --vessel-dark-n: 4%;
+  --color-vessel-ink: rgb(12, 12, 12);
+  --color-vessel-capsule: rgb(199, 199, 199);
+  --color-vessel-glass: oklch(94.5% 0.000 0);
+  --color-vessel-pearl: oklch(96.5% 0.000 0);
+  --color-vessel-shadow: oklch(92.5% 0.000 0);
 
-  --color-vessel-wave: oklch(93% 0.012 62);
+  --color-vessel-wave: oklch(93.5% 0.000 0);
 
-  --color-glow-paper: oklch(63% 0.13 47 / 0.20);
+  --color-glow-paper: oklch(0.63 0.000 0 / 0.2);
 
   /* The vessel's bounce highlight. ⚠ IT HAS NO ALPHA, which is why the wash reasoning that snapped
      the glows never reached it: at opacity 1 the composite IS the declaration, so its 10 from
@@ -312,7 +312,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --vessel-pearl:  var(--color-vessel-pearl);
   --vessel-capsule: var(--color-vessel-capsule);
   --vessel-ink:    var(--color-vessel-ink);
-  --color-bounce: oklch(99.5% 0.005 80);
+  --color-bounce: oklch(99.5% 0.000 0);
 
   /* Status — muted warm sage for the studio "Live" pill (only green in the set) */
   --color-success-50:  oklch(94.5% 0.030 145);
@@ -468,7 +468,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      ⚠ AND THE FROZEN STUDIO PALETTE ALREADY CHOSE. `--color-studio-text-subtle` exists. Deleting
      the public `text-subtle` instead would have left the frozen token with no public counterpart —
      the exact asymmetry that made `studio-ground` invisible to C1's pairing in 6a. */
-  --color-text-subtle:   oklch(51% 0.016 66);
+  --color-text-subtle: oklch(48.7% 0.000 0);
   --color-accent:        var(--color-accent-500);
 
   /* ⚠ `accent-text` — THE ACCENT AT A LIGHTNESS THAT CLEARS 4.5 AS TEXT. `accent` is the same brand
@@ -739,14 +739,14 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    anywhere below a theme that is not cream.
 
    ⚠ THE ARGUMENT BELOW USED TO SETTLE THIS, AND IT WAS RIGHT ABOUT THE ROOT ONLY. @theme holds
-   cream, so a page with no data-theme renders cream and a [data-theme="cream"] block would have
+   cream, so a page with no data-theme renders the default and an explicit block for it would have
    been a second copy. That reasoning covered the DOCUMENT. It did not cover a SCOPED override, and
    the studio theme switcher is exactly one — its swatch grid sets data-theme on a span to preview
    each palette side by side.
 
-   With harbour published, data-theme="cream" on that span MATCHED NOTHING, so the cream row
+   With another palette published, a default-named data-theme on that span MATCHED NOTHING, so its row
    inherited harbour and both palettes previewed identically. That is the bug the owner reported.
-   Measured, not reasoned: under a harbour root a data-theme="cream" probe resolved accent-500 to
+   Measured, not reasoned: under a non-default root, a default-named probe resolved accent-500 to
    oklch(0.52 0.12 168) — harbour's value.
 
    ⚠ AND cream-verify WAS INHERITING TOO, so the twin's "byte-identical to the default" was holding
@@ -759,43 +759,67 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    the VALUES @theme gives them. A copy that cannot silently disagree is not the copy that objection
    was about.
 ============================================================================================ */
-[data-theme="cream"],
-[data-theme="cream-verify"] {
-  --color-cream-50: oklch(98.5% 0.012 80);
-  --color-cream-100: oklch(96.8% 0.018 78);
-  --color-cream-200: oklch(93.5% 0.025 76);
-  --color-cream-300: oklch(88.0% 0.032 74);
-  --color-canvas: oklch(92.0% 0.022 78);
-  --color-ink-950: oklch(14.0% 0.018 60);
-  --color-ink-800: oklch(26.0% 0.018 60);
-  --color-ink-600: oklch(44.0% 0.016 60);
-  --color-ink-400: oklch(62.0% 0.014 60);
-  --color-ink-200: oklch(80.0% 0.010 60);
-  --color-accent-500: oklch(56.0% 0.14 42);
-  --color-accent-600: oklch(46.0% 0.13 42);
-  --color-text-subtle: oklch(51% 0.016 66);
-  --color-text-body: oklch(38.4% 0.018 70.5);
-  --color-rule: rgb(120, 90, 60);
-  --color-band-dark: oklch(16.5% 0.022 60);
-  --color-on-dark: oklch(95.5% 0.013 82);
-  --color-on-dark-muted: oklch(77.0% 0.014 74);
-  --color-on-dark-quote: oklch(81.5% 0.063 49);
-  --color-accent-on-dark: oklch(65.0% 0.12 42);
-  --color-smoke-1: oklch(0.84 0.014 58 / 0.74);
-  --color-smoke-2: oklch(0.9 0.018 52 / 0.74);
-  --color-smoke-3: oklch(0.97 0.01 70 / 0.74);
-  --color-smoke-4: oklch(0.87 0.015 48 / 0.74);
-  --color-vessel-ink: rgb(23, 20, 18);
-  --color-vessel-capsule: rgb(222, 213, 199);
-  --color-vessel-glass: oklch(94% 0.025 40);
-  --color-vessel-pearl: oklch(96% 0.012 40);
-  --color-vessel-shadow: oklch(92% 0.02 40);
-  --color-vessel-wave: oklch(93% 0.012 62);
-  --color-glow-paper: oklch(63% 0.13 47 / 0.20);
-  --color-bounce: oklch(99.5% 0.005 80);
-  --color-reveal-sand: oklch(85.0% 0.040 67);
-  --color-case-study-sand: oklch(88.5% 0.030 80);
-  --color-glow-web: oklch(48.0% 0.115 266);
+/* ⚠ THE DEFAULT SLOT, AND IT IS A RENAME RATHER THAN A DELETION. `cream` held this position and
+   the palette proposal is explicit that the fail-closed target is renamed, not removed — every
+   unknown theme name resolves here, so the slot must always hold a real palette.
+
+   ⚠ AND `@theme` WAS LEFT ALONE, WHICH IS THE MEASUREMENT THAT MADE THIS STAGE SMALL. It carries
+   65 colour tokens and a palette overrides 35. The 30 that fall through are the semantic status
+   colours and the FROZEN `--color-studio-*` set, which are palette-independent by design — so
+   nothing cream-flavoured leaks into a public page through the gap. Rewriting @theme would have
+   been a much larger edit for no rendered difference. */
+[data-theme="drawing-office"],
+[data-theme="drawing-office-verify"] {
+  --vessel-dark-n: 4%;
+  --color-cream-50:          oklch(98.5% 0.000 0);
+  --color-cream-100:         oklch(96.8% 0.000 0);
+  --color-cream-200:         oklch(93.5% 0.000 0);
+  --color-cream-300:         oklch(88.0% 0.000 0);
+  /* ⚠ 95.5% RATHER THAN THE LADDER'S 92.0%, AND THE LEVER IS LIGHTNESS BECAUSE THERE IS NO HUE.
+     At 92.0% this ground measures 12.04 dE from orchid, 12.08 from cerise and 12.33 from fern
+     against a 12.5 floor, so the band refuses it. Every other palette separates by hue at the same
+     lightness; an achromatic one has only the L axis left.
+
+     ⚠ AND THE CURVE IS NOT MONOTONIC, SO THIS IS TAKEN RATHER THAN TUNED. 93.0% measures 9.43,
+     WORSE than 92.0%, because the achromatic point passes CLOSEST to the chromatic grounds partway
+     up before it starts moving away. Nudging this value by eye would have made it worse and looked
+     like progress. Swept, not guessed. 95.5% clears the tightest pair by 3.78.
+
+     ⚠ IT INVERTS THE ELEVATION AND THAT IS CORRECT HERE. Canvas now sits ABOVE cream-200, so a
+     panel is recessed from the page rather than raised onto it. On every other palette the page is
+     the darkest surface and cards lift off it. On a sheet the paper is the brightest thing in the
+     room and the chrome sits back from it, which is what this direction depicts. */
+  --color-canvas:            oklch(95.5% 0.000 0);
+  --color-ink-950:           oklch(15.0% 0.000 0);
+  --color-ink-800:           oklch(26.2% 0.000 0);
+  --color-ink-600:           oklch(40.0% 0.000 0);
+  --color-ink-400:           oklch(56.0% 0.000 0);
+  --color-ink-200:           oklch(80.0% 0.000 0);
+  --color-accent-500:        oklch(0.0% 0.000 0);
+  --color-accent-600:        oklch(0.0% 0.000 0);
+  --color-text-subtle:       oklch(48.7% 0.000 0);
+  --color-text-body:         oklch(37.5% 0.000 0);
+  --color-rule:              oklch(48.5% 0.000 0);
+  --color-band-dark:         rgb(15, 15, 15);
+  --color-on-dark:           rgb(243, 243, 243);
+  --color-on-dark-muted:     rgb(172, 172, 172);
+  --color-on-dark-quote:     oklch(81.5% 0.000 0);
+  --color-accent-on-dark:    oklch(95.0% 0.000 0);
+  --color-smoke-1:           oklch(0.84 0.000 0 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.000 0 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.000 0 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.000 0 / 0.74);
+  --color-vessel-ink:        rgb(12, 12, 12);
+  --color-vessel-capsule:    rgb(199, 199, 199);
+  --color-vessel-glass:      oklch(94.5% 0.000 0);
+  --color-vessel-pearl:      oklch(96.5% 0.000 0);
+  --color-vessel-shadow:     oklch(92.5% 0.000 0);
+  --color-vessel-wave:       oklch(93.5% 0.000 0);
+  --color-glow-paper:        oklch(0.63 0.000 0 / 0.2);
+  --color-bounce:            oklch(99.5% 0.000 0);
+  --color-reveal-sand:       oklch(85.0% 0.000 0);
+  --color-case-study-sand:   oklch(88.5% 0.000 0);
+  --color-glow-web:          oklch(48.0% 0.000 0);
 }
 
 /* ============================================================================================
@@ -803,7 +827,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
 
    ⚠ THE BLOCKS ARRIVE NOW BECAUSE NOW THEY CARRY INFORMATION. 6b shipped `data-theme` on `<html>`
    with no block at all, and that was sequencing rather than an omission: with one palette a
-   `[data-theme="cream"]` block would have held a second copy of values `@theme` already declares,
+   an explicit block for the default would have held a second copy of values `@theme` already declares,
    and this repo deletes second copies. It is also why 6b's cross-theme diff showed `css__all`
    IDENTICAL — an expected consequence of shipping no blocks, not a suspicious result.
 
@@ -1101,17 +1125,17 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-text-subtle:       oklch(48.7% 0.018 44);
   --color-text-body:         oklch(37.5% 0.015 44);
   --color-rule:              oklch(48.5% 0.023 44);
-  --color-band-dark:         rgb(20, 13, 10);  /* authored — preview rung `bg` */
-  --color-on-dark:           rgb(246, 243, 241);  /* authored — preview rung `t1` */
-  --color-on-dark-muted:     rgb(177, 171, 168);  /* authored — preview rung `t3` */
-  --color-on-dark-quote:     rgb(250, 157, 99);  /* authored — preview rung `aTxt` */
-  --color-accent-on-dark:    rgb(232, 126, 52);  /* authored — preview rung `a` */
+  --color-band-dark: rgb(20, 13, 10);  /* authored — preview rung `bg` */
+  --color-on-dark: rgb(246, 243, 241);  /* authored — preview rung `t1` */
+  --color-on-dark-muted: rgb(177, 171, 168);  /* authored — preview rung `t3` */
+  --color-on-dark-quote: rgb(250, 157, 99);  /* authored — preview rung `aTxt` */
+  --color-accent-on-dark: rgb(232, 126, 52);  /* authored — preview rung `a` */
   --color-smoke-1:           oklch(0.84 0.011 44 / 0.74);
   --color-smoke-2:           oklch(0.90 0.011 44 / 0.74);
   --color-smoke-3:           oklch(0.97 0.008 44 / 0.74);
   --color-smoke-4:           oklch(0.87 0.010 44 / 0.74);
-  --color-vessel-ink:        rgb(20, 9, 6);
-  --color-vessel-capsule:    rgb(203, 198, 196);
+  --color-vessel-ink: rgb(20, 9, 6);
+  --color-vessel-capsule: rgb(203, 198, 196);
   --color-vessel-glass:      oklch(94.5% 0.016 44);
   --color-vessel-pearl: oklch(96.5% 0.005 44);
   --color-vessel-shadow:     oklch(92.5% 0.012 44);
@@ -1162,17 +1186,17 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-text-subtle:       oklch(48.7% 0.030 282);
   --color-text-body:         oklch(37.5% 0.026 282);
   --color-rule:              oklch(48.5% 0.039 282);
-  --color-band-dark:         rgb(13, 14, 25);  /* authored — preview rung `bg` */
-  --color-on-dark:           rgb(242, 243, 248);  /* authored — preview rung `t1` */
-  --color-on-dark-muted:     rgb(171, 171, 181);  /* authored — preview rung `t3` */
-  --color-on-dark-quote:     rgb(192, 163, 255);  /* authored — preview rung `aTxt` */
-  --color-accent-on-dark:    rgb(169, 132, 251);  /* authored — preview rung `a` */
+  --color-band-dark: rgb(13, 14, 25);  /* authored — preview rung `bg` */
+  --color-on-dark: rgb(242, 243, 248);  /* authored — preview rung `t1` */
+  --color-on-dark-muted: rgb(171, 171, 181);  /* authored — preview rung `t3` */
+  --color-on-dark-quote: rgb(192, 163, 255);  /* authored — preview rung `aTxt` */
+  --color-accent-on-dark: rgb(169, 132, 251);  /* authored — preview rung `a` */
   --color-smoke-1:           oklch(0.84 0.020 282 / 0.74);
   --color-smoke-2:           oklch(0.90 0.020 282 / 0.74);
   --color-smoke-3:           oklch(0.97 0.014 282 / 0.74);
   --color-smoke-4:           oklch(0.87 0.017 282 / 0.74);
-  --color-vessel-ink:        rgb(10, 10, 27);
-  --color-vessel-capsule:    rgb(198, 198, 207);
+  --color-vessel-ink: rgb(10, 10, 27);
+  --color-vessel-capsule: rgb(198, 198, 207);
   --color-vessel-glass:      oklch(94.5% 0.027 282);
   --color-vessel-pearl: oklch(96.5% 0.016 282);
   --color-vessel-shadow:     oklch(92.5% 0.021 282);
@@ -1236,8 +1260,8 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-band-dark:         rgb(15, 15, 15);  /* authored — preview rung `bg` */
   --color-on-dark:           rgb(243, 243, 243);  /* authored — preview rung `t1` */
   --color-on-dark-muted:     rgb(172, 172, 172);  /* authored — preview rung `t3` */
-  --color-on-dark-quote:     rgb(157, 200, 96);  /* authored — preview rung `aTxt` */
-  --color-accent-on-dark:    rgb(128, 177, 44);  /* authored — preview rung `a` */
+  --color-on-dark-quote: rgb(157, 200, 96);  /* authored — preview rung `aTxt` */
+  --color-accent-on-dark: rgb(128, 177, 44);  /* authored — preview rung `a` */
   --color-smoke-1:           oklch(0.84 0.000 0 / 0.74);
   --color-smoke-2:           oklch(0.90 0.000 0 / 0.74);
   --color-smoke-3:           oklch(0.97 0.000 0 / 0.74);
@@ -1303,59 +1327,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    measures 1.13, which is the system's figure and not a shortfall. A drawing grammar wanting an
    OBJECT line at the 3.0 non-text floor needs its own token; it is not this one, and reaching for
    `border` to get it would darken every bordered surface on the site.
-============================================================================================ */
-[data-theme="drawing-office"] {
-  --vessel-dark-n: 4%;
-  --color-cream-50:          oklch(98.5% 0.000 0);
-  --color-cream-100:         oklch(96.8% 0.000 0);
-  --color-cream-200:         oklch(93.5% 0.000 0);
-  --color-cream-300:         oklch(88.0% 0.000 0);
-  /* ⚠ 95.5% RATHER THAN THE LADDER'S 92.0%, AND THE LEVER IS LIGHTNESS BECAUSE THERE IS NO HUE.
-     At 92.0% this ground measures 12.04 dE from orchid, 12.08 from cerise and 12.33 from fern
-     against a 12.5 floor, so the band refuses it. Every other palette separates by hue at the same
-     lightness; an achromatic one has only the L axis left.
-
-     ⚠ AND THE CURVE IS NOT MONOTONIC, SO THIS IS TAKEN RATHER THAN TUNED. 93.0% measures 9.43,
-     WORSE than 92.0%, because the achromatic point passes CLOSEST to the chromatic grounds partway
-     up before it starts moving away. Nudging this value by eye would have made it worse and looked
-     like progress. Swept, not guessed. 95.5% clears the tightest pair by 3.78.
-
-     ⚠ IT INVERTS THE ELEVATION AND THAT IS CORRECT HERE. Canvas now sits ABOVE cream-200, so a
-     panel is recessed from the page rather than raised onto it. On every other palette the page is
-     the darkest surface and cards lift off it. On a sheet the paper is the brightest thing in the
-     room and the chrome sits back from it, which is what this direction depicts. */
-  --color-canvas:            oklch(95.5% 0.000 0);
-  --color-ink-950:           oklch(15.0% 0.000 0);
-  --color-ink-800:           oklch(26.2% 0.000 0);
-  --color-ink-600:           oklch(40.0% 0.000 0);
-  --color-ink-400:           oklch(56.0% 0.000 0);
-  --color-ink-200:           oklch(80.0% 0.000 0);
-  --color-accent-500:        oklch(0.0% 0.000 0);
-  --color-accent-600:        oklch(0.0% 0.000 0);
-  --color-text-subtle:       oklch(48.7% 0.000 0);
-  --color-text-body:         oklch(37.5% 0.000 0);
-  --color-rule:              oklch(48.5% 0.000 0);
-  --color-band-dark:         rgb(15, 15, 15);
-  --color-on-dark:           rgb(243, 243, 243);
-  --color-on-dark-muted:     rgb(172, 172, 172);
-  --color-on-dark-quote:     oklch(81.5% 0.000 0);
-  --color-accent-on-dark:    oklch(95.0% 0.000 0);
-  --color-smoke-1:           oklch(0.84 0.000 0 / 0.74);
-  --color-smoke-2:           oklch(0.90 0.000 0 / 0.74);
-  --color-smoke-3:           oklch(0.97 0.000 0 / 0.74);
-  --color-smoke-4:           oklch(0.87 0.000 0 / 0.74);
-  --color-vessel-ink:        rgb(12, 12, 12);
-  --color-vessel-capsule:    rgb(199, 199, 199);
-  --color-vessel-glass:      oklch(94.5% 0.000 0);
-  --color-vessel-pearl:      oklch(96.5% 0.000 0);
-  --color-vessel-shadow:     oklch(92.5% 0.000 0);
-  --color-vessel-wave:       oklch(93.5% 0.000 0);
-  --color-glow-paper:        oklch(0.63 0.000 0 / 0.2);
-  --color-bounce:            oklch(99.5% 0.000 0);
-  --color-reveal-sand:       oklch(85.0% 0.000 0);
-  --color-case-study-sand:   oklch(88.5% 0.000 0);
-  --color-glow-web:          oklch(48.0% 0.000 0);
-}
 /* ─────────────────────────────────────────────────────────────────────────────
    `redline` — A MARKED-UP PROOF. Drawing Office's sheet with ONE signal that has a real job.
 
@@ -1396,17 +1367,17 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-text-subtle:       oklch(48.7% 0.000 0);
   --color-text-body:         oklch(37.5% 0.000 0);
   --color-rule:              oklch(48.5% 0.000 0);
-  --color-band-dark:         rgb(20, 17, 16);
-  --color-on-dark:           rgb(244, 240, 236);
-  --color-on-dark-muted:     rgb(174, 168, 163);
+  --color-band-dark: rgb(20, 17, 16);
+  --color-on-dark: rgb(244, 240, 236);
+  --color-on-dark-muted: rgb(174, 168, 163);
   --color-on-dark-quote:     oklch(81.5% 0.008 70);
   --color-accent-on-dark:    oklch(72.0% 0.140 27);
   --color-smoke-1:           oklch(0.84 0.010 70 / 0.74);
   --color-smoke-2:           oklch(0.90 0.010 70 / 0.74);
   --color-smoke-3:           oklch(0.97 0.008 70 / 0.74);
   --color-smoke-4:           oklch(0.87 0.010 70 / 0.74);
-  --color-vessel-ink:        rgb(14, 12, 11);
-  --color-vessel-capsule:    rgb(202, 195, 188);
+  --color-vessel-ink: rgb(14, 12, 11);
+  --color-vessel-capsule: rgb(202, 195, 188);
   /* `pearl` against `glass` is the vessel's own relation — dL 2.00, dH 0.00, dC -0.009 to -0.013 —
      and it is asserted by `theme` section V. The reference is glass, not canvas, which this record
      records three plausible refutations of. */

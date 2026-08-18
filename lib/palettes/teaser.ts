@@ -106,7 +106,7 @@ const TEASER_COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six"
    palette does not, since drawing-office carries no accent hue at all. Kept rather than rewritten,
    because the argument for CURATING five instead of deriving them is unchanged and is the half
    worth keeping. */
-export const TEASER_THEMES = ["cream", "drawing-office", "ink-flare", "nocturne", "basalt"] as const;
+export const TEASER_THEMES = ["drawing-office", "redline", "ink-flare", "nocturne", "basalt"] as const;
 
 export type TeaserTheme = (typeof TEASER_THEMES)[number];
 

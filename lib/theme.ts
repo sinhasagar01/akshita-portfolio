@@ -16,10 +16,10 @@
 // `SITE_SETTINGS_FIELD_ORDER` already takes toward `keystatic.config.ts`.
 
 /** The theme that ships today, and the value every failure resolves to. */
-export const DEFAULT_THEME = "cream";
+export const DEFAULT_THEME = "drawing-office";
 
 /* ============================================================================================
-   ⚠ `cream-verify` IS A PERMANENT CONTROL. DO NOT DELETE IT. ITS PURPOSE DOES NOT EXPIRE.
+   ⚠ `drawing-office-verify` IS A PERMANENT CONTROL. DO NOT DELETE IT. ITS PURPOSE DOES NOT EXPIRE.
 
    ⚠ AND THE PREVIOUS VERSION OF THIS COMMENT SAID THE OPPOSITE, WHICH IS WHY THE CHANGE IS WRITTEN
    HERE RATHER THAN ONLY IN THE RECORD. It shipped as a verification FIXTURE with a deletion
@@ -44,7 +44,7 @@ export const DEFAULT_THEME = "cream";
    a control that outlives its purpose becoming a third theme nobody meant to ship. It is
    resolvable, which is what the gates need, and unpublishable, which is what keeps it a control.
 ============================================================================================ */
-export const VERIFY_THEME = "cream-verify";
+export const VERIFY_THEME = "drawing-office-verify";
 
 /** A real second palette. Cool ground at hue 233, teal accent at 168 — a 155-degree swing from
  *  cream, chosen to TEST the light-ground constraint rather than to sit safely inside it.
@@ -109,12 +109,11 @@ export const NINTH_THEME = "basalt";
    IT IS FIVE VALUES FROM `basalt`, WHICH IS WHY IT IS ITS COUNTERPART. Basalt already carried a
    fully achromatic light ladder that nothing on a basalt page drew, and this is that ladder given
    a page. Same lightnesses, so the ratios are basalt's rather than new. */
-export const TENTH_THEME = "drawing-office";
 /* `redline` — Drawing Office marked up. One signal doing correction, so it needs no new role. */
 const ELEVENTH_THEME = "redline";
 
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, TENTH_THEME, ELEVENTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, ELEVENTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -160,7 +159,6 @@ export const GROUND_TOKEN: Record<GroundClass, string> = {
 };
 
 export const THEME_GROUND: Record<string, GroundClass> = {
-  [DEFAULT_THEME]: "light",
   /* ⚠ THE ONLY DARK MEMBER. Its page ground is `band-dark`, not `canvas`. */
   [SIXTH_THEME]: "dark",
   /* Declared, never inferred — a classifier reading a value files a dark palette in the light band. */
@@ -169,7 +167,7 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   [NINTH_THEME]: "dark",
   /* Light, and the only member of that class carrying zero chroma. Its page ground is `canvas`
      like every other light palette; what it does not have is a hue anywhere. */
-  [TENTH_THEME]: "light",
+  [DEFAULT_THEME]: "light",
   /* Warm proof paper. Light for the same reason drawing-office is — the page ground is `canvas`. */
   [ELEVENTH_THEME]: "light",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
@@ -233,12 +231,11 @@ export const THEME_GROUND: Record<string, GroundClass> = {
    silently acquires one nobody chose, and it would read as a decision in the interface. A missing
    entry fails instead.
 
-   ⚠ AND THE TWIN IS DELIBERATELY ABSENT. `cream-verify` is a control, never selectable and never
+   ⚠ AND THE TWIN IS DELIBERATELY ABSENT. `drawing-office-verify` is a control, never selectable and never
    shown, so giving it a counterpart would add a sixth light member and break the count the
    structure rests on. The domain is the REAL palettes.
 ============================================================================================ */
 export const THEME_COUNTERPART: Record<string, string> = {
-  [DEFAULT_THEME]: SEVENTH_THEME,
   /* ⚠ THE UNRECIPROCATED ONE, AND IT IS FORCED RATHER THAN CHOSEN — see the pigeonhole above.
    * `ink-flare` points back at cream, which is the closer accent match at 10 degrees against 48. */
   /* ⚠ REPOINTED BY THE RETIREMENT. sapphire and nocturne answered to harbour and orchid, which
@@ -252,12 +249,12 @@ export const THEME_COUNTERPART: Record<string, string> = {
   [EIGHTH_THEME]: ELEVENTH_THEME,
   /* basalt keeps drawing-office, which its own note already calls the exact rather than nearest
      match — the two share a ladder and both carry zero chroma. */
-  [NINTH_THEME]: TENTH_THEME,
+  [NINTH_THEME]: DEFAULT_THEME,
   /* ⚠ THE ONE PAIR WHERE THE MATCH IS EXACT RATHER THAN NEAREST. Every other entry pairs on accent
      hue distance and the pigeonhole above forces one unreciprocated. These two share a ladder and
      both carry zero chroma, so there is no hue to be near — basalt IS this palette on a dark
      ground. Unreciprocated by the same rule as cerise, since basalt answers to fern on accent. */
-  [TENTH_THEME]: NINTH_THEME,
+  [DEFAULT_THEME]: NINTH_THEME,
   /* ⚠ REDLINE'S RED SITS AT h27 AND `ink-flare` IS THE NEAREST DARK ACCENT AT h52, 25 degrees away.
      Unreciprocated by the same pigeonhole rule as cerise — ink-flare answers to cream, which is
      closer still. The artifact's own map pairs Redline with Machine Room, and that pair can only
@@ -275,7 +272,7 @@ export type ThemeName = (typeof THEME_NAMES)[number];
    from an oversight, and the twin already taught us that an unexplained exclusion is what a future
    cleanup deletes.
 
-   `cream-verify` — a permanent control. Never selectable, ever. See its block above.
+   `drawing-office-verify` — a permanent control. Never selectable, ever. See its block above.
 
    ⚠ `harbour` WAS HERE AND IS NOT ANY MORE. It shipped unselectable because the render found 14
    warm colours that no theme could move, and it unholds because 12 of them now do — two were
@@ -449,7 +446,6 @@ export function unselectableReason(name: string): string | undefined {
    check did not exist for `THEME_SPLASH` either; it now covers both, which is how a hand-kept
    resolved value is allowed to be hand-kept. */
 export const THEME_OG: Record<string, { cream: string; ink: string; muted: string; accent: string }> = {
-  [DEFAULT_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
   [SIXTH_THEME]: { cream: "#f7fbff", ink: "#040c16", muted: "#404952", accent: "#495bcb" },
   [SEVENTH_THEME]: { cream: "#fef9f7", ink: "#130804", muted: "#504540", accent: "#a24e02" },
   [EIGHTH_THEME]: { cream: "#f9faff", ink: "#09081b", muted: "#454658", accent: "#734fb9" },
@@ -458,22 +454,23 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
      palettes read the same achromatic ladder, so `cream-50`, `ink-950` and `ink-600` resolve to
      the same paint. Only the accent differs, and it differs to the one value an achromatic palette
      can give it. */
-  [TENTH_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
+  [DEFAULT_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
   [ELEVENTH_THEME]: { cream: "#fff9f3", ink: "#0b0b0b", muted: "#484848", accent: "#992c28" },
   /* Byte-identical to the default, like every other value the control holds. */
-  [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
+  /* ⚠ THE TWIN IS A CLONE OF WHATEVER THE DEFAULT IS, so it holds the DEFAULT'S values rather
+     than a copy of one particular palette's. It carried cream's until the default moved. */
+  [VERIFY_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
 };
 
 export const THEME_SPLASH: Record<string, string> = {
-  [DEFAULT_THEME]: "#FEF9F1",
   [SIXTH_THEME]: "#F7FBFF",
   [SEVENTH_THEME]: "#FEF9F7",
   [EIGHTH_THEME]: "#F9FAFF",
   [NINTH_THEME]: "#FAFAFA",
-  [TENTH_THEME]: "#FAFAFA",
+  [DEFAULT_THEME]: "#FAFAFA",
   [ELEVENTH_THEME]: "#FFF9F3",
   /* Byte-identical to the default, like every other value the control holds. */
-  [VERIFY_THEME]: "#FEF9F1",
+  [VERIFY_THEME]: "#FAFAFA",
 };
 
 /**

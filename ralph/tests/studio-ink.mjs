@@ -101,8 +101,13 @@ t("B2: the cream sidebar background still ships below `lg`",
 for (const invented of ["--on-ink", "--color-on-ink"]) {
   t(`C1: \`${invented}\` was never added to the theme`, globals.includes(invented), false);
 }
-t("C1: ink-200 is a pre-existing token, not one this PR introduced",
-  /--color-ink-200:\s*oklch\(80\.0% 0\.010 60\)/.test(globals), true);
+  /* ⚠ THIS PINNED CREAM'S EXACT VALUE, AND THE CLAIM IS ABOUT THE TOKEN. `oklch(80.0% 0.010 60)`
+     was the default palette's ink-200 when the row was written; the default is drawing-office now
+     and declares `oklch(80.0% 0.000 0)`. The row exists to say the token was NOT introduced by
+     that PR, which is a question about the NAME. Pinning the value made it a question about
+     whichever palette holds the default slot. */
+  t("C1: ink-200 is a pre-existing token, not one this PR introduced",
+    /--color-ink-200:/.test(globals), true);
 
 /* ================================================ D. THE 236px COUPLING
  *

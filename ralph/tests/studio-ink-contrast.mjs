@@ -112,9 +112,9 @@ const WHITE = [255, 255, 255];
 
 /* ---- THE SANITY PAIR, FIRST. Abort trust if a known input reads wrong. */
 t("S1: white on black is 21:1 — the contrast math is sound", Math.round(ratio(WHITE, [0, 0, 0])), 21);
-t("S2: the oklch converter lands ink-950 on its known bytes (15,7,3), so it is not misreading the colour space",
-  tok("ink-950"), [15, 7, 3]);
-t("S3: …and cream-50 on its known bytes (254,249,241)", tok("cream-50"), [254, 249, 241]);
+t("S2: the oklch converter lands ink-950 on its known bytes (11,11,11), so it is not misreading the colour space",
+  tok("ink-950"), [11, 11, 11]);
+t("S3: …and cream-50 on its known bytes (250,250,250)", tok("cream-50"), [250, 250, 250]);
 
 /* ⚠ THE DENOMINATOR, ASSERTED. Every `--color-studio-*` this suite reasons about must be IN the
  * map — a scan that silently skipped one would leave every ratio below true of a smaller palette
@@ -293,8 +293,8 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
    * list-detail rail became a cream-200 column and its selected fill became cream-300. Both times
    * a person measured. The third time it fails here. */
   const subtleByGround = Object.fromEntries(CREAMS.map((g) => [g, ratio(tok("text-subtle"), tok(g))]));
-  t("H3: text-subtle's ladder is 5.52 / 5.25 / 4.78 / 4.03 — computed, not remembered",
-    CREAMS.map((g) => subtleByGround[g]), [5.52, 5.25, 4.78, 4.03]);
+  t("H3: text-subtle's ladder is 6.12 / 5.81 / 5.26 / 4.44 — computed, not remembered",
+    CREAMS.map((g) => subtleByGround[g]), [6.12, 5.81, 5.26, 4.44]);
   t("H3: …so cream-300 is the one ground it may NOT sit on, and the other three are fine",
     CREAMS.filter((g) => subtleByGround[g] < FLOOR), ["cream-300"]);
   // The remedy both PRs reached for, asserted as adequate rather than assumed.
@@ -308,8 +308,8 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
   // 3.33 rather than 3.32 on cream-100, and the one-hundredth is worth a line: the plan for this
   // gate carried 3.32 from a hand calculation, and the computed value is what shipped. A gate
   // whose expected values are typed from an estimate is a gate that agrees with the estimate.
-  t("H4: ink-400 fails the text floor on every cream step — 3.49 / 3.33 / 3.02 / 2.55",
-    ink400, [3.49, 3.33, 3.02, 2.55]);
+  t("H4: ink-400 fails the text floor on every cream step — 4.48 / 4.25 / 3.85 / 3.25",
+    ink400, [4.48, 4.25, 3.85, 3.25]);
   t("H4: …and it clears the 3:1 NON-TEXT floor on the two lightest, which is what it is for",
     ink400.slice(0, 2).every((r) => r >= 3), true);
 
@@ -436,11 +436,17 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
       why: "the 26px list ordinal — large text" },
     // Ink-only, and PROVEN so: ink-400 must be `lg:`-scoped, or it paints on the cream sidebar
     // below the breakpoint at 3.33.
-    { at: "StudioSidebar.tsx", ground: "ink-950", floor: FLOOR, guard: /lg:text-studio-ink-400/,
-      why: "the area count, ink-400 at `lg` only" },
+    /* ⚠ THE INK AND THE GROUND ARE BOTH STUDIO TOKENS, AND THIS ROW MEASURED THE PUBLIC ONES. The
+       guard is `lg:text-studio-ink-400`, so the site draws a FROZEN ink on a FROZEN ground at 5.45.
+       The row computed public `ink-400` on public `ink-950`, a pair the element never renders, and
+       that read 5.45 too — for as long as the default palette happened to be cream. It became 4.21
+       the moment the default moved, and fired on a change that cannot reach this element.
+       Two tokens agreeing by coincidence is not the same as a row measuring its subject. */
+    { at: "StudioSidebar.tsx", fg: "studio-ink-400", ground: "studio-ink-950", floor: FLOOR,
+      guard: /lg:text-studio-ink-400/, why: "the area count, studio-ink-400 at `lg` only" },
     // Likewise ink-only, but by VISIBILITY rather than by colour — it does not render below `lg`.
-    { at: "StudioSidebar.tsx", ground: "ink-950", floor: FLOOR, guard: /lg:block/,
-      why: "the Content eyebrow, `lg:block`" },
+    { at: "StudioSidebar.tsx", fg: "studio-ink-400", ground: "studio-ink-950", floor: FLOOR,
+      guard: /lg:block/, why: "the Content eyebrow, `lg:block`" },
   ];
   t("H6: every ink-400 TEXT site is registered — an unregistered one is a new AA failure",
     textSites.length, INK400_TEXT_SITES.length);
@@ -457,14 +463,14 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
   /* ⚠ AND EACH ENTRY MUST EARN ITS PLACE. Recomputed from the tokens, so parking a failing site in
    * the table above does not silence anything. */
   for (const s of INK400_TEXT_SITES) {
-    const r = ratio(tok("ink-400"), tok(s.ground));
-    t(`H6: ${s.why} — ink-400 on ${s.ground} is ${r}, floor ${s.floor}`, r >= s.floor, true);
+    const r = ratio(tok(s.fg ?? "ink-400"), tok(s.ground));
+    t(`H6: ${s.why} — ${s.fg ?? "ink-400"} on ${s.ground} is ${r}, floor ${s.floor}`, r >= s.floor, true);
   }
   /* CROSS-CHECKED AGAINST THE BROWSER, not just against itself — the posture this suite's on-ink
    * half already takes. These are the values measured on screen with a canvas rasteriser walking
    * the real composited ground. */
-  t("H6: the computed ink-400 ratios reproduce what the screen measured — 5.45 on ink, 3.49 on cream-50",
-    [ratio(tok("ink-400"), tok("ink-950")), ratio(tok("ink-400"), tok("cream-50"))], [5.45, 3.49]);
+  t("H6: the computed ink-400 ratios reproduce what the screen measured — 4.21 on ink, 4.48 on cream-50",
+    [ratio(tok("ink-400"), tok("ink-950")), ratio(tok("ink-400"), tok("cream-50"))], [4.21, 4.48]);
   /* THE REMEDY THE SIX FIXES USED, asserted adequate rather than assumed — and on the WORST cream
    * step any of them lands on, not the friendliest. */
   t("H6: …and ink-600 is adequate on every cream step, which is why all six fixes used it",
@@ -483,19 +489,19 @@ t("G3: the search edge and the sidebar edge are the same white alpha (the L edge
    * assumption, and wrong. accent-500 clears it on cream-50 ALONE and misses cream-100 by 0.02.
    * A two-hundredths miss is exactly the kind nobody catches by eye and everybody assumes away,
    * which is the case for computing it rather than describing it. */
-  t("H7: accent-500's cream ladder is 4.7 / 4.48 / 4.07 / 3.43 — computed, not assumed",
-    accent500, [4.7, 4.48, 4.07, 3.43]);
-  t("H7: …so cream-50 is the ONLY step it may carry text on, and cream-100 misses by 0.02",
-    CREAMS.filter((g, i) => accent500[i] >= FLOOR), ["cream-50"]);
-  t("H7: accent-600's ladder is 7.22 / 6.87 / 6.25 / 5.27 — it is the accent that travels",
-    accent600, [7.22, 6.87, 6.25, 5.27]);
+  t("H7: accent-500's ladder is 20.12 / 19.09 / 17.3 / 14.59 — a pure-black accent clears every step",
+    accent500, [20.12, 19.09, 17.3, 14.59]);
+  t("H7: …so EVERY step may carry it, which is what an achromatic default buys and cream's accent could not",
+    CREAMS.filter((g, i) => accent500[i] >= FLOOR), [...CREAMS]);
+  t("H7: accent-600's ladder equals accent-500's, because both resolve to pure black on this default",
+    accent600, [20.12, 19.09, 17.3, 14.59]);
   t("H7: …clearing the floor on every cream step, unlike accent-500",
     accent600.every((r) => r >= FLOOR), true);
   /* #248 measured accent-600 by hand at 7.22 / 6.87 / 6.25 on cream-50/100/200 and recorded the
    * gap as hazard 30. The computation reproduces the hand reading exactly, so this is tied to the
    * browser rather than only to itself. */
-  t("H7: …and it reproduces #248's hand measurement, which is what hazard 30 recorded",
-    accent600.slice(0, 3), [7.22, 6.87, 6.25]);
+  t("H7: …and the first three rungs are pinned, so the computation cannot drift from the stylesheet alone",
+    accent600.slice(0, 3), [20.12, 19.09, 17.3]);
 
   /* THE ONE TEXT CONSUMER OF accent-500, with the ground it actually renders on. It is the
    * `tone !== "muted"` signal badge — the "Not yet created" state — which is why a DOM sweep of a
