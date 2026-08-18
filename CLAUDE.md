@@ -214,6 +214,41 @@ board that cannot be read is a board that gets batched, which is how a fix rides
 gates.
 
 
+- **⚠ BOARDED: `reveal-sand` IS THE SAME ABSOLUTE AS `case-study-sand` WAS, AND IT WAS SCOPED OUT OF
+  THE FIX ON PURPOSE.** It is pinned at `oklch(85.0% …)` in `@theme` and in six scoped blocks by the
+  identical hand, so it holds its distance from nothing in exactly the same way — 10.5 points below
+  drawing-office's canvas and **13.45 below redline's sheet**.
+
+  **IT IS QUIETER BECAUSE IT ONLY SHOWS FOR THE SWEEP.** `.reveal-panel` starts at `reveal-sand` and
+  settles to `var(--color-surface)`, so a visitor sees it for roughly 0.9 seconds per panel rather
+  than for the length of the page. That is the whole reason it did not ride along, and one property
+  at a time is the dead-utilities arc's rule.
+
+  **THE FIX IS ALREADY WRITTEN AND IT IS ONE LINE** — the same mix into the canvas, at whatever
+  percentage a render says the sweep wants, which is not necessarily the ground's 6% because a
+  transition start is meant to be MORE present than a resting ground. **The dark half already themes
+  and must not be touched**, per the note beside it.
+
+- **⚠ BOARDED: 28 `sheet-stamp` ELEMENTS MEASURE 1.60 TO 1.74 AGAINST A 4.5 FLOOR, AND NOBODY HAS
+  RULED ON THEM.** Found while running `paint-floors` before and after an unrelated change, on four
+  real drawing-office builds across five pages. **Identical in both runs**, so they are pre-existing
+  and were not caused by that unit.
+
+  **THE HARNESS'S OWN HEADER TRIAGES ITS FIRST RUN AND THIS CLASS IS NOT IN IT**, because the sheet
+  grammar arrived after that header was written. The header's five named classes are the footer's
+  `Ciao`, the work-filter chip, and the About captions — all still present, all still explained.
+
+  **THE LIKELY RULING IS THE `Ciao` ONE, WHICH IS EXACTLY WHY IT NEEDS TAKING RATHER THAN ASSUMING.**
+  A corner registration mark is decorative and its job may well be to be faint, in which case this is
+  a CEILING question and this record already boards the fact that nothing here measures a ratio a
+  consumer must stay UNDER. **But "probably the same as that other thing" is how a real finding gets
+  filed away**, and 28 elements on every page is a larger population than any exclusion here carries.
+
+  **NOT LIVE ON THE PUBLISHED PALETTE.** Redline runs 0 below floor across 1200 measured elements, so
+  this is drawing-office and the four darks. It becomes real the moment drawing-office is published
+  again, which is one field in /studio.
+
+
 
 - **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
   Its resolver treats any `font-display` inside a case-study component as sitting under
@@ -554,6 +589,51 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED: A GROUND THAT HELD ITS DISTANCE FROM NOTHING, AND THE COMMENT EXPLAINING THE FIX BROKE
+  NINE ROWS OF THE GATE THAT PROVED IT.** `--color-case-study-sand` was `oklch(88.5% …)` in `@theme`
+  and re-declared at exactly 88.5% in six scoped blocks. Measured through a canvas pixel, sanity
+  21.000 first:
+
+      drawing-office   sand 217,217,217   ground 240,240,240   1.239   a 7.0-point drop
+      redline          sand 217,217,212   ground 250,250,248   1.355   a 9.95-point drop
+
+  **ON REDLINE IT WAS DARKER THAN THE HAIRLINE RUNG** — 217,217,212 against `cream-300`'s 222,222,216
+  — a page ground below the line colour. An owner reported it as grey on all four case studies.
+
+  **6% OF INK INTO THE CANVAS, WITH THE PERCENTAGE CHOSEN BY RENDERING BOTH PALETTES SIDE BY SIDE AT
+  4, 6 AND 8** rather than by inheriting the 7.0. Ink sits about 80.5 points below canvas on every
+  light palette, so one percentage is one drop everywhere — the spread went from 0.116 to **0.005**.
+
+  **⚠ FOUR OF THE SIX SCOPED DECLARATIONS WERE DEAD, MEASURED RATHER THAN REASONED.** The root
+  dark-ground block at 0-2-0 outranks a theme block at 0-1-0, so all four dark palettes had been
+  resolving to the dark band all along. The honest population was **three live and four dead**, not
+  the seven it was scoped as — and the scoping figure was mine, stated to the owner before it was
+  counted.
+
+  **⚠ AND THE FINDING WORTH KEEPING IS THE GATE, NOT THE TOKEN.** `blockBodyAt` located a block with a
+  bare `indexOf`, and this stylesheet discusses its own selectors in prose. A comment added inside the
+  defaults block, naming which selector outranks which, made the reader slice from the wrong brace and
+  return a light palette's body as the dark ground's overrides. Every dark palette merged the same
+  values and D12 reported **every ground pair 0.0 dE apart** — six confident, checkable-looking
+  numbers, all of one wrong subject. **The explaining-it-requires-writing-it shape, in the comment
+  about the mechanism it broke.**
+
+  **THE LONG-STANDING MENTION THIRTEEN LINES ABOVE THE REAL RULE SURVIVED ONLY BY LUCK**, because it
+  happens to contain no opening brace before the real one. A defence held for a different purpose is
+  not a defence anyone chose, which is why the repair is a mechanism rather than a rule about how to
+  word a comment. `blockBodyAt` now skips a marker inside a comment. It cannot import ralph's comment
+  blanker, because app routes read this module too, so the span test is local and narrow.
+
+  **⚠ AND THE FIXTURE PROVING IT COULD NOT FAIL ON ITS FIRST DRAFT.** Without a decoy rule between the
+  comment and the real one, a bare `indexOf` lands in the comment and then walks forward to the REAL
+  brace anyway — the bug returns the right answer by luck, which is precisely why the old mention never
+  bit. **Reverting the fix left R5 GREEN.** Only the mutation showed it. `R5b` asserts the decoy is
+  present so the row cannot drift back to proving nothing.
+
+  **THE RENDER, ON FOUR REAL BUILDS.** Redline after is 1200 measured and **0 below floor**, worst
+  9.40. Drawing office was run before AND after on its own builds and the findings are an **identical
+  multiset, 39 to 39, zero different, down to the ratio at three decimals.**
 
 - **⚠ CLOSED: EIGHT FOREGROUNDS TOOK THE RUNG, NOT ONE — AND THE SWEEP COULD ONLY EVER HAVE SEEN
   TWO OF THEM.** The finding was `.next-rail-arrow` at 2.92 to 3.28 against a 4.5 floor on the four

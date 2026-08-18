@@ -59,9 +59,27 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-cream-200: oklch(93.5% 0.000 0);
   --color-cream-300: oklch(88.0% 0.000 0);
   --color-reveal-sand: oklch(85.0% 0.000 0);   /* #E3CFB6 approx — panel start color */
-  --color-case-study-sand: oklch(88.5% 0.000 0); /* warm sand behind a case study — the
-     backdrop cards sit on. A token because the studio canvas has to match it exactly;
-     two literals would drift and the preview would quietly stop looking like the page. */
+  /* ⚠ A RELATION, NOT A VALUE — AND IT WAS AN ABSOLUTE FOR THE WHOLE LIGHT ERA. This read
+     `oklch(88.5% …)` here and was re-declared at exactly 88.5% in six scoped blocks, so it held its
+     distance from NOTHING. Against drawing-office's 95.5% canvas that is a 7.0-point drop and reads
+     as drafting paper. Against redline's 98.45% sheet it is 9.95 and reads as a grey slab, which is
+     what an owner reported on all four case studies. Measured from the paint through a canvas pixel,
+     sanity pair 21.000 first, redline's sand came back 217,217,212 against its own HAIRLINE rung at
+     222,222,216 — a page ground DARKER than the line colour, which is inverted.
+
+     6% of ink into the canvas holds a CONSTANT 4.83-point drop on every light palette, because ink
+     sits about 80.5 points below canvas in each. The percentage was chosen by rendering
+     drawing-office and redline side by side at 4, 6 and 8 rather than by inheriting the 7.0. At 6
+     the sand lands between the `cream-200` panel rung and the `cream-300` hairline on BOTH palettes,
+     so the inversion cannot recur, and drawing-office reads as a sheet under the cards rather than a
+     grey box.
+
+     ⚠ THE FOUR DARK BLOCKS ALSO DECLARED 88.5% AND ALL FOUR WERE DEAD. The root dark-ground block at 0-2-0
+     outranks a theme block at 0-1-0, so the sand resolved to the dark band on every one —
+     measured, not reasoned. Deleting them removes four declarations that could never paint.
+
+     A token rather than two literals because the studio canvas has to match the page exactly. */
+  --color-case-study-sand: color-mix(in oklch, var(--color-ink-950) 6%, var(--color-canvas));
 
   --color-ink-950: oklch(15.0% 0.000 0);
   --color-ink-800: oklch(26.2% 0.000 0);
@@ -818,7 +836,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-paper:        oklch(0.63 0.000 0 / 0.2);
   --color-bounce:            oklch(99.5% 0.000 0);
   --color-reveal-sand:       oklch(85.0% 0.000 0);
-  --color-case-study-sand:   oklch(88.5% 0.000 0);
   --color-glow-web:          oklch(48.0% 0.000 0);
 }
 
@@ -1082,7 +1099,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-paper: oklch(63% 0.174 272 / 0.20);
   --color-bounce: oklch(99.5% 0.003 250);
   --color-reveal-sand: oklch(85.0% 0.027 235);
-  --color-case-study-sand: oklch(88.5% 0.022 240);
   --color-glow-web: oklch(48.0% 0.083 227);
 }
 
@@ -1143,7 +1159,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-paper:        oklch(0.63 0.146 52 / 0.2);
   --color-bounce:            oklch(99.5% 0.003 44);
   --color-reveal-sand:       oklch(85.0% 0.024 29);
-  --color-case-study-sand:   oklch(88.5% 0.019 34);
   --color-glow-web:          oklch(48.0% 0.073 21);
 }
 
@@ -1204,7 +1219,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-paper:        oklch(0.63 0.160 296 / 0.2);
   --color-bounce:            oklch(99.5% 0.003 282);
   --color-reveal-sand:       oklch(85.0% 0.041 267);
-  --color-case-study-sand:   oklch(88.5% 0.033 272);
   --color-glow-web:          oklch(48.0% 0.125 259);
 }
 
@@ -1275,7 +1289,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-paper:        oklch(0.63 0.155 128 / 0.2);
   --color-bounce:            oklch(99.5% 0.000 0);
   --color-reveal-sand:       oklch(85.0% 0.000 345);
-  --color-case-study-sand:   oklch(88.5% 0.000 350);
   --color-glow-web:          oklch(48.0% 0.000 337);
 }
 
@@ -1425,7 +1438,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-paper:        oklch(0.63 0.006 106.5 / 0.2);
   --color-bounce:            oklch(99.5% 0.002 106.5);
   --color-reveal-sand:       oklch(85.0% 0.008 106.6);
-  --color-case-study-sand:   oklch(88.5% 0.008 106.6);
   --color-glow-web:          oklch(48.0% 0.150 29.1);
 }
 
@@ -2005,11 +2017,18 @@ a {
      the threshold at which a category is a category rather than an exception.
 
      ⚠ case-study-sand SHARES THE PAGE GROUND ON DARK, AND THAT IS A LOSS STATED RATHER THAN HIDDEN.
-     On light it is a warm ground DARKER than `canvas` so cards lift off it — but the step is 3.5 on
-     cream and harbour and 7.7 on the three newest palettes, because the token is L88.5% on ALL SIX
-     while `canvas` moves from 92.0 to 96.2. There is no single relation to carry across, and the
-     dark equivalent would have to sit BELOW `band-dark`, which is outside the band registry's
-     .150–.200 floor. So the route keeps the page ground and loses its own tint on dark grounds.
+     On light it is a ground DARKER than `canvas` so cards lift off it, and the dark equivalent would
+     have to sit BELOW `band-dark`, which is outside the band registry's .150–.200 floor. So the
+     route keeps the page ground and loses its own tint on dark grounds.
+
+     ⚠ AND THIS COMMENT USED TO SAY "THERE IS NO SINGLE RELATION TO CARRY ACROSS", WHICH WAS THE
+     REASON NOBODY LOOKED FOR ONE. It argued from the absolute values — L88.5% on every palette while
+     `canvas` moved from 92.0 to 96.2 — and concluded the step could not be held. The step CAN be
+     held. Mixing ink into the canvas holds it constant, because ink sits about 80.5 lightness points
+     below canvas on every light palette, so one percentage yields one drop everywhere. The @theme
+     declaration is now that relation. What was true was the DARK half, which is why this override
+     stays. A comment that justifies an omission is the kind nobody re-derives, and this one cost the
+     light half an era of grey.
 
      Measured on sapphire before this existed: it painted oklch(0.885 0.022 240) full-bleed at
      z-index -1 and showed as LIGHT GUTTERS and a light band between the dark cards. I had predicted

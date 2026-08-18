@@ -408,10 +408,44 @@ export type PaletteSource = {
   aliasOf: (name: string) => string | null;
 };
 
+/** The comment spans in a stylesheet, as [start, end) pairs over the raw text. Used to keep
+ *  `blockBodyAt` from matching a selector that a comment merely NAMES. */
+function commentSpans(src: string): [number, number][] {
+  const out: [number, number][] = [];
+  for (let i = 0; i < src.length - 1; i++) {
+    if (src[i] === "/" && src[i + 1] === "*") {
+      const end = src.indexOf("*" + "/", i + 2);
+      const stop = end < 0 ? src.length : end + 2;
+      out.push([i, stop]);
+      i = stop - 1;
+    }
+  }
+  return out;
+}
+
 /** The body of the first brace-matched block starting at `marker`. Brace-matched rather than
- *  regex-bounded, so a nested rule cannot end it early. */
+ *  regex-bounded, so a nested rule cannot end it early.
+ *
+ *  ⚠ AND THE MARKER IS SKIPPED WHERE A COMMENT MERELY NAMES IT, WHICH COST NINE ROWS. This was a
+ *  bare `indexOf`, so the first mention of the dark-ground selector won — and the stylesheet
+ *  discusses that selector in prose above the rule that declares it. A comment added inside the
+ *  defaults block, explaining which selector outranks which, made this function slice from the
+ *  wrong brace and hand back a light palette's body as the dark ground's. Every dark palette then
+ *  merged the same overrides and D12 reported every ground pair 0.0 dE apart.
+ *
+ *  ⚠ THE PRE-EXISTING MENTION SURVIVED ONLY BY LUCK, WHICH IS WHY THIS IS A MECHANISM AND NOT A
+ *  RULE ABOUT COMMENT WORDING. There has long been a comment naming the same selector thirteen
+ *  lines above the real rule, and it was harmless because it happens to contain no opening brace
+ *  before the real one. A defence held for a different purpose is not a defence anyone chose.
+ *
+ *  This file cannot import ralph's comment blanker — it is read by app routes as well as by
+ *  suites — so the span test is local and deliberately narrow. It asks only whether an index sits
+ *  inside a comment, rather than rewriting the source. */
 function blockBodyAt(src: string, marker: string): string {
-  const at = src.indexOf(marker);
+  const spans = commentSpans(src);
+  const inComment = (i: number) => spans.some(([a, b]) => i >= a && i < b);
+  let at = src.indexOf(marker);
+  while (at >= 0 && inComment(at)) at = src.indexOf(marker, at + 1);
   if (at < 0) return "";
   const open = src.indexOf("{", at);
   let depth = 0;
