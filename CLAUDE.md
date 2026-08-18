@@ -213,6 +213,52 @@ gates.
 
 
 
+- **⚠ BOARDED: NOTHING HERE MEASURES WHERE A BOX SITS, AND SEVEN OWNER REPORTS IN ONE SESSION WERE
+  ALL GEOMETRY.** Six corners that belonged to no surface, and a heading sitting hard left inside a
+  centred column. Every instrument this repository has measures COLOUR, SIZE or WEIGHT — the token
+  gates, the palette sweeps, and `paint-floors`, which was built the same day.
+
+  **⚠ THE FLOOR SWEEP WOULD HAVE PASSED THE HEADING AT 17.27 WHILE IT SAT IN THE WRONG PLACE.** That
+  is the shape: an element can be perfectly legible and perfectly misplaced, and every check here
+  looks at the first half. `.sheet-h2` caps the measure at 24ch, so taking the role gave the
+  playground heading a box narrower than its column; `text-center` centred the lines INSIDE that box
+  the whole time and nothing was wrong with any of them.
+
+  **THE POPULATION IS DERIVED AND IT IS THE OWNER'S OWN REPORTS.** Six radii plus one alignment, none
+  found by a gate, all found by looking. That is a real seven, not a hypothetical.
+
+  **⚠ AND THE CHEAP FORM IS NOT OBVIOUS, WHICH IS WHY THIS IS BOARDED RATHER THAN BUILT.** "Is this
+  box where its container implies" has no floor to check against — a 24ch box inside a 960px centred
+  column is correct on a case study and wrong on the playground. The candidate that survives a
+  moment's thought is narrower: **an element whose parent centres its text, whose own box is
+  narrower than that parent, and which has no auto margin** — which is exactly the defect, states no
+  preference, and would have fired on the one instance. Whether it has more members is unmeasured.
+
+- **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
+  Its resolver treats any `font-display` inside a case-study component as sitting under
+  `.case-study .font-display` at 0-2-0. The DOM disagrees: the hero's `h1` sits under
+  `SECTION.hero-ground`, `closest('.case-study')` is null, and it draws the 400 it asks for.
+
+  **SO S2's COUNT OF 2 IS THE SUITE'S MODEL AND NOT THE SITE'S STATE.** S2a names them so the next
+  reader of that number does not go hunting for two more classes to remove — which is the whole
+  reason a false entry is worse than a missing one.
+
+  **THE FIX IS A CHANGE TO THAT SUITE'S CASCADE MODEL**, with its own blast radius over every other
+  row it feeds, so it is not smuggled into a cleanup. It takes S2 to a true zero.
+
+- **⚠ BOARDED: THE RENDERED-FLOOR SWEEP HAS RUN ON ONE PALETTE, AND ITS UNRESOLVED COUNT IS
+  UNCHARACTERISED.** `paint-floors` is built, refuses rather than guessing, and has been driven on
+  five pages of `drawing-office` alone. **The four dark palettes invert every ground**, and this
+  record's measurement failures cluster on dark surfaces — the 2.30 it was written for was found on
+  one.
+
+  **⚠ AND IT REPORTED 144 UNRESOLVED OF 298 SUBJECTS ON `/palettes`.** Those are elements whose
+  centre point does not land on them — fixed panels, scrolling panes, overflowing boxes. Refusing is
+  correct and is why the three false findings there died. **But a sweep that cannot resolve half its
+  subjects is reporting less coverage than a reader would assume**, and nobody has looked at what the
+  144 are. A clean run means "no defect among the elements it could measure", and that sentence is
+  only honest while somebody knows how large the other half is.
+
 - **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
   IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
   kind, the gallery image fields — were inert EVERYWHERE: the UI offered a value and nothing
@@ -2874,6 +2920,47 @@ see, and writing them down is the whole remedy. A reader who cannot tell a rule 
 build a gate for the limit and then believe it.
 
 ## Conventions (must hold across sessions)
+
+- **⚠ THE SHEET TYPE ROLES ARE UNLAYERED, SO A UTILITY FOR ANY PROPERTY THEY DECLARE DRAWS
+  NOTHING.** `.sheet-h2`, `.sheet-h3`, `.sheet-lede`, the three mono sizes and the mark sit outside
+  every layer, and Tailwind's utilities are in `@layer utilities`. This is not the radius reset's
+  situation — `.sheet-scope *` was deliberately put in `@layer base` so a deliberate utility can win,
+  four hundred lines above, and only one of the two says which it is.
+
+  **THE ROLES DECLARE, per the table `sheet-role-utilities` derives from the stylesheet:**
+
+      sheet-h2      family weight size line-height letter-spacing colour max-width text-wrap
+      sheet-h3      the same, without max-width
+      sheet-lede    size line-height colour max-width text-wrap
+      the mono roles + the mark   family size letter-spacing line-height colour text-transform
+
+  **NONE OF THEM DECLARES `margin` ANY MORE**, which is what makes call-site spacing work at all —
+  they did, as a shorthand, and it made fifteen gaps invisible across 53 case-study sections, the
+  home page, the 404 and the error boundary. **Spacing belongs to the call site or to a parent's
+  `gap`; everything else in the table belongs to the role.**
+
+- **⚠ AND THE MONO ROLES CARRY THEIR COLOUR, SO THEY CANNOT SIT WHERE THE COLOUR IS DECIDED
+  ELSEWHERE.** `.sheet-mono-label`, `.sheet-mono-micro`, `.sheet-mono-text` and `.sheet-mark-text`
+  each paint `var(--sheet-mark)`. Being unlayered, that outranks any colour utility beside them.
+  **Two situations forbid the class and both have a live instance:**
+
+      a CONDITIONAL colour   a chip whose ink depends on `aria-pressed`. Taking the role painted
+                             `text-secondary` on the accent fill — 2.30, live for eighteen minutes.
+      a FOREIGN GROUND       the gallery modal's dark scrim, and the primer's colour swatches. The
+                             role's dark ink would vanish, and nothing can remap it: `data-ground`
+                             only works at `:root`.
+
+  **IN BOTH, TAKE THE DIRECTION'S SIZE AND TRACKING AS UTILITIES AND LEAVE THE COLOUR ALONE.** The
+  rule is not "avoid the roles" — it is that a role supplying colour cannot sit on an element whose
+  colour is somebody else's decision. `sheet-role-utilities` section G is the gate, and it was
+  written after the defect shipped rather than before.
+
+- **⚠ AND A NEW SURFACE JOINS THE GRAMMAR BY MEASUREMENT, NOT BY INSPECTION.** Run
+  `ralph/tests/paint-floors.mjs` against it — it is the only thing here that compares a RENDERED
+  element to the ground it is painted on, and it is skipped by `run.mjs` by name because it needs a
+  browser. **It is a defect detector rather than a census**: it refuses when a centre point misses
+  its element or lands on a picture, and reports those as their own counts. A clean run means no
+  defect among the elements whose ground it could resolve, and that sentence is the honest claim.
 
 - **Tailwind v4 component styling.** The bracket-bare rule is in Stack above, do not restate it. Beyond it, model new components on `components/case-study`, which uses clean bare utilities. Do not copy `components/blocks` or `components/sections`, which still use the broken bracket-bare form. Hairlines use `border-ink-950/8` **on the public site and the canvas**, and `border-ink-950/12` **inside /studio**. That split is deliberate, not drift: the ink-chrome direction stepped the studio's hairlines up one notch because /8 read as accidental against harder chrome, and the canvas was held at /8 because it renders through the same components as the public article and must not move. **Apply /12 only under `components/studio` and `app/studio`.** Card surfaces use `bg-cream-50`, `bg-cream-100`, or `bg-cream-200`. The page canvas behind cards uses `bg-canvas`. Both `bg-canvas` and `border-border` are real tokens, the case-study convention just prefers the explicit ink and cream utilities for hairlines and card surfaces.
 
