@@ -213,30 +213,6 @@ sharing no subject, of which 35 were finished work nobody could tell from unfini
 board that cannot be read is a board that gets batched, which is how a fix rides in on another fix's
 gates.
 
-- **⚠ BOARDED: `VideoEmbed` PAINTS THE RAW RUNG AS A FOREGROUND, AND IT IS THE NINTH SITE OF A CLASS
-  CLOSED FOR EIGHT.** `components/case-study/blocks/VideoEmbed.tsx:100` carries
-  `text-accent-500` on the block's eyebrow. Measured on four real dark builds:
-
-      sapphire 3.32   ink-flare 3.32   nocturne 3.24   basalt 3.65     against a floor of 4.5
-
-  and the foregrounds are each palette's own `accent-500` exactly — 73,91,203 · 162,78,2 ·
-  115,79,185 · 82,119,0. **The rung does not remap on a dark ground**, which is the entire finding
-  the eight-foreground entry already closed.
-
-  **⚠ IT SURVIVED BECAUSE IT IS A TAILWIND CLASS RATHER THAN A CSS DECLARATION.** `role-layer` T1
-  asserts no `color` DECLARATION takes the rung, and T was written after R2 missed a CSS instance —
-  so the two rows between them cover a CSS `color:` and a JSX class PAIR, and neither covers a bare
-  foreground utility. A gate blind to the form the next instance takes, for the second time in the
-  same family.
-
-  **NOT LIVE.** Redline is published and it clears there. It fails on all four dark palettes, which
-  is one field in /studio away.
-
-  **THE UNIT IS THE FIX PLUS THE ROW THAT WOULD HAVE CAUGHT IT**, and the row is the harder half —
-  the rung is legitimate as a ground, a border, a fill and a glow, so the assertion has to be about
-  FOREGROUND utilities rather than about the rung.
-
-
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
@@ -574,6 +550,46 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED: THE NINTH FOREGROUND TOOK THE RUNG, AND THREE ROWS WERE WATCHING FOR IT IN TWO OTHER
+  SHAPES.** `VideoEmbed.tsx` painted `text-accent-500` on the video block's eyebrow. Measured on
+  four real dark builds before the fix, and the foregrounds were each palette's own `accent-500`
+  exactly:
+
+      sapphire 3.32   ink-flare 3.32   nocturne 3.24   basalt 3.65      floor 4.5
+      after    6.99          6.84           6.75          7.52
+
+  **⚠ AND THOSE FOUR AFTER-FIGURES ARE THE RECORD'S OWN, REACHED INDEPENDENTLY.** The three-live-sites
+  entry logs `6.99 · 6.84 · 6.75 · 7.52` for the identical role move. Two elements, two units, one
+  set of numbers — the role resolves the same way wherever it is asked.
+
+  **THE LIGHT HALF MOVED ZERO PIXELS AND THAT WAS MEASURED RATHER THAN INHERITED.** The eight-
+  foreground entry states the identity, and it predates redline — so both light palettes were read
+  from the paint. `accent-500` and `accent` return the SAME value on drawing-office
+  (`oklch(0 0 0)`) and on redline (`oklch(0.4877 0.183 29.1)`).
+
+  **⚠ THE INTERESTING HALF IS WHY THREE ROWS MISSED IT.** R2 matches a JSX class PAIR, a ground and
+  a foreground in one string. T1 matches a CSS `color` DECLARATION — and T's own header says it was
+  written because R2 "was blind to the shape the next instance took". **Neither sees a BARE
+  FOREGROUND UTILITY.** Third form, third row, and each was added after the previous one missed.
+
+  **T2 IS THAT ROW AND IT CATCHES VARIANT PREFIXES**, because the eight-foreground census found SIX
+  of the eight needed a hover or a mobile viewport — a matcher anchored to a bare class start would
+  miss most of the population. `T2b` proves it fires on both forms and NOT on `bg-` or `border-`,
+  since the rung stays legitimate as a ground, an edge and artwork.
+
+  **⚠ AND MY OWN REPAIR COMMENT NAMES THE RETIRED CLASS, SO A RAW SCAN REPORTS THE LINE THAT FIXED
+  IT.** Comments are blanked. `T2c` proves the blanking on a FIXTURE and `T2d` proves the trap is
+  live in a real file — split apart because the first draft ran the blanking claim against the real
+  file and **went red under the mutation for a reason it does not name**, blanking being fine and
+  T2's subject having changed underneath it.
+
+  **⚠ AND THE FIX BROKE THE BUILD WHILE EVERY SUITE STAYED GREEN.** The comment was placed inside
+  `{eyebrow && ( … )}`, which makes two children with no fragment. **ralph reads source as TEXT**, so
+  109 suites passed over an unparseable file and only `next build` saw it. I had run the one row the
+  edit was about rather than the set. The rule this file already states — re-run after the LAST edit
+  — is about the whole gate set, and a suite being green about its own subject says nothing about
+  whether the file still compiles.
 
 - **⚠ CLOSED: THE RENDERED-FLOOR SWEEP'S OWN FIGURES WERE WRONG IN BOTH DIRECTIONS, AND RE-RUNNING
   THE DARK PALETTES IS WHAT FOUND IT.** The entry said **52 below floor across four dark palettes,

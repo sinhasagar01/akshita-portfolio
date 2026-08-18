@@ -12720,6 +12720,42 @@ reported as a count rather than quietly shrinking the total.
 851`. **Six sevenths of every figure this harness has ever produced came from the weaker path**,
 because a viewport cannot hold a page, and nothing said so.
 
+## ⚠ THE NINTH FOREGROUND TOOK THE RUNG, AND THREE ROWS WERE WATCHING FOR IT IN TWO OTHER SHAPES
+
+`VideoEmbed.tsx` painted `text-accent-500` on the video block's eyebrow. Measured on four real dark
+builds, with foregrounds that were each palette's own `accent-500` exactly:
+
+    sapphire 3.32   ink-flare 3.32   nocturne 3.24   basalt 3.65      floor 4.5
+    after    6.99          6.84           6.75          7.52
+
+**⚠ THOSE FOUR AFTER-FIGURES ARE THIS RECORD'S OWN, REACHED INDEPENDENTLY.** The three-live-sites
+entry logs `6.99 · 6.84 · 6.75 · 7.52` for the identical role move on different elements. Two units,
+one set of numbers.
+
+**THE LIGHT HALF MOVED ZERO PIXELS, MEASURED RATHER THAN INHERITED.** The eight-foreground entry
+states the identity and it predates redline, so both light palettes were read from the paint.
+`accent-500` and `accent` return the same value on drawing-office (`oklch(0 0 0)`) and on redline
+(`oklch(0.4877 0.183 29.1)`). On a real sapphire build the sweep goes from 3 findings to 2, and the
+two that remain are the work filter's documented sibling limit.
+
+**⚠ THE INTERESTING HALF IS WHY THREE ROWS MISSED IT.** R2 matches a JSX class PAIR. T1 matches a
+CSS `color` declaration — and T's own header says it exists because R2 "was blind to the shape the
+next instance took". **Neither sees a bare foreground utility.** Third form, third row, each added
+after the previous one missed. T2 is that row, and it catches variant prefixes because the
+eight-foreground census found six of the eight needed a hover or a mobile viewport.
+
+**⚠ AND THE FIX BROKE THE BUILD WHILE ALL 109 SUITES STAYED GREEN.** The repair comment was placed
+inside `{eyebrow && ( … )}`, which makes two children with no fragment. **ralph reads source as
+TEXT**, so every suite passed over a file that does not parse, and only `next build` saw it. I had
+run the one row the edit was about rather than the whole set. The rule this record already states —
+re-run after the LAST edit — is about the gate SET, and a suite being green about its own subject
+says nothing about whether the file still compiles.
+
+**⚠ AND THE REGISTER ROW I WROTE FOR THIS ENTRY WOULD HAVE KEPT REPORTING IT OPEN.** Its
+`holds_while` looked for `text-accent-500` in that file, and the repair's own comment still names the
+retired class — so the pattern matches a fixed file forever. A presence claim read from the wrong
+half of the file, in the row written to stop exactly that.
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

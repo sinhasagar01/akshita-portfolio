@@ -96,8 +96,21 @@ export default function VideoEmbed({
 
   return (
     <div className="reveal-card">
+      {/* ⚠ THE ROLE, NOT THE RUNG. The eyebrow below read `text-accent-500`, and the rung does not
+          remap on a dark ground — measured on four real builds it painted each palette's own
+          accent-500 and read 3.32 · 3.32 · 3.24 · 3.65 against a floor of 4.5. Ninth site of the
+          class the eight-foreground repair closed, and it survived because a Tailwind utility is
+          neither a `color:` declaration nor a class PAIR, which is what the two rows watching this
+          looked for. `role-layer` T2 is the row for this form. The light half is byte-identical
+          because `--color-accent` resolves to the rung on every light palette.
+
+          ⚠ AND THIS COMMENT SAT INSIDE THE GUARD BELOW AND BROKE THE BUILD. A JSX comment before a
+          single returned element makes two children with no fragment, and only `next build` sees
+          it — the suite for this very repair was green over an unparseable file, because ralph
+          reads source as TEXT. Re-run the whole gate set after the last edit, not the one row the
+          edit was about. */}
       {eyebrow && (
-        <p className="text-eyebrow tracking-eyebrow uppercase font-semibold text-accent-500">
+        <p className="text-eyebrow tracking-eyebrow uppercase font-semibold text-accent">
           {eyebrow}
         </p>
       )}
