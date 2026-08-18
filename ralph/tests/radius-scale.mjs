@@ -297,8 +297,18 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
   const caps = radii.filter((r) => r === "2px").length;
   const capsules = radii.filter((r) => /^999px$|^18px$|^11px$/.test(r));
 
-  t("D1 ⚠ THE NAV'S BOXES ARE SQUARE — the capsule, the link hit area, the hover highlight, the Resume control, the mobile sheet, a sheet row and the mobile Resume",
-    squared, 7);
+  /* ⚠ 7 -> 9 AND 4 -> 2, AND IT IS THE OWNER REVERSING PART OF #635 RATHER THAN A DRIFT. That unit
+ * kept the morph button and its halo as circles on the rule "a circle keeps it because it IS one",
+ * and the owner looked at the shipped page and ruled the three-dot control square. The DOTS stay
+ * round — they are the three bars, and a dot is a dot — so what moved is the BUTTON and its halo,
+ * which are boxes with dots inside them rather than round objects.
+ *
+ * ⚠ AND THE RULE ITSELF SURVIVES THE REVERSAL, WHICH IS WHY THE COUNTS MOVE AND THE PROSE DOES NOT.
+ * "A box around content loses its corner, a circle keeps it because it is one" still decides every
+ * member here; what changed is which side of it a 36px button with three dots in it falls on. That
+ * is a judgement about the object, and it is the owner's. */
+t("D1 ⚠ THE NAV'S BOXES ARE SQUARE — including the morph button and its halo, which the owner ruled boxes",
+    squared, 9);
   /* ⚠ THE COMPLEMENT, AND IT IS THE HALF THAT PROTECTS THE OTHER DIRECTION. A future sweep reading
      "the nav is square now" would take the morph button and the separator dot with it. They are
      round because they ARE round, which is the same ruling the phone bezel gets in section C.
@@ -306,8 +316,8 @@ t(`B1: every radius utility in app + components + lib resolves to a declared @th
      DECLARATIONS. The morph's three bars share ONE rule, so they are one `border-radius`, not
      three — the wrong-unit defect this repository records a dozen times, caught by the row going
      red rather than by the prose being re-read. */
-  t("D2 …and its circles are still circles — the 3px separator dot, the morph button, its halo, and the one rule its three bars share",
-    circles, 4);
+  t("D2 …and its circles are still circles — the 3px separator dot, and the one rule the morph's three bars share",
+    circles, 2);
   /* The morph's OPEN state swaps its bars for an X, whose 1.8px strokes take a 2px cap. A line end,
      not a box corner, and it lives on a button that is itself a circle. */
   t("D2a …and the two line caps on the morph's open X are untouched",

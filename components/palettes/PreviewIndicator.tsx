@@ -94,7 +94,7 @@ export default function PreviewIndicator({ publishedTheme }: { publishedTheme: s
     return (
       <div
         role="status"
-        className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full border border-ink-950/8 bg-surface px-4 py-2 shadow-lg"
+        className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 border border-ink-950/8 bg-surface px-4 py-2 shadow-lg"
         data-arrival-strip
       >
         <span className="text-sm text-text-secondary">
@@ -111,7 +111,7 @@ export default function PreviewIndicator({ publishedTheme }: { publishedTheme: s
             span is not an `<a>`, so the utility lands there. */}
         <Link
           href="/palettes"
-          className="rounded-full bg-text-primary px-3 py-1 text-sm font-medium"
+          className="bg-text-primary px-3 py-1 text-sm font-medium"
         >
           <span className="text-surface">See all {selectableCountWord()}</span>
         </Link>
@@ -123,7 +123,7 @@ export default function PreviewIndicator({ publishedTheme }: { publishedTheme: s
     <div
       role="status"
       data-preview-strip
-      className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-full border border-ink-950/8 bg-surface px-4 py-2 shadow-lg"
+      className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 border border-ink-950/8 bg-surface px-4 py-2 shadow-lg"
     >
       <span className="text-sm text-text-secondary">
         Previewing <b className="font-medium text-accent-text">{previewing}</b> across the site
@@ -131,7 +131,7 @@ export default function PreviewIndicator({ publishedTheme }: { publishedTheme: s
       <button
         type="button"
         onClick={exit}
-        className="rounded-full bg-text-primary px-3 py-1 text-sm font-medium text-surface"
+        className="bg-text-primary px-3 py-1 text-sm font-medium text-surface"
       >
         Exit preview
       </button>

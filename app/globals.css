@@ -3321,7 +3321,7 @@ a {
   background: var(--glass-fill-strong);
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--color-border);
-  border-radius: 999px; padding: 7px 13px 7px 10px;
+  border-radius: 0; padding: 7px 13px 7px 10px;
   box-shadow: var(--glass-shadow);
   opacity: 0; transform: translateY(10px); pointer-events: none;
   transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo);
@@ -3384,7 +3384,7 @@ a {
     background: var(--glass-fill-strong);
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--color-border); border-right: 0;
-    border-radius: 12px 0 0 12px; padding: 11px 4px;
+    border-radius: 0; padding: 11px 4px;
     box-shadow: var(--glass-shadow);
   }
   .palette-rail .palette-dots { flex-direction: column; gap: 7px; }
@@ -3750,7 +3750,7 @@ a {
   position: relative;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 0;
   border: 0.5px solid var(--glass-stroke);
   background: var(--glass-fill-strong);
   -webkit-backdrop-filter: var(--glass-blur);
@@ -3774,7 +3774,7 @@ a {
   content: "";
   position: absolute;
   inset: -4px;
-  border-radius: 50%;
+  border-radius: 0;
 }
 .nav-morph i {
   position: absolute;
@@ -4973,7 +4973,7 @@ a {
 .footer-social a:focus-visible {
   outline: 2px solid var(--color-accent-500);
   outline-offset: 4px;
-  border-radius: 9px;
+  border-radius: 0;
 }
 /* Social grid hover — the parent selectors below outlived the `display: contents` they were written
    for. They still read correctly against the per-anchor grid and are left as they are. */
@@ -5763,7 +5763,7 @@ a {
   top: 132px;
   z-index: 40;
   width: 216px;
-  border-radius: 24px;
+  border-radius: 0;
   overflow: hidden;
   background: linear-gradient(to bottom, color-mix(in srgb, var(--color-background) 78%, transparent), color-mix(in srgb, var(--vessel-smoke-3) 62%, transparent) 66%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
@@ -5918,7 +5918,7 @@ a {
 .blog-capsule {
   position: relative;
   height: 56px;
-  border-radius: 99px;
+  border-radius: 0;
   padding: 4px;
   overflow: hidden;
   background: linear-gradient(to bottom, color-mix(in srgb, var(--vessel-capsule) 88%, transparent), color-mix(in srgb, var(--vessel-smoke-3) 72%, transparent) 66%);

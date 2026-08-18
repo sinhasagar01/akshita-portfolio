@@ -7,7 +7,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
     <footer className="py-10">
       <div className="container-x">
         <div
-          className="footer-panel relative overflow-hidden rounded-lg px-[50px] pb-[26px]"
+          className="footer-panel relative overflow-hidden px-[50px] pb-[26px]"
           style={{ backgroundColor: "var(--color-surface)" }}
         >
           {/* ⚠ THE BACKDROP TAKES THE PAGE GROUND, NOT A LADDER RUNG. It was `cream-300`, which is a
@@ -123,7 +123,7 @@ export default function SiteFooter({ links }: { links: ElsewhereLink[] }) {
                     }}
                   >
                     <span
-                      className="footer-chip flex items-center justify-center w-[34px] h-[34px] rounded-[9px] text-[12px] font-semibold text-text-secondary"
+                      className="footer-chip flex items-center justify-center w-[34px] h-[34px] text-[12px] font-semibold text-text-secondary"
                       style={{ border: "1px solid color-mix(in srgb, var(--color-rule) 30%, transparent)", transition: "border-color 0.2s, color 0.2s" }}
                     >
                       {glyph}
