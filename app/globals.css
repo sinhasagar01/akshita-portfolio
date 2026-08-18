@@ -3708,7 +3708,7 @@ a {
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.28em;
-  color: var(--color-accent-500);
+  color: var(--color-accent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -3729,7 +3729,7 @@ a {
     opacity: 0.7;
   }
   .logo-link:hover .logo-sig {
-    color: var(--color-accent-500);
+    color: var(--color-accent);
   }
 }
 
@@ -4016,7 +4016,7 @@ a {
   margin-top: auto;
   width: 100%;
   border: 1px solid color-mix(in srgb, var(--color-accent-500) 55%, transparent);
-  color: var(--color-accent-500);
+  color: var(--color-accent);
   border-radius: 0;
   padding: 12px 0;
   text-align: center;
@@ -4983,10 +4983,10 @@ a {
    for. They still read correctly against the per-anchor grid and are left as they are. */
 .footer-social a:hover .footer-chip {
   border-color: var(--color-accent-500);
-  color: var(--color-accent-500);
+  color: var(--color-accent);
 }
 .footer-social a:hover .footer-label {
-  color: var(--color-accent-500);
+  color: var(--color-accent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -5259,7 +5259,7 @@ a {
   font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-accent-500);
+  color: var(--color-accent);
   border: 1px solid color-mix(in oklch, var(--color-accent-500) 40%, transparent);
   border-radius: 999px;
   padding: 2px 7px;
@@ -5431,10 +5431,10 @@ a {
   transition: color 0.2s ease;
 }
 .next-rail-link:hover .next-rail-title {
-  color: var(--color-accent-500);
+  color: var(--color-accent);
 }
 .next-rail-arrow {
-  color: var(--color-accent-500);
+  color: var(--color-accent);
   font-size: 0.9375rem;
   line-height: 1;
   transition: transform 0.3s cubic-bezier(0.22, 0.72, 0.28, 1);

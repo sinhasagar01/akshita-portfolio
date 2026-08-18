@@ -215,30 +215,6 @@ gates.
 
 
 
-- **⚠ `.next-rail-arrow` PAINTS THE RAW RUNG AND MEASURES 2.92 TO 3.28 ON ALL FOUR DARK PALETTES,
-  AGAINST A 4.5 FLOOR — AND THIS RECORD PREDICTED IT IN AS MANY WORDS.** The rung-to-role entry
-  says the twelve remaining `accent-500` sites are safe because none carries a foreground, and that
-  **"the rung is still unremapped on the dark ground, so the next author who puts a label on one
-  inherits the defect exactly as the eight did."** This is a thirteenth site and it carries a glyph.
-
-      .next-rail-arrow { color: var(--color-accent-500) }     sapphire 2.94  ink-flare 3.28
-      globals.css:5436                                        nocturne 2.92  basalt   3.19
-
-  **⚠ AND `role-layer` R2 CANNOT SEE IT, WHICH IS THE PART WORTH KEEPING.** R2 was built for exactly
-  this defect and matches **class strings in JSX**. This is a **CSS declaration**, so the gate
-  written to catch the next instance is blind to the form the next instance took. Same shape as R2
-  missing the three nested sites, one layer further out — the concept is "an element pairs a
-  foreground with the rung" and the vocabulary is "a quoted class string".
-
-  **NOT FIXED HERE, AND THE PRECEDENT SAYS WHY IT IS CHEAP.** The eight-site rung-to-role move
-  changed **zero pixels on the five light palettes**, because `accent` IS `accent-500` there. The
-  same is expected here and **expected is not measured** — nine palettes, one glyph, and the
-  measurement is owed before the edit.
-
-  **⚠ IT IS NOT LIVE. `drawing-office` is published and it clears there.** It becomes real the
-  moment a dark palette is published, which is one field in /studio — the same latent exposure the
-  `text-subtle` entry carried before its subject was repaired underneath it.
-
 - **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
   Its resolver treats any `font-display` inside a case-study component as sitting under
   `.case-study .font-display` at 0-2-0. The DOM disagrees: the hero's `h1` sits under
@@ -578,6 +554,46 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED: EIGHT FOREGROUNDS TOOK THE RUNG, NOT ONE — AND THE SWEEP COULD ONLY EVER HAVE SEEN
+  TWO OF THEM.** The finding was `.next-rail-arrow` at 2.92 to 3.28 against a 4.5 floor on the four
+  dark palettes. Censused before fixing, `color: var(--color-accent-500)` had **eight** sites:
+
+      .logo-singh                              .footer-social a:hover .footer-label
+      .logo-link:hover .logo-sig               .pr-here
+      .header-mob-resume-pill                  .next-rail-link:hover .next-rail-title
+      .footer-social a:hover .footer-chip      .next-rail-arrow
+
+  **⚠ SIX OF THE EIGHT NEED A HOVER OR A MOBILE VIEWPORT, SO NO SWEEP AT A DESKTOP WIDTH CAN REACH
+  THEM.** Fixing the arrow alone would have fixed the one that happened to be observable and left six
+  that fail identically the moment a pointer lands on them. **The instrument found an instance; the
+  census found the class**, which is this record's standing rule arriving on a colour rather than on
+  a key list.
+
+  **THE LIGHT HALF MOVES ZERO PIXELS AND THAT IS BY CONSTRUCTION RATHER THAN BY LUCK.** On every
+  light palette `--color-accent` is declared as `var(--color-accent-500)`, so the substitution is an
+  identity there. **Measured anyway, because expected is not measured** — all six light palettes
+  return identical values and the arrow paints the rung's exact colour on each:
+
+      drawing-office 0,0,0    cream 182,83,41    harbour 0,126,91
+      orchid 153,63,148       cerise 209,45,107  fern 75,127,32
+
+      dark, arrow    sapphire 2.94 -> 6.20   ink-flare 2.98 -> 6.13
+                     nocturne 2.92 -> 6.06   basalt    3.28 -> 6.76
+
+  **AND THE RUNG FIGURES AGREE WITH THE RENDERED SWEEP TO WITHIN 0.01, TAKEN BY A DIFFERENT ROUTE** —
+  one from a token read on a forced palette, one from a pixel on four real builds. Agreement between
+  two methods that share no code is worth more than either alone.
+
+  **⚠ THE MECHANISM IS `role-layer` SECTION T, AND ITS EXISTENCE IS AN ADMISSION ABOUT R2.** R2 was
+  built for exactly this defect and was green over it for the whole dark-palette era, because **R2
+  matches class strings in JSX and this was a CSS declaration.** A gate blind to the form the next
+  instance takes is a gate whose concept is wider than its vocabulary — the shape this file records a
+  dozen times, arriving in the gate written to close the previous instance of it.
+
+  **THE RUNG IS NOT BANNED, ONLY BANNED AS A FOREGROUND.** Forty-four references remain and they are
+  grounds, borders, outlines, fills and glows. A ground has no floor to fail; widening T1 to every
+  reference would be the wrong-noun error at five times the scale.
 
 - **⚠ MAIN'S CI WAS RED FOR FOUR MERGES AND I QUOTED A GREEN IN EVERY ONE OF THEIR PR BODIES.**
   `node ralph/run.mjs` was honestly green at 3635 the whole time. **It does not run eslint.** The CI
