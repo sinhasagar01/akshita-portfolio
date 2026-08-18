@@ -441,7 +441,7 @@ sections:
     index: ''
     eyebrow: Screens
     title: The companion in place.
-    lead: A selection of companion and workflow screens.
+    lead: The companion open on the home dashboard, where most sessions begin.
     northStar: ''
     layout: stack
     glow:
@@ -462,24 +462,6 @@ sections:
               translateX: -60
               translateY: 12
               z: 1
-              label: ''
-              dotColor: ''
-            - src: /images/projects/fosfor-ai/sales-view.webp
-              alt: The companion suggesting semantic models through a slash command
-              width: 268
-              rotate: null
-              translateX: null
-              translateY: null
-              z: 3
-              label: ''
-              dotColor: ''
-            - src: /images/projects/fosfor-ai/auto-ecom-view.webp
-              alt: A companion generated solution opened for review
-              width: 248
-              rotate: 5
-              translateX: 60
-              translateY: 18
-              z: 2
               label: ''
               dotColor: ''
           glow:

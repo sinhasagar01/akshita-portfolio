@@ -584,7 +584,9 @@ sections:
     index: ''
     eyebrow: Screens
     title: Where the numbers live.
-    lead: A selection of profiling and data quality views.
+    lead: >-
+      A project overview, with its connected data and insight modules in one
+      place.
     northStar: ''
     layout: stack
     glow:
@@ -598,16 +600,6 @@ sections:
       - discriminant: deviceShelf
         value:
           devices:
-            - src: /images/projects/fosfor-data-profiling/dataset-list.webp
-              alt: The dataset list with data profiling status per table
-              width: 248
-              rotate: -5
-              translateX: -60
-              translateY: 12
-              z: 1
-              frame: browser
-              label: ''
-              dotColor: ''
             - src: /images/projects/fosfor-data-profiling/project-overview.webp
               alt: A project overview showing connected data and insight modules
               width: 268
@@ -615,18 +607,6 @@ sections:
               translateX: null
               translateY: null
               z: 3
-              frame: browser
-              label: ''
-              dotColor: ''
-            - src: /images/projects/fosfor-data-profiling/dataset-sample.webp
-              alt: >-
-                A dataset overview with its schema, record count, and sample
-                data
-              width: 248
-              rotate: 5
-              translateX: 60
-              translateY: 18
-              z: 2
               frame: browser
               label: ''
               dotColor: ''
