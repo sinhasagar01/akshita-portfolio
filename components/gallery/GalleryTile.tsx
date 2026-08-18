@@ -40,7 +40,9 @@ export default function GalleryTile({
          picture and says nothing about what the control does. A screen-reader user hearing only
          "a wide beach at low tide" has no idea it is actionable. */
       aria-label={`${item.alt || item.title} — open larger`}
-      className="gallery-tile group relative mb-3.5 block w-full cursor-zoom-in overflow-hidden rounded-[12px] border-0 bg-transparent p-0 text-left"
+      /* A box around content, so it loses its corner on the radius ruling — the same corner the
+         work cards, the blog cards and the prose figures lost. */
+      className="gallery-tile group relative mb-3.5 block w-full cursor-zoom-in overflow-hidden border-0 bg-transparent p-0 text-left"
       style={{
         /* ⚠ `aspect-ratio` FROM THE STORED PIXELS, AS AN INLINE STYLE, because the value is per
            item and a utility class cannot carry a number computed from content. This is what
