@@ -92,7 +92,11 @@ const TESTS = path.join(HERE, "tests");
 /* `paint-sites` joins them because it DRIVES A BROWSER against a dev server — same reason as
  * `parity`. Named here rather than absent: a gate nobody can see they are not running is the exact
  * shape `upstream` was written about. Run it beside a render pass. */
-const NOT_RUNNABLE = new Set(["parity", "studio-type", "upstream", "paint-sites"]);
+/* `paint-floors` joins them for the same reason and closes a different gap: it is the only thing
+ * here that measures a RENDERED element against the ground it is actually painted on. The token
+ * gates judge declared pairs, and a pairing that exists only because one class outranked another is
+ * declared nowhere — which is how a chip shipped at 2.30 and was live for eighteen minutes. */
+const NOT_RUNNABLE = new Set(["parity", "studio-type", "upstream", "paint-sites", "paint-floors"]);
 
 const suites = readdirSync(TESTS)
   .filter((f) => f.endsWith(".mjs"))
