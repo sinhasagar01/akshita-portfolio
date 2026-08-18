@@ -64,7 +64,9 @@ What followed Phase 5, all shipped.
   gaps 2 and 3 were filled, and gap 1 shipped with its marker destroyed.
 - The inline canvas. Blog prose is edited in place at the public measure, so the canvas and
   the article render through the same components.
-- The lint gate. ESLint runs in CI beside ralph, and the repo sits at zero problems.
+- The lint gate. ESLint runs in CI beside ralph, as a step `ralph/run.mjs` does NOT contain.
+  **⚠ The repo sat at TWO warnings for four merges and every one of those PR bodies quoted a
+  green ralph**, which was true and was about the other subject. See the entry in `Recorded`.
 
 The record of what shipped, in order and with its reasoning, is docs/STATE.md. Read that
 rather than inferring history from this list.
@@ -543,6 +545,41 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ MAIN'S CI WAS RED FOR FOUR MERGES AND I QUOTED A GREEN IN EVERY ONE OF THEIR PR BODIES.**
+  `node ralph/run.mjs` was honestly green at 3635 the whole time. **It does not run eslint.** The CI
+  job runs `npm run lint` as a SEPARATE STEP with `--max-warnings 0`, and two imports went dead when
+  the playground and the primer were converted to the sheet grammar.
+
+      41739ec   playground conversion   run CANCELLED — nothing ever went red on the commit
+      28b59b1   six corners             failure
+      470d7b8   the primer              failure
+      8a5aa87   the record pass         failure
+
+  **⚠ THE FIRST ONE WAS CANCELLED RATHER THAN FAILED, WHICH IS WHY NOBODY SAW IT START.** A cancelled
+  run reports no verdict, so the commit that BROKE the gate is the one commit in the sequence that
+  did not say so. By the time a run failed, red was already the standing state — and a state reads as
+  background rather than as a new fact.
+
+  **⚠ AND `ralph 3635 across 109 suites` WAS TRUE IN ALL FOUR BODIES.** Nobody skipped a check. The
+  figure simply answered a different question from the one a reader takes it for, which is this
+  file's signature defect arriving in **a verification line rather than in a measurement.** Same
+  family as the bundle grep that proved two values PRESENT when the question was which one RESOLVED.
+
+  **THE RULE THIS FILE ALREADY STATES AND I DID NOT APPLY: BEFORE TRUSTING A GREEN, ASK WHAT IT
+  ACTUALLY RAN.** It is the same question that found `upstream` skipped by name, and `parity` and
+  `studio-type` before it. **A local runner and a CI job are two subjects**, and the local one is the
+  one that feels like the answer.
+
+  **⚠ AND THE CLAIM IN THIS FILE'S OWN BUILD SEQUENCE WENT FALSE WITH IT.** It reads *"the repo sits
+  at zero problems"* — true when written, false from `41739ec`, and it is the sentence a reader would
+  cite to argue the check was covered. **Corrected in the same commit as the imports**, because a
+  false claim standing beside a true mechanism is how the next reader stops looking.
+
+  **THE CHEAP FORM IS ONE COMMAND AFTER A MERGE, AND IT IS NOT A GATE:** read the run's conclusion on
+  `main`. Nothing here has a CI RESULT as its subject — every instrument reads the working tree,
+  which is the same gap `upstream.mjs` was built for and does not cover, because a lint verdict is
+  not a deploy.
 
 - **⚠ CLOSED THE DAY IT WAS BOARDED, AND THE SECOND CHECK IS THE ONE THAT PAID.** The entry said
   nothing here measures where a box sits, after seven owner reports in one session that were all

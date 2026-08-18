@@ -11,7 +11,6 @@ import StatCard from "@/components/case-study/StatCard";
 import PrincipleCard from "@/components/case-study/PrincipleCard";
 import PullQuote from "@/components/case-study/blocks/PullQuote";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionLabel from "@/components/ui/SectionLabel";
 import PaletteSwitcher from "@/components/palettes/PaletteSwitcher";
 import { KIT, KIT_GROUPS, KIT_COUNT, type KitGroup } from "@/lib/palettes/kit";
 import { verdictFor, TEXT_FLOOR } from "@/lib/palettes/verdict";
