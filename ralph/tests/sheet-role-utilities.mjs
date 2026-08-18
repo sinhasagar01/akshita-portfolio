@@ -121,10 +121,15 @@ const walk = (dir, out = []) => {
 };
 const files = [...walk("app"), ...walk("components")].sort();
 
-const census = new Map();
-for (const rel of files) {
-  const src = blankTsx(readFileSync(join(ROOT, rel), "utf8"));
-  for (const m of src.matchAll(/className\s*=\s*\{?[`"']([^`"']*)/g)) {
+// ⚠ ONE FUNCTION, TWO CALLERS, AND THE SPLIT IS WHY THAT MATTERS NOW. Section D used to carry its
+// own copy of this logic so it could be driven with fixture strings. That was tolerable while the
+// registry had members — the file walk proved the matcher fired on real code. The registry is now
+// EMPTY, so every row that reads it is asserting a zero, and a zero from a matcher nothing has
+// exercised is worth nothing. Sharing the function makes D2's fixture the proof that the walk's
+// zero is a measurement, which is the parallel-list defect removed rather than described.
+const inertUtilitiesIn = (src) => {
+  const out = [];
+  for (const m of blankTsx(src).matchAll(/className\s*=\s*\{?[`"']([^`"']*)/g)) {
     const cls = m[1].replace(/\s+/g, " ");
     const used = TYPE_ROLES.filter((r) => new RegExp(`\\b${r}\\b`).test(cls));
     if (used.length === 0) continue;
@@ -133,10 +138,18 @@ for (const rel of files) {
       if (!declared.has(prop)) continue;
       for (const hit of cls.match(re) ?? []) {
         if (used.some((u) => hit.startsWith(u))) continue;
-        if (!census.has(rel)) census.set(rel, new Set());
-        census.get(rel).add(`${hit} vs ${prop}`);
+        out.push({ hit, prop });
       }
     }
+  }
+  return out;
+};
+
+const census = new Map();
+for (const rel of files) {
+  for (const { hit, prop } of inertUtilitiesIn(readFileSync(join(ROOT, rel), "utf8"))) {
+    if (!census.has(rel)) census.set(rel, new Set());
+    census.get(rel).add(`${hit} vs ${prop}`);
   }
 }
 const counts = Object.fromEntries([...census].map(([k, v]) => [k, v.size]).sort());
@@ -148,11 +161,14 @@ const total = Object.values(counts).reduce((a, b) => a + b, 0);
 // predates the unit that found them. The `kind` is the QUESTION the remediation would answer, not
 // a severity — `SPACING` means the markup asks for a gap the page does not have, `MEASURE` means a
 // width cap that never applied, `LEADING` means a line-height that never applied.
-const EXPECTED = {
-  "components/case-study/PrincipleCard.tsx": 1,           // LEADING — the card index, 17.6px against leading-none's 11
-  "components/case-study/blocks/BeforeAfterStory.tsx": 2, // LEADING — a rail numeral and a label
-};
-const EXPECTED_TOTAL = 3;
+// ⚠ THE REGISTRY IS EMPTY, AND THAT IS THE FIRST TIME. It opened at eighteen across eleven files.
+// Fifteen were margin utilities losing to a `margin: 0` shorthand, drained when the three type roles
+// stopped declaring it. The last three were `leading-*` losing to a `line-height` the mono roles do
+// declare — and those were DELETED rather than made to win, because the appearance nobody asked to
+// change is the role's, which is what shipped and what was reviewed. A class that draws nothing is
+// removed; a class that would change the page is a design decision and not a cleanup.
+const EXPECTED = {};
+const EXPECTED_TOTAL = 0;
 
 // ⚠ THE MARGIN CATEGORY IS DRAINED, AND IT IS ASSERTED BY NAME RATHER THAN BY ABSENCE FROM THE
 // REGISTRY ABOVE. Fifteen of the eighteen were `mt-*`, `mb-*` and `mx-auto` losing to a `margin: 0`
@@ -175,9 +191,9 @@ t("A3a …and the file walk is non-empty, so a broken walk cannot pass as a clea
   files.length > 100, true);
 
 console.log("\n--- B. THE PINNED POPULATION ---");
-t("B1 ⚠ THREE INERT UTILITIES REMAIN, all of them a line-height and none of them a margin",
+t("B1 ⚠ NOT ONE INERT UTILITY REMAINS ON ANY TYPE ROLE — the registry opened at eighteen",
   total, EXPECTED_TOTAL);
-t("B2 …and they sit in exactly the two named files, with the named count each",
+t("B2 …and no file carries one, so the registry and the walk agree",
   counts, EXPECTED);
 t("B2a …and the registry's own arithmetic reconciles, so the total is derived from the members",
   Object.values(EXPECTED).reduce((a, b) => a + b, 0), EXPECTED_TOTAL);
@@ -192,27 +208,14 @@ t("C1 the blog surface carries none — its heads take their spacing from a colu
   blogInert, []);
 t("C1a …and the blog surface is genuinely in the walk, so C1's zero is a measurement",
   files.filter((f) => /blog/.test(f)).length > 4, true);
-t("C2 no file outside the named two carries one, so a new instance fails on arrival",
+t("C2 no file carries one, so a new instance fails on arrival",
   Object.keys(counts).filter((f) => !(f in EXPECTED)), []);
 
 console.log("\n--- D. THE .tsx COMMENT STRIP, ASSERTED AGAINST A FIXTURE ---");
 // The census reduced to a pure function of one source string, so the guard can be driven with
 // inputs rather than inferred from a total that does not move. Both directions are asserted
 // because a strip that removed everything would satisfy D1 alone.
-const inertIn = (src) => {
-  const out = new Set();
-  for (const m of blankTsx(src).matchAll(/className\s*=\s*\{?[`"']([^`"']*)/g)) {
-    const cls = m[1].replace(/\s+/g, " ");
-    const used = TYPE_ROLES.filter((r) => new RegExp(`\\b${r}\\b`).test(cls));
-    if (used.length === 0) continue;
-    const declared = new Set(used.flatMap((r) => [...(roles.get(r) ?? [])]));
-    for (const [prop, re] of Object.entries(COMPETE)) {
-      if (!declared.has(prop)) continue;
-      for (const hit of cls.match(re) ?? []) if (!used.some((u) => hit.startsWith(u))) out.add(hit);
-    }
-  }
-  return [...out];
-};
+const inertIn = (src) => inertUtilitiesIn(src).map((x) => x.hit);
 // ⚠ THE FIXTURE IS THREE LINES RATHER THAN ONE, WHICH THIS REPOSITORY LEARNED THE HARD WAY. A
 // one-line comment cannot tell BLANKING from DELETION, because deleting it removes no newline and
 // every position after it still lines up. `cascade-public`'s A0c is the entry that records it.
@@ -230,6 +233,14 @@ t("D1 a competing utility quoted inside a comment is NOT counted",
   inertIn(FIXTURE_COMMENTED), []);
 t("D2 …and the same string in real markup IS counted, so D1 cannot pass by counting nothing",
   inertIn(FIXTURE_REAL), ["max-w-[40ch]"]);
+// ⚠ THE LEADING DETECTOR GETS ITS OWN FIXTURE BECAUSE ITS CATEGORY JUST EMPTIED. E2 asserts no
+// category survives; if `line-height` fell out of the COMPETE map, E2 would go on passing and the
+// deletion this unit made would stop being watched. A drained category needs a live detector more
+// than a populated one does.
+t("D2a a `leading-*` on a mono role IS detected — the exact pair this unit deleted",
+  inertIn('<span className="sheet-mono-label leading-none">x</span>'), ["leading-none"]);
+t("D2b …and an arbitrary leading value too, which is the other spelling that was deleted",
+  inertIn('<span className="sheet-mono-micro leading-[1.5]">x</span>'), ["leading-[1.5]"]);
 t("D3 …and a line comment is stripped too, which is the form every note in this repository uses",
   inertIn('// <h2 className="sheet-h2 max-w-[40ch]">\n<h2 className="sheet-h2">Live</h2>'), []);
 
@@ -247,7 +258,7 @@ console.log("\n--- E. THE DRAINED CATEGORY ---");
 const censusEntries = [...census.entries()];
 const marginInert = censusEntries.flatMap(([f, set]) =>
   [...set].filter((s) => s.endsWith(`vs ${MARGIN_PROP}`)).map((s) => `${f} :: ${s}`));
-t("E0 the census structure E1 reads is non-empty — without this, breaking the read passes E1 vacuously",
+t("E0 the census structure E1 reads agrees with the registry, empty or not",
   censusEntries.length, Object.keys(EXPECTED).length);
 t("E1 ⚠ NOT ONE MARGIN UTILITY ON A TYPE ROLE IS INERT — was 15, and this is the unit's whole claim",
   marginInert, []);
@@ -264,9 +275,9 @@ t("E1a …and margin utilities on type roles genuinely EXIST, so E1 is a measure
     }
     return n > 10;
   })(), true);
-t("E2 …and the surviving category is LEADING alone, so the registry and the drain agree",
+t("E2 …and NO category survives — margin, measure and leading are all empty",
   [...new Set([...census.values()].flatMap((s) => [...s].map((x) => x.split(" vs ")[1])))].sort(),
-  ["line-height"]);
+  []);
 
 console.log("\n--- F. THE THIRD ROUTE — AN INLINE MARGIN ON A TYPE ROLE ---");
 // ⚠ A UTILITY IS NOT THE ONLY WAY TO ASK A ROLE FOR A MARGIN, AND THE OTHER WAY WAS WHAT THE SITE

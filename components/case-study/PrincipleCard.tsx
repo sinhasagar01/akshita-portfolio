@@ -43,7 +43,7 @@ export default function PrincipleCard({
   if (web) {
     return (
       <div className="relative z-[1] border-t-2 border-accent pt-4">
-        <div {...idxProps} className={`sheet-mono-label leading-none${aff}`}>
+        <div {...idxProps} className={`sheet-mono-label${aff}`}>
           {principle.index}
         </div>
         <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3${aff}`}>
@@ -60,7 +60,7 @@ export default function PrincipleCard({
       className="relative z-[1] border bg-cream-200 p-7"
       style={{ borderColor: LINE }}
     >
-      <div {...idxProps} className={`sheet-mono-label leading-none${aff}`}>
+      <div {...idxProps} className={`sheet-mono-label${aff}`}>
         {principle.index}
       </div>
       <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3.5${aff}`}>
