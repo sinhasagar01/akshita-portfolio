@@ -463,7 +463,15 @@ t("A2b ⚠ AND IT SEPARATES COMPILER OUTPUT FROM AUTHORED COLOUR — a zero here
  * "…a colour an OKLCH-DECLARED token already names". The gap was live and in a STANDING gate, which
  * overturns the handoff's provisional finding that only a throwaway regex was affected. */
 const okl = colourKey;
-const themeSrc = globals.slice(globals.indexOf("@theme"), globals.indexOf('[data-theme="harbour"]'));
+/* ⚠ THE END OF THE THEME BLOCK IS A STRUCTURAL POSITION, NOT A PALETTE NAME. This sliced from
+   `@theme` to `[data-theme="harbour"]`, so retiring harbour made indexOf return -1 and
+   `slice(x, -1)` ran to the end of the FILE. Every palette's tokens then entered the map and
+   drawing-office's pure-black accent collided with six black shadow properties — six findings,
+   none of them real, from a boundary that named a member instead of describing the edge.
+   The first palette block after `@theme` is that edge whatever it is called. */
+const firstPaletteBlock = globals.indexOf('[data-theme="', globals.indexOf("@theme"));
+const themeSrc = globals.slice(globals.indexOf("@theme"),
+  firstPaletteBlock === -1 ? undefined : firstPaletteBlock);
 const tokenByValue = new Map();
 for (const m of themeSrc.matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) {
   const k = colourKey(m[2].trim());
@@ -967,8 +975,15 @@ const themeBlockCount = [...bundle.matchAll(/\[data-theme=["']?[a-z-]+["']?\]/g)
 console.log(`         ${themeBlockCount.length} distinct [data-theme] selectors in the single bundle`);
 t("T0 ⚠ EVERY THEME'S BLOCK SHIPS IN ONE BUNDLE — the attribute selects, the bytes do not change",
   themeBlockCount.length >= 2, true);
-t("T0b …and the published theme is not the only one present, which is what makes it switchable",
-  themeBlockCount.some((s) => /harbour/.test(s)) && themeBlockCount.some((s) => /cream/.test(s)), true);
+const publishedTheme = (/^theme:\s*(\S+)/m.exec(
+  readFileSync(new URL("../../content/site-settings.yaml", import.meta.url), "utf8")) ?? [])[1] ?? "cream";
+/* ⚠ THIS NAMED `harbour` AND `cream`, AND harbour retired. The property is not about those two:
+   it is that the PUBLISHED palette ships alongside at least one other, which is what makes the
+   attribute a switch rather than a label. Derived from the content file so it cannot go stale
+   the next time a palette is retired or the published one changes. */
+t("T0b …and the PUBLISHED theme ships beside at least one other, which is what makes it switchable",
+  [themeBlockCount.some((s) => s.includes(publishedTheme)),
+   themeBlockCount.some((s) => !s.includes(publishedTheme))], [true, true]);
 
 
 /* ⚠ EVERY MATCHING BLOCK, NOT THE FIRST. The first draft took `css.indexOf` / `css.search` and read

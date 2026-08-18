@@ -163,56 +163,20 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
      below records that this entry is derived by FONT IDENTITY rather than measured, so nobody
      mistakes it for a second browser session. The day a theme changes the body face, that theme
      needs its own measurement and this note is where they will find out. */
-  harbour: {
-    bodyFont: "IBM Plex Sans",
-    measure68chPx: 652.797,
-    provenance: {
-      method: "browser",
-      route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1456x795",
-      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
-    },
-  },
+
 
   /* Theme three. The measure is a FONT fact, not a colour one — orchid changes no font, so it
      inherits the same figure for the same reason harbour does. Recorded rather than omitted,
      because `theme` B1 asserts this key set equals `THEME_NAMES` exactly. */
-  orchid: {
-    bodyFont: "IBM Plex Sans",
-    measure68chPx: 652.797,
-    provenance: {
-      method: "browser",
-      route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1456x795",
-      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
-    },
-  },
+
 
   /* Themes four and five. Same reason again, and the third time this note is written is the
      argument for the FIELD rather than for the note: `provenance.element` carries "(inherited)"
      so a reader can tell a derived entry from a measured one WITHOUT reading the comment beside
      it. The day a theme changes the body face is the day one of these needs a real session. */
-  cerise: {
-    bodyFont: "IBM Plex Sans",
-    measure68chPx: 652.797,
-    provenance: {
-      method: "browser",
-      route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1456x795",
-      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
-    },
-  },
 
-  fern: {
-    bodyFont: "IBM Plex Sans",
-    measure68chPx: 652.797,
-    provenance: {
-      method: "browser",
-      route: "/blog/what-a-data-table-teaches-you-about-trust",
-      viewport: "1456x795",
-      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as cream)",
-    },
-  },
+
+
 
   /* The first dark palette. The measure is still a FONT fact and sapphire changes no font, so it
      inherits for the same reason harbour and orchid do. */

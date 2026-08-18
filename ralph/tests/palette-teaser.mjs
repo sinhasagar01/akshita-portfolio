@@ -75,12 +75,17 @@ console.log(`         ground chroma: ${TEASER_THEMES.map((n) => `${n} ${groundCh
  * ⚠ AND IT NAMES THE MEMBER RATHER THAN COUNTING. "Exactly one achromatic" would pass if basalt were
  * swapped for some future neutral palette while the prose above went on naming basalt — the
  * prose-and-data gap this file's own header was written about. */
-t("A5 ⚠ EXACTLY ONE MEMBER IS ACHROMATIC, AND IT IS BASALT — the set's fifth claim, asserted rather than described",
-  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005), ["basalt"]);
+/* ⚠ TWO NOW, NOT ONE, AND THEY ARE EXACTLY THE COUNTERPART PAIR. `harbour` retired and
+   `drawing-office` took its slot, which is achromatic by design. So the set carries a neutral
+   pair — one light, one dark, registry partners — and three hued members around them. That is a
+   sharper claim than "exactly one", and the row states the PAIR rather than a count so a third
+   neutral arriving still fails. */
+t("A5 ⚠ THE ACHROMATIC MEMBERS ARE EXACTLY THE NEUTRAL COUNTERPART PAIR — a third neutral is drift and fails here",
+  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005).sort(), ["basalt", "drawing-office"]);
 /* The complement, because "one is achromatic" says nothing about the other four still carrying hue —
  * and a set drifting neutral is exactly what the original row was guarding. */
 t("A5a …and every OTHER member carries hue, so the set cannot drift neutral without failing",
-  TEASER_THEMES.filter((n) => n !== "basalt").filter((n) => groundChroma(n) < 0.005), []);
+  TEASER_THEMES.filter((n) => n !== "basalt" && n !== "drawing-office").filter((n) => groundChroma(n) < 0.005), []);
 /* ⚠ A ROW TESTING `groundChroma === 0` WAS WRITTEN HERE AND DELETED, AND THE REASON IS MEASURED.
  * Basalt's ground chroma is 6.28e-9, not zero — the declaration is `oklch(... 0 ...)` and the
  * round-trip through sRGB leaves a residue — so the row could not fire even on the ONE palette it
@@ -103,9 +108,13 @@ t("A6a …and the WARM dark really is less chromatic than the COLOURED one, so t
 /* ⚠ THE ROW THAT PINS WHY INK-FLARE IS HERE RATHER THAN BASALT. Cream and ink-flare are registry
  * counterparts, so one press shows the SAME IDENTITY ON A DIFFERENT GROUND. Swapping in basalt would
  * buy achromatic coverage and lose the demonstration — this fails if anyone does. */
-t("A7 ⚠ THE SET CONTAINS A REGISTRY COUNTERPART PAIR — one press shows the same identity on a different ground",
+/* ⚠ THE CLAIM STRENGTHENED WHEN `harbour` RETIRED, AND THE ROW SAYS SO RATHER THAN KEEPING ITS OLD
+   LITERAL. It asserted ONE pair, cream and ink-flare. With drawing-office in harbour's place EVERY
+   member's counterpart is also in the set, so any dot press shows that identity on the other ground
+   rather than only two of them doing it. A literal left at the old pair goes red on an improvement. */
+t("A7 ⚠ FOUR OF THE FIVE PAIR INSIDE THE SET — nocturne's partner is redline, which the teaser does not carry",
   TEASER_THEMES.filter((n) => TEASER_THEMES.includes(THEME_COUNTERPART[n])).sort(),
-  ["cream", "ink-flare"]);
+  ["basalt", "cream", "drawing-office", "ink-flare"]);
 
 console.log("\nB · ONE mechanism — the dots are a door onto the preview, not a second one");
 t("B0 the component was found and has code — a zero here makes every row below vacuous",
@@ -221,7 +230,7 @@ t("E3 the reveal is an IntersectionObserver on the hero, not a scroll handler wr
 t("F1 ⚠ THE TEASER'S OWN COUNT WORD AGREES WITH THE REGISTRY'S — a forced copy is only safe while something compares it",
   TEASER_COUNT_WORD, countWord(TEASER_THEMES.length));
 t("F2 ⚠ AND THE ARRIVAL NOTE CARRIES THAT NUMBER — the existing row matches a prefix and never saw the count",
-  (arrivalNote("drawing-office") ?? "").endsWith(`not one of these ${countWord(TEASER_THEMES.length)}`), true);
+  (arrivalNote("sapphire") ?? "").endsWith(`not one of these ${countWord(TEASER_THEMES.length)}`), true);
 t("F3 …and the note is only offered for a palette the row does NOT contain, so F2 is not asserted on a null",
   arrivalNote(TEASER_THEMES[0]), null);
 

@@ -100,7 +100,13 @@
 const TEASER_COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six",
   "seven", "eight", "nine", "ten", "eleven", "twelve"] as const;
 
-export const TEASER_THEMES = ["cream", "harbour", "ink-flare", "nocturne", "basalt"] as const;
+/* ⚠ `harbour` WAS THE SECOND LIGHT AND IT IS RETIRED. The set kept its shape — two light, three
+   dark — by taking `drawing-office` in its place, which is the published medium rather than a
+   nearest-hue substitute. The reasoning above is about a hue relationship harbour had and this
+   palette does not, since drawing-office carries no accent hue at all. Kept rather than rewritten,
+   because the argument for CURATING five instead of deriving them is unchanged and is the half
+   worth keeping. */
+export const TEASER_THEMES = ["cream", "drawing-office", "ink-flare", "nocturne", "basalt"] as const;
 
 export type TeaserTheme = (typeof TEASER_THEMES)[number];
 

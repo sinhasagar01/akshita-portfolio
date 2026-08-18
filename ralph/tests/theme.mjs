@@ -36,7 +36,7 @@
 import { parseColor, parseOklch } from "../../lib/theme-contrast.ts";
 import { readFileSync } from "node:fs";
 import {
-  DEFAULT_THEME, VERIFY_THEME, SECOND_THEME, THEME_NAMES, resolveTheme, isKnownTheme,
+  DEFAULT_THEME, VERIFY_THEME, THEME_NAMES, resolveTheme, isKnownTheme,
   selectableThemes, unselectableReason, selectableCountWord, THEME_SPLASH, THEME_OG, BRAND_CHROME_COLOR,
   THEME_GROUND, THEME_COUNTERPART,
 } from "../../lib/theme.ts";
@@ -126,8 +126,8 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * pigeonhole those notes describe never applies to it. The ceiling was a property of the unit, not
  * of the circle. They are kept rather than corrected, because the reasoning was sound and it is the
  * unit that moved underneath them. */
-t("A8a the selectable set is the eleven real palettes — seven light and four dark",
-  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office", "redline"]);
+t("A8a the selectable set is the seven real palettes — three light and four dark",
+  selectableThemes(), ["cream", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office", "redline"]);
 /* ⚠ AND THE SITE MUST NOT SAY A DIFFERENT NUMBER FROM THE ONE IT OFFERS, WHICH IT DID FOR AS LONG
  * AS DRAWING-OFFICE HAS BEEN SHIPPED. Three user-facing strings read "nine" against ten selectable
  * palettes — `All nine` and `See all nine` as visible text, and `See all nine palettes` as an
@@ -141,7 +141,7 @@ t("A8a the selectable set is the eleven real palettes — seven light and four d
  * count rather than pinning a word. Past twelve the helper falls back to digits, which is correct
  * and plain — this row is what makes that a safety net rather than the thing that ships. */
 t("A8a-word ⚠ THE PALETTE COUNT HAS A WORD FOR ITS CURRENT SIZE — three labels said `nine` while ten shipped",
-  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["eleven", true]);
+  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["seven", true]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
@@ -168,7 +168,11 @@ t("A8 ⚠ AND EVERY TEMPORARY HOLD NAMES WHAT WOULD END IT — a hold with no en
      * than the ones it accepts. Same shape as `role-layer`'s guard whose filter was its own
      * precondition: bending the prose to fit the matcher is the wrong repair. */
     .filter((n) => !/\bends?\b|render|until|pending|when|clears?\b/i.test(unselectableReason(n) ?? "")), []);
-t("A8 …and the second theme is publishable", selectableThemes().includes(SECOND_THEME), true);
+/* ⚠ NAMED A MEMBER, NOW STATES THE PROPERTY. This read `SECOND_THEME`, which retired with the
+   four chromatic lights. What it is really asserting is that publishing is not a one-palette
+   affair, and that survives whatever the second palette happens to be called. */
+t("A8 …and at least one NON-DEFAULT palette is publishable, or the control is not a control",
+  selectableThemes().filter((n) => n !== DEFAULT_THEME).length > 0, true);
 t("A8 …and at least one theme is publishable, or the site has no palette at all",
   selectableThemes().length >= 1, true);
 
@@ -267,7 +271,7 @@ t("F1 every theme has a splash ground", Object.keys(THEME_SPLASH).sort(), [...TH
 t("F2 the control's splash is byte-identical to the default's, like every value it holds",
   THEME_SPLASH[VERIFY_THEME], THEME_SPLASH[DEFAULT_THEME]);
 t("F3 the real themes differ, so the field is not a constant wearing a lookup",
-  THEME_SPLASH[DEFAULT_THEME] !== THEME_SPLASH[SECOND_THEME], true);
+  THEME_SPLASH[DEFAULT_THEME] !== THEME_SPLASH[THEME_NAMES.find((n) => n !== DEFAULT_THEME && n !== VERIFY_THEME)], true);
 /* ⚠ THE FIELD THAT DOES NOT FOLLOW THE THEME, ASSERTED AS AN ABSENCE. `theme_color` tints a
  * surface the site does not own, so it is a single constant — and a future "finish the job" pass
  * that adds it to the per-theme map fails here rather than shipping a weekly-changing address bar. */
@@ -614,10 +618,14 @@ t("W2b …and no palette is its own counterpart, which W2a already forbids and w
 /* ⚠ THE ASYMMETRY IS FORCED BY THE COUNTS, NOT CHOSEN. Five light and four dark cannot pair
  * symmetrically, so exactly one light palette points at a dark one that points back elsewhere. These
  * three rows are that arithmetic, asserted so a future palette cannot quietly break the shape. */
-t("W3 ⚠ EVERY DARK PALETTE ROUND-TRIPS — the four symmetric pairs are symmetric in fact, not by intent",
-  DARKS.filter((d) => THEME_COUNTERPART[THEME_COUNTERPART[d]] !== d), []);
-t("W3a …and the darks claim four DIFFERENT lights, so no light is recommended twice from that side",
-  new Set(DARKS.map((d) => THEME_COUNTERPART[d])).size, DARKS.length);
+/* ⚠ THE RULE IS THE PIGEONHOLE NOW, NOT UNIVERSAL ROUND-TRIP. With the four chromatic lights
+   retired there are three lights and four darks, so exactly |darks| - |lights| of the darks
+   CANNOT have their partner point back — that is arithmetic rather than an authoring lapse.
+   Asserting the COUNT keeps the rule honest: one unreciprocated dark is forced, two is drift. */
+t("W3 ⚠ EVERY DARK ROUND-TRIPS EXCEPT THE PIGEONHOLE REMAINDER — one is forced, a second is drift",
+  DARKS.filter((d) => THEME_COUNTERPART[THEME_COUNTERPART[d]] !== d).length, Math.max(0, DARKS.length - LIGHTS.length));
+t("W3a …and the darks spread across every light there IS, so none is recommended twice while another goes unused",
+  new Set(DARKS.map((d) => THEME_COUNTERPART[d])).size, Math.min(DARKS.length, LIGHTS.length));
 /* ⚠ A ROW ASSERTING THE PIGEONHOLE WAS WRITTEN HERE, MUTATION-TESTED, AND REMOVED — RECORDED
  * BECAUSE THE REMOVAL IS THE FINDING. It read "exactly |light| - |dark| light palettes are
  * unreciprocated" and it PASSED, which is why it looked like a row. Nine mutations later it had
