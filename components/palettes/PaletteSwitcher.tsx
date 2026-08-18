@@ -130,7 +130,7 @@ export default function PaletteSwitcher({ palettes, active, onPick, heroRef, onP
       type="button"
       aria-pressed={p.name === active}
       onClick={() => press(p)}
-      className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1 text-left ${
+      className={`flex w-full items-center gap-2 px-1.5 py-1 text-left ${
         p.name === active ? "bg-surface-well shadow-[inset_2.5px_0_0_var(--color-accent-500)]" : ""
       }`}
     >
@@ -154,7 +154,7 @@ export default function PaletteSwitcher({ palettes, active, onPick, heroRef, onP
          gutter exists beside a 1300px measure. Reaching for `lg` because it is the house
          breakpoint would put the panel over content between 1024 and 1200. */
       className={[
-        "fixed right-0 top-1/2 z-40 hidden w-[196px] -translate-y-1/2 rounded-l-xl border border-r-0",
+        "fixed right-0 top-1/2 z-40 hidden w-[196px] -translate-y-1/2 border border-r-0",
         "border-ink-950/8 bg-surface/90 p-3 backdrop-blur-md min-[1200px]:block",
         reduced.current ? "" : "transition-opacity duration-300",
         shown ? "opacity-100" : "pointer-events-none opacity-0",
@@ -183,7 +183,7 @@ export default function PaletteSwitcher({ palettes, active, onPick, heroRef, onP
             startPreview(current.name, current.groundClass === "dark", Date.now());
             onPreview?.(`${current.name} applied across the portfolio`);
           }}
-          className="w-full rounded-full bg-accent px-2.5 py-2 text-[11px] font-semibold text-on-accent"
+          className="w-full bg-accent px-2.5 py-2 text-[11px] font-semibold text-on-accent"
         >
           Try across the portfolio ↗
         </button>
