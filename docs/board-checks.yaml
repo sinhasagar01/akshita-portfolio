@@ -161,21 +161,17 @@ entries:
       pattern: "S2a …and they are the hero's"
       expect: present
 
-  - match: "THE RENDERED-FLOOR SWEEP HAS NOW RUN ON FIVE PALETTES"
-    kind: measurement
-    why: >-
-      Whether the four dark palettes hold is a browser run across nine themes, and no file records
-      which palettes it has been driven on. The unresolved-ground count is the same shape: 144 of
-      298 on one page, and what those 144 ARE is a judgement about elements rather than a value any
-      pattern can read.
 
   # ---- added with the case-study-sand relation, 2026-08-19 ----
-  - match: "SHOULD `paint-floors` CARRY A DECORATION PREDICATE"
-    kind: judgement
-    why: >-
-      Whether a sweep should stop reporting elements a design has declared decorative is a trade
-      between the legibility of its output and its coverage, and no file can hold that. The trigger
-      is a THIRD ruled-decorative class, which is a count somebody has to take by running it.
+  - match: "`VideoEmbed` PAINTS THE RAW RUNG AS A FOREGROUND"
+    kind: structural
+    # The entry exists only while that file still names the rung as a foreground. Moving it to the
+    # role — which is the fix — removes this pattern and expires the entry rather than leaving it
+    # open over finished work.
+    holds_while:
+      file: components/case-study/blocks/VideoEmbed.tsx
+      pattern: "text-accent-500"
+      expect: present
 
   - match: "FOSFOR AI HAS NO PROTOTYPE FOOTAGE"
     kind: structural

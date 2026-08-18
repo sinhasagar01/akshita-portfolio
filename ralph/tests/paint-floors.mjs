@@ -254,6 +254,44 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     return { rgb: out, layers: layers.length + 1, method };
   };
 
+  /* ⚠ RULE 6 — WHAT THE DESIGN HAS DECLARED DECORATIVE, WHICH IS A PROPERTY RATHER THAN A LIST.
+     Three attributes together, and all three are load-bearing:
+
+         aria-hidden true    a screen reader never receives it, so the design has already ruled it
+                             not information. If it carried something a reader needs, THAT would be
+                             the defect rather than the contrast.
+         pointer-events none not interactive
+         user-select none    not selectable
+
+     MEASURED BEFORE IT WAS WRITTEN, across seven public pages:
+
+         aria-hidden alone                    312 elements, 74 of them drawing text
+         plus pointer-events and user-select   25 elements, ALL 25 drawing text
+
+     The 25 are the footer Ciao, the sheet stamps and the hero watermark — every one already ruled
+     decorative with its numbers in the triage above. Everything the predicate does NOT catch is a
+     real affordance: arrows, a hover hint, a back control, a zoom hint. So aria-hidden alone is
+     exactly the over-wide rule SkillsBody warned about when it recorded 8 of 17 such nodes being
+     real prose, and the third part is what makes the rule honest.
+
+     ⚠ AND THE COUNT IS REPORTED RATHER THAN DROPPED. An exclusion nobody can see is one nobody
+     chose, which is why this returns a number beside the measured total instead of quietly
+     shrinking it. Before this the sweep stood at 47 findings across the public surface of which 6
+     were live, and a gate whose common output is benign is one people learn to skip. */
+  const decorative = (el) => {
+    /* ⚠ THE SECOND FORM IS A MARKER BUILT FOR EXACTLY THIS AND HONOURED BY NOTHING UNTIL NOW.
+       SkillsBody carries data-texture on its ghost word, and its own comment says the previous
+       sweep "excluded this by accident rather than by intent" and that aria-hidden CANNOT carry the
+       meaning — because 17 nodes wear that attribute and EIGHT are real prose. So the codebase
+       already drew this distinction and wrote down why; the population is one site, and a marker
+       whose whole purpose is to be read is not a fixed list. */
+    if (el.getAttribute('data-texture') === 'true') return true;
+    if (el.getAttribute('aria-hidden') !== 'true') return false;
+    const s = cs(el);
+    return s.pointerEvents === 'none'
+      && (s.userSelect === 'none' || s.webkitUserSelect === 'none');
+  };
+
   /* RULE 4 — an element with no text of its own has no ratio. */
   const drawsText = (el) => {
     if (!el.childNodes.length) return false;
@@ -278,13 +316,38 @@ export const FLOORS_SCRIPT = String.raw`(() => {
 
   const all = document.querySelectorAll('body *');
   const rows = [];
-  let skippedNoText = 0, skippedHidden = 0;
+  let skippedNoText = 0, skippedHidden = 0, skippedDecorative = 0;
   for (const el of all) {
     if (!drawsText(el)) { skippedNoText++; continue; }
     if (!visible(el)) { skippedHidden++; continue; }
+    if (decorative(el)) { skippedDecorative++; continue; }
     const c = cs(el);
     const g = groundOf(el);
-    const fg = px(c.color);
+    /* ⚠ A TRANSLUCENT FOREGROUND HAD TO BE COMPOSITED OVER ITS GROUND, AND THIS READ IT OVER WHITE.
+       Point 3 in the header records px() filling white and then painting, and records the ground
+       loop being repaired for it. The SAME call was left on the foreground, one line apart, and it
+       fails in the opposite and worse direction.
+
+       The sheet stamp paints its ink at 26 per cent alpha. Measured on a real build:
+
+           redline    px() 193,193,193   true 189,189,188    1.72 fails   1.80 FAILS
+           sapphire   px() 251,252,253   true  69, 74, 80   18.61 PASSES  2.14 FAILS
+           basalt     px() 252,252,252   true  74, 74, 74   18.68 PASSES  2.16 FAILS
+
+       On a near-white palette the error is small and the row still surfaced. On a dark ground the
+       same call returns a near-white ink, so a genuinely sub-floor element reads about 18 and
+       PASSES. A ground fault MANUFACTURES findings and is caught by being loud. A foreground fault
+       HIDES them, and this record's own asymmetry rule says a false pass is the one nobody sees.
+
+       The straight ink is recovered by undoing the white the raster added, then composited over the
+       resolved ground — which is what the eye receives. An unresolved row keeps the straight ink,
+       because there is no ground to composite onto and reporting one would be a fiction. */
+    const fgAlpha = alphaOf(c.color);
+    const fgOverWhite = px(c.color);
+    const fgStraight = fgAlpha >= 0.999 ? fgOverWhite
+      : fgOverWhite.map((v) => Math.max(0, Math.min(255, Math.round((v - 255 * (1 - fgAlpha)) / fgAlpha))));
+    const fg = (fgAlpha >= 0.999 || !g.rgb) ? fgStraight
+      : [0, 1, 2].map((k) => Math.round(fgStraight[k] * fgAlpha + g.rgb[k] * (1 - fgAlpha)));
     /* ⚠ BOTH REFUSALS RETURN A NULL GROUND AND THE FIRST DRAFT HANDED IT STRAIGHT TO ratio, WHICH
        THREW ON THE FIRST TEXT OVER A PICTURE. That is how this export was found never to have been
        EXECUTED: it was driven by pasting into a console, where a live-edited revision was running,
@@ -336,6 +399,8 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     byMethod: rows.filter((x) => !x.unresolved)
       .reduce((a, x) => { a[x.method] = (a[x.method] || 0) + 1; return a; }, {}),
     skippedNoText, skippedHidden,
+    /* Declared decoration, counted rather than silently dropped. See rule 6. */
+    skippedDecorative,
     /* Reported, never folded into the pass total — an unresolved ground is an element this sweep
        did not measure, which is a different claim from an element that passed. */
     unresolvedGround: rows.filter((x) => x.unresolved).length,
