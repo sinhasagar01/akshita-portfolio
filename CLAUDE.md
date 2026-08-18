@@ -240,17 +240,24 @@ gates.
   meets 39 rows of which six are live**, and this record's standing argument is that a gate whose
   common output is benign is one people learn to skip.
 
-  **THE PREDICATE IS AVAILABLE AND IT COVERS ONE OF THE TWO, WHICH IS THE WHOLE DIFFICULTY.**
-  `aria-hidden` plus `pointer-events: none` plus `user-select: none` is a real PROPERTY rather than a
-  class list — the shape this record demands of any exclusion. **The stamp carries all three;
-  `.footer-ciao` carries only the last two.** So the honest predicate silences 28 and goes on
-  reporting 5, which is better and is not the tidy answer it looks like.
+  **⚠ AND THE REASON THIS ENTRY FIRST GAVE FOR NOT BUILDING IT WAS FALSE.** It said the predicate
+  covers one of the two, because `.footer-ciao` carried only two of the three parts. **It carries all
+  three.** I read that off the className, where `aria-hidden` is an ATTRIBUTE — sitting one line above
+  it in the source the whole time. Presence read from the wrong half of the element.
 
-  **AND WIDENING IT TO `aria-hidden` ALONE IS REFUSED IN ADVANCE.** Text hidden from assistive
-  technology that a sighted reader must still read is a real defect class, and a sweep that stopped
-  reporting it would be buying legibility of its own output with coverage. **The trigger for building
-  anything is a third ruled-decorative class**, at which point the population is real rather than two
-  instances sharing a hunch.
+  **MEASURED FROM THE DOM ACROSS SEVEN PUBLIC PAGES, WHICH IS WHAT THE ENTRY SHOULD HAVE CARRIED:**
+
+      aria-hidden alone                    312 elements, 74 of them drawing text
+      plus pointer-events and user-select   25 elements, ALL 25 drawing text
+
+  The 25 are `footer-ciao`, the sheet stamps and the hero's `crest` watermark. **Everything that
+  would still be reported is a real affordance** — arrows, `hover →`, `← back`, `Click to zoom`. So
+  the three-part predicate is exactly right, and `aria-hidden` alone is exactly the over-wide rule
+  `SkillsBody`'s comment already warned about when it recorded 8 of 17 such nodes being real prose.
+
+  **THE TRIGGER IS MET AND THE WORK IS STILL ITS OWN UNIT.** A third ruled class exists, the
+  population is 25 rather than a hunch, and encoding it changes what every future run reports — which
+  is not something to smuggle in beside a correctness fix to the same file.
 
 
 

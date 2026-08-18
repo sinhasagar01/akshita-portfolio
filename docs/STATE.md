@@ -12562,11 +12562,13 @@ ruling. **A 26% alpha cannot paint near-white on near-black**, and that impossib
 reason it was caught. `paint-floors`' own header records this as the fault that manufactured 140 of
 208 findings, and I committed it while ruling on that harness's output.
 
-**NOT ENCODED AS A CODE EXCLUSION.** The obvious predicate — `aria-hidden` plus `pointer-events:
-none` plus `user-select: none` — is a real property rather than a class list, and **`.footer-ciao`
-carries only the last two**, so it would silence 28 and go on reporting 5. Whether the sweep should
-carry a decoration predicate at all is now its own boarded decision, with a third ruled class as the
-trigger.
+**NOT ENCODED AS A CODE EXCLUSION**, and the reason first written here was false. It said
+`.footer-ciao` carried only two of the three parts of the obvious predicate. **It carries all
+three** — read off the className, where `aria-hidden` is an attribute sitting one line above it.
+Measured from the DOM across seven public pages: `aria-hidden` alone is **312 elements, 74 drawing
+text**; with `pointer-events: none` and `user-select: none` it is **25, all 25 drawing text**, and
+they are `footer-ciao`, the stamps and the hero watermark. Everything still reported is a real
+affordance. The predicate is right and building it is its own unit.
 
 ## ⚠ THE FOSFOR AI CASE STUDY WAS SHOWING THE DATA PROFILING PRODUCT AS ITS OWN PROTOTYPE
 
@@ -12612,6 +12614,57 @@ on the case studies are **32, of which 32 are the sheet stamps and `footer-ciao`
 since #671 ruled both. R4 was clean with one depicted device corner. R5's mobile unpin is by design
 and was recorded so the number does not read as a defect. **The rendered pass has one open item and
 it needs footage nobody in this repository can make.**
+
+## ⚠ THE REST OF THE PUBLIC SURFACE, AND THE SWEEP WAS WRONG ABOUT ITS OWN GROUND
+
+Ten public pages had never been measured on the published palette — the blog index, four posts,
+gallery, the two playground routes, a palette route and the 404. Derived from the prerender manifest
+rather than listed, so the set cannot fall behind the site.
+
+    1,271 elements measured · 132 unresolved · 19 below floor
+    9 ruled decorative · 10 NOT covered by any ruling
+
+**AND ALL TEN WERE THE INSTRUMENT.** Every one had `fg=250,250,248`, which is redline's `on-accent`,
+and every reported ground was a near-white page colour — so the accent fill each of them paints was
+missing from the stack. Classified from the DOM: **10 of 10 self-fill**, real ratios **6.53 to 6.65
+against a 4.5 floor.** 6.65 is redline's `on-accent` over `accent`, and this repository's own
+`theme-contrast` oracle for redline reads `[6.65, 9.51]` — two routes sharing no code, one figure.
+
+**THE DEFECT IS ONE WORD AND THE TWO PATHS DISAGREED ABOUT IT.** `groundOf` reads the paint stack
+when an element's centre is in the viewport, slicing the hit list FROM SELF — so the strong path has
+always counted an element's own fill. The off-screen fallback started at `parentElement`. A button
+that paints its own accent had that fill dropped and was measured against the page, and because its
+text is `on-accent` on a near-white page the ratio came back at 1.0.
+
+**⚠ AND THE ROW COULD NOT SAY WHICH METHOD PRODUCED IT, THOUGH THE CODE PROMISED IT DID.** The
+fallback's own comment reads "fall back to the ancestor walk and SAY SO, because a figure from a
+weaker method must not be reported as if it came from the stronger one" — and nothing carried that
+to the output. The `offscreen` flag was set to a literal `false` in one branch and never propagated.
+Rows now carry `method`, and the summary counts by it.
+
+**THE FIRST HONEST COVERAGE FIGURE THIS HARNESS HAS EVER PRINTED:**
+
+    by method   paint-stack 240   ancestor-walk 899
+
+**79% of every figure it produces comes from the weaker path**, because a viewport cannot hold a
+page. That was true of every run ever recorded here and nothing said so.
+
+    ten pages     19 below floor  ->  9, and 0 unruled
+    five pages    39 below floor  ->  38
+
+**WHAT SURVIVES ACROSS THE WHOLE PUBLIC SURFACE IS DOCUMENTED, AND EACH WAS CHECKED RATHER THAN
+ASSUMED.** The work filter's chip and its count resolve through `SPAN.wf-thumb` at the accent and
+clear at 6.65 — the sibling limit, confirmed from the stack. The About captions are **refused** by
+the strong path with `centre-missed-element`, so they are unresolved rather than below floor, which
+is what the triage always said. The stamps and `footer-ciao` are ruled. **Zero real site defects.**
+
+**⚠ AND CHASING THE LAST ONE FOUND A CLAIM I SHIPPED IN #671 THAT WAS FALSE.** That entry said the
+decoration predicate covers one of its two members, because `.footer-ciao` carried only two of three
+parts. **It carries all three.** I had read the className, where `aria-hidden` is an ATTRIBUTE
+sitting one line above it in the source. Measured from the DOM over seven pages: `aria-hidden` alone
+is 312 elements with 74 drawing text; the three together are **25, all 25 drawing text**, and they
+are exactly `footer-ciao`, the stamps and the hero's `crest` watermark. Corrected in all three
+places that carried it.
 
 ## WHAT'S NEXT
 
