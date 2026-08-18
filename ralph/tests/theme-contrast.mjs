@@ -417,8 +417,15 @@ t("D6 the DEFAULT sits inside 0.1 of two DISTINCT floors — computed, not carri
  * ground at c 0.016 needs 117 degrees where c 0.030 needs 61. A band with one member has no
  * separation to enforce, and saying so beats inheriting 60 from a class it was measured on. */
 const BANDS = [
-  { label: "light", min: 0.920, max: 0.962, hueFloor: 12.5, floorUnit: "dE",
-    why: "the five shipped palettes, measured on THIS band. ⚠ 12.5 IS A CEILING ON THE FLOOR RATHER "
+  { label: "light", min: 0.950, max: 0.990, hueFloor: 12.5, floorUnit: "dE",
+    why: "\u26a0 THE BAND MOVED 0.920-0.962 TO 0.950-0.990, AND IT GOT NARROWER RATHER THAN WIDER. "
+       + "The five chromatic palettes that pinned the floor at 0.920 are retired; the two members "
+       + "left are drawing-office at L95.5 and redline at L98.45, both near-white sheets. Width went "
+       + "0.042 to 0.040, so hue can swing the total by 41.4% across it against the 25% L2 requires "
+       + "\u2014 UP from 38.1%. Retiring the nine did not buy room by loosening a rule: it made the "
+       + "band TIGHTER and hue MORE significant across it, which is the opposite of the trade a "
+       + "widening would have been. The pair separates by 16.25 dE against a 12.5 floor. "
+       + "the five shipped palettes, measured on THIS band. \u26a0 12.5 IS A CEILING ON THE FLOOR RATHER "
        + "THAN A JUDGED THRESHOLD, and the difference is the whole entry. It sits just under the "
        + "SMALLEST separation among the ten shipped light pairs, cream/cerise at 12.529964, every one of which went "
        + "through the render protocol and reads as its own colour. So the evidence bounds this floor "
@@ -973,7 +980,7 @@ t("D12z ⚠ D12d MEASURES IN dE — proved on ONE pair in both units, so a rever
   [Math.round(accentSep("sapphire", "nocturne") * 10) / 10,
    Math.round(dist3(BLACK_ACCENT, rgbOf("redline", "accent-500")) * 10) / 10,
    arc(0, HUES.redline.accent)],
-  [47.2, 164.1, 27]);
+  [47.2, 179.3, 29.1]);
 t("D12za ⚠ …AND D12d IS THE CALLER THAT USES IT — D12z stays green if D12d reverts to arc(), so the two are not redundant",
   /!\(b in ACCENT_EXEMPT\) && accentSep\(a, b\) < ACCENT_FLOOR\)/.test(
     readFileSync(new URL(import.meta.url), "utf8")), true);
@@ -1418,7 +1425,7 @@ t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never
 const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
   basalt: [3.65, 2.69],
-  "drawing-office": [20.12, 20.12], redline: [7.32, 9.57],
+  "drawing-office": [20.12, 20.12], redline: [6.65, 9.51],
 };
 /* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
  * to this map fails here instead of being quietly unmeasured — which is the whole defect above,

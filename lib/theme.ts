@@ -455,7 +455,7 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
      the same paint. Only the accent differs, and it differs to the one value an achromatic palette
      can give it. */
   [DEFAULT_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
-  [ELEVENTH_THEME]: { cream: "#fff9f3", ink: "#0b0b0b", muted: "#484848", accent: "#992c28" },
+  [ELEVENTH_THEME]: { cream: "#fafaf8", ink: "#111110", muted: "#474741", accent: "#b01c14" },
   /* Byte-identical to the default, like every other value the control holds. */
   /* ⚠ THE TWIN IS A CLONE OF WHATEVER THE DEFAULT IS, so it holds the DEFAULT'S values rather
      than a copy of one particular palette's. It carried cream's until the default moved. */
@@ -468,7 +468,7 @@ export const THEME_SPLASH: Record<string, string> = {
   [EIGHTH_THEME]: "#F9FAFF",
   [NINTH_THEME]: "#FAFAFA",
   [DEFAULT_THEME]: "#FAFAFA",
-  [ELEVENTH_THEME]: "#FFF9F3",
+  [ELEVENTH_THEME]: "#FAFAF8",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FAFAFA",
 };

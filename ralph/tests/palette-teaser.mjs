@@ -80,12 +80,16 @@ console.log(`         ground chroma: ${TEASER_THEMES.map((n) => `${n} ${groundCh
    pair — one light, one dark, registry partners — and three hued members around them. That is a
    sharper claim than "exactly one", and the row states the PAIR rather than a count so a third
    neutral arriving still fails. */
-t("A5 ⚠ THE ACHROMATIC MEMBERS ARE EXACTLY THE NEUTRAL COUNTERPART PAIR — a third neutral is drift and fails here",
-  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005).sort(), ["basalt", "drawing-office"]);
+/* ⚠ THREE NOW, NOT A PAIR, AND redline IS THE THIRD. Its ground carries c 0.003 — a faint warm
+   grey that reads as neutral to this row's 0.005 threshold. So the set is three near-neutral
+   media and two hued darks, which is what a sheet-set direction looks like once its chromatic
+   palettes retire. The row states the MEMBERS rather than a count, so a fourth still fails. */
+t("A5 ⚠ THE ACHROMATIC MEMBERS ARE EXACTLY THE THREE SHEET MEDIA — a fourth neutral is drift and fails here",
+  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005).sort(), ["basalt", "drawing-office", "redline"]);
 /* The complement, because "one is achromatic" says nothing about the other four still carrying hue —
  * and a set drifting neutral is exactly what the original row was guarding. */
 t("A5a …and every OTHER member carries hue, so the set cannot drift neutral without failing",
-  TEASER_THEMES.filter((n) => n !== "basalt" && n !== "drawing-office").filter((n) => groundChroma(n) < 0.005), []);
+  TEASER_THEMES.filter((n) => !["basalt", "drawing-office", "redline"].includes(n)).filter((n) => groundChroma(n) < 0.005), []);
 /* ⚠ A ROW TESTING `groundChroma === 0` WAS WRITTEN HERE AND DELETED, AND THE REASON IS MEASURED.
  * Basalt's ground chroma is 6.28e-9, not zero — the declaration is `oklch(... 0 ...)` and the
  * round-trip through sRGB leaves a residue — so the row could not fire even on the ONE palette it
