@@ -12245,28 +12245,192 @@ would. Three merges landed inside deploy intervals in one session and two were r
 wait to the next SUCCESS, not a day, and the number to watch is the latest production deployment
 rather than any commit status.**
 
+## THE SHEET DIRECTION REACHES EVERY PUBLIC PAGE (#640–#652), ralph 3589 → 3635
+
+Seventeen units in one session. The conversion is the smaller half; what the arc actually produced
+is a cascade finding that had been live for the whole direction, three gates for it, and the first
+instrument in this repository that measures a RENDERED element against the ground it is painted on.
+
+**WHAT CONVERTED.** Blog heads, cards and prose · the gallery page and its modal · the playground
+and the primer · the 404 and the error boundary had gone earlier in the arc. Every public page now
+carries the section rule, the type roles and the mono scale.
+
+## ⚠ THE TYPE ROLES ARE UNLAYERED, AND `margin: 0` MADE FIFTEEN GAPS INVISIBLE (#641)
+
+`.sheet-h2`, `.sheet-h3` and `.sheet-lede` each declared `margin: 0` as a SHORTHAND, and these rules
+are unlayered — so every `mt-*`, `mb-*` and `mx-auto` on one of them resolved to nothing. Eighteen
+inert utilities across eleven files, fifteen of them spacing, including **every case-study section
+head across 53 sections**, two home-page headings, the 404 and the error boundary.
+
+**AND THE SITE ALREADY CONTAINED THE WORKAROUND, WITH THE SAME TWO NUMBERS.** `SheetSectionHead` —
+the home page's section head — set those gaps as INLINE STYLES, which beat an unlayered rule.
+`CaseSectionHeader` wrote the identical values as UTILITIES and drew nothing. One intent, two
+mechanisms, one working, and the difference invisible from inside either file.
+
+The base reset supplies the zero anyway: Tailwind v4's preflight is one universal rule,
+`*, ::backdrop, ::after, ::before { margin: 0 }` in `@layer base` — read off the browser's rule list
+rather than grepped, because a bundle scan for it returned nothing.
+
+**THREE ROUTES TO AN INERT UTILITY, AND EACH NOW HAS A GATE.** `ralph/tests/sheet-role-utilities.mjs`
+derives the role table from the stylesheet rather than repeating it:
+
+    a UTILITY beside a role that declares the property     section B, drained 18 -> 0
+    an INLINE STYLE on a role                              section F, the third route
+    a role's own COLOUR outranking a conditional one       section G, written after it shipped
+
+## ⚠ THE MONO ROLES CARRY THEIR COLOUR, AND THAT SHIPPED A 2.30 (#647, fixed #648)
+
+`.sheet-mono-label` was given to a gallery filter chip for its size and tracking. The class is
+unlayered and paints `var(--sheet-mark)`, so it outranked BOTH arms of the chip's own ternary and the
+pressed chip drew `text-secondary` on the accent fill:
+
+    PRESSED chip   oklch(0.4 0 0) on oklch(0 0 0)   2.30 against a 4.5 floor, live 18 minutes
+    after                                           20.12
+
+**BOTH TOKENS WERE LEGITIMATE AND THE PAIRING WAS DECLARED NOWHERE.** No token gate could have seen
+it. It was found by sweeping a dark surface for an unrelated reason and noticing one bad figure among
+clean ones.
+
+**THE RULE: a role that supplies colour cannot sit on an element whose colour is decided by something
+else** — a CONDITIONAL colour, or a ground that is not the page's. One instance of each now exists,
+the chip and the gallery modal, and both take the direction's size and tracking as utilities while
+keeping their own colour.
+
+## ⚠ NOTHING MEASURED A RENDERED ELEMENT AGAINST ITS OWN GROUND (#649)
+
+The two instruments that look like they do, do not. `theme-contrast` judges declared token PAIRS;
+`paint-sites` asks whether a foreground HOLDS STILL as its ground inverts. This record already named
+the gap — a token instrument "cannot know which pairings the DOM actually produces."
+
+`ralph/tests/paint-floors.mjs` closes it, skipped by `run.mjs` BY NAME like `parity` and
+`paint-sites`. **Four instrument faults while building it and three were faults already recorded
+here**, every one caught by disbelieving a figure rather than reading code:
+
+    a SIBLING-painted ground   an ancestor walk cannot reach it — 1.01 reported, about 20 real
+    the element's OWN fill     sliced one past itself — 1.00 reported, 20.12 real
+    a foreground over a PHOTO  refused now, never guessed
+    an UNLANDED centre point   the point missed the element, so the "ground" was the page —
+                               three false findings on `/palettes` in one run
+
+**IT REFUSES RATHER THAN GUESSING**, and an unresolved ground is its own count, never folded into the
+pass total. It is a DEFECT DETECTOR and not a census: `elementsFromPoint` returns what is under the
+CURSOR, not always what is under the TEXT, and forcing `pointer-events: auto` made it worse — five
+findings became fourteen, because the stack then admits layers painted ABOVE the text.
+
+## ⚠ A SKIPPED SUITE IS NEVER PARSED, AND RALPH REPORTED GREEN OVER AN UNPARSEABLE FILE
+
+A comment in `paint-floors` quoted an expression containing a backtick, which closed the `String.raw`
+block the whole browser script lives in. **ralph reported 3633 across 109 suites with the file
+broken**, because a suite `run.mjs` skips is never imported — the identical hole `mutate.mjs`'s
+shipped syntax error fell through. `mutate-harness` A3 now parses every skipped suite, with the list
+read out of `run.mjs` rather than copied.
+
+## ⚠ A REDEFINED SCALE STEP READ AS A TAILWIND DEFAULT KILLED A UNIT'S PREMISE (#645)
+
+#644 shipped a claim that a fourth heading role was owed, citing "thirteen sites, eleven of them
+case-study card titles in the 20 to 24px band". That came from a source grep reading `text-2xl` as a
+static 24px. Measured, `--text-2xl` is `clamp(1.5rem, 1.35rem + 0.75vw, 1.875rem)` and tops out at
+**30px**, so every heading counted already renders at `.sheet-h3`'s own size. **No band, no missing
+level, no role to build.** The declared-value-read-as-rendered defect arriving in a TOKEN rather than
+a class.
+
+The derivation found a real population next door — eleven utilities asking 400 and drawing 500 under
+`.case-study .font-display` — and **a source-only census would have deleted the wrong two**: 56
+elements carried both classes, 52 rendered 500 and four rendered 400 as asked. Those four are the
+hero's `h1`, which sits OUTSIDE the `.case-study` wrapper. Nothing in the source distinguishes them.
+
+## ⚠ THE PRIMER'S OWN SUBJECT WAS FAILING IN ITS OWN LABELS (#652)
+
+A page teaching that L decides legibility had labels that could not be read. Its HSL card — built to
+prove "50% L" is a lie — carried white on Pink at **3.14**, so it was being read THROUGH the lie.
+
+The L strip was harder. Widening the inks took 4.04 to 4.41 and still failed, because the problem was
+never the inks but which one the rung was handed:
+
+    black and white are equal at relative luminance 0.179
+    (Lg + 0.05) / 0.05 = 1.05 / (Lg + 0.05)   ->   Lg + 0.05 = sqrt(0.0525)
+    the L56 rung sits just BELOW that, so white wins and `> 52` was giving it black
+
+Then the ink's own chroma cost the last 0.06: the BACKGROUNDS already pull chroma in at the extremes,
+with the reason written one line above, and the ink did not. **A ground AT the crossover can never
+exceed 4.58**, which is why 4.53 is stated rather than rounded away.
+
+## ⚠ SIX CORNERS BELONGED TO NO SURFACE, AND THREE CENSUSES ALL MISSED THEM (#651)
+
+The owner found them by looking at the page: the palette side drawer, the theme pill, the preview
+bar, the three-dot menu, the footer, the reading vessel. The radius work had run three times and
+**each pass was scoped to a SURFACE** — case studies, nav, blog, gallery — so anything belonging to
+no surface was never anybody's subject. Three censuses, each complete within its own walk, all blind
+to the same six things.
+
+**AND THE THREE-DOT CONTROL REVERSES PART OF #635 ON THE OWNER'S RULING.** That unit kept it round
+under "a circle keeps it because it IS one". The RULE is untouched; what moved is which side of it a
+36px button with three dots inside falls on. `radius-scale` D1 goes 7 → 9 and D2 goes 4 → 2 with the
+reversal written at the rows, so a later reader sees a decision rather than drift.
+
+## ⚠ AND A COMMENT'S TRIGGER FIRED FOR A REASON IT DID NOT MODEL
+
+A long note kept `rounded-full` on the primer's button because CSS clamps radius to half the box, so
+a pill and a 24px corner both resolved to 21px — correct, and it named its trigger as a HEIGHT
+change. What diverged them was the PAGE: every box around content now draws square, so the sibling it
+was matched against went to 0. **A trigger written as a property of one element cannot see a ruling
+made about all of them.**
+
+## ⚠ WHAT NO INSTRUMENT HERE CAN SEE: WHERE A BOX SITS
+
+The owner also reported the playground heading off-centre. `.sheet-h2` caps the measure at 24ch, so
+taking the role gave it a box narrower than its centred column and it sat hard left — `text-center`
+was centring the lines INSIDE that box the whole time. It was fixed in the PR that introduced it,
+before merge.
+
+**EVERY INSTRUMENT THIS ARC BUILT MEASURES COLOUR, SIZE OR WEIGHT.** The floor sweep would have
+passed that heading at 17.27 while it sat in the wrong place, and all six corners were geometry too.
+Position is the one axis nothing here measures, and it is now the largest named gap.
+
+## ⚠ AND THE GATES CAUGHT THEIR AUTHOR THREE TIMES IN ONE SESSION
+
+`sheet-role-utilities`, written for the inert-utility class, went red on **my own** playground
+conversion within an hour of shipping — four inert classes on one heading. `css-comment-trap` then
+went red twice on the comments apologising for them, the twelfth and thirteenth
+explaining-it-requires-writing-it instances here. And the mono-role colour rule was walked into
+mid-unit, on the primer's swatch labels, while applying it.
+
+**A gate that only ever catches other people is a gate nobody has tested.**
+
 ## WHAT'S NEXT
 
-**THREE THINGS ARE OPEN AND NONE OF THEM IS CODE THIS REPO CAN WRITE.**
+**THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.
 
-- **The particle count, on a mid-range Android.** The ember canvas runs ~1,600 particles at device
-  pixel ratio and the loop stops when the last one lands. The contract's own note is the standing
-  instruction and it has not been carried out: **the honest comparison is frames dropped, not how it
-  feels on a fast laptop**, and particle count is the one knob. Until that measurement exists the
-  hero's cost on the slowest real device is UNKNOWN rather than acceptable.
-- **The hero-figure upload round trip.** `/api/studio/upload-hero-figure` is asserted at unit level
-  only — the path helper, the exclusion, the serializer round trip. The end-to-end upload needs
-  github mode AND an owner session, so it is **UNVERIFIED and owner-only**, stated rather than faked.
-  The first real upload is the test.
-- **Whether the adopted hero copy and its figures are final.** The contract's words are now content
-  by owner ruling. Whether "6 years / 4 case studies / 2 companies" and the four answers are what
-  the site should say is a judgement, not a check, and no gate will ever raise it.
+- **POSITION IS UNMEASURED, AND IT IS THE LARGEST NAMED GAP.** Seven of the owner's reports this
+  session were geometry — six corners and a heading sitting hard left — and every instrument here
+  measures colour, size or weight. The floor sweep would have passed that heading at 17.27 while it
+  sat in the wrong place. **A check that asks whether a box is where its container implies would
+  have caught all seven**, and nothing of the kind exists.
+- **THE FLOOR SWEEP HAS ONLY RUN ON `drawing-office`.** It is built, it refuses rather than guessing,
+  and it has been driven on five pages of ONE palette. The four dark palettes invert every ground,
+  and this record's measurement failures cluster on dark surfaces. **Its `unresolvedGround` count is
+  also uncharacterised** — 144 of 298 on `/palettes` — and a sweep that cannot resolve half its
+  subjects is reporting less coverage than a reader would assume.
+- **`cascade-public`'s RESOLVER MODELS THE CASE-STUDY HERO AS INSIDE `.case-study`.** The DOM says
+  otherwise: `closest('.case-study')` is null and the hero draws the 400 it asks for. S2 therefore
+  carries **two known false positives**, named in S2a rather than deleted. Correcting the resolver
+  takes S2 to a true zero and is a change to that suite's cascade model with its own blast radius.
+- **THE BLOG'S `← Blog` BACK LINK** is the last retired meta tracking anywhere public. One line.
 
-**AND ONE THING THE ARC EARNED THAT IS NOT A TASK.** The hero's illustration is a fixed raster —
-`figure_vs_plate` measures 4.63 on light and 3.60 on dark — so its warm palette cannot follow the
-theme. That is the asset ceiling the hero README already documents, and it is now the OWNER'S to move
-rather than the code's: `heroFigure` is an editable field, so a redrawn cut-out is an upload rather
-than a PR.
+**AND THREE THINGS THAT ARE NOT CODE.**
+
+- **Whether the sheet direction is finished as a DESIGN.** Every page speaks it; whether it says the
+  right thing about her work is a judgement no gate raises. The owner has ruled on the nav, the
+  watermarks, the radius language and the three-dot control — each time from the render, and each
+  time the ruling was better than the inference that preceded it.
+- **The particle count on a mid-range Android**, unchanged from the hero arc and still unmeasured.
+- **The hero-figure upload round trip**, still owner-only and UNVERIFIED rather than faked.
+
+**⚠ AND ONE STANDING WARNING THIS SESSION EARNED.** Three gates caught their own author within an
+hour of shipping — the inert-utility census on my own conversion, the comment trap twice on the notes
+apologising for it, and the mono-role colour rule walked into while applying it. **A gate that only
+ever catches other people is a gate nobody has tested.** The corollary is the useful half: when a
+gate goes red on the person who wrote it, that is the strongest evidence available that it works.
 
 ---
 
