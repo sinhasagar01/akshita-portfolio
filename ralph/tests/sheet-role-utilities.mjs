@@ -268,5 +268,46 @@ t("E2 …and the surviving category is LEADING alone, so the registry and the dr
   [...new Set([...census.values()].flatMap((s) => [...s].map((x) => x.split(" vs ")[1])))].sort(),
   ["line-height"]);
 
+console.log("\n--- F. THE THIRD ROUTE — AN INLINE MARGIN ON A TYPE ROLE ---");
+// ⚠ A UTILITY IS NOT THE ONLY WAY TO ASK A ROLE FOR A MARGIN, AND THE OTHER WAY WAS WHAT THE SITE
+// ACTUALLY USED. While the roles declared `margin: 0` unlayered, an INLINE style was the single
+// spelling that reached the element — it outranks every rule, layered or not. `SheetSectionHead`
+// used one, which is why the home page's six ledes had their gaps while 53 case-study sections did
+// not. The roles stopped declaring margin, so the inline styles were converted to the same two
+// utility classes the case-study head already emits, and this row keeps that route shut.
+//
+// ⚠ AND ONE OF THE TWO CONSTANTS NEVER NEEDED TO BE INLINE, WHICH IS THE PART WORTH KEEPING.
+// `LEDE_GAP` sat on a `<p className="sheet-lede">` and was a forced workaround. `RULE_GAP` sat on a
+// plain `<div>` carrying no role at all, where a utility would always have won — it was inline by
+// IMITATION of its neighbour. A workaround spreads to places that never had the problem, and from
+// the file it reads as one deliberate pattern rather than one repair and one copy.
+//
+// THE ROW IS SCOPED TO THE ROLE CASE, DELIBERATELY. An inline margin on an element with no role is
+// a style preference the project states elsewhere (lay siblings out with gap, not margins), and
+// three legitimate ones survive: a group wrapper, a decorative centring by negative margin, and
+// `app/global-error.tsx`, whose own header forbids it from depending on the stylesheet at all.
+const inlineMarginOnRole = (src) => {
+  const out = [];
+  // an opening tag carrying BOTH a type role in className and a margin in a style object
+  for (const m of blankTsx(src).matchAll(/<[A-Za-z][^>]*>/g)) {
+    const tag = m[0];
+    if (!TYPE_ROLES.some((r) => new RegExp(`\\b${r}\\b`).test(tag))) continue;
+    if (/style\s*=\s*\{[^}]*margin/i.test(tag)) out.push(tag.replace(/\s+/g, " ").slice(0, 70));
+  }
+  return out;
+};
+const inlineHits = files.flatMap((rel) =>
+  inlineMarginOnRole(readFileSync(join(ROOT, rel), "utf8")).map((t) => `${rel} :: ${t}`));
+t("F1 ⚠ NO ELEMENT CARRYING A TYPE ROLE SETS AN INLINE MARGIN — the third route, shut",
+  inlineHits, []);
+t("F1a …and the matcher fires on a constructed instance, so F1's zero is a measurement",
+  inlineMarginOnRole('<p className="sheet-lede" style={{ marginTop: "18px" }}>x</p>').length, 1);
+t("F1b …and it does NOT fire on an inline margin without a role, which is a style choice and not this defect",
+  inlineMarginOnRole('<div className="relative" style={{ marginTop: "28px" }}>x</div>'), []);
+t("F1c …nor on a role with a NON-margin inline style, so the row keys on the property",
+  inlineMarginOnRole('<p className="sheet-lede" style={{ paddingTop: "18px" }}>x</p>'), []);
+t("F1d …and a commented-out instance is not counted, on the same strip section D proves",
+  inlineMarginOnRole('// <p className="sheet-lede" style={{ marginTop: "18px" }}>x</p>'), []);
+
 console.log(`\nsheet-role-utilities result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
