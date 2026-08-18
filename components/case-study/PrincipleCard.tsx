@@ -46,7 +46,7 @@ export default function PrincipleCard({
         <div {...idxProps} className={`sheet-mono-label${aff}`}>
           {principle.index}
         </div>
-        <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3${aff}`}>
+        <h3 {...titleProps} className={`font-display text-2xl text-text-primary leading-[1.1] mt-3${aff}`}>
           {principle.title}
         </h3>
         <p {...bodyProps} className={`text-[0.95rem] text-text-secondary leading-[1.56] mt-2.5${aff}`}>
@@ -63,7 +63,7 @@ export default function PrincipleCard({
       <div {...idxProps} className={`sheet-mono-label${aff}`}>
         {principle.index}
       </div>
-      <h3 {...titleProps} className={`font-display text-2xl font-normal text-text-primary leading-[1.1] mt-3.5${aff}`}>
+      <h3 {...titleProps} className={`font-display text-2xl text-text-primary leading-[1.1] mt-3.5${aff}`}>
         {principle.title}
       </h3>
       <p {...bodyProps} className={`text-[0.95rem] text-text-secondary leading-[1.56] mt-3${aff}`}>

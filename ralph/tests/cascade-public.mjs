@@ -446,10 +446,36 @@ t("S1: every shadowed utility is `font-weight` under `.case-study .font-display`
  * the weight class, so it asked nothing and was never a member. The same distinction `IssueList`
  * made above, in the same suite, one unit later: reading the diff is what separates a repair from a
  * coincidence, and the number alone still cannot. */
-t("S2: ⚠ 10 UTILITIES ARE DEAD BY A RULE THAT IS NOT THE RESET — they ask 400 and draw 500, and #351's census called them repaired",
-  shadowedPub.length, 10);
+/* ⚠ 10 -> 2, AND THE ELEVEN THAT LEFT WERE DELETED RATHER THAN CONVERTED. Every one asked 400 and
+ * drew 500, so removing the class moved nothing: `PrincipleCard` x2, `BeforeAfter`, `BeforeAfterStory`
+ * x2, `FeatureRows`, `FigureGrid`, `GlanceGrid`, `VideoEmbed`, `WorkStory`, and one `font-medium` on
+ * `BeforeAfterStory`'s after-rating that asked 500 and drew 500.
+ *
+ * ⚠ THAT LAST ONE CARRIED AN INTENT THAT HAS NEVER RENDERED, which only counting found. The two
+ * rating glyphs are `text-lg` with no weight and `text-3xl font-medium`; the 0-2-0 rule gives BOTH
+ * 500, so the weight contrast the author wrote was decided by the cascade before it was asked for.
+ * The size contrast is live and is what a reader sees. Removed rather than replaced, because making
+ * the after-rating genuinely heavier is a design change.
+ *
+ * ⚠ AND THE TWO SURVIVORS ARE A FALSE POSITIVE IN THIS SUITE'S MODEL, NAMED RATHER THAN DELETED.
+ * They are `HeroCover`'s two `h1` branches. This suite resolves them as shadowed because they carry
+ * `font-display` inside a case-study component — but the hero renders under `SECTION.hero-ground`,
+ * OUTSIDE the `.case-study` wrapper, so the 0-2-0 rule never matches them. Measured in the DOM:
+ * `closest('.case-study')` is null and the computed weight is 400, exactly what the class asks for.
+ *
+ * SO THEY ARE LIVE UTILITIES AND MUST NOT BE DELETED, and S2a is here so the next person to read a
+ * count of 2 does not go looking for two more classes to remove. Correcting the resolver is a change
+ * to this suite's cascade model with its own blast radius, and it is not smuggled into a cleanup. */
+t("S2: ⚠ 2 REMAIN AND BOTH ARE THIS SUITE'S OWN FALSE POSITIVE — the eleven real ones were deleted",
+  shadowedPub.length, 2);
+t("S2a …and they are the hero's, which renders OUTSIDE `.case-study` and draws the 400 it asks for",
+  [...new Set(shadowedPub.map((h) => h.where.replace(/:\d+$/, "")))].sort(),
+  ["components/case-study/blocks/HeroCover.tsx"]);
+/* ⚠ S3 USED `.every()`, WHICH RETURNS TRUE ON AN EMPTY ARRAY — so the row written to stop S1 and S2
+ * passing on nothing would itself have passed on nothing the moment this population drained. It came
+ * within two members of that. The length check is what makes it a measurement. */
 t("S3: …and the population is real, so S1 and S2 cannot pass by finding nothing",
-  shadowedPub.every((h) => h.want === "400" && h.got === "500"), true);
+  [shadowedPub.length > 0, shadowedPub.every((h) => h.want === "400" && h.got === "500")], [true, true]);
 
 const pub = collisions.filter(outside);
 

@@ -102,7 +102,7 @@ export default function VideoEmbed({
         </p>
       )}
       {title && (
-        <h3 className="font-display text-4xl font-normal text-text-primary leading-[1.05] tracking-snug mt-2">
+        <h3 className="font-display text-4xl text-text-primary leading-[1.05] tracking-snug mt-2">
           {title}
         </h3>
       )}

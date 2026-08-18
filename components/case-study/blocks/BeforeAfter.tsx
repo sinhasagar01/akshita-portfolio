@@ -88,7 +88,7 @@ export default function BeforeAfter({
           <div className={wide ? "w-full" : "flex-1"}>
             <h3
               {...edit(`pairs.${i}.title`, "Edit pair title")}
-              className={`font-display font-normal text-2xl text-text-primary leading-[1.1]${aff}`}
+              className={`font-display text-2xl text-text-primary leading-[1.1]${aff}`}
             >
               {p.title}
             </h3>

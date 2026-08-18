@@ -249,7 +249,7 @@ export default function WorkStory({
               ref={titleInnerRef}
               {...inlineEditProps(editable, blockIndex, `features.${current}.title`, "Edit title")}
               className={
-                "block font-display font-normal text-2xl text-text-primary leading-[1.07]" +
+                "block font-display text-2xl text-text-primary leading-[1.07]" +
                 (editable ? EDIT_AFFORD : "")
               }
             >
