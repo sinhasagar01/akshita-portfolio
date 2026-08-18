@@ -121,8 +121,37 @@ sections:
             - label: Outcome
               value: 2.3 → 4.2 store rating
   - variant: default
-    id: problem
+    id: impact
     index: '02'
+    eyebrow: Impact
+    title: The one number that had to move.
+    lead: >-
+      The hardware was selling. The app that shipped with it sat at 2.3. This is
+      the only number the redesign had to move, and it is the number that moved.
+    northStar: ''
+    layout: stack
+    glow:
+      text: ''
+      top: ''
+      right: ''
+      bottom: ''
+      left: ''
+      size: ''
+    blocks:
+      - discriminant: statCards
+        value:
+          heading: ''
+          stats:
+            - value: 2.3 → 4.2
+              suffix: ''
+              body: >-
+                The App Store rating after the redesign shipped. Ten weeks end
+                to end, from research through final UI.
+              tag: App Store rating
+              highlighted: true
+  - variant: default
+    id: problem
+    index: '03'
     eyebrow: The problem
     title: Everything at once, so nothing stood out.
     lead: >-
@@ -174,7 +203,7 @@ sections:
           callouts: []
   - variant: default
     id: goals
-    index: '03'
+    index: '04'
     eyebrow: Goals
     title: >-
       An app boAt users actually want to open. Calm, personal, and worth coming
@@ -212,7 +241,7 @@ sections:
                 screen and across both dark and light.
   - variant: default
     id: approach
-    index: '04'
+    index: '05'
     eyebrow: Approach
     title: Grounded in research, focused by insight.
     lead: >-
@@ -275,7 +304,7 @@ sections:
               highlighted: false
   - variant: default
     id: system
-    index: '05'
+    index: '06'
     eyebrow: The system
     title: One system, two themes.
     lead: >-
@@ -366,7 +395,7 @@ sections:
                     note: numerals
   - variant: static
     id: work
-    index: '06'
+    index: '07'
     eyebrow: The work
     title: Where the redesign lives.
     lead: >-
@@ -598,7 +627,7 @@ sections:
     blocks:
       - discriminant: beforeAfterStory
         value:
-          index: '07'
+          index: '08'
           eyebrow: Before → After
           title: Same data. New clarity.
           lead: >-
@@ -726,7 +755,7 @@ sections:
                   rest: and every reading opens its own detail
   - variant: default
     id: reflection
-    index: '08'
+    index: '09'
     eyebrow: Reflection
     title: What I learned, and what I'd test next.
     lead: >-
