@@ -379,10 +379,11 @@ sections:
           features:
             - index: '01'
               category: Field app
-              title: Reliable components
+              title: Learn it once, know it everywhere.
               body: >-
-                A consistent component set across every flow, so the app behaves
-                the same everywhere.
+                Components behaved differently from screen to screen, so every
+                view felt unfamiliar. One consistent set now behaves the same in
+                every flow, so a mechanic learns the app once.
               image:
                 src: /images/projects/elevate-one-view/blocks/814004ccf51b.webp
                 alt: >-
@@ -395,10 +396,12 @@ sections:
                 z: null
             - index: '02'
               category: Field app
-              title: A simplified on site workflow
+              title: Speed where it was slowest.
               body: >-
-                The commissioning and maintenance flow streamlined for speed in
-                the field.
+                Commissioning and maintenance ran through tangled paths, costing
+                time in exactly the moments a mechanic needed it most. The flow
+                is streamlined end to end, so the app is something you barely
+                have to think about.
               image:
                 src: /images/projects/elevate-one-view/blocks/7fc56f8033dd.webp
                 alt: >-
@@ -411,10 +414,12 @@ sections:
                 z: null
             - index: '03'
               category: Field app
-              title: An industrial visual tone
+              title: It looks like the work it does.
               body: >-
-                Visuals aligned to Elevate's industrial identity rather than a
-                generic app look.
+                A generic app look sat oddly against equipment and site
+                conditions. The visual language follows Elevate's industrial
+                identity instead, so the tool reads as part of the job rather
+                than borrowed from somewhere else.
               image:
                 src: /images/projects/elevate-one-view/blocks/6e2229182653.webp
                 alt: >-

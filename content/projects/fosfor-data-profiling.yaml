@@ -524,10 +524,11 @@ sections:
           features:
             - index: '01'
               category: Profiling
-              title: Profiling overview
+              title: The whole model, at once.
               body: >-
-                A single view that computes and presents statistical metrics
-                across a whole data model, replacing manual inspection.
+                Understanding a dataset meant inspecting it by hand, slowly and
+                with room for error. One view now computes the statistics across
+                a whole model, so the read takes a moment.
               image:
                 src: /images/projects/fosfor-data-profiling/profiling-overview.webp
                 alt: >-
@@ -543,10 +544,12 @@ sections:
                 value: null
             - index: '02'
               category: Profiling
-              title: Basic and advanced profiling
+              title: A quick look, or a long one.
               body: >-
-                Two depths of profiling, so users can take a quick read or go
-                deep without leaving the flow.
+                Some questions need a glance and others need the full picture,
+                and switching tools for the second one breaks the flow. Two
+                depths sit in the same place, so going deeper never means
+                leaving.
               image:
                 src: /images/projects/fosfor-data-profiling/dataset-sample.webp
                 alt: >-
@@ -562,10 +565,12 @@ sections:
                 value: null
             - index: '03'
               category: Profiling
-              title: Issue surfacing
+              title: The problems find you.
               body: >-
-                Quality issues, anomalies, and missing values flagged where the
-                eye lands first.
+                Quality issues were the real source of bad decisions, and they
+                were exactly what manual inspection missed. Anomalies, gaps and
+                inconsistencies are flagged where the eye lands first, so
+                nothing has to be hunted.
               image:
                 src: /images/projects/fosfor-data-profiling/profiling-overview.webp
                 alt: >-
