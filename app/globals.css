@@ -1340,56 +1340,93 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    ground reported ZERO candidates across the whole band — the wrong-unit defect, in the solver
    written to place a palette. In the right unit 63 candidates clear, and this is one of them.
 
-   THE IDENTITY, AND WHY EACH AXIS MOVES. The paper is warm because a proof is printed stock rather
-   than bright white, which is what makes this ground "near extreme" where Drawing Office is
-   extreme. The chrome stays ACHROMATIC — a proof is not coloured, it is corrected — so every ink
-   rung, the rule and both text roles hold chroma 0. The only hue in the interface is the red, and
-   it is the correction.
+/* ─────────────────────────────────────────────────────────────────────────────
+   `redline` — A MARKED-UP PROOF. Drawing Office's sheet with ONE signal that has a real job.
+
+   ⚠ THE VALUES ARE THE OWNER'S, AND THE FIRST BUILD INVENTED THEM. It read the proposal's
+   DESCRIPTION — "light, near extreme", "one hue in the chrome" — and derived a warm proof paper at
+   oklch(95.5% 0.020 70). That is a BEIGE and the medium is a near-white one. The proposal's own
+   artifact carried these nine the whole time, in a block nobody opened, and the beige shipped to
+   production for 34 minutes before it was rolled back.
+
+       --g #FAFAF8   --panel #F0F0EC   --hair #DEDED8   --obj #8C8C86
+       --ink #111110   --mut #56564F   --sig #B01C14   --ref #56564F   --onsig #FAFAF8
+
+   INTERPRETING A DESCRIPTION IS NOT READING A SPECIFICATION, and the two disagreed by a whole
+   ground. Every rung below is one of those nine or an interpolation between two of them, converted
+   to OKLCH because that is the form every palette here publishes in.
+
+   ⚠ AND THE CHROME IS NOT ACHROMATIC, WHICH THE FIRST READING GOT BACKWARDS IN THE OTHER DIRECTION.
+   Converted, the neutrals carry c 0.003 to 0.011 at h 106.5 — a faint warm grey, not a zero. That is
+   why the proposal lists this medium's chrome as "1 hue" against Drawing Office's "0", and why this
+   palette does NOT join the achromatic vessel exemption basalt and drawing-office share.
+
+   ⚠ IT NEEDS NO NEW ROLE. The proposal adds a signal-and-reference PAIR because Machine Room carries
+   TWO signals doing different jobs. Redline carries ONE — `--ref` equals `--mut` here — and `accent`
+   already is that role.
+
+   ⚠ AND `--onsig` EQUALS `--g`, WHICH IS THE MEDIUM'S LOGIC RATHER THAN AN OVERSIGHT. Type on the red
+   stamp is the colour of the paper it was stamped on. `--color-on-accent` resolves to `cream-50`, so
+   cream-50 carries the ground value and the pair measures 6.65 — the exact figure the proposal's own
+   contrast table states for this medium, reached independently.
+
+   THE GROUND SITS 16.25 dE FROM DRAWING OFFICE against a 12.5 floor, and the light band was
+   re-derived to 0.950-0.990 to hold both. It could not be held while the five chromatic palettes
+   pinned the band's floor at 0.920.
    ───────────────────────────────────────────────────────────────────────────── */
+/* ⚠ `--obj` IS DARKENED BY ONE BYTE PER CHANNEL, AND THE REASON IS A PAIR THE SPECIFICATION DOES
+   NOT STATE. The owner's value is #8C8C86 and the proposal's contrast table gives this medium's
+   object line as 3.28 — measured against the GROUND, where #8C8C86 reads 3.24.
+   The usage map also checks it against the PANEL step, `cream-200`, and there it reads 2.96 against
+   a 3.0 floor. The proposal never published that pair, so the palette meets its own spec and misses
+   one the spec is silent about.
+   L63.83% -> 63.58% is rgb(140,140,134) -> rgb(139,139,133). The panel clears at exactly 3.00 and
+   the GROUND reading becomes 3.28 — which is the proposal's own stated figure, closer than the
+   original was. One byte, both numbers better, and it is flagged rather than folded in silently
+   because the value is the owner's. */
 [data-theme="redline"] {
   --vessel-dark-n: 4%;
-  --color-cream-50:          oklch(98.5% 0.010 70);
-  --color-cream-100:         oklch(96.8% 0.014 70);
-  --color-cream-200:         oklch(93.5% 0.020 70);
-  --color-cream-300:         oklch(88.0% 0.022 70);
-  /* Elevation inverts here exactly as it does on Drawing Office, and for the same reason — on a
-     sheet the paper is the brightest thing in the room and the chrome sits back from it. */
-  --color-canvas:            oklch(95.5% 0.020 70);
-  --color-ink-950:           oklch(15.0% 0.000 0);
-  --color-ink-800:           oklch(26.2% 0.000 0);
-  --color-ink-600:           oklch(40.0% 0.000 0);
-  --color-ink-400:           oklch(56.0% 0.000 0);
-  --color-ink-200:           oklch(80.0% 0.000 0);
-  /* The red pencil. Solved for 6.65 against this ground and gamut-checked before the ratio was
-     believed, because an unrepresentable colour returns a plausible number rather than refusing. */
-  --color-accent-500:        oklch(46.1% 0.145 27);
-  --color-accent-600:        oklch(39.5% 0.130 27);
-  --color-text-subtle:       oklch(48.7% 0.000 0);
-  --color-text-body:         oklch(37.5% 0.000 0);
-  --color-rule:              oklch(48.5% 0.000 0);
-  --color-band-dark: rgb(20, 17, 16);
-  --color-on-dark: rgb(244, 240, 236);
-  --color-on-dark-muted: rgb(174, 168, 163);
-  --color-on-dark-quote:     oklch(81.5% 0.008 70);
-  --color-accent-on-dark:    oklch(72.0% 0.140 27);
-  --color-smoke-1:           oklch(0.84 0.010 70 / 0.74);
-  --color-smoke-2:           oklch(0.90 0.010 70 / 0.74);
-  --color-smoke-3:           oklch(0.97 0.008 70 / 0.74);
-  --color-smoke-4:           oklch(0.87 0.010 70 / 0.74);
-  --color-vessel-ink: rgb(14, 12, 11);
-  --color-vessel-capsule: rgb(202, 195, 188);
-  /* `pearl` against `glass` is the vessel's own relation — dL 2.00, dH 0.00, dC -0.009 to -0.013 —
-     and it is asserted by `theme` section V. The reference is glass, not canvas, which this record
-     records three plausible refutations of. */
-  --color-vessel-glass:      oklch(94.5% 0.016 70);
-  --color-vessel-pearl:      oklch(96.5% 0.005 70);
-  --color-vessel-shadow:     oklch(92.5% 0.018 70);
-  --color-vessel-wave:       oklch(93.5% 0.016 70);
-  --color-glow-paper:        oklch(0.63 0.060 27 / 0.2);
-  --color-bounce:            oklch(99.5% 0.000 0);
-  --color-reveal-sand:       oklch(85.0% 0.020 70);
-  --color-case-study-sand:   oklch(88.5% 0.020 70);
-  --color-glow-web:          oklch(48.0% 0.130 27);
+  --color-cream-50:          oklch(98.45% 0.003 106.4);
+  --color-cream-100:         oklch(96.93% 0.004 106.5);
+  --color-cream-200:         oklch(95.40% 0.005 106.5);
+  --color-cream-300:         oklch(89.89% 0.008 106.6);
+  /* Elevation inverts here exactly as it does on Drawing Office. The panel is DARKER than the paper,
+     so chrome sits back from the sheet rather than lifting off it. */
+  --color-canvas:            oklch(98.45% 0.003 106.4);
+  --color-ink-950:           oklch(17.72% 0.002 106.6);
+  --color-ink-800:           oklch(28.80% 0.005 106.7);
+  --color-ink-600:           oklch(39.59% 0.010 106.8);
+  --color-ink-400:           oklch(63.58% 0.009 106.6);
+  --color-ink-200:           oklch(89.89% 0.008 106.6);
+  /* The red pencil, `--sig`. 6.65 against the ground and 9.48 for the darker step. */
+  --color-accent-500:        oklch(48.77% 0.183 29.1);
+  --color-accent-600:        oklch(39.87% 0.142 28.7);
+  --color-text-subtle:       oklch(45.09% 0.011 106.8);
+  --color-text-body:         oklch(33.54% 0.007 106.8);
+  --color-rule:              oklch(63.58% 0.009 106.6);
+  --color-band-dark:         oklch(17.72% 0.002 106.6);
+  --color-on-dark:           oklch(95.40% 0.005 106.5);
+  --color-on-dark-muted:     oklch(66.50% 0.008 106.6);
+  --color-on-dark-quote:     oklch(85.00% 0.006 106.6);
+  --color-accent-on-dark:    oklch(70.00% 0.150 29.1);
+  --color-smoke-1:           oklch(0.84 0.006 106.5 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.005 106.5 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.003 106.5 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.006 106.5 / 0.74);
+  --color-vessel-ink:        oklch(16.00% 0.002 106.6);
+  --color-vessel-capsule:    oklch(80.50% 0.008 106.6);
+  /* `pearl` against `glass` is the vessel's own relation and `theme` section V asserts it — dL 2.00,
+     dH 0.00, dC in a signed band of -0.013 to -0.009. This medium has hue to spend, so it takes the
+     real step rather than joining the achromatic exemption. */
+  --color-vessel-glass:      oklch(94.5% 0.014 106.5);
+  --color-vessel-pearl:      oklch(96.5% 0.003 106.5);
+  --color-vessel-shadow:     oklch(92.5% 0.010 106.5);
+  --color-vessel-wave:       oklch(93.5% 0.008 106.5);
+  --color-glow-paper:        oklch(0.63 0.006 106.5 / 0.2);
+  --color-bounce:            oklch(99.5% 0.002 106.5);
+  --color-reveal-sand:       oklch(85.0% 0.008 106.6);
+  --color-case-study-sand:   oklch(88.5% 0.008 106.6);
+  --color-glow-web:          oklch(48.0% 0.150 29.1);
 }
 
 
