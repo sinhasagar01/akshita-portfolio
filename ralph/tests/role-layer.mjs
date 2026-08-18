@@ -1296,5 +1296,34 @@ console.log("\nS · a ground DECLARATION must be reachable by a remap");
     emitters.length > 0 && nonRootRemap.length === 0 ? emitters : [], []);
 }
 
+/* ---- T · A FOREGROUND MAY NOT TAKE THE RUNG, AND R2 CANNOT SEE THIS FORM -------------------
+   R2 asserts the same property and matches CLASS STRINGS IN JSX. `.next-rail-arrow` painted the
+   rung as a CSS DECLARATION and R2 was green over it for the whole dark-palette era — the gate
+   built for this defect was blind to the shape the next instance took. Measured on four real
+   builds the arrow read 2.92 to 3.28 against a 4.5 floor, and the role reads 6.06 to 6.76.
+
+   ⚠ THE RUNG IS NOT BANNED, ONLY BANNED AS A FOREGROUND. Forty references remain and they are
+   grounds, borders, outlines, fills and glows. A ground does not need to remap the way text does,
+   and widening this row to every reference would be the wrong-noun error at five times the scale.
+   The subject is the `color` property alone.
+
+   ⚠ AND THE MATCHER MUST NOT COUNT THE ROLE'S OWN DEFINITION. `--color-accent` taking the rung is
+   exactly what makes the light half byte-identical, and `border-color` is a different floor.
+   Requiring the property to be exactly `color` excludes both, and T0 proves the denominator is
+   real so this cannot pass by matching nothing. */
+{
+  const css = readFileSync(join(root, "app/globals.css"), "utf8");
+  const fgSites = [...css.matchAll(/(^|[;{\s])color:\s*var\(--color-accent-500\)/g)]
+    .map((m) => css.slice(0, m.index).split("\n").length);
+  const anyRung = (css.match(/var\(--color-accent-500\)/g) || []).length;
+  console.log(`\nT \u00b7 a foreground may not take the unremapped rung`);
+  console.log(`      rung references in the stylesheet: ${anyRung} (grounds, borders, outlines, fills \u2014 not the subject)`);
+  console.log(`      of those, feeding the color property: ${fgSites.length}`);
+  t("T0 the stylesheet still references the rung at all, so T1 is not passing over an empty file",
+    anyRung > 0, true);
+  t("T1 \u26a0 NO color DECLARATION TAKES accent-500 \u2014 the rung does not remap on a dark ground, so a glyph on it fails there while passing every light palette",
+    fgSites, []);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

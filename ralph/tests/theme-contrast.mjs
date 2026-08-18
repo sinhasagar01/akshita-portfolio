@@ -1885,25 +1885,27 @@ console.log(`         ${windowsScanned} ground windows scanned for a foreground 
  * That case needs a RENDER — the ground only exists once the tree is assembled — which is where the
  * chip was confirmed too. Stated rather than papered over: one of the two failures this section was
  * written for is outside its reach, and the comment beside the readout is its only protection. */
-/* ⚠ RESOLVED BY HAND, EACH WITH WHAT IT PAINTS. A candidate leaves this list only when someone has
- * looked at the element and the ground — which is what the two rail sites did not get for as long as
- * the instrument could not see them. */
-const CSS_RESOLVED = {
-  "logo-singh": "the wordmark's tracked caps, on the nav glass — accent-500's own TEXT row covers it",
-  "logo-sig": "the script half of the wordmark, hover state, same ground and same row",
-  "header-mob-resume-pill": "text on the ACCENT fill, not a cream step — `on-accent`'s pairing",
-  "footer-chip": "a social glyph, hover — a mark rather than type",
-  "footer-label": "the social label, hover, on the footer ground",
-  "pr-here": "the process rail's position marker",
-  "next-rail-all": "a link — MOVED to text-secondary, it was 3.36 to 4.32 as ink-400",
-  "next-rail-eyebrow": "an eyebrow — MOVED to text-subtle, same measurement",
-  "next-rail-title": "the next-case title, hover",
-  "next-rail-arrow": "the arrow glyph",
-};
-t("Z-css ⚠ EVERY CSS FOREGROUND CANDIDATE IS RESOLVED BY NAME — the eleven were found by hand because nothing looked",
-  cssCandidates.filter((c) => !Object.keys(CSS_RESOLVED).some((k) => c.includes(k))).sort(), []);
-t("Z-css0 …and the scan found candidates at all, against a literal — an empty scan resolves nothing and passes",
-  cssCandidates.length >= 8, true);
+/* ⚠ THE HAND-RESOLVED LIST IS RETIRED BECAUSE ITS POPULATION DRAINED, AND THE REPLACEMENT IS
+ * STRICTLY STRONGER. It named ten sites — the wordmark and its script half, the resume pill, the two
+ * footer hovers, the process marker and the four rail sites — each ruled safe by a person looking at
+ * the element and its ground. All ten drew `accent-500`, THE RUNG, which does not remap on a dark
+ * ground: the rail arrow measured 2.92 to 3.28 there against a 4.5 floor, on four real builds.
+ *
+ * They now take `--color-accent`, the ROLE, which carries its own TEXT row at 4.5 — so the candidate
+ * set is EMPTY rather than resolved, and a list of exemptions for a category with no members is the
+ * fixed-list shape this file deletes on sight.
+ *
+ * ⚠ AND ASSERTING EMPTY IS WHAT A NAMED LIST COULD NEVER DO: a NEW foreground on a non-text token
+ * fails on arrival, where before it would be added to the list by whoever wrote it. Z-css0 keeps the
+ * denominator honest in the other direction — the scanner must still find `color` declarations at
+ * all, or a broken regex would satisfy the emptiness claim for the wrong reason. */
+const cssDeclsSeen = (cssForUsage.match(/^\s*color:\s*var\(--color-/gm) || []).length;
+console.log(`         ${cssDeclsSeen} color declarations reading a token, of which ${cssCandidates.length} take a non-text one`);
+t("Z-css0 the scanner still finds color declarations at all, against a literal — otherwise Z-css is satisfied by a broken regex rather than by a clean stylesheet",
+  cssDeclsSeen >= 10, true);
+t("Z-css ⚠ NO CSS FOREGROUND TAKES A NON-TEXT TOKEN — the ten that did were the unremapped rung, and a glyph on it fails every dark palette while passing every light one",
+  cssCandidates.sort(), []);
+
 
 t("Z-ui ⚠ EVERY UI ROW NAMES WHAT DRAWS IT — the negative form was false three times out of three",
   USAGE.filter((r) => r.min === 3.0 && (!r.draws || r.draws.length < 40)).map((r) => r.key), []);
