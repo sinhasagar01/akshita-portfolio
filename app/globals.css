@@ -6198,8 +6198,27 @@ a {
    no serif anywhere. The heading is 600 because a section heading must not be lighter in weight
    than the heading it outranks — this stylesheet already carries that finding, from a case where
    size said "more important" and weight said "less" and the two axes cancelled into one level. */
+/* ⚠ THE THREE TYPE ROLES DECLARE NO `margin`, AND THE OMISSION IS THE LOAD-BEARING PART. Each of
+   them declared `margin: 0`, and these rules are UNLAYERED, so for twenty elements a `mt-*`, `mb-*`
+   or `mx-auto` utility resolved to nothing — a class that reads as working and draws zero. The base
+   reset supplies the zero anyway: Tailwind v4's preflight is one universal rule, `*, ::backdrop,
+   ::after, ::before { margin: 0 }` in `@layer base`, read off the browser's own rule list rather
+   than grepped out of the bundle. So the shorthand here was duplicating a value the cascade already
+   had, and outranking every utility while it did.
+
+   ⚠ AND THE PROOF THAT THIS IS A DEFECT RATHER THAN A PREFERENCE IS THAT THE SITE ALREADY CARRIED
+   THE WORKAROUND, WITH THE SAME TWO NUMBERS. `components/sheet/SheetSectionHead.tsx` — the home
+   page's section head, six consumers — sets `marginTop: clamp(18px, 2.4vw, 30px)` and
+   `clamp(12px, 1.4vw, 18px)` as INLINE STYLES, which beat an unlayered rule. `CaseSectionHeader`
+   writes those identical two values as UTILITIES, across 53 sections on four case studies, where
+   they drew nothing. One intent, two mechanisms, one working, and the difference was invisible from
+   inside either file.
+
+   NOT `@layer components`, WHICH WAS THE OTHER CANDIDATE AND IS WORSE. Layering the roles would let
+   utilities win, and would ALSO let them lose to anything later in that layer; deleting a duplicated
+   declaration leaves every remaining property exactly as authoritative as it was. Only `margin`
+   changes hands, so only the property that produced the defect moves. */
 .sheet-h2 {
-  margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(23px, 3.2vw, 40px);
@@ -6216,7 +6235,6 @@ a {
    a wide viewport, so the box stays and the voice changes. Weight goes 400 to 600 for the same
    reason `.sheet-h2` is 600 — a head must not be lighter than what it outranks. */
 .sheet-h3 {
-  margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: clamp(21px, 2.5vw, 31px);
@@ -6226,7 +6244,6 @@ a {
   text-wrap: balance;
 }
 .sheet-lede {
-  margin: 0;
   font-size: clamp(15px, 1.15vw, 16.5px);
   line-height: 1.66;
   color: var(--color-text-secondary);
