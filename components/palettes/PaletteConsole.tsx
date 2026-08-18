@@ -243,7 +243,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
           feedback, and a silent success is indistinguishable from a silent failure. */}
       <div
         aria-live="polite"
-        className={`fixed right-6 top-24 z-50 rounded-full bg-text-primary px-4 py-2 text-sm text-surface transition-opacity ${
+        className={`fixed right-6 top-24 z-50 bg-text-primary px-4 py-2 text-sm text-surface transition-opacity ${
           toast ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
@@ -273,14 +273,37 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
           }}
         />
         <div className="relative mx-auto max-w-[960px]">
-          <span className="inline-flex items-center gap-2 rounded-full border border-ink-950/8 bg-surface px-3.5 py-1.5">
-            <i className="h-[7px] w-[7px] rounded-full bg-accent-500" />
-            <SectionLabel>Playground · 01 — Palettes</SectionLabel>
-          </span>
-          <h1 className="mt-6 text-6xl leading-[0.94] tracking-tight text-text-primary">
-            Nine palettes.<br />One <em className="italic text-accent-text">hue</em> apart.
+          {/* ⚠ A TRACKED-CAPS RUN IN A CAPSULE IS THE CONSTRUCTION THIS DIRECTION RETIRES BY NAME,
+              and the accent dot beside it was a use with no job — the rule's object line does that
+              work. The page's own numbering already reads as a sheet set, which is why the device
+              fits here without inventing anything. */}
+          <div className="sheet-rule">
+            <span className="sheet-mark-text">Sheet 01</span>
+            <span className="sheet-rule-line" aria-hidden="true" />
+            <span className="sheet-mark-text">Palettes</span>
+          </div>
+          {/* ⚠ THE ROLE'S OWN SIZE, MEASURE AND LEADING. The first draft of this line carried
+              a measure-clearing utility, a size utility and a leading utility beside the role —
+              all three inert,
+              because `.sheet-h2` declares those properties and is unlayered. `sheet-role-utilities`
+              caught it on the first run after the conversion, which is the gate doing exactly what
+              it was built for one unit earlier. What renders is 40px at 24ch, which is what the
+              screenshot showed and what reads. */}
+          {/* ⚠ `mx-auto` IS LOAD-BEARING HERE AND THE FIRST DRAFT DROPPED IT. `.sheet-h2` caps the
+              measure at 24ch, so the heading's BOX is narrower than the centred column around it —
+              `text-center` on the header centres the lines INSIDE that box, and the box itself sat
+              hard left. Before the role it had no max-width at all and filled the column, which is
+              why nothing needed centring. The lede below always carried `mx-auto`; the heading lost
+              its centring at the moment it gained a measure.
+
+              It works because the type roles stopped declaring `margin` — an auto margin here would
+              have drawn nothing before that change. */}
+          <h1 className="sheet-h2 mx-auto mt-6">
+            {/* Upright and in ink, on the gallery hero's ruling: the slant is the retired device
+                and a headline word is not one of the four sanctioned accent uses. */}
+            Nine palettes.<br />One <em className="not-italic">hue</em> apart.
           </h1>
-          <p className="mx-auto mt-5 max-w-[56ch] text-lg leading-relaxed text-text-secondary">
+          <p className="sheet-lede mx-auto mt-5">
             Every palette here is the same lightness and chroma ladder at a different hue. That is
             the whole system, and it is why a theme change cannot break the hierarchy, and why dark
             mode stops being a second design.
@@ -292,8 +315,8 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               the site — the unattached-number defect, in the one element whose entire job is to
               show that the third number is the theme. */}
           {accent && (
-            <p className="mt-8 inline-flex items-center gap-3 rounded-xl border border-ink-950/8 bg-surface px-4 py-3 font-mono text-sm text-text-primary">
-              <span className="text-eyebrow uppercase tracking-eyebrow text-text-subtle">
+            <p className="mt-8 inline-flex items-center gap-3 border border-ink-950/8 bg-surface px-4 py-3 font-mono text-sm text-text-primary">
+              <span className="sheet-mono-micro">
                 {active.name}
               </span>
               <span>oklch(</span>
@@ -322,13 +345,13 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                  harbour 0,126,91, orchid 153,63,148, cerise 209,45,107, fern 75,127,32 — so the two
                  columns are the same number and zero pixels change.
                  This site was missed when eight others were moved off the rung. */
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold"
+              className="inline-flex items-center gap-2 bg-accent px-4 py-2.5 text-sm font-semibold"
             >
               <span className="text-on-accent">See it on real components ↓</span>
             </a>
             <Link
               href="/oklch"
-              className="inline-flex items-center gap-2 rounded-xl border border-ink-950/8 px-4 py-2.5 text-sm font-medium"
+              className="inline-flex items-center gap-2 border border-ink-950/8 px-4 py-2.5 text-sm font-medium"
             >
               <span className="text-text-secondary">Learn OKLCH in four minutes ↗</span>
             </Link>
@@ -337,7 +360,12 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
           {/* ⚠ EVERY FIGURE DERIVED, AND THE THIRD ONE NAMES ITS SUBJECT. "30 pairs" is per palette
               and the row sets differ between light and dark grounds — 23 of 30 keys are shared —
               so the label says "each" and the page never claims one set of thirty across nine. */}
-          <div className="mt-9 flex flex-wrap justify-center gap-x-9 gap-y-5 border-t border-ink-950/8 pt-6">
+          {/* ⚠ `.sheet-readout`'s SECOND CONSUMER, and the device had zero until the gallery took
+              it an hour ago. Four derived figures under a rule is exactly what it draws: a 2px
+              accent rule above, a hairline below, equal columns divided by hairlines. The figures
+              take the accent because a readout figure is one of the direction's four sanctioned
+              uses — this page's only accent, and it is on the numbers it is arguing about. */}
+          <div className="sheet-readout mt-9">
             {[
               [String(palettes.length), "palettes"],
               [String(active.rows.length), "pairs each"],
@@ -345,10 +373,8 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               ["1", "number changes"],
             ].map(([n, l]) => (
               <div key={l}>
-                <b className="block font-mono text-xl font-medium tracking-tight text-text-primary">{n}</b>
-                <span className="mt-1.5 block font-mono text-[8.5px] uppercase tracking-[0.18em] text-text-subtle">
-                  {l}
-                </span>
+                <b className="sheet-readout-value block">{n}</b>
+                <span className="sheet-readout-key sheet-mono-micro block">{l}</span>
               </div>
             ))}
           </div>
@@ -366,28 +392,38 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
           The contract is authoritative about the SHAPE — a bordered stage with a bar above it
           carrying the verdict — and it is not authoritative about parts that do not exist. */}
       <section id="components" className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] scroll-mt-28 px-6">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">02</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">Pick one. Watch what doesn&rsquo;t change.</h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            live · real components
-          </span>
+        {/* The rule replaces the eyebrow NUMERAL and the status run; the heading stays and takes
+            the sheet role beneath it, which is the shape every case-study section uses. */}
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 02</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">live · real components</span>
         </div>
+        {/* ⚠ THE SECTIONS TAKE `.sheet-h3`, NOT `.sheet-h2`, BECAUSE THE PAGE HEADING IS ALREADY
+            `.sheet-h2`. The first draft gave both the same role and they rendered at an identical
+            40px/600 — the hierarchy cancellation this site records, where size says one thing and
+            weight says nothing, and four section heads read as peers of the page title. Two levels
+            is what this page needs and two is what the direction declares: 40px for the sheet, 31px
+            for each section under it. */}
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">Pick one. Watch what doesn&rsquo;t change.</h2>
         <p className="mb-6 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           Not swatches. These are the site&rsquo;s own components, imported and rendered in whichever
           palette is live. The nav above this page is one of them and is deliberately not copied in
           here, because a copy would drift from the thing it is arguing about.
         </p>
 
-        <div className="overflow-hidden rounded-xl border border-ink-950/8 bg-surface">
+        <div className="overflow-hidden border border-ink-950/8 bg-surface">
           {/* ⚠ THE VERDICT BAR — THREE FIGURES, EACH NAMING ITS SUBJECT. "Tightest" is ambiguous
               across three quantities on this data and the reader means one of them. See
               `lib/palettes/verdict.ts`, which deliberately exports no function called `tightest`. */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-ink-950/8 bg-surface-well px-4 py-3">
             <span className="flex gap-1.5" aria-hidden="true">
+              {/* ⚠ THE DOTS KEEP THEIR CIRCLE AND EVERY CONTROL ON THIS PAGE LOST ITS CAPSULE.
+                  The radius ruling is that a box around content loses its corner and a circle keeps
+                  it because it IS one — these are 8px dots, not pills with nothing in them. */}
               {[0, 1, 2].map((i) => <i key={i} className="h-2 w-2 rounded-full bg-etch/20" />)}
             </span>
-            <span className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-text-subtle">
+            <span className="sheet-mono-label">
               akshitas.com — {active.name}
             </span>
             <span className="ml-auto flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10px] text-text-subtle">
@@ -413,7 +449,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
           </div>
 
           <div className="p-6">
-            <div className="rounded-xl border border-ink-950/8 bg-surface-well p-6">
+            <div className="border border-ink-950/8 bg-surface-well p-6">
               {/* ⚠ THE HEADLINE IS THE VISITOR'S, AND THAT IS THE POINT OF THE WHOLE STAGE.
                   Everything else here shows the palette holding SOMEBODY ELSE'S words. Typing your
                   own is what turns a demonstration into a test of the thing you actually care
@@ -436,7 +472,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                   role: "textbox",
                   "aria-label": "Preview headline — type your own",
                   tabIndex: 0,
-                  className: "rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-accent-500",
+                  className: "outline-none focus-visible:ring-2 focus-visible:ring-accent-500",
                 }}
               />
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -482,9 +518,9 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[...active.rows].filter((r) => r.min >= TEXT_FLOOR)
                 .sort((a, b) => a.got - b.got).slice(0, 4).map((r) => (
-                <div key={r.key} className="rounded-lg border border-ink-950/8 bg-surface p-3">
+                <div key={r.key} className="border border-ink-950/8 bg-surface p-3">
                   <b className="block font-mono text-lg text-text-primary">{formatRatio(r.got)}</b>
-                  <span className="mt-1 block text-eyebrow uppercase tracking-eyebrow text-text-subtle">
+                  <span className="mt-1 block sheet-mono-micro">
                     {r.key}
                   </span>
                 </div>
@@ -497,7 +533,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
             which makes them the right EVIDENCE and the wrong INTERFACE — a visitor met thirty rows
             before being told what they were looking at. The verdict above is what the rows add up
             to; this is where somebody who wants to check it goes. */}
-        <details className="mt-4 rounded-xl border border-ink-950/8 bg-surface-well">
+        <details className="mt-4 border border-ink-950/8 bg-surface-well">
           <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-text-primary">
             All {verdict.checked} pairs for {active.name}
           </summary>
@@ -516,7 +552,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               >
                 <span className="text-text-subtle">{r.key}</span>
                 <b className="font-mono text-sm text-text-primary">{formatRatio(r.got)}</b>
-                <u className="font-mono text-[8px] uppercase tracking-widest no-underline text-text-subtle">
+                <u className="sheet-mono-micro no-underline">
                   {r.got >= r.min ? "pass" : "fail"}
                 </u>
               </div>
@@ -532,7 +568,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
 
             ⚠ AND IT IS NOT A SECOND MECHANISM. Both call `startPreview`; there is one writer, one
             cookie and one indicator. Two BUTTONS onto one mechanism is what "three doors" means. */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-ink-950/8 bg-surface-well px-4 py-4">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border border-ink-950/8 bg-surface-well px-4 py-4">
           <div>
             <h3 className="text-base text-text-primary">Try it across the site</h3>
             <p className="mt-1 max-w-[56ch] text-sm leading-relaxed text-text-subtle">
@@ -546,7 +582,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               startPreview(active.name, active.groundClass === "dark", Date.now());
               say(`${active.name} applied across the site`);
             }}
-            className="ml-auto rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-on-accent"
+            className="ml-auto bg-accent px-4 py-2.5 text-sm font-medium text-on-accent"
           >
             Try {active.name} across the portfolio
           </button>
@@ -555,16 +591,15 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
 
       {/* ══════════ 03 · THE KIT ══════════ */}
       <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">03</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">The kit.</h2>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 03</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
           {/* ⚠ THE COUNT IS `KIT.length`, NEVER TYPED. The contract carried `38 parts · 10 new` in
               this exact slot beside a list of thirty, and nine of its twenty "shipping" parts do
               not exist in this repository under any spelling. */}
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            {KIT_COUNT} parts · all shipping
-          </span>
+          <span className="sheet-mark-text">{KIT_COUNT} parts · all shipping</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">The kit.</h2>
         <p className="mb-2 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           Every part here is imported from the live site and rendered in whichever palette is live.
           Press one for the roles it reads and how to use it.
@@ -578,14 +613,14 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
         </p>
 
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <div className="flex gap-0.5 rounded-full border border-ink-950/8 bg-surface p-1">
+          <div className="flex gap-0.5 border border-ink-950/8 bg-surface p-1">
             {KIT_GROUPS.map((g) => (
               <button
                 key={g}
                 type="button"
                 aria-pressed={g === group}
                 onClick={() => setGroup(g)}
-                className={`rounded-full px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.13em] ${
+                className={`px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] ${
                   g === group ? "bg-accent font-medium text-on-accent" : "text-text-subtle"
                 }`}
               >
@@ -593,7 +628,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               </button>
             ))}
           </div>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.16em] text-text-subtle">
+          <span className="ml-auto sheet-mono-micro">
             {shownParts.length} shown
           </span>
         </div>
@@ -605,7 +640,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               type="button"
               aria-pressed={k.symbol === selected}
               onClick={() => setSelected(k.symbol)}
-              className={`block w-full overflow-hidden rounded-xl border text-left ${
+              className={`block w-full overflow-hidden border text-left ${
                 k.wide ? "sm:col-span-2" : ""
               } ${k.symbol === selected ? "border-accent-500" : "border-ink-950/8"}`}
             >
@@ -633,7 +668,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               </span>
               <span className="flex items-baseline justify-between gap-2 px-3 py-2.5">
                 <b className="text-xs font-semibold text-text-primary">{k.name}</b>
-                <em className="font-mono text-[8px] not-italic tracking-[0.12em] text-text-subtle">
+                <em className="sheet-mono-micro not-italic">
                   {k.group}
                 </em>
               </span>
@@ -642,7 +677,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
         </div>
 
         {selectedPart && (
-          <div className="mt-3 overflow-hidden rounded-xl border border-accent-500 bg-surface">
+          <div className="mt-3 overflow-hidden border border-accent-500 bg-surface">
             <div className="flex flex-wrap items-start justify-between gap-4 border-b border-ink-950/8 px-4 py-4">
               <div>
                 <h3 className="text-xl tracking-tight text-text-primary">{selectedPart.name}</h3>
@@ -653,7 +688,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               <button
                 type="button"
                 onClick={() => copy(selectedPart.usage, `${selectedPart.name} usage copied`)}
-                className="rounded-full border border-ink-950/8 px-3.5 py-2 text-xs text-text-secondary"
+                className="border border-ink-950/8 px-3.5 py-2 text-xs text-text-secondary"
               >
                 Copy usage
               </button>
@@ -666,7 +701,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               ].map(([v, l]) => (
                 <div key={l} className="border-r border-ink-950/8 px-4 py-3 last:border-r-0">
                   <b className="block break-words font-mono text-[11px] font-medium text-text-primary">{v}</b>
-                  <span className="mt-1.5 block font-mono text-[8px] uppercase tracking-[0.16em] text-text-subtle">
+                  <span className="mt-1.5 block sheet-mono-micro">
                     {l}
                   </span>
                 </div>
@@ -691,13 +726,12 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
 
       {/* ══════════ 04 · HOW TO USE IT ══════════ */}
       <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">04</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">How to use it.</h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            four moves
-          </span>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 04</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">Four moves</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">How to use it.</h2>
         <p className="mb-6 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           Role tokens in OKLCH, with the measured contrast riding inside the block as a comment.
         </p>
@@ -714,7 +748,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               ["04", "Check it. Don't trust it.",
                 `OKLCH is an authoring model, not a contrast certificate. Perceptual lightness and WCAG luminance are different measures. The ${verdict.checked} pairs above are computed at build from these tokens. Run the same check on yours.`],
             ].map(([n, h, b]) => (
-              <div key={n} className="grid grid-cols-[52px_1fr] overflow-hidden rounded-xl border border-ink-950/8 bg-surface">
+              <div key={n} className="grid grid-cols-[52px_1fr] overflow-hidden border border-ink-950/8 bg-surface">
                 <div className="flex justify-center border-r border-ink-950/8 bg-surface-well pt-4 font-mono text-xs font-medium text-accent-text">
                   {n}
                 </div>
@@ -726,16 +760,16 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
             ))}
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-ink-950/8 bg-surface lg:sticky lg:top-24">
+          <div className="overflow-hidden border border-ink-950/8 bg-surface lg:sticky lg:top-24">
             <div className="flex flex-wrap items-center gap-2 border-b border-ink-950/8 bg-surface-well px-3.5 py-3">
-              <div className="flex gap-0.5 rounded-full border border-ink-950/8 bg-surface p-1">
+              <div className="flex gap-0.5 border border-ink-950/8 bg-surface p-1">
                 {FORMATS.map((f) => (
                   <button
                     key={f.id}
                     type="button"
                     aria-pressed={f.id === fmt}
                     onClick={() => setFmt(f.id)}
-                    className={`rounded-full px-3 py-1.5 text-eyebrow uppercase tracking-eyebrow ${
+                    className={`px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] ${
                       f.id === fmt ? "bg-accent text-on-accent" : "text-text-subtle"
                     }`}
                   >
@@ -743,7 +777,7 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
                   </button>
                 ))}
               </div>
-              <span className="ml-auto font-mono text-[8.5px] uppercase tracking-[0.2em] text-text-subtle">
+              <span className="ml-auto sheet-mono-micro">
                 {fmt === "json" ? "design tokens" : fmt === "tailwind" ? "tailwind v4" : "custom properties"}
               </span>
             </div>
@@ -761,20 +795,20 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               <button
                 type="button"
                 onClick={() => copy(block, `${active.name} copied as ${fmt}`)}
-                className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent"
+                className="bg-accent px-4 py-2 text-sm font-medium text-on-accent"
               >
                 Copy
               </button>
-              <button type="button" onClick={() => download("css")} className="rounded-full border border-ink-950/8 px-4 py-2 text-sm text-text-secondary">
+              <button type="button" onClick={() => download("css")} className="border border-ink-950/8 px-4 py-2 text-sm text-text-secondary">
                 .css
               </button>
-              <button type="button" onClick={() => download("json")} className="rounded-full border border-ink-950/8 px-4 py-2 text-sm text-text-secondary">
+              <button type="button" onClick={() => download("json")} className="border border-ink-950/8 px-4 py-2 text-sm text-text-secondary">
                 .json
               </button>
               <button
                 type="button"
                 onClick={() => copy(`${window.location.origin}/palettes/${active.name}`, "Link copied")}
-                className="rounded-full border border-ink-950/8 px-4 py-2 text-sm text-text-secondary"
+                className="border border-ink-950/8 px-4 py-2 text-sm text-text-secondary"
               >
                 Link
               </button>

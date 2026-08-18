@@ -124,6 +124,14 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     if (x >= 0 && y >= 0 && x < innerWidth && y < innerHeight) {
       const hits = document.elementsFromPoint(x, y);
       const self = hits.indexOf(el);
+      /* ⚠ IF THE ELEMENT IS NOT UNDER ITS OWN CENTRE, THE STACK IS NOT ITS GROUND — REFUSE RATHER
+         THAN GUESS. The first draft fell back to the whole stack, and on `/palettes` that produced
+         THREE false findings in one run: a fixed panel's button reported 1.09 where it measures
+         20.12, and two figures inside scrolling panes reported ~1.07 where they measure 8.4 and
+         better. In each case the centre point landed on the page, so the "ground" was the page.
+         A ratio belongs to the ground it was taken on, and a point that misses its element has not
+         taken one. */
+      if (self < 0) return { rgb: null, unresolved: true };
       /* ⚠ THE ELEMENT ITSELF IS PART OF ITS OWN GROUND. The first draft sliced one past itself and
          lost a button's own fill: a chip carrying the accent read 1.00 against the page, where the
          same chip measures 20.12 in the browser. An element that paints a background paints it
@@ -134,7 +142,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
          Eleventh explaining-it-requires-writing-it instance here, and the first to arrive as a
          backtick rather than a comment delimiter or a glob. Describe the expression; do not quote
          it. */
-      stack = (self >= 0 ? hits.slice(self) : hits);
+      stack = hits.slice(self);
     } else {
       /* Off-screen: no paint stack to read, so fall back to the ancestor walk and SAY SO, because a
          figure from a weaker method must not be reported as if it came from the stronger one. */
@@ -220,6 +228,9 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     domElements: all.length,
     measured: rows.length,
     skippedNoText, skippedHidden,
+    /* Reported, never folded into the pass total — an unresolved ground is an element this sweep
+       did not measure, which is a different claim from an element that passed. */
+    unresolvedGround: rows.filter((x) => x.unresolved).length,
     onDarkGrounds: dark.length,
     worst: rows.length ? Math.min(...rows.map((x) => x.ratio)) : null,
     failureCount: fails.length,
