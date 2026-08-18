@@ -55,12 +55,10 @@ export const VERIFY_THEME = "cream-verify";
  *
  *  ⚠ AND IT SITS ON THE SAME THREE FLOORS CREAM DOES, with essentially no margin. SHIPPABLE and one
  *  rounding away from not. */
-export const SECOND_THEME = "harbour";
 /* ⚠ THEME THREE. Registering it here is not bookkeeping — `theme` J2 FAILS on a palette that exists
  * in `globals.css` and not in `THEME_NAMES`, because until #372 a whole 35-token block could enter
  * the stylesheet and ralph stayed green. Every theme check enumerated from this list or a hardcoded
  * pair, and none read the stylesheet to ask what was actually declared. */
-export const THIRD_THEME = "orchid";
 
 /* ⚠ THEMES FOUR AND FIVE, AND THE CEILING THEY SIT ON. Five were asked for and TWO IS WHAT THE
  * GEOMETRY ALLOWS: seven hues on a circle are 51.4 degrees apart at perfect spacing, so seven
@@ -77,8 +75,6 @@ export const THIRD_THEME = "orchid";
  * `cerise` was briefed as a vermilion. h4 at shippable chroma resolves to #d12d6b, a raspberry —
  * the warm orange-red region is claimed by CREAM'S OWN ACCENT at h42, so a palette wedged between
  * orchid and cream cannot hold one. The name follows the colour. */
-export const FOURTH_THEME = "cerise";
-export const FIFTH_THEME = "fern";
 
 /* ⚠ THE FIRST DARK PALETTE, AND THE FIRST MEMBER OF A SECOND GROUND CLASS. It does not compete for
  * hue with the light five — measured, hue changes the difference between a light and a dark ground
@@ -118,7 +114,7 @@ export const TENTH_THEME = "drawing-office";
 const ELEVENTH_THEME = "redline";
 
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, TENTH_THEME, ELEVENTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, TENTH_THEME, ELEVENTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -165,10 +161,6 @@ export const GROUND_TOKEN: Record<GroundClass, string> = {
 
 export const THEME_GROUND: Record<string, GroundClass> = {
   [DEFAULT_THEME]: "light",
-  [SECOND_THEME]: "light",
-  [THIRD_THEME]: "light",
-  [FOURTH_THEME]: "light",
-  [FIFTH_THEME]: "light",
   /* ⚠ THE ONLY DARK MEMBER. Its page ground is `band-dark`, not `canvas`. */
   [SIXTH_THEME]: "dark",
   /* Declared, never inferred — a classifier reading a value files a dark palette in the light band. */
@@ -247,16 +239,20 @@ export const THEME_GROUND: Record<string, GroundClass> = {
 ============================================================================================ */
 export const THEME_COUNTERPART: Record<string, string> = {
   [DEFAULT_THEME]: SEVENTH_THEME,
-  [SECOND_THEME]: SIXTH_THEME,
-  [THIRD_THEME]: EIGHTH_THEME,
   /* ⚠ THE UNRECIPROCATED ONE, AND IT IS FORCED RATHER THAN CHOSEN — see the pigeonhole above.
    * `ink-flare` points back at cream, which is the closer accent match at 10 degrees against 48. */
-  [FOURTH_THEME]: SEVENTH_THEME,
-  [FIFTH_THEME]: NINTH_THEME,
-  [SIXTH_THEME]: SECOND_THEME,
+  /* ⚠ REPOINTED BY THE RETIREMENT. sapphire and nocturne answered to harbour and orchid, which
+     are gone. `cream` is the only light palette left carrying an accent HUE, so it is the only
+     candidate a hue-distance pairing can name at all. */
+  [SIXTH_THEME]: ELEVENTH_THEME,
   [SEVENTH_THEME]: DEFAULT_THEME,
-  [EIGHTH_THEME]: THIRD_THEME,
-  [NINTH_THEME]: FIFTH_THEME,
+  /* ⚠ THE UNRECIPROCATED ONE, AND IT IS PIGEONHOLE RATHER THAN CHOICE. Four darks and three
+     lights means exactly one dark cannot have its partner point back. nocturne takes it, pointing
+     at the nearest light accent while cream answers to ink-flare. */
+  [EIGHTH_THEME]: ELEVENTH_THEME,
+  /* basalt keeps drawing-office, which its own note already calls the exact rather than nearest
+     match — the two share a ladder and both carry zero chroma. */
+  [NINTH_THEME]: TENTH_THEME,
   /* ⚠ THE ONE PAIR WHERE THE MATCH IS EXACT RATHER THAN NEAREST. Every other entry pairs on accent
      hue distance and the pigeonhole above forces one unreciprocated. These two share a ladder and
      both carry zero chroma, so there is no hue to be near — basalt IS this palette on a dark
@@ -266,7 +262,7 @@ export const THEME_COUNTERPART: Record<string, string> = {
      Unreciprocated by the same pigeonhole rule as cerise — ink-flare answers to cream, which is
      closer still. The artifact's own map pairs Redline with Machine Room, and that pair can only
      exist once Machine Room does. */
-  [ELEVENTH_THEME]: SEVENTH_THEME,
+  [ELEVENTH_THEME]: SIXTH_THEME,
 };
 
 export type ThemeName = (typeof THEME_NAMES)[number];
@@ -454,10 +450,6 @@ export function unselectableReason(name: string): string | undefined {
    resolved value is allowed to be hand-kept. */
 export const THEME_OG: Record<string, { cream: string; ink: string; muted: string; accent: string }> = {
   [DEFAULT_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
-  [SECOND_THEME]: { cream: "#f5fbff", ink: "#040d12", muted: "#4c575e", accent: "#007e5b" },
-  [THIRD_THEME]: { cream: "#fcf9fd", ink: "#0f0812", muted: "#5a525d", accent: "#993f94" },
-  [FOURTH_THEME]: { cream: "#fef8f8", ink: "#190405", muted: "#574141", accent: "#d12d6b" },
-  [FIFTH_THEME]: { cream: "#f4fdf1", ink: "#020f03", muted: "#3e4c3f", accent: "#4b7f20" },
   [SIXTH_THEME]: { cream: "#f7fbff", ink: "#040c16", muted: "#404952", accent: "#495bcb" },
   [SEVENTH_THEME]: { cream: "#fef9f7", ink: "#130804", muted: "#504540", accent: "#a24e02" },
   [EIGHTH_THEME]: { cream: "#f9faff", ink: "#09081b", muted: "#454658", accent: "#734fb9" },
@@ -474,10 +466,6 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
 
 export const THEME_SPLASH: Record<string, string> = {
   [DEFAULT_THEME]: "#FEF9F1",
-  [SECOND_THEME]: "#F5FBFF",
-  [THIRD_THEME]: "#FCF9FD",
-  [FOURTH_THEME]: "#FEF8F8",
-  [FIFTH_THEME]: "#F4FDF1",
   [SIXTH_THEME]: "#F7FBFF",
   [SEVENTH_THEME]: "#FEF9F7",
   [EIGHTH_THEME]: "#F9FAFF",

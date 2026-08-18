@@ -345,8 +345,6 @@ console.log("\nD · theme two — judged by the instrument, not by eye");
  * plainly existed. THE OWNER OF THAT CLAIM IS `theme` SECTION G, which asserts the two blocks
  * declare the same token SET, and D3 below now compares the two counts rather than testing one
  * against a floor. Naming it because a deferral without a named check is a deferral to nobody. */
-const HARBOUR = layered("harbour");
-const harbour = report(HARBOUR, USAGE);
 /* ⚠ HARBOUR IS NOT SHIPPABLE UNDER THE GAMUT CHECK, AND THIS ROW SAID IT WAS FOR TWENTY-ODD PRs.
  * It clears every contrast floor it has ever been asked about — that half was always true and is
  * asserted below. What was never asked is whether its brand colour EXISTS: `accent-500` is 60.7
@@ -360,32 +358,16 @@ const harbour = report(HARBOUR, USAGE);
  * SHIPPABLE for twenty-odd PRs while harbour's brand colour sat 60.7 outside sRGB, because nothing
  * asked whether a colour EXISTED before asking what it contrasted with. It now passes having been
  * asked both. */
-t("D1 harbour is SHIPPABLE — and since #377 that includes existing, not only contrasting",
-  harbour.verdict, "SHIPPABLE");
-t("D1a ⚠ AND ITS PALETTE IS ENTIRELY INSIDE sRGB — the half that was never checked until #377",
-  harbour.unrepresentable, []);
-t("D2 nothing uncomputable — every row the map names exists in the palette", harbour.uncomputable, []);
-t("D3 it is a DIFFERENT palette, not the defaults wearing a name",
-  Object.keys(themeOverrides("harbour")).length > 15, true);
 /* ⚠ SYMMETRIC, BECAUSE `> 15` WOULD LET NINETEEN TOKENS VANISH. Cream did not have a block to
  * compare against until #365 gave it one; now the two are counted against EACH OTHER, so a palette
  * that drops a token fails here as well as in `theme` G4. Two independent readers of the same
  * invariant is the point — G4 reads names, this reads the parsed override maps. */
-t("D3b ⚠ AND BOTH PALETTES DECLARE THE SAME NUMBER OF TOKENS — a short palette inherits the other silently",
-  Object.keys(themeOverrides("harbour")).length,
-  Object.keys(themeOverrides("cream")).length);
-t("D3c …and that number is the real palette, not two empty maps agreeing",
-  Object.keys(themeOverrides("cream")).length > 20, true);
 
 /* ⚠ THE TWO ROWS THAT REFUSED THE EARLIER DRAFTS, PINNED. Draft 1 put the ground near the old
  * "roughly 85%" figure and failed five external rows; draft 2 kept cream's `ink-400` at 62% and
  * computed 2.88 against a 3.0 floor. Both numbers live here so a future tune cannot quietly walk
  * back into them. */
 const hgot = (k) => harbour.rows.find((r) => r.key === k)?.got;
-t("D4 ink-400 sits at 60.5% BECAUSE cream's 62% computes 2.88 here — the row that refused draft 2",
-  hgot("ink-400 on cream-200 (non-text)") >= 3.0, true);
-t("D5 accent sits darker than cream's because teal carries more luminance at equal lightness",
-  hgot("accent-500 on cream-50") >= 4.5, true);
 
 /* ⚠ SHIPPABLE AND ON THE FLOOR ARE NOT THE SAME THING, AND THIS IS WHERE I HAD IT WRONG. I told the
  * owner cream sat on THREE floors and that harbour "has the same zero headroom". Both halves were
@@ -411,26 +393,11 @@ const onFloor = (rep) => rep.rows.filter((r) => r.got !== null && r.got - r.min 
  * the names, which is a quieter cost than a wrong colour and is why the merge was worth doing. */
 t("D6 cream sits inside 0.1 of five DISTINCT floors — computed, and one fewer since #330",
   onFloor(cream).length, 5);
-t("D7 harbour sits on three, and they are the ground ladder — a relation no palette can loosen",
-  onFloor(harbour), ["ground step cream-100 / cream-200", "ground step cream-300 / canvas",
-    "ground step cream-50 / cream-100"]);
-t("D8 the three harbour escaped are exactly the ones its earlier drafts failed on",
-  onFloor(cream).filter((k) => !onFloor(harbour).includes(k)).sort(),
-  ["ink-400 on cream-200 (non-text)", "text-subtle on canvas"]);
 
-console.log("\nD3 · theme three — ORCHID, judged before it is looked at");
 
 /* ⚠ THE INSTRUMENT RUNS FIRST AND THE RENDER SECOND, AND NEITHER IS OPTIONAL. `SHIPPABLE` means
  * every token pair clears its floor; it has never meant the site looks right. Harbour took three
  * drafts and every refusal was this working. */
-const ORCHID = layered("orchid");
-const orchid = report(ORCHID, USAGE);
-console.log(`         verdict ${orchid.verdict}`);
-for (const r of orchid.rows.filter((x) => !x.ok)) console.log(`           REFUSED  ${r.fg} on ${r.bg}  got ${r.got?.toFixed(3)} floor ${r.floor} (${r.kind})`);
-t("D9 orchid is SHIPPABLE", orchid.verdict, "SHIPPABLE");
-t("D10 nothing uncomputable — every row the map names exists in the palette", orchid.uncomputable, []);
-t("D11 …and it declares the same token set as the others, so nothing inherits silently",
-  Object.keys(themeOverrides("orchid")).length, Object.keys(themeOverrides("harbour")).length);
 /* ⚠ A REGISTRY OF BANDS, NOT A BAND — AND THE DIFFERENCE ONLY BECAME VISIBLE WHEN A SECOND CLASS
  * ARRIVED. There has only ever been one ground class, so "a band" and "a registry of one band" are
  * indistinguishable, and the single-band form was what got written. It was always a PER-CLASS FACT
@@ -823,7 +790,11 @@ const ACCENT_EXEMPT = {
    * than usual, since D12y proves these exemptions are EARNED by re-running the rule. A reader
    * checking "6 degrees" against a dE floor has no way to tell whether the exemption still holds. */
   "ink-flare": AUTHORED_PRESET + " Conflict: 44.1 dE from cream's accent (10 degrees).",
-  basalt: AUTHORED_PRESET + " Conflict: 33.7 dE from fern's accent (6 degrees).",
+  /* ⚠ `basalt`'s EXEMPTION IS GONE BECAUSE ITS CONFLICT IS. It read "33.7 dE from fern's accent",
+     and fern retired with the four chromatic lights. D12y fired on exactly that — an exemption for
+     a collision that no longer exists is a rule quietly switched off, so the row removing it is
+     the gate working rather than an inconvenience. `ink-flare`'s conflict is with cream, which is
+     still shipped, so that one is still earned. */
 };
 const GROUND_EXEMPT = {
   /* ⚠ THE ACCEPTED CONTRADICTION, STATED SO IT CANNOT READ AS DRIFT. Sapphire and nocturne at dE 6.0
@@ -993,9 +964,9 @@ t("D12d ⚠ NOR TWO ACCENTS — cross-band ON PURPOSE, in dE because an achromat
 const BLACK_ACCENT = [0, 0, 0];
 t("D12z ⚠ D12d MEASURES IN dE — proved on ONE pair in both units, so a revert to degrees cannot pass",
   [Math.round(accentSep("sapphire", "nocturne") * 10) / 10,
-   Math.round(dist3(BLACK_ACCENT, rgbOf("cerise", "accent-500")) * 10) / 10,
-   arc(0, HUES.cerise.accent)],
-  [47.2, 239.1, 4]);
+   Math.round(dist3(BLACK_ACCENT, rgbOf("redline", "accent-500")) * 10) / 10,
+   arc(0, HUES.redline.accent)],
+  [47.2, 164.1, 27]);
 t("D12za ⚠ …AND D12d IS THE CALLER THAT USES IT — D12z stays green if D12d reverts to arc(), so the two are not redundant",
   /!\(b in ACCENT_EXEMPT\) && accentSep\(a, b\) < ACCENT_FLOOR\)/.test(
     readFileSync(new URL(import.meta.url), "utf8")), true);
@@ -1440,7 +1411,6 @@ t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never
 const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
   basalt: [3.65, 2.69], cream: [4.70, 7.22],
-  harbour: [4.87, 7.11], orchid: [5.76, 8.45], cerise: [4.66, 7.75], fern: [4.63, 6.88],
   "drawing-office": [20.12, 20.12], redline: [7.32, 9.57],
 };
 /* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
@@ -1726,10 +1696,10 @@ t("L3 ⚠ EVERY BAND'S MEMBERS CLEAR THAT BAND'S OWN FLOOR — in the band's OWN
 const lightBand = BANDS.find((b) => b.label === "light");
 t("L3u ⚠ sepIn IS UNIT-SENSITIVE — proved on a pair where the two units disagree, so a coincidence cannot carry it",
   [lightBand.floorUnit,
-   Math.round(sepIn("dE", "cream", "cerise") * 100) / 100,
-   Math.round(sepIn("degrees", "cream", "cerise") * 10) / 10,
-   sepIn(lightBand.floorUnit, "cream", "cerise") === sepIn("dE", "cream", "cerise")],
-  ["dE", 12.53, 63, true]);
+   Math.round(sepIn("dE", "cream", "drawing-office") * 100) / 100,
+   Math.round(sepIn("degrees", "cream", "drawing-office") * 10) / 10,
+   sepIn(lightBand.floorUnit, "cream", "drawing-office") === sepIn("dE", "cream", "drawing-office")],
+  ["dE", 30.12, 78, true]);
 t("L3v ⚠ …AND L3 IS THE CALLER THAT READS THE BAND'S UNIT — L3u stays green if this call reverts to a bare arc(), so the two rows are not redundant",
   /\.filter\(\(c\) => \(sepIn\(b\.floorUnit, a, c\)/.test(
     readFileSync(new URL(import.meta.url), "utf8")), true);
