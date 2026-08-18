@@ -189,7 +189,7 @@ export default function GalleryLightbox({
                     aria-label={thumb.title}
                     data-active={i === openIndex}
                     onClick={() => onIndexChange(i)}
-                    className={`relative h-10 w-[54px] flex-none overflow-hidden rounded-[6px] border-2 p-0 transition-opacity ${
+                    className={`relative h-10 w-[54px] flex-none overflow-hidden border-2 p-0 transition-opacity ${
                       i === openIndex
                         ? "border-on-dark opacity-100"
                         : "border-transparent opacity-45 hover:opacity-80"
@@ -213,7 +213,7 @@ export default function GalleryLightbox({
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-5 top-4 rounded-full border border-on-dark/20 bg-on-dark/10 px-3 py-1.5 font-mono text-[12px] text-on-dark transition-colors hover:bg-on-dark/20"
+        className="absolute right-5 top-4 border border-on-dark/20 bg-on-dark/10 px-3 py-1.5 font-mono text-[11px] tracking-[0.14em] text-on-dark transition-colors hover:bg-on-dark/20"
       >
         Esc
       </button>

@@ -123,8 +123,20 @@ export default function GalleryOverlay({
          canvas, which is the parity break this whole component exists to avoid. */
       style={{ containerType: "inline-size" }}
     >
+      {/* ⚠ THE SHEET'S MONO SIZES, BUT NOT ITS MONO CLASSES, AND THE REASON IS THE GROUND.
+          `.sheet-mark-text`, `.sheet-mono-label` and `.sheet-mono-micro` each paint
+          `var(--sheet-mark)`, which is `--color-text-secondary` — a DARK ink, because every other
+          consumer of those roles sits on the page. This overlay is the first surface in the arc
+          whose ground is not the page's: it is a dark scrim inside a light `:root`, and nothing here
+          sets `data-ground`, which only works at `:root` anyway.
+
+          So applying the classes would paint dark grey on near-black and the markup would read as
+          correct while the text vanished. The SIZES and TRACKING move to the direction's vocabulary
+          — 11px at 0.2em for the mark, 10px at 0.14em for the micro labels — and the COLOUR stays
+          with the `on-dark` roles that were built for this ground. `gallery-modal-scale` asserts
+          both halves so neither drifts back. */}
       <div className="flex flex-none items-center gap-3.5 px-5 py-4">
-        <span className="font-mono text-[10.5px] tracking-[0.18em] text-on-dark-muted">
+        <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-on-dark-muted">
           {indexLabel ?? (item.title || "Untitled").toUpperCase()}
         </span>
       </div>
@@ -139,7 +151,7 @@ export default function GalleryOverlay({
               type="button"
               onClick={onPrev}
               aria-label="Previous item"
-              className="rounded-full border border-on-dark/20 px-3 py-2 font-mono text-[12px] text-on-dark"
+              className="border border-on-dark/20 px-3 py-2 font-mono text-[11px] tracking-[0.14em] text-on-dark"
             >
               ←
             </button>
@@ -182,10 +194,10 @@ export default function GalleryOverlay({
                  work, which is why only two of the four went. Same finding `ImagePreview` records
                  against the same reset. */
               unoptimized={unoptimizedImage}
-              className="max-h-full w-auto rounded-[10px] object-contain"
+              className="max-h-full w-auto object-contain"
             />
           ) : (
-            <p className="rounded-[10px] border border-dashed border-on-dark/25 px-6 py-10 text-center font-mono text-[11px] text-on-dark-muted">
+            <p className="border border-dashed border-on-dark/25 px-6 py-10 text-center font-mono text-[11px] text-on-dark-muted">
               No image uploaded yet
             </p>
           )}
@@ -223,7 +235,7 @@ export default function GalleryOverlay({
               {item.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full border border-on-dark/20 px-2.5 py-[5px] font-mono text-[8.5px] uppercase tracking-[0.16em] text-on-dark-muted"
+                  className="border border-on-dark/20 px-2.5 py-[5px] font-mono text-[10px] uppercase tracking-[0.14em] text-on-dark-muted"
                 >
                   {tag}
                 </span>
@@ -237,7 +249,7 @@ export default function GalleryOverlay({
           <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-on-dark/15 pt-4">
             {specs.map(([label, value]) => (
               <div key={label}>
-                <dt className="font-mono text-[7.5px] uppercase tracking-[0.18em] text-on-dark-muted">
+                <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-on-dark-muted">
                   {label}
                 </dt>
                 <dd className="m-0 font-mono text-[11px] text-on-dark">{value}</dd>
@@ -252,7 +264,7 @@ export default function GalleryOverlay({
               type="button"
               onClick={onNext}
               aria-label="Next item"
-              className="rounded-full border border-on-dark/20 px-3 py-2 font-mono text-[12px] text-on-dark"
+              className="border border-on-dark/20 px-3 py-2 font-mono text-[11px] tracking-[0.14em] text-on-dark"
             >
               →
             </button>
