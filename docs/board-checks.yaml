@@ -161,10 +161,22 @@ entries:
       pattern: "S2a …and they are the hero's"
       expect: present
 
-  - match: "THE RENDERED-FLOOR SWEEP HAS RUN ON ONE PALETTE"
+  - match: "THE RENDERED-FLOOR SWEEP HAS NOW RUN ON FIVE PALETTES"
     kind: measurement
     why: >-
       Whether the four dark palettes hold is a browser run across nine themes, and no file records
       which palettes it has been driven on. The unresolved-ground count is the same shape: 144 of
       298 on one page, and what those 144 ARE is a judgement about elements rather than a value any
       pattern can read.
+
+  - match: "`.next-rail-arrow` PAINTS THE RAW RUNG"
+    kind: structural
+    # The finding is live exactly while the declaration names the rung. Pointing it at the role
+    # closes it, and this entry goes red the moment somebody does.
+    holds_while:
+      file: app/globals.css
+      # ⚠ ANCHORED TO THE RULE. The bare declaration appears elsewhere in this stylesheet, so an
+      # unanchored pattern stayed present under a mutation that moved the arrow to the role — the row
+      # passed vacuously and was caught by mutating rather than by reading.
+      pattern: "next-rail-arrow \\{[^}]*color: var\\(--color-accent-500\\)"
+      expect: present

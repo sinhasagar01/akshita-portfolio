@@ -76,6 +76,50 @@
 //   5. THE FLOOR DEPENDS ON THE RENDERED SIZE AND WEIGHT. 3.0 for large text — 24px, or 18.66px at
 //      700 — and 4.5 otherwise. Shrinking text RAISES its floor, which is a consequence a
 //      conversion can introduce without touching a colour.
+// ---- WHAT THE FOUR DARK PALETTES FOUND, 2026-08-18 --------------------------------------
+//
+// Driven on FOUR REAL BUILDS, one per palette, five pages each. Not by forcing attributes: the
+// first attempt set data-theme and data-ground and asserted those were the server's whole
+// contribution. THEY ARE NOT — data-published-ground is emitted too — and the nav kept its light
+// answer over a near-black page. Only a build is a state a visitor can reach.
+//
+//     2,966 measured against a resolved ground   ·   288 unresolved   ·   52 below floor
+//
+// ⚠ AND THREE OF THIS FILE'S OWN DEFECTS HAD TO BE FIXED BEFORE ANY OF THAT MEANT ANYTHING.
+//
+//   1. THE EXPORT HAD NEVER BEEN EXECUTED. A backtick inside a comment in the raw template ended
+//      it, and the constant threw on import. It had only ever been driven by pasting into a
+//      console, where a live-edited revision was running. The A3 row PARSES every skipped suite
+//      and a parse cannot see this — presence and resolution are different quantities.
+//
+//   2. THE REFUSAL PATHS RETURNED A NULL GROUND AND ratio WAS HANDED IT UNGUARDED, so the sweep
+//      crashed on the first text over a picture. The unresolved count was filtered on a property
+//      nothing ever set, so it would have reported 0 forever.
+//
+//   3. ⚠ AND THE BIG ONE — IT DOUBLE-COMPOSITED EVERY TRANSLUCENT LAYER OVER WHITE. px() fills
+//      white and then paints, so on a half-alpha colour it returns that colour ALREADY over white;
+//      the stack loop then composited it again. The nav's near-black glass came back as 145 rather
+//      than 36 and the ground resolved to 87,87,87 where the paint is 33. THAT MANUFACTURED 140 OF
+//      208 FINDINGS — every nav link on every dark palette at about 3.2, where they measure 6.9.
+//      A WHITE-PAPER ASSUMPTION INSIDE THE INSTRUMENT BUILT TO FIND LIGHT-GROUND ASSUMPTIONS, and
+//      it was invisible on a near-white palette because white was nearly right.
+//
+// THE TWELVE SURVIVING CLASSES, TRIAGED RATHER THAN COUNTED:
+//
+//     20  footer-ciao       1.14 against a floor of 3   DECORATIVE. Its job is to be a whisper,
+//                           and this record already boards the fact that nothing here measures a
+//                           ratio a consumer must stay UNDER. A ceiling question, not a floor one.
+//     28  accent controls   1.04 to 1.14, layers 1      THE DOCUMENTED SIBLING LIMIT. The work
+//                           filter's chip is transparent and its fill is painted by .wf-thumb, a
+//                           positioned sibling this sweep cannot reach. Header rule 4 names it.
+//      4  next-rail-arrow   2.92 to 3.28 against 4.5    ⚠ REAL, AND PREDICTED. It paints
+//                           color: var(--color-accent-500) — the RAW RUNG, which does not remap on
+//                           a dark ground. This record's rung-to-role entry says the twelve
+//                           remaining rung sites are safe only because none carries a foreground,
+//                           and that "the next author who puts a label on one inherits the defect".
+//                           This is a thirteenth site and it carries a glyph. role-layer R2 cannot
+//                           see it: R2 matches CLASS STRINGS in JSX and this is a CSS declaration.
+//
 export const FLOORS_SCRIPT = String.raw`(() => {
   const cs = (el) => getComputedStyle(el);
 
@@ -125,7 +169,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       const hits = document.elementsFromPoint(x, y);
       const self = hits.indexOf(el);
       /* ⚠ IF THE ELEMENT IS NOT UNDER ITS OWN CENTRE, THE STACK IS NOT ITS GROUND — REFUSE RATHER
-         THAN GUESS. The first draft fell back to the whole stack, and on `/palettes` that produced
+         THAN GUESS. The first draft fell back to the whole stack, and on the playground route that produced
          THREE false findings in one run: a fixed panel's button reported 1.09 where it measures
          20.12, and two figures inside scrolling panes reported ~1.07 where they measure 8.4 and
          better. In each case the centre point landed on the page, so the "ground" was the page.
@@ -162,11 +206,33 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       const bg = cs(node).backgroundColor;
       if (!bg || bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent') continue;
       const a = alphaOf(bg);
-      layers.push({ rgb: px(bg), a });
+      /* ⚠ px() FILLS WHITE AND THEN PAINTS, SO ON A TRANSLUCENT COLOUR IT RETURNS THAT COLOUR
+         ALREADY COMPOSITED OVER WHITE — and this line then composited it a SECOND time. The nav's
+         half-alpha near-black fill came back as 145 rather than 36, and the loop below laid that
+         mid-grey over the page, reporting a ground of 87,87,87 where the paint is 33. Every nav
+         link on all four dark palettes read about 3.2 against a 4.5 floor; measured straight they
+         are about 6.9 and clear.
+         The straight colour is recovered by undoing the white the raster added. This record already
+         carries a double-composited underlay returning 201,196,190 against a known ground — same
+         defect, different instrument, and the white base is invisible on a near-white palette. */
+      const overWhite = px(bg);
+      const straight = a >= 0.999 ? overWhite
+        : overWhite.map((v) => Math.max(0, Math.min(255, Math.round((v - 255 * (1 - a)) / a))));
+      layers.push({ rgb: straight, a });
       if (a >= 0.999) break;
     }
     if (!layers.length) return { rgb: px(cs(document.documentElement).backgroundColor || '#fff'), layers: 0, offscreen: false };
-    let out = layers[layers.length - 1].a >= 0.999 ? layers.pop().rgb : px('#ffffff');
+    /* ⚠ THE BASE UNDER A STACK OF TRANSLUCENT LAYERS IS THE PAGE, NOT WHITE PAPER. This read
+       px('#ffffff') and that is a LIGHT-GROUND ASSUMPTION BAKED INTO THE INSTRUMENT BUILT TO FIND
+       LIGHT-GROUND ASSUMPTIONS. It was invisible on a near-white palette, where white is nearly
+       right, and on the four dark palettes it manufactured 140 findings across 20 runs: the nav's
+       glass is a near-black fill at half alpha, so compositing it over white returned a mid-grey
+       ground of 87,87,87 and reported every nav link at about 3.2. Composited over the real page
+       the same link measures about 7.5 and clears comfortably.
+       The root element carries the page ground as a background-color, which is what the
+       no-layers branch above already reads — so the two branches now agree on the base. */
+    const base = px(cs(document.documentElement).backgroundColor || '#ffffff');
+    let out = layers[layers.length - 1].a >= 0.999 ? layers.pop().rgb : base;
     for (let i = layers.length - 1; i >= 0; i--) {
       const { rgb, a } = layers[i];
       out = [0, 1, 2].map((k) => Math.round(rgb[k] * a + out[k] * (1 - a)));
@@ -205,6 +271,26 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     const c = cs(el);
     const g = groundOf(el);
     const fg = px(c.color);
+    /* ⚠ BOTH REFUSALS RETURN A NULL GROUND AND THE FIRST DRAFT HANDED IT STRAIGHT TO ratio, WHICH
+       THREW ON THE FIRST TEXT OVER A PICTURE. That is how this export was found never to have been
+       EXECUTED: it was driven by pasting into a console, where a live-edited revision was running,
+       and the committed constant crashed on import. The mutate-harness A3 row parses every skipped suite
+       and a PARSE cannot see this — presence and resolution are different quantities, which this
+       record already states about a bundle grep and now states about a harness.
+       An unresolved row is KEPT rather than dropped, because the count of what a sweep could not
+       measure is the honest half of its coverage claim. */
+    if (!g.rgb) {
+      rows.push({
+        text: (el.textContent || '').trim().slice(0, 30),
+        tag: el.tagName,
+        cls: el.className.toString().replace(/\s+/g, ' ').slice(0, 46),
+        size: c.fontSize, weight: c.fontWeight,
+        fg: fg.join(','), bg: null, layers: null,
+        ratio: null, floor: floorFor(c), pass: null,
+        unresolved: true, why: g.overImage ? 'over-image' : 'centre-missed-element',
+      });
+      continue;
+    }
     const r = ratio(fg, g.rgb);
     const floor = floorFor(c);
     rows.push({
@@ -217,8 +303,8 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     });
   }
 
-  const fails = rows.filter((x) => !x.pass).sort((a, b) => a.ratio - b.ratio);
-  const dark = rows.filter((x) => lum(x.bg.split(',').map(Number)) < 0.15);
+  const fails = rows.filter((x) => x.ratio !== null && !x.pass).sort((a, b) => a.ratio - b.ratio);
+  const dark = rows.filter((x) => x.bg && lum(x.bg.split(',').map(Number)) < 0.15);
   return JSON.stringify({
     sanity,
     url: location.pathname,
@@ -232,7 +318,11 @@ export const FLOORS_SCRIPT = String.raw`(() => {
        did not measure, which is a different claim from an element that passed. */
     unresolvedGround: rows.filter((x) => x.unresolved).length,
     onDarkGrounds: dark.length,
-    worst: rows.length ? Math.min(...rows.map((x) => x.ratio)) : null,
+    measuredGround: rows.filter((x) => !x.unresolved).length,
+    unresolvedByReason: rows.filter((x) => x.unresolved)
+      .reduce((a, x) => { a[x.why] = (a[x.why] || 0) + 1; return a; }, {}),
+    worst: rows.some((x) => x.ratio !== null)
+      ? Math.min(...rows.filter((x) => x.ratio !== null).map((x) => x.ratio)) : null,
     failureCount: fails.length,
     failures: fails.slice(0, 25),
     verdict: fails.length === 0

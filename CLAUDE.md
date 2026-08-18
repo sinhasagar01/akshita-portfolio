@@ -215,6 +215,30 @@ gates.
 
 
 
+- **⚠ `.next-rail-arrow` PAINTS THE RAW RUNG AND MEASURES 2.92 TO 3.28 ON ALL FOUR DARK PALETTES,
+  AGAINST A 4.5 FLOOR — AND THIS RECORD PREDICTED IT IN AS MANY WORDS.** The rung-to-role entry
+  says the twelve remaining `accent-500` sites are safe because none carries a foreground, and that
+  **"the rung is still unremapped on the dark ground, so the next author who puts a label on one
+  inherits the defect exactly as the eight did."** This is a thirteenth site and it carries a glyph.
+
+      .next-rail-arrow { color: var(--color-accent-500) }     sapphire 2.94  ink-flare 3.28
+      globals.css:5436                                        nocturne 2.92  basalt   3.19
+
+  **⚠ AND `role-layer` R2 CANNOT SEE IT, WHICH IS THE PART WORTH KEEPING.** R2 was built for exactly
+  this defect and matches **class strings in JSX**. This is a **CSS declaration**, so the gate
+  written to catch the next instance is blind to the form the next instance took. Same shape as R2
+  missing the three nested sites, one layer further out — the concept is "an element pairs a
+  foreground with the rung" and the vocabulary is "a quoted class string".
+
+  **NOT FIXED HERE, AND THE PRECEDENT SAYS WHY IT IS CHEAP.** The eight-site rung-to-role move
+  changed **zero pixels on the five light palettes**, because `accent` IS `accent-500` there. The
+  same is expected here and **expected is not measured** — nine palettes, one glyph, and the
+  measurement is owed before the edit.
+
+  **⚠ IT IS NOT LIVE. `drawing-office` is published and it clears there.** It becomes real the
+  moment a dark palette is published, which is one field in /studio — the same latent exposure the
+  `text-subtle` entry carried before its subject was repaired underneath it.
+
 - **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
   Its resolver treats any `font-display` inside a case-study component as sitting under
   `.case-study .font-display` at 0-2-0. The DOM disagrees: the hero's `h1` sits under
@@ -227,18 +251,27 @@ gates.
   **THE FIX IS A CHANGE TO THAT SUITE'S CASCADE MODEL**, with its own blast radius over every other
   row it feeds, so it is not smuggled into a cleanup. It takes S2 to a true zero.
 
-- **⚠ BOARDED: THE RENDERED-FLOOR SWEEP HAS RUN ON ONE PALETTE, AND ITS UNRESOLVED COUNT IS
-  UNCHARACTERISED.** `paint-floors` is built, refuses rather than guessing, and has been driven on
-  five pages of `drawing-office` alone. **The four dark palettes invert every ground**, and this
-  record's measurement failures cluster on dark surfaces — the 2.30 it was written for was found on
-  one.
+- **⚠ BOARDED: THE RENDERED-FLOOR SWEEP HAS NOW RUN ON FIVE PALETTES, AND WHAT REMAINS IS THE
+  UNRESOLVED HALF.** The four dark palettes were driven on **four real builds**, five pages each —
+  **2,966 elements measured against a resolved ground, 288 unresolved, 52 below floor** — and the
+  52 triage to one real finding, the arrow entry above.
 
-  **⚠ AND IT REPORTED 144 UNRESOLVED OF 298 SUBJECTS ON `/palettes`.** Those are elements whose
-  centre point does not land on them — fixed panels, scrolling panes, overflowing boxes. Refusing is
-  correct and is why the three false findings there died. **But a sweep that cannot resolve half its
-  subjects is reporting less coverage than a reader would assume**, and nobody has looked at what the
-  144 are. A clean run means "no defect among the elements it could measure", and that sentence is
-  only honest while somebody knows how large the other half is.
+  **⚠ AND THE UNRESOLVED COUNT IS NOW A REPORTED FIGURE RATHER THAN AN UNKNOWN ONE, WHICH IS HALF
+  THE FIX.** The sweep refuses on two named grounds and says which:
+
+      centre-missed-element   the element is not under its own centre point
+      over-image              its ground is a picture, so no single colour is honest
+
+  **WHAT IS STILL UNCHARACTERISED IS WHETHER THE REFUSALS ARE THE RIGHT ONES.** 288 of 3,254 is a
+  tenth of the subject, and a clean run means "no defect among the elements it could resolve" — a
+  sentence that is only honest while somebody knows how large the other half is and what is in it.
+  **Nobody has looked at the 288.**
+
+  **⚠ AND ONE KNOWN CLASS SITS INSIDE THE RESOLVED HALF RATHER THAN THE REFUSED ONE, WHICH IS
+  WORSE.** 28 of the 52 findings are accent-filled controls whose fill is painted by a positioned
+  SIBLING — the `.wf-thumb` shape this record already carries. The sweep resolves the page instead,
+  reports about 1.1, and **does not refuse**, so those arrive as findings rather than as unresolved.
+  A wrong ground reported confidently is the defect this whole file is about.
 
 - **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
   IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
