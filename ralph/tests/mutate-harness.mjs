@@ -60,7 +60,7 @@
 // B1, B2 and C1 still use a derived clean TRACKED file, because they REFUSE before writing.
 //
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, rmSync, mkdtempSync } from "node:fs";
+import { readFileSync, existsSync, writeFileSync, rmSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -114,6 +114,23 @@ t("A1 ⚠ `mutate.mjs` PARSES — a syntax error here is invisible to every othe
 const bare = run();
 t("A2 …and it RUNS, reaching its own usage message rather than dying during load",
   bare.status === 2 && /usage: node ralph\/mutate\.mjs/.test(bare.out), true);
+
+/* ⚠ AND `mutate.mjs` IS NOT THE ONLY FILE NOTHING LOADS — `run.mjs` SKIPS FIVE SUITES BY NAME.
+ * A skipped suite is never imported, so a syntax error in one is invisible to a full green run,
+ * which is the identical hole this section was written about. It has already caught one: a comment
+ * in `paint-floors` quoted an expression containing a backtick, which closed the String.raw block
+ * the whole browser script lives in, and ralph stayed green at 3633 with the file unparseable.
+ *
+ * THE LIST IS READ OUT OF `run.mjs` RATHER THAN REPEATED HERE, because a second copy of a skip list
+ * is the parallel-list defect arriving inside the gate that watches it — and A3a asserts the parse
+ * found members, so a changed format cannot quietly make this check watch nothing. */
+const runSrc = readFileSync(new URL("../run.mjs", import.meta.url), "utf8");
+const skipMatch = /NOT_RUNNABLE\s*=\s*new Set\(\[([^\]]*)\]/.exec(runSrc);
+const skipped = skipMatch ? [...skipMatch[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
+t("A3a the skip list was parsed out of `run.mjs`, so this check cannot pass by watching nothing",
+  skipped.length >= 4, true);
+t("A3 ⚠ EVERY SUITE `run.mjs` SKIPS BY NAME STILL PARSES — none of them is ever loaded",
+  skipped.filter((n) => spawnSync("node", ["--check", `ralph/tests/${n}.mjs`], { cwd: root }).status !== 0), []);
 
 console.log("\nB · the four refusals fire, exercised against the real binary");
 /* ⚠ EACH ONE EXITS BEFORE TOUCHING A FILE, which is what makes them safe to run in CI. A refusal
