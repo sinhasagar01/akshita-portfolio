@@ -306,7 +306,7 @@ sections:
     id: solution
     index: '07'
     eyebrow: The solution
-    title: ''
+    title: It meets you where you sit.
     lead: >-
       **Fosfor AI**, a single companion that adapts its help to whoever is in
       the data to decision seat.
@@ -440,7 +440,7 @@ sections:
     id: screens
     index: ''
     eyebrow: Screens
-    title: ''
+    title: The companion in place.
     lead: A selection of companion and workflow screens.
     northStar: ''
     layout: stack
@@ -527,7 +527,7 @@ sections:
     id: before-after
     index: ''
     eyebrow: Before and after
-    title: ''
+    title: The same task, now guided.
     lead: The workflow before and after the companion, the same task made guided.
     northStar: ''
     layout: stack

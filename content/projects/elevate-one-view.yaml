@@ -311,7 +311,7 @@ sections:
     id: solution
     index: '07'
     eyebrow: The solution
-    title: ''
+    title: The one view.
     lead: >-
       **Elevate ONE View**, rebuilt as one simplified workflow a mechanic can
       trust in the field.
@@ -429,7 +429,7 @@ sections:
     id: screens
     index: ''
     eyebrow: Screens
-    title: ''
+    title: What can be shown.
     lead: Selected screens, kept limited for confidentiality.
     northStar: ''
     layout: stack
@@ -486,10 +486,10 @@ sections:
             size: ''
           minHeight: null
   - variant: default
-    id: ''
+    id: before-after
     index: ''
     eyebrow: ''
-    title: ''
+    title: The same job, fewer steps.
     lead: The heavy old flow beside the simplified redesign.
     northStar: ''
     layout: stack
