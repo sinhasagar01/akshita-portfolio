@@ -41,7 +41,7 @@ All of these live in one `@theme` block, the `@theme` block in `app/globals.css`
 | accent | 400, 500, 600 | globals.css:40-42 |
 | success | 50, 700 | globals.css:73-74 |
 | on-dark | band-dark, on-dark, on-dark-muted, on-dark-quote, on-dark-line | globals.css:66-70 |
-| single-purpose | danger-600, glow-web, draft-600, canvas, reveal-sand, case-study-sand | globals.css:50, 58, 93, 24, 29, 30 |
+| single-purpose | danger-600, glow-web, draft-600, canvas, case-study-sand | globals.css |
 
 Semantic aliases sit on top, `app/globals.css`, at `--color-text-primary`. `text-primary` is ink-950, `text-secondary` is
 ink-600, and `text-muted` and `text-subtle` are both `oklch(51% 0.016 66)`, a value tuned to the

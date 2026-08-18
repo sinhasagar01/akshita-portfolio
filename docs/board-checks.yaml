@@ -170,16 +170,6 @@ entries:
       pattern can read.
 
   # ---- added with the case-study-sand relation, 2026-08-19 ----
-  - match: "`reveal-sand` IS THE SAME ABSOLUTE AS"
-    kind: structural
-    # The entry exists only while the token is still an absolute. Converting it to a mix into the
-    # canvas — which is the fix the entry describes — is exactly what makes this pattern vanish, and
-    # the entry expires with it rather than sitting open over finished work.
-    holds_while:
-      file: app/globals.css
-      pattern: "--color-reveal-sand: oklch\\(85\\.0%"
-      expect: present
-
   - match: "28 `sheet-stamp` ELEMENTS MEASURE"
     kind: measurement
     why: >-

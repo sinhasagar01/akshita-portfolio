@@ -58,7 +58,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-cream-100: oklch(96.8% 0.000 0);
   --color-cream-200: oklch(93.5% 0.000 0);
   --color-cream-300: oklch(88.0% 0.000 0);
-  --color-reveal-sand: oklch(85.0% 0.000 0);   /* #E3CFB6 approx — panel start color */
   /* ⚠ A RELATION, NOT A VALUE — AND IT WAS AN ABSOLUTE FOR THE WHOLE LIGHT ERA. This read
      `oklch(88.5% …)` here and was re-declared at exactly 88.5% in six scoped blocks, so it held its
      distance from NOTHING. Against drawing-office's 95.5% canvas that is a 7.0-point drop and reads
@@ -835,7 +834,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-wave:       oklch(93.5% 0.000 0);
   --color-glow-paper:        oklch(0.63 0.000 0 / 0.2);
   --color-bounce:            oklch(99.5% 0.000 0);
-  --color-reveal-sand:       oklch(85.0% 0.000 0);
   --color-glow-web:          oklch(48.0% 0.000 0);
 }
 
@@ -1098,7 +1096,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-wave: oklch(93.5% 0.011 250);
   --color-glow-paper: oklch(63% 0.174 272 / 0.20);
   --color-bounce: oklch(99.5% 0.003 250);
-  --color-reveal-sand: oklch(85.0% 0.027 235);
   --color-glow-web: oklch(48.0% 0.083 227);
 }
 
@@ -1158,7 +1155,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-wave:       oklch(93.5% 0.010 44);
   --color-glow-paper:        oklch(0.63 0.146 52 / 0.2);
   --color-bounce:            oklch(99.5% 0.003 44);
-  --color-reveal-sand:       oklch(85.0% 0.024 29);
   --color-glow-web:          oklch(48.0% 0.073 21);
 }
 
@@ -1218,7 +1214,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-wave:       oklch(93.5% 0.017 282);
   --color-glow-paper:        oklch(0.63 0.160 296 / 0.2);
   --color-bounce:            oklch(99.5% 0.003 282);
-  --color-reveal-sand:       oklch(85.0% 0.041 267);
   --color-glow-web:          oklch(48.0% 0.125 259);
 }
 
@@ -1288,7 +1283,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-wave:       oklch(93.5% 0.000 0);
   --color-glow-paper:        oklch(0.63 0.155 128 / 0.2);
   --color-bounce:            oklch(99.5% 0.000 0);
-  --color-reveal-sand:       oklch(85.0% 0.000 345);
   --color-glow-web:          oklch(48.0% 0.000 337);
 }
 
@@ -1437,7 +1431,6 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-vessel-wave:       oklch(93.5% 0.008 106.5);
   --color-glow-paper:        oklch(0.63 0.006 106.5 / 0.2);
   --color-bounce:            oklch(99.5% 0.002 106.5);
-  --color-reveal-sand:       oklch(85.0% 0.008 106.6);
   --color-glow-web:          oklch(48.0% 0.150 29.1);
 }
 
@@ -2036,16 +2029,16 @@ a {
      about magnitude, settled only by looking. */
   --color-case-study-sand: var(--color-band-dark);
 
-  /* ⚠ A TRANSITION WHOSE END STATE THEMED AND WHOSE START STATE DID NOT. `.reveal-panel` starts at
-     `--color-reveal-sand` and settles to `var(--color-surface)` — a ROLE, which already remaps. So
-     the animation was half-migrated: correct at rest, wrong for its first 0.9 seconds, on every
-     un-revealed panel of a dark page.
+  /* ⚠ `--color-reveal-sand` STOOD HERE AND THE WHOLE MECHANISM IS GONE. It was a transition's start
+     state, remapped on this ground so the sweep arrived lighter than the page and settled down to
+     the card, where on light it arrived darker and settled up. The reasoning was sound and its
+     subject was retired underneath it — the sheet direction forced the panel's background to
+     `transparent` in both states on both surfaces that render one, so the token painted nothing on
+     either ground. Measured across ten routes and six palettes before it was deleted.
 
-     ⚠ THE DIRECTION INVERTS AND THAT IS THE POINT. On light the panel sweeps in DARKER than the
-     page and settles UP to the card. On dark it must sweep in LIGHTER than the page and settle DOWN
-     to the card — 14% against `surface`'s 6% — because "arrives with emphasis, settles to rest" is
-     the behaviour, and a dark start on a dark ground would simply be invisible. */
-  --color-reveal-sand: color-mix(in oklch, var(--color-on-dark) 14%, var(--color-band-dark));
+     ⚠ AND ITS OWN FIGURE HAD DRIFTED, WHICH IS WHY THE PROSE IS KEPT RATHER THAN THE VALUE. This
+     comment said "14% against `surface`'s 6%" while `--color-surface` above declares 8%. A number
+     in prose beside a number in code, and nothing compared them. */
   /* The accent's own dark form. `on-accent` deliberately does NOT remap: the accent stays a
      mid-tone on both grounds, so its foreground must stay light. */
   --color-accent:        var(--color-accent-on-dark);
@@ -4182,14 +4175,15 @@ a {
    SEES WITH THIS TEXT ON IT. Recorded rather than dropped, because the figure is reproducible and
    would send the next person the same way.
 
-       text-subtle on --color-reveal-sand      3.63   <- what was measured
+       text-subtle on the panel's old start   3.63   <- what was measured
        text-subtle on --color-surface          5.52   <- what a reader actually gets, clears 4.5
        text-secondary on --color-surface       7.42
 
-   `.reveal-panel` starts at `--color-reveal-sand` AND at `clip-path: inset(0 0 100% 0)`, so nothing
-   inside it paints; `.reveal-card` starts at `opacity: 0` and only fades in under `.is-revealed`,
-   after the ground has begun its 900ms settle to `--color-surface`. **A fully sand ground with
-   readable text on it is not a state this component has.** The 3.63 is a token pair measured
+   `.reveal-panel` ships at `clip-path: inset(0 0 100% 0)` and `visibility: hidden`, so nothing
+   inside it paints; `.reveal-card` starts at `opacity: 0` and only fades in under `.is-revealed`.
+   **A fully sand ground with readable text on it is not a state this component has** — and it is
+   now not a state it can have at all, since the start colour and the token behind it were deleted
+   once measurement showed they painted nothing on any surface. The 3.63 is a token pair measured
    against each other, which is the ratio-belongs-to-the-ground-it-was-taken-on defect this record
    carries eight instances of.
 
@@ -4537,17 +4531,33 @@ a {
    ⚠ AND `/palettes` HAS NO PANELS AT ALL, which is why `.canvas-static` never needed a panel rule.
    Its eight `.reveal-card`s sit outside any `.reveal-panel`. Checked before changing this, because
    the card fix needed three end-state rules and finding only one here looked like an omission. */
+/* ⚠ NO COLOUR LEG, AND THE TOKEN THAT DROVE IT IS GONE. The panel used to sweep from
+   `--color-reveal-sand` up to `var(--color-surface)`. The sheet direction retired panel grounds on
+   BOTH surfaces that render one, and each retirement forced this rule to `transparent` in both
+   states — so the colour leg had already been a declared no-op, and the token behind it painted
+   nothing anywhere.
+
+   MEASURED BEFORE REMOVING IT, ACROSS TEN PUBLIC ROUTES: 51 `.reveal-panel` elements, ZERO painting
+   a non-transparent ground, at rest and revealed, on the light palettes and on the four dark ones,
+   and under `prefers-reduced-motion`. A token with no reachable consumer is a deletion rather than
+   a value to keep correct.
+
+   ⚠ AND THE BACKGROUND IS NOW `.section-card`'s ALONE, WHICH IS WHY THE TWO `transparent` OVERRIDES
+   WENT WITH IT. Every panel carries `section-card`, and both scopes already zero that. Keeping the
+   overrides would have left `.reveal-panel.is-revealed` tied with `.sheet-scope .section-card` at
+   0-2-0 and decided by source order, which is the fragile arrangement this record has an entry
+   about. Nothing here ties now.
+
+   The reveal itself is untouched. It was always carried by the clip and the visibility switch. */
 .reveal-panel {
   clip-path: inset(0 0 100% 0);
   visibility: hidden;
-  background-color: var(--color-reveal-sand);
-  transition: clip-path .9s cubic-bezier(.22,1,.36,1), background-color .9s ease, visibility .9s;
+  transition: clip-path .9s cubic-bezier(.22,1,.36,1), visibility .9s;
 }
 
 .reveal-panel.is-revealed {
   clip-path: inset(0 0 0% 0);
   visibility: visible;
-  background-color: var(--color-surface);
 }
 
 /* ⚠ `visibility`, NOT JUST `opacity` — AN UNREVEALED CARD WAS INVISIBLE AND STILL TABBABLE.
@@ -4817,7 +4827,6 @@ a {
   .reveal-panel {
     clip-path: none;
     visibility: visible;
-    background-color: var(--color-surface);
     transition: none;
   }
   .reveal-card {
@@ -6442,13 +6451,6 @@ a {
   margin-inline: 0;
   padding-inline: 0;
 }
-/* Both reveal states lose the card colour. The reveal itself is unaffected — it is carried by the
-   clip and the visibility switch, so the colour leg becomes a no-op rather than being removed from
-   a shared transition list. */
-.sheet-scope .reveal-panel,
-.sheet-scope .reveal-panel.is-revealed {
-  background-color: transparent;
-}
 
 /* ============================================================================================
    AND THE SAME RETIREMENT FOR THE CASE STUDIES, SCOPED TO `.case-study` RATHER THAN TO THE SHEET.
@@ -6481,11 +6483,6 @@ a {
   margin-inline: 0;
   padding-inline: 0;
 }
-.case-study .reveal-panel,
-.case-study .reveal-panel.is-revealed {
-  background-color: transparent;
-}
-
 /* ============================================================================================
    THE WORK PLATES — the card's image frame BECOMES the plate frame rather than being replaced.
 
