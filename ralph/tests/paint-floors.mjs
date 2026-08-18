@@ -342,7 +342,59 @@ export const FLOORS_SCRIPT = String.raw`(() => {
 //   the footer's `Ciao`     1.09 at 116px — a DECORATIVE backdrop whose whole job is to be a
 //                           whisper behind the identity. `paint-sites` already carries the entry
 //                           about it inverting on dark. Not a text element in the sense a floor is
-//                           written for, and the one exclusion this sweep declares.
+//                           written for, and the FIRST exclusion this sweep declared.
+//   the sheet stamps        1.72 at 24.32px against a floor of 3.0, 28 of them on every case
+//                           study — RULED DECORATIVE 2026-08-19, and the ruling is recorded below
+//                           rather than left for the next reader to re-derive from 28 rows.
+//
+// ---- ⚠ THE SHEET STAMP, RULED — AND IT IS THE OPPOSITE OF `Ciao` ON THE ONE TEST THAT MATTERS ---
+//
+// `Ciao` earned its exclusion despite INVERTING across the ground flip: 1.37 on light and 11.67 on
+// dark, a whisper that becomes a shout, which this record boards as a CEILING question nothing here
+// measures. The stamp was expected to be the same class. It is not.
+//
+// Measured by compositing the declared ink over the resolved ground — the browser doing the
+// composite, not a white fill, because a 26% alpha over white is the double-composite fault in
+// point 3 above:
+//
+//     drawing-office  ground 250,250,250   stamp 188,188,188   1.82      border 1.43
+//     redline         ground 250,250,248   stamp 189,189,188   1.80      border 1.42
+//     sapphire        ground  24, 30, 37   stamp  79, 85, 91   2.22      border 1.61
+//     ink-flare       ground  35, 27, 29   stamp  89, 83, 84   2.24      border 1.60
+//     nocturne        ground  27, 28, 40   stamp  84, 83, 92   2.23      border 1.60
+//     basalt          ground  29, 29, 29   stamp  84, 84, 84   2.23      border 1.60
+//
+// ⚠ IT HOLDS ITS RELATION — 1.80 to 2.24 ACROSS THE FLIP. That is `etch` working exactly as its own
+// entry says an alpha-based pigment role should: it resolves to an INK rather than a finished
+// colour, so a consumer's chosen weight survives the ground change. A decorative mark that stays
+// decorative on every palette is doing its job, and this sweep's own figure of 1.72 agrees with the
+// token composite's 1.80 to within 0.08 by a route that shares no code with it.
+//
+// THE RULING RESTS ON WHAT THE DESIGN ALREADY DECLARED, NOT ON THE RATIO:
+//
+//   `aria-hidden="true"` on the render site — a screen reader user never receives it, so the design
+//      has ALREADY ruled it not information. If the stamp carried something a reader needs, that
+//      attribute would be the defect rather than the contrast.
+//   `pointer-events: none` and `user-select: none` — not interactive, not selectable.
+//   `color-mix(in oklch, var(--color-etch) 26%, transparent)` — faint by explicit construction.
+//   desktop only; below 1024 it is `display: none` and a phone never had one.
+//   0 overlap with any element that draws text, measured by `elementsFromPoint` across every stamp.
+//
+// ⚠ AND THE HONEST COUNTER IS RECORDED RATHER THAN ANSWERED AWAY. The component's own comment says
+// "this is a small ruled mark a reader CAN read", which is an intent to be read. And censused across
+// the four case studies at 1440: 30 stamps, of which 15 echo a word already in their own section —
+// and the ELEVEN INDEX NUMERALS (`01` to `04`) appear NOWHERE ELSE in theirs. So for a feature row,
+// the stamp is the only place its number is written.
+//
+// THAT IS SETTLED BY `aria-hidden` RATHER THAN BY THE RATIO. The rows are in visual order and the
+// index is already withheld from assistive technology, so the page does not depend on it. A drafting
+// sheet carries a corner mark; that is what this is.
+//
+// ⚠ NOT ENCODED AS A CODE EXCLUSION, AND THE REASON IS THAT THE OBVIOUS PREDICATE COVERS ONE OF THE
+// TWO. `aria-hidden` plus `pointer-events: none` plus `user-select: none` is a real PROPERTY rather
+// than a class list — and `.footer-ciao` carries only the last two, so a predicate built on it would
+// silence the stamp and go on reporting `Ciao`. Whether this sweep should carry a decoration
+// predicate at all is boarded as its own decision rather than smuggled in here.
 //   the work-filter chip    1.00 reported, 20.12 measured — the `pointer-events` limit above.
 //   the About captions      1.35 and 1.45 — text over a 42% tint over a PHOTOGRAPH, which the
 //                           refusal above now catches by its ancestor rather than by its own tag.

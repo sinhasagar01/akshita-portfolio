@@ -170,10 +170,9 @@ entries:
       pattern can read.
 
   # ---- added with the case-study-sand relation, 2026-08-19 ----
-  - match: "28 `sheet-stamp` ELEMENTS MEASURE"
-    kind: measurement
+  - match: "SHOULD `paint-floors` CARRY A DECORATION PREDICATE"
+    kind: judgement
     why: >-
-      Whether a corner registration mark at 1.60 is a defect or a decorative whisper is a judgement
-      about what the element is for, and no predicate over CSS can tell those apart — the record
-      already carries that exact limit against the footer's Ciao. The count itself needs a browser
-      run on a drawing-office build, which no file records having been driven.
+      Whether a sweep should stop reporting elements a design has declared decorative is a trade
+      between the legibility of its output and its coverage, and no file can hold that. The trigger
+      is a THIRD ruled-decorative class, which is a count somebody has to take by running it.

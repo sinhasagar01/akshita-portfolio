@@ -214,24 +214,23 @@ board that cannot be read is a board that gets batched, which is how a fix rides
 gates.
 
 
-- **⚠ BOARDED: 28 `sheet-stamp` ELEMENTS MEASURE 1.60 TO 1.74 AGAINST A 4.5 FLOOR, AND NOBODY HAS
-  RULED ON THEM.** Found while running `paint-floors` before and after an unrelated change, on four
-  real drawing-office builds across five pages. **Identical in both runs**, so they are pre-existing
-  and were not caused by that unit.
+- **⚠ BOARDED: SHOULD `paint-floors` CARRY A DECORATION PREDICATE, NOW THAT 33 OF ITS 39 FINDINGS ARE
+  PRE-RULED?** Five are the footer's `Ciao` and twenty-eight are the sheet stamps, both ruled
+  decorative with their numbers in the harness's own triage header. **A reader of a fresh run now
+  meets 39 rows of which six are live**, and this record's standing argument is that a gate whose
+  common output is benign is one people learn to skip.
 
-  **THE HARNESS'S OWN HEADER TRIAGES ITS FIRST RUN AND THIS CLASS IS NOT IN IT**, because the sheet
-  grammar arrived after that header was written. The header's five named classes are the footer's
-  `Ciao`, the work-filter chip, and the About captions — all still present, all still explained.
+  **THE PREDICATE IS AVAILABLE AND IT COVERS ONE OF THE TWO, WHICH IS THE WHOLE DIFFICULTY.**
+  `aria-hidden` plus `pointer-events: none` plus `user-select: none` is a real PROPERTY rather than a
+  class list — the shape this record demands of any exclusion. **The stamp carries all three;
+  `.footer-ciao` carries only the last two.** So the honest predicate silences 28 and goes on
+  reporting 5, which is better and is not the tidy answer it looks like.
 
-  **THE LIKELY RULING IS THE `Ciao` ONE, WHICH IS EXACTLY WHY IT NEEDS TAKING RATHER THAN ASSUMING.**
-  A corner registration mark is decorative and its job may well be to be faint, in which case this is
-  a CEILING question and this record already boards the fact that nothing here measures a ratio a
-  consumer must stay UNDER. **But "probably the same as that other thing" is how a real finding gets
-  filed away**, and 28 elements on every page is a larger population than any exclusion here carries.
-
-  **NOT LIVE ON THE PUBLISHED PALETTE.** Redline runs 0 below floor across 1200 measured elements, so
-  this is drawing-office and the four darks. It becomes real the moment drawing-office is published
-  again, which is one field in /studio.
+  **AND WIDENING IT TO `aria-hidden` ALONE IS REFUSED IN ADVANCE.** Text hidden from assistive
+  technology that a sighted reader must still read is a real defect class, and a sweep that stopped
+  reporting it would be buying legibility of its own output with coverage. **The trigger for building
+  anything is a third ruled-decorative class**, at which point the population is real rather than two
+  instances sharing a hunch.
 
 
 
@@ -575,6 +574,56 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ RULED DECORATIVE: THE SHEET STAMPS, AND THEY ARE THE OPPOSITE OF `Ciao` ON THE ONE TEST THAT
+  MATTERS.** 28 of them on every case study at **1.72 against a floor of 3.0**. Ruled with the
+  numbers rather than by analogy, because "probably the same as that other thing" is how a real
+  finding gets filed away.
+
+  **⚠ TWO FIGURES IN THE ENTRY THAT BOARDED THIS WERE WRONG, AND BOTH WERE MINE.** It said *"against
+  a 4.5 floor"* — the stamps render at **24.32px at weight 500**, which is large text, so the harness
+  applied **3.0** and always had. And it said **NOT LIVE ON THE PUBLISHED PALETTE** on the strength of
+  a redline run reporting 0 below floor across 1200 measured elements. **That run has never
+  reproduced**; four later runs on clean builds give 1068 and 39, identical to drawing office. **The
+  stamps are live on redline and have been since it published.**
+
+  **THE EXPECTED RULING WAS THE `Ciao` ONE AND THE MEASUREMENT REFUSED IT.** `Ciao` earned its
+  exclusion DESPITE inverting across the ground flip — 1.37 light against 11.67 dark, a whisper that
+  becomes a shout, which this record boards as a ceiling question nothing here measures. The stamp
+  was expected to be the same class. Composited over its resolved ground, the browser doing the
+  composite rather than a white fill:
+
+      drawing-office 1.82   redline 1.80   sapphire 2.22
+      ink-flare 2.24        nocturne 2.23  basalt 2.23
+
+  **IT HOLDS ITS RELATION — 1.80 TO 2.24 ACROSS THE FLIP.** That is `etch` doing exactly what its own
+  entry says an alpha-based pigment role does: it resolves to an INK rather than a finished colour,
+  so the consumer's chosen weight survives the ground change. **A decorative mark that stays
+  decorative on every palette is one doing its job**, and the sweep's own 1.72 agrees with the token
+  composite's 1.80 to within 0.08 by a route sharing no code with it.
+
+  **THE RULING RESTS ON WHAT THE DESIGN ALREADY DECLARED RATHER THAN ON THE RATIO.**
+  `aria-hidden="true"` on the render site means a screen-reader user never receives the stamp — so
+  the design has ALREADY ruled it not information, and if it carried something a reader needs, that
+  attribute would be the defect rather than the contrast. Plus `pointer-events: none`,
+  `user-select: none`, a deliberate 26% alpha, desktop only, and **zero overlap with any element that
+  draws text**, measured by `elementsFromPoint` across every stamp.
+
+  **⚠ AND THE HONEST COUNTER IS RECORDED RATHER THAN ANSWERED AWAY.** The component's own comment
+  says *"this is a small ruled mark a reader CAN read"*, which is an intent to be read. Censused at
+  1440 across the four case studies: **30 stamps, 15 echoing a word already in their own section —
+  and the ELEVEN INDEX NUMERALS (`01` to `04`) appearing NOWHERE ELSE in theirs.** For a feature row
+  the stamp is the only place its number is written. **That is settled by `aria-hidden` rather than
+  by the ratio**: the rows are in visual order and the index is already withheld from assistive
+  technology, so the page does not depend on it.
+
+  **⚠ AND MY FIRST MEASUREMENT OF THE DARK HALF WAS THE DOUBLE-COMPOSITE FAULT, IN THE ONE PLACE IT
+  IS BEST DOCUMENTED.** Filling white and then painting a 26% alpha returned **251,252,253 on a
+  near-black ground** and a ratio of 16.46 — which would have read as a spectacular `Ciao`-style
+  inversion and inverted the ruling. **A 26% alpha cannot paint near-white on near-black**, and that
+  impossibility is the only reason it was caught. `paint-floors`' own header records this as the
+  fault that manufactured 140 of 208 findings, and I committed it while ruling on that harness's
+  output.
+
 - **⚠ CLOSED BY DELETION: `reveal-sand` PAINTED NOTHING, AND THE ENTRY THAT BOARDED IT NAMED THE
   WRONG REFERENCE AND THE WRONG FIX.** It was boarded as the same absolute as `case-study-sand`,
   "13.45 points below redline's sheet", with a one-line relation as the remedy. **Every part of that
@@ -666,9 +715,14 @@ moment it grows an action again.
   bit. **Reverting the fix left R5 GREEN.** Only the mutation showed it. `R5b` asserts the decoy is
   present so the row cannot drift back to proving nothing.
 
-  **THE RENDER, ON FOUR REAL BUILDS.** Redline after is 1200 measured and **0 below floor**, worst
-  9.40. Drawing office was run before AND after on its own builds and the findings are an **identical
-  multiset, 39 to 39, zero different, down to the ratio at three decimals.**
+  **THE RENDER, ON FOUR REAL BUILDS.** Drawing office was run before AND after on its own builds and
+  the findings are an **identical multiset, 39 to 39, zero different, down to the ratio at three
+  decimals.**
+
+  **⚠ THE REDLINE FIGURE FIRST RECORDED HERE — "1200 measured, 0 below floor, worst 9.40" — HAS NEVER
+  REPRODUCED.** Four later runs on clean builds give **1068 and 39**, identical to drawing office. A
+  `worst` of 9.40 the same on five different pages was the tell, and it shipped in a PR body as
+  verification. **The mechanism is unidentified and is not guessed at.**
 
 - **⚠ CLOSED: EIGHT FOREGROUNDS TOOK THE RUNG, NOT ONE — AND THE SWEEP COULD ONLY EVER HAVE SEEN
   TWO OF THEM.** The finding was `.next-rail-arrow` at 2.92 to 3.28 against a 4.5 floor on the four
