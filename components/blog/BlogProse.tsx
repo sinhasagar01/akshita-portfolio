@@ -85,8 +85,20 @@ function VideoEmbed({
   const poster = text(value.poster?.src);
   return (
     <figure className="my-[2.3em]">
+      {/* A box around content, so it loses its corner on the radius ruling. The hairline stays.
+
+            ⚠ AND IT DELIBERATELY DOES NOT GAIN THE CORNER TICKS the card frames took. A tick is a
+            registration mark on a PLATE, and the plates it marks are single objects a reader looks
+            at — a work card, a blog card, a case-study figure. This column is a reading surface,
+            and marking every inline figure inside it would put two marks in the middle of a
+            paragraph flow several times per article. The frame is squared for consistency; it is
+            not promoted to a plate.
+
+            ⚠ AND THIS FRAME HAS NO LIVE MEMBERS TODAY — no published post uses a `videoEmbed`, so
+            the change is verified from the rule rather than from a render. The image figure beside
+            it has three and is verified from the paint. */}
       <div
-        className="relative w-full overflow-hidden rounded-[10px] border border-etch/8"
+        className="relative w-full overflow-hidden border border-etch/8"
         style={{ aspectRatio: String(ratio) }}
       >
         {/* THE POSTER, FINALLY READ. It has been in the schema since #171, uploadable

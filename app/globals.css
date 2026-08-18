@@ -5491,12 +5491,21 @@ a {
 .blog-prose > p {
   margin: 0 0 1.35em;
 }
+/* ⚠ WEIGHT 400 TO 600, WHICH IS THE HIERARCHY DEFECT THIS SITE ALREADY RECORDS. The article's own
+   title is `.sheet-h2` at 600, and an in-body heading UNDER it was four hundred — size said "less
+   important" and weight said "more", the two axes cancelling into one level. Every other heading on
+   the site is 600 for exactly this reason.
+
+   THE SIZE STAYS AT 29px AND THE ROLE'S CLAMP IS DELIBERATELY NOT USED. `.sheet-h3` scales on the
+   VIEWPORT, and this column is a fixed 68ch measure — a viewport-fluid heading inside a
+   measure-fixed column would drift against the body text it heads. The tracking takes the role's
+   -0.019em so the two read as one register at their two sizes. */
 .blog-prose h2 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
   font-size: 29px;
   line-height: 1.2;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.019em;
   color: var(--color-text-primary);
   margin: 2em 0 0.6em;
 }
@@ -5574,15 +5583,22 @@ a {
 .blog-prose .blog-figure {
   margin: 2.3em 0;
 }
+/* A box around content, so it loses its corner on the radius ruling — the same corner the blog
+   cards' frames lost, and the frame keeps its hairline. */
 .blog-prose .blog-figure img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 10px;
+  border-radius: 0;
   border: 1px solid var(--blog-rule);
 }
+/* ⚠ THE MONO REGISTER AT `.sheet-mono-text`'s SIZE, BUT NOT THE CLASS — the role paints
+   `text-primary` and a caption is secondary to the figure it labels, so this keeps its own colour
+   and takes everything else. The role's own comment calls 13px mono "the only mono anyone actually
+   reads, so it takes no tracking and stays sentence case", which is a caption exactly. */
 .blog-prose .blog-figure figcaption {
   margin-top: 11px;
+  font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.55;
   color: var(--color-text-secondary);
@@ -5631,14 +5647,27 @@ a {
 /* Inline marks (bold / italic / links) are rendered and styled by renderRich itself
    (components/case-study/rich.tsx), so the prose column does NOT restyle <b>/<em>/<a> —
    that would double-apply and could conflict. The column owns only its block elements. */
+/* ⚠ THE SAME OBJECT AS THE CASE STUDY'S PULL QUOTE, NOW DRAWN THE SAME WAY. `PullQuote` renders
+   `sheet-h3` upright with a 1px `--sheet-object` rule down its left edge; this rendered the display
+   face at 400 in ITALIC behind a 2px ACCENT bar. Two surfaces, one object, two languages.
+
+   ⚠ AND THE ACCENT BAR WAS A FIFTH USE. The direction sanctions the accent for four things — the
+   current floor, the readout figures, the outcome column and the resume control. A quotation rule
+   is none of them, and it was the only accent on the article page. It takes `--sheet-object`, which
+   is what every other rule on the site is drawn in.
+
+   The slant goes for the reason it went everywhere else: this direction separates by REGISTER, and
+   the quote is already separated by size, weight and the rule beside it. `typography` section F
+   loses its PROSE category with this change. */
 .blog-prose blockquote {
   margin: 2em 0;
-  padding: 0 0 0 26px;
-  border-left: 2px solid var(--color-accent-500);
+  padding: 0 0 0 28px;
+  border-left: 1px solid var(--sheet-object);
   font-family: var(--font-display);
+  font-weight: 600;
   font-size: 25px;
   line-height: 1.4;
-  font-style: italic;
+  letter-spacing: -0.019em;
   color: var(--color-text-primary);
 }
 
