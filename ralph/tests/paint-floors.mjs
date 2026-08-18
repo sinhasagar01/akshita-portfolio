@@ -165,6 +165,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     const r = el.getBoundingClientRect();
     const x = Math.round(r.left + r.width / 2), y = Math.round(r.top + r.height / 2);
     let stack = [];
+    let method = 'paint-stack';
     if (x >= 0 && y >= 0 && x < innerWidth && y < innerHeight) {
       const hits = document.elementsFromPoint(x, y);
       const self = hits.indexOf(el);
@@ -189,8 +190,21 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       stack = hits.slice(self);
     } else {
       /* Off-screen: no paint stack to read, so fall back to the ancestor walk and SAY SO, because a
-         figure from a weaker method must not be reported as if it came from the stronger one. */
-      stack = [];
+         figure from a weaker method must not be reported as if it came from the stronger one.
+
+         ⚠ AND IT STARTS AT THE ELEMENT, NOT AT ITS PARENT — WHICH IT DID NOT, AND THAT COST TEN
+         FALSE FINDINGS IN ONE RUN. The strong path above slices the hit list FROM SELF, so it has
+         always included the element's own fill. This path began at parentElement, so a button that
+         paints its own accent had that fill dropped and was measured against the page instead.
+         Every one came back near 1.0 because the text is on-accent and the page is near-white, and
+         all ten measure 6.53 to 6.65 when the element is in view. The two paths disagreed about
+         whether an element is part of its own ground, and only one of them was right.
+
+         An element that paints a background paints it BEHIND its own text whether or not a visitor
+         has scrolled to it. What this path genuinely cannot see is a POSITIONED SIBLING, which is a
+         limit rather than a defect, and the method flag below is what makes it visible. */
+      method = 'ancestor-walk';
+      stack = [el];
       let n = el.parentElement;
       while (n && n.nodeType === 1) { stack.push(n); n = n.parentElement; }
     }
@@ -221,7 +235,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       layers.push({ rgb: straight, a });
       if (a >= 0.999) break;
     }
-    if (!layers.length) return { rgb: px(cs(document.documentElement).backgroundColor || '#fff'), layers: 0, offscreen: false };
+    if (!layers.length) return { rgb: px(cs(document.documentElement).backgroundColor || '#fff'), layers: 0, method };
     /* ⚠ THE BASE UNDER A STACK OF TRANSLUCENT LAYERS IS THE PAGE, NOT WHITE PAPER. This read
        px('#ffffff') and that is a LIGHT-GROUND ASSUMPTION BAKED INTO THE INSTRUMENT BUILT TO FIND
        LIGHT-GROUND ASSUMPTIONS. It was invisible on a near-white palette, where white is nearly
@@ -237,7 +251,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       const { rgb, a } = layers[i];
       out = [0, 1, 2].map((k) => Math.round(rgb[k] * a + out[k] * (1 - a)));
     }
-    return { rgb: out, layers: layers.length + 1 };
+    return { rgb: out, layers: layers.length + 1, method };
   };
 
   /* RULE 4 — an element with no text of its own has no ratio. */
@@ -299,6 +313,11 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       cls: el.className.toString().replace(/\s+/g, ' ').slice(0, 46),
       size: c.fontSize, weight: c.fontWeight,
       fg: fg.join(','), bg: g.rgb.join(','), layers: g.layers,
+      /* ⚠ WHICH METHOD PRODUCED THIS FIGURE, BECAUSE THE ROW DID NOT SAY AND THE COMMENT CLAIMED IT
+         DID. The fallback's own note promised that a figure from a weaker method must not be
+         reported as if it came from the stronger one, and nothing carried that to the output — so a
+         reader triaging a run could not tell a paint-stack reading from an ancestor walk. */
+      method: g.method,
       ratio: r, floor, pass: r >= floor,
     });
   }
@@ -313,6 +332,9 @@ export const FLOORS_SCRIPT = String.raw`(() => {
        how far the instrument had scrolled. */
     domElements: all.length,
     measured: rows.length,
+    /* The honest half of a coverage claim — how many figures came from the weaker method. */
+    byMethod: rows.filter((x) => !x.unresolved)
+      .reduce((a, x) => { a[x.method] = (a[x.method] || 0) + 1; return a; }, {}),
     skippedNoText, skippedHidden,
     /* Reported, never folded into the pass total — an unresolved ground is an element this sweep
        did not measure, which is a different claim from an element that passed. */
@@ -390,11 +412,21 @@ export const FLOORS_SCRIPT = String.raw`(() => {
 // index is already withheld from assistive technology, so the page does not depend on it. A drafting
 // sheet carries a corner mark; that is what this is.
 //
-// ⚠ NOT ENCODED AS A CODE EXCLUSION, AND THE REASON IS THAT THE OBVIOUS PREDICATE COVERS ONE OF THE
-// TWO. `aria-hidden` plus `pointer-events: none` plus `user-select: none` is a real PROPERTY rather
-// than a class list — and `.footer-ciao` carries only the last two, so a predicate built on it would
-// silence the stamp and go on reporting `Ciao`. Whether this sweep should carry a decoration
-// predicate at all is boarded as its own decision rather than smuggled in here.
+// ⚠ NOT ENCODED AS A CODE EXCLUSION — AND THE REASON FIRST GIVEN HERE WAS WRONG. It read that the
+// obvious predicate "covers one of the two", because `.footer-ciao` supposedly carried only two of
+// the three parts. It carries all three. That was read off the className, where `aria-hidden` is an
+// ATTRIBUTE and was sitting one line above it in the source the whole time.
+//
+// MEASURED FROM THE DOM ACROSS SEVEN PUBLIC PAGES:
+//
+//     aria-hidden alone                  312 elements, 74 of them drawing text
+//     plus pointer-events and user-select  25 elements, ALL 25 drawing text
+//
+// The 25 are `footer-ciao`, the sheet stamps, and the hero's `crest` watermark. Everything that
+// would still be reported is a real affordance — arrows, `hover ->`, `<- back`, `Click to zoom`.
+// So the three-part predicate is exactly right and `aria-hidden` alone is exactly the over-wide
+// rule `SkillsBody` already warned about. Whether to encode it is still its own decision rather
+// than something smuggled in beside a correctness fix.
 //   the work-filter chip    1.00 reported, 20.12 measured — the `pointer-events` limit above.
 //   the About captions      1.35 and 1.45 — text over a 42% tint over a PHOTOGRAPH, which the
 //                           refusal above now catches by its ancestor rather than by its own tag.
