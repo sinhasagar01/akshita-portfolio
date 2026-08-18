@@ -114,9 +114,11 @@ export const NINTH_THEME = "basalt";
    fully achromatic light ladder that nothing on a basalt page drew, and this is that ladder given
    a page. Same lightnesses, so the ratios are basalt's rather than new. */
 export const TENTH_THEME = "drawing-office";
+/* `redline` — Drawing Office marked up. One signal doing correction, so it needs no new role. */
+const ELEVENTH_THEME = "redline";
 
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, TENTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SECOND_THEME, THIRD_THEME, FOURTH_THEME, FIFTH_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, TENTH_THEME, ELEVENTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -176,6 +178,8 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   /* Light, and the only member of that class carrying zero chroma. Its page ground is `canvas`
      like every other light palette; what it does not have is a hue anywhere. */
   [TENTH_THEME]: "light",
+  /* Warm proof paper. Light for the same reason drawing-office is — the page ground is `canvas`. */
+  [ELEVENTH_THEME]: "light",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
   [VERIFY_THEME]: "light",
 };
@@ -258,6 +262,11 @@ export const THEME_COUNTERPART: Record<string, string> = {
      both carry zero chroma, so there is no hue to be near — basalt IS this palette on a dark
      ground. Unreciprocated by the same rule as cerise, since basalt answers to fern on accent. */
   [TENTH_THEME]: NINTH_THEME,
+  /* ⚠ REDLINE'S RED SITS AT h27 AND `ink-flare` IS THE NEAREST DARK ACCENT AT h52, 25 degrees away.
+     Unreciprocated by the same pigeonhole rule as cerise — ink-flare answers to cream, which is
+     closer still. The artifact's own map pairs Redline with Machine Room, and that pair can only
+     exist once Machine Room does. */
+  [ELEVENTH_THEME]: SEVENTH_THEME,
 };
 
 export type ThemeName = (typeof THEME_NAMES)[number];
@@ -458,6 +467,7 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
      the same paint. Only the accent differs, and it differs to the one value an achromatic palette
      can give it. */
   [TENTH_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
+  [ELEVENTH_THEME]: { cream: "#fff9f3", ink: "#0b0b0b", muted: "#484848", accent: "#992c28" },
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: { cream: "#fef9f1", ink: "#0f0703", muted: "#59514a", accent: "#b65329" },
 };
@@ -473,6 +483,7 @@ export const THEME_SPLASH: Record<string, string> = {
   [EIGHTH_THEME]: "#F9FAFF",
   [NINTH_THEME]: "#FAFAFA",
   [TENTH_THEME]: "#FAFAFA",
+  [ELEVENTH_THEME]: "#FFF9F3",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FEF9F1",
 };
