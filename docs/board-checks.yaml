@@ -176,3 +176,13 @@ entries:
       Whether a sweep should stop reporting elements a design has declared decorative is a trade
       between the legibility of its output and its coverage, and no file can hold that. The trigger
       is a THIRD ruled-decorative class, which is a count somebody has to take by running it.
+
+  - match: "FOSFOR AI HAS NO PROTOTYPE FOOTAGE"
+    kind: structural
+    # The entry exists only while that study carries no video block. Adding the real footage — which
+    # is the whole action — puts a `videoEmbed` back in the file and expires this entry rather than
+    # leaving it open over finished work.
+    holds_while:
+      file: content/projects/fosfor-ai.yaml
+      pattern: "videoEmbed"
+      expect: absent

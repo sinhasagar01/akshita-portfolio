@@ -214,6 +214,26 @@ board that cannot be read is a board that gets batched, which is how a fix rides
 gates.
 
 
+- **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
+  DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
+  at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
+  dataset register, then the Configure, Filter and Schedule dialog. No AI companion anywhere in it.
+
+  **IT WAS LIVE ON PRODUCTION UNDER THE HEADING `Prototype`**, so the study presented another
+  project's product as its own Final design. Removed on the same ruling as the blog hero image.
+
+  **THE ACTION IS AN ASSET AND IT IS THE OWNER'S**: a recording of the Fosfor AI companion, cropped
+  without the white margins the shared file has baked in — its interface occupies roughly seventy per
+  cent of a frame that fits the element to the pixel, so the bands are in the asset rather than the
+  layout. A poster still and a caption go with it, matching the shape data-profiling's block already
+  has.
+
+  **⚠ AND THE HEADING MUST NOT BE WRITTEN BEFORE THE FOOTAGE EXISTS.** The obvious repo-side fix was
+  a statement heading and a caption to replace the bare `Prototype` label, and it was refused because
+  **any honest caption would have described the profiler.** That is the whole reason this is an asset
+  item rather than a copy item.
+
+
 - **⚠ BOARDED: SHOULD `paint-floors` CARRY A DECORATION PREDICATE, NOW THAT 33 OF ITS 39 FINDINGS ARE
   PRE-RULED?** Five are the footer's `Ciao` and twenty-eight are the sheet stamps, both ruled
   decorative with their numbers in the harness's own triage header. **A reader of a fresh run now
