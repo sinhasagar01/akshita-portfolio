@@ -104,12 +104,29 @@ const plate = cssNoComments.slice(cssNoComments.indexOf(".blog-plate"),
 t("D0 the plate's rules were located — a miss here makes D1 to D3 vacuous", plate.length > 200, true);
 t("D1 ⚠ NO COLOUR LITERAL — the plate follows the palette, which five themes now depend on",
   [...plate.matchAll(colourPattern())].map((m) => m[0]).sort(), []);
-/* The italic is the MECHANISM that separates a category from a headline, and it is the one part of
- * the design decision that source can hold. Whether it reads that way is the render's to say. */
-t("D2 ⚠ THE TEXT IS ITALIC — an upright display serif at this size reads as a second headline",
-  /font-style:\s*italic/.test(plate), true);
-t("D3 …and the measure is narrowed to suit a phrase rather than a sentence",
-  /max-width:\s*16ch/.test(plate), true);
+/* ⚠ THIS ROW READ "THE TEXT IS ITALIC" AND ITS COMMENT PREDICTED EXACTLY WHAT HAPPENED WHEN THE
+ * SLANT CAME OFF. It said the italic is the MECHANISM separating a category from a headline, that
+ * source can hold only the mechanism, and that "whether it reads that way is the render's to say."
+ * The render said it. Setting the plate upright at weight 600 in the display face put it one pixel
+ * from the card title directly beneath — same family, same weight, 30px against 31px — and the two
+ * read as two attempts at the same sentence. The old row was right about the hazard.
+ *
+ * THE SEPARATION MOVES FROM SLANT TO REGISTER, which is what this direction replaced italics with
+ * on every other surface. A title plate on a drawing carries mono lettering, so the plate now does,
+ * and the display-face title below it no longer has a competitor in its own voice.
+ *
+ * The row is REWRITTEN rather than deleted, because the property it guards is unchanged: the plate
+ * must not read as a second headline. Only the mechanism that achieves it moved. */
+t("D2 ⚠ THE TEXT IS MONO AND UPRIGHT — the separation is REGISTER, and the slant it replaced was the old one",
+  [/font-family:\s*var\(--font-mono\)/.test(plate), /font-style:\s*italic/.test(plate)], [true, false]);
+t("D2a …and it is uppercase and tracked, so it reads as a technical label rather than a phrase",
+  [/text-transform:\s*uppercase/.test(plate), /letter-spacing:\s*0\.18em/.test(plate)], [true, true]);
+t("D2b …and it sits BELOW the title's size band, which is what stops the two competing",
+  /font-size:\s*clamp\(12px,\s*1\.5vw,\s*16px\)/.test(plate), true);
+/* 16ch to 18ch, and the reason is the register change rather than a preference: the same topic set
+ * in uppercase mono at 0.18em tracking occupies more of its measure than a display phrase did. */
+t("D3 …and the measure suits a label rather than a sentence",
+  /max-width:\s*18ch/.test(plate), true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

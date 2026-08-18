@@ -444,6 +444,61 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
      the only thing that noticed either. E2 checks that each MEMBER declares a known category and is
      silent about a category with no members left, which is how an emptied word sits in a vocabulary
      until a later italic slips back in under it. */
+  /* ---- F. THE STYLESHEET ITALICS ------------------------------------------------------
+     ⚠ SECTION E READS `className` STRINGS, SO IT CANNOT SEE A SLANT SET IN CSS — AND THAT GAP HAD
+     A MEMBER FOR THE WHOLE ARC. `.blog-plate span` set `font-style: italic` on a span the component
+     never names, so E reported the blog surface clean while the card plates rendered slanted on the
+     live index. It was found by a browser probe listing every element whose COMPUTED style is
+     italic, not by any census here.
+
+     A census bounded by markup has a boundary its own denominator cannot show. This repository
+     already carries that finding for a `.tsx`-only walk missing 81 rung references in `globals.css`
+     and for a `.css`-bounded sweep missing a JSX inline style. This is the same boundary a third
+     time, and the language is the axis rather than the directory.
+
+     ⚠ THE COMMENT STRIP IS LOAD-BEARING HERE, UNLIKE ON THE `.tsx` SIDE. Ten mentions of the word
+     live only in prose in this stylesheet — including the note explaining why the plate stopped
+     being slanted — so a parser reading raw source would report them as declarations. Comments are
+     blanked WITHOUT losing their newlines, because a reported line number computed from a match
+     index shifts under any strip that deletes them. */
+  const CSS_ITALIC = {
+    ".hero-name em": "EMPHASIS — an `<em>` the author writes inside the hero name, which is the "
+      + "hero's own typographic system and not the sheet's. Markup emphasis, not a heading style",
+    ".hero-line em": "EMPHASIS — the same `<em>` contract on the hero's thesis line, same system",
+    ".blog-prose blockquote": "PROSE — a pulled quotation in long-form body copy, which is an "
+      + "editorial convention rather than a heading treatment. The prose column owns its block "
+      + "elements and deliberately does not restyle inline marks",
+  };
+  const cssRaw = css; // the stylesheet this suite already loads at the top
+  const cssBlank = cssRaw.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
+  const cssFound = [];
+  for (const m of cssBlank.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (/font-style\s*:\s*italic/.test(m[2])) cssFound.push(m[1].trim());
+  }
+  t("F1 ⚠ THE STYLESHEET ITALIC POPULATION IS NAMED — the route section E structurally cannot see",
+    cssFound.sort(), Object.keys(CSS_ITALIC).sort());
+  t("F1a the stylesheet was actually read, against a literal — a walk that reads nothing reports the same empty set",
+    cssRaw.length > 100000, true);
+  t("F2 …and every member declares a category with a reason, on section E's own rule",
+    Object.entries(CSS_ITALIC).filter(([, v]) => !/^(EMPHASIS|PROSE) — .{20,}/.test(v)).map(([k]) => k), []);
+  t("F3 ⚠ THE BLOG PLATE IS GONE FROM IT — the member that proved this gap has members",
+    cssFound.filter((s) => /blog-plate/.test(s)), []);
+  /* ⚠ F4 IS THE STRIP'S OWN ASSERTION AND IT IS NOT DECORATION. Without it, deleting the blank step
+     makes F1 report every commented mention as a declaration — which is a LOUD failure, so the risk
+     is not the strip breaking. It is the strip being removed as tidy-up while F1's list is edited to
+     match, at which point the census silently starts reading prose. */
+  t("F4 the comment strip works — a slant named only in prose is not a declaration",
+    (() => {
+      const fake = "/* a retired rule: .x { font-style: italic } */\n.y { color: red }\n";
+      const blanked = fake.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
+      return [...blanked.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter((m) => /font-style\s*:\s*italic/.test(m[2])).length;
+    })(), 0);
+  t("F4a …and it still finds a real one, so F4 cannot pass by matching nothing",
+    (() => {
+      const real = ".x { font-style: italic }\n";
+      return [...real.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter((m) => /font-style\s*:\s*italic/.test(m[2])).length;
+    })(), 1);
+
   t("E4 the surviving category is exactly THESIS — HEADING drained when the heads converted and WATERMARK when the stamp landed",
     [...new Set(Object.values(EXPECTED).map((v) => v.split(" ")[0]))].sort(), ["THESIS"]);
 }
