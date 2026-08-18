@@ -23,10 +23,10 @@ export const OG_CONTENT_TYPE = "image/png";
  * ⚠ AND THREE OF THEM NAMED A TOKEN AND WERE NOT IT until #368 — ink-950 was 26.7 away, ink-600
  * 34.8, accent-500 30.7, each beside a comment asserting equality. `token-claims.mjs` is the
  * instrument that shape never had; it reads these lines. */
-const CREAM = "#fef9f1"; // --color-cream-50 / page background
-const INK = "#0f0703"; //   --color-ink-950
-const MUTED = "#59514a"; //  --color-ink-600
-const ACCENT = "#b65329"; // --color-accent-500
+const CREAM = "#fafafa"; // --color-cream-50 / page background
+const INK = "#0b0b0b"; //   --color-ink-950
+const MUTED = "#484848"; //  --color-ink-600
+const ACCENT = "#000000"; // --color-accent-500
 
 /** The four colours a card draws in. Defaults to cream so an omitted palette is still correct. */
 export type OgPalette = { cream: string; ink: string; muted: string; accent: string };

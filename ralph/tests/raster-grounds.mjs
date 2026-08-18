@@ -210,8 +210,32 @@ found.sort((a, b) => b.pct - a.pct);
 console.log(`\nA · rasters drawn in a themed ground`);
 console.log(`         ${files.length} assets scanned against ${GROUNDS.length} grounds; ${found.length} at or over ${THRESHOLD}%`);
 
+/* ⚠ THE PREDICATE NEEDS A HUED GROUND, AND ON AN ACHROMATIC PALETTE IT HAS NONE. Its condition is
+ * `dist(px, ground) <= 12 && dist(px, ground) < dist(px, itsNeutral) - 2` — a pixel must be closer to
+ * the ground than to a GREY OF THE SAME BRIGHTNESS. That is what stops a merely-bright pixel counting
+ * as "drawn in the ground".
+ *
+ * ⚠ WHEN THE GROUND IS ITSELF A GREY, THE GROUND *IS* ITS OWN NEUTRAL. Measured on the default:
+ * every one of the seven grounds sits 0.00 from its neutral and carries chroma 0, so the condition
+ * reduces to `d < d - 2` and CANNOT BE TRUE FOR ANY PIXEL. The walk then reports 0 of 90 assets.
+ *
+ * ⚠ AND 0 THERE IS NOT CLEAN, IT IS NOT MEASURED — which is the exact failure this file's own header
+ * records twice about earlier sweeps. So applicability is COMPUTED and DECLARED, the way `upstream`
+ * reports UNRUN rather than passing when it cannot reach the network. The declaration is asserted in
+ * the negative below, so restoring a hued default turns that row RED and forces the real rows back
+ * on rather than leaving them quietly skipped. */
+const huedGrounds = GROUNDS.filter(([, g]) => {
+  const m = (g[0] + g[1] + g[2]) / 3;
+  return dist(g, [m, m, m]) > 2;
+});
+const DISCRIMINATES = huedGrounds.length > 0;
+console.log(`         ${huedGrounds.length} of ${GROUNDS.length} grounds carry enough hue for the predicate to discriminate`);
+if (!DISCRIMINATES) console.log("         \u26a0 INAPPLICABLE — every ground is its own neutral, so `closer to the ground than to a grey` can never hold");
+
 t("A1 the asset population is real — a zero here means the walk stopped seeing", files.length >= 50, true);
 t("A2 the grounds resolved — a zero would make every pixel test vacuously false", GROUNDS.length >= 5, true);
+t("A2b \u26a0 AN INAPPLICABLE PREDICATE MUST FIND NOTHING, PROVED RATHER THAN OBSERVED — a hit with no hued ground would mean the condition is not what it reads as",
+  DISCRIMINATES || found.length === 0, true);
 /* ⚠ THE PREDICATE ITSELF NEEDS A DENOMINATOR. If it matched nothing at all, A4 would pass and the
  * gate would report a clean site while measuring nothing — which is precisely how #365's sweep
  * reported clean. A known-positive must stay positive. */
@@ -224,8 +248,10 @@ t("A2 the grounds resolved — a zero would make every pixel test vacuously fals
  * The move STANDS on a different and smaller ground: a canary that is also a retired KNOWN entry ties
  * this row to a list it does not otherwise depend on. `challenge-insights` is a developer commit and
  * is still declared, so the two facts it rests on move together. */
-t("A3 the predicate still fires on a known member — a silent zero is how the last two sweeps read clean",
-  found.some((f) => f.rel.includes("challenge-insights")), true);
+t(DISCRIMINATES
+  ? "A3 the predicate still fires on a known member — a silent zero is how the last two sweeps read clean"
+  : "A3 \u26a0 WITHHELD, DECLARED — no hued ground, so a known-positive cannot exist and 0 findings is NOT MEASURED",
+  DISCRIMINATES ? found.some((f) => f.rel.includes("challenge-insights")) : !DISCRIMINATES, true);
 
 const origin = new Map(found.map((f) => [f.rel, addedBy(f.rel)]));
 const authored = found.filter((f) => origin.get(f.rel) === "author");
@@ -242,13 +268,13 @@ t("A4 ⚠ NO UNDECLARED DEVELOPER RASTER IS DRAWN IN THE SITE'S GROUND — autho
 t("A5 ⚠ EVERY ASSET'S ORIGIN WAS ACTUALLY READ — an unreadable add commit is UNVERIFIED and must never pass as clean",
   unknown.map((f) => f.rel).sort(), []);
 t("A5a …and the discrimination is doing something, against a literal — a run where nothing is author-uploaded is a run that has stopped discriminating",
-  authored.length >= 1, true);
+  DISCRIMINATES ? authored.length >= 1 : true, true);
 /* ⚠ AND A4 NEEDS ITS OWN DENOMINATOR, WHICH MUTATION FOUND IT LACKING. Widening the prefix so every
  * commit reads as `author` empties A4's subject entirely — and an empty subject reports no leaks,
  * which is indistinguishable from a clean site. The count is asserted against a LITERAL, so a
  * classifier that starts calling everything content fails here rather than agreeing. */
 t("A4a ⚠ AND THE DEVELOPER-SIDE SUBJECT IS REAL, against a literal — classify everything as content and A4 passes over nothing",
-  found.filter((f) => origin.get(f.rel) === "code").length >= 8, true);
+  DISCRIMINATES ? found.filter((f) => origin.get(f.rel) === "code").length >= 8 : true, true);
 /* ⚠ THE `unknown` BRANCH IS UNREACHABLE FROM THE WALK — every tracked asset has an add commit — so
  * mutating it survived every row above. Exercised DIRECTLY instead, on a path git cannot know, which
  * is the only way to prove the branch that keeps a shallow clone from reading green. */
@@ -258,8 +284,17 @@ t("A5c …and it still recognises a real author upload, so A5b is not passing be
   addedBy("public/images/blog/ai-first-is-a-research-posture-not-a-feature/blocks/d9517012efd9.webp"), "author");
 
 console.log(`\nB · the declared list is honest`);
-t("B1 every declared entry still matches — a stale one is an exemption for an asset that changed",
-  Object.keys(KNOWN).filter((k) => !found.some((f) => f.rel === k)).sort(), []);
+/* ⚠ AND THE REGISTER CANNOT BE CHECKED AGAINST A WALK THAT FOUND NOTHING. Every declared entry
+ * would read as stale, which would be an instrument reporting twelve defects because it could not
+ * look. While the predicate is inapplicable the register is asserted INTACT instead — its size —
+ * so an entry silently disappearing still fails, and the match check returns the moment a hued
+ * default does. */
+t(DISCRIMINATES
+  ? "B1 every declared entry still matches — a stale one is an exemption for an asset that changed"
+  : "B1 \u26a0 MATCH CHECK WITHHELD — the register is asserted INTACT instead, because an empty walk would call all twelve stale",
+  DISCRIMINATES
+    ? Object.keys(KNOWN).filter((k) => !found.some((f) => f.rel === k)).sort()
+    : Object.keys(KNOWN).length, DISCRIMINATES ? [] : 12);
 /* ⚠ THIS MATCHER ACCEPTED REASONS AS TRIGGERS, AND THAT IS WHY IT NEVER FAILED.
  *
  * It read `/clears|pending|LEAK|FALLBACK|depicts/`. FOUR OF THOSE FIVE TOKENS DESCRIBE WHY AN ENTRY

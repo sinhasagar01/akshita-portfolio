@@ -126,8 +126,8 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * pigeonhole those notes describe never applies to it. The ceiling was a property of the unit, not
  * of the circle. They are kept rather than corrected, because the reasoning was sound and it is the
  * unit that moved underneath them. */
-t("A8a the selectable set is the seven real palettes — three light and four dark",
-  selectableThemes(), ["cream", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office", "redline"]);
+t("A8a the selectable set is the six real palettes — two light and four dark",
+  selectableThemes(), ["drawing-office", "sapphire", "ink-flare", "nocturne", "basalt", "redline"]);
 /* ⚠ AND THE SITE MUST NOT SAY A DIFFERENT NUMBER FROM THE ONE IT OFFERS, WHICH IT DID FOR AS LONG
  * AS DRAWING-OFFICE HAS BEEN SHIPPED. Three user-facing strings read "nine" against ten selectable
  * palettes — `All nine` and `See all nine` as visible text, and `See all nine palettes` as an
@@ -141,7 +141,7 @@ t("A8a the selectable set is the seven real palettes — three light and four da
  * count rather than pinning a word. Past twelve the helper falls back to digits, which is correct
  * and plain — this row is what makes that a safety net rather than the thing that ships. */
 t("A8a-word ⚠ THE PALETTE COUNT HAS A WORD FOR ITS CURRENT SIZE — three labels said `nine` while ten shipped",
-  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["seven", true]);
+  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["six", true]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",
@@ -384,8 +384,11 @@ t("G5 ⚠ AND THE SCOPED COPY MATCHES @theme EXACTLY — the drift objection, an
 /* The twin shares cream's selector list rather than having a block of its own, so they are identical
  * by BEING ONE DECLARATION. This asserts that arrangement rather than the values, because comparing
  * a rule to itself would prove nothing. */
-t("G6 the verification twin rides cream's own rule, so the two cannot drift apart",
-  new RegExp('\\[data-theme="cream"\\],\\s*\\[data-theme="' + VERIFY_THEME + '"\\]').test(cssSrc), true);
+/* ⚠ NAMED `cream`, NOW NAMES THE DEFAULT. The twin shares a selector list with whatever palette
+   holds the default slot, and that moved from cream to drawing-office. Deriving it from
+   DEFAULT_THEME means the row survives the next move too. */
+t("G6 the verification twin shares the DEFAULT's selector list, so the two cannot drift apart",
+  new RegExp('\\[data-theme="' + DEFAULT_THEME + '"\\],\\s*\\[data-theme="' + VERIFY_THEME + '"\\]').test(cssSrc), true);
 
 /* ⚠ SECTION H IS DELETED, AND IT WAS CORRECT — ITS SUBJECT WAS REMOVED, NOT ITS REASONING.
  *
@@ -530,6 +533,12 @@ const TINT_EXEMPT = {
   basalt: "owner ruling — an independently authored achromatic preset. Its ground is c 0 by design, "
         + "so the chroma step has nothing to act on. END: the exemption is reviewed if the preset's "
         + "ground ever carries chroma, or if the vessel gains an achromatic derivation of its own.",
+  /* ⚠ THE TWIN INHERITS THE EXEMPTION BECAUSE IT INHERITS THE PALETTE. It shares a selector
+     list with the default and therefore its values, so exempting the default while refusing
+     its clone would fail on a palette that is byte-identical to an accepted one. It leaves the
+     register the moment the default does. */
+  "drawing-office-verify": "a clone of the default, which is exempt above. It has no values of "
+        + "its own to judge. END: it follows whatever the default palette's entry does.",
   "drawing-office": "the SECOND member of the class basalt's exemption already describes, and it "
         + "joins that exemption rather than widening the band — V4 is the achromatic tripwire and it "
         + "fired correctly. Its whole design is zero chroma, so the tint's step has nothing to act "
@@ -566,8 +575,12 @@ const vRows = vSubjects.map((n) => {
 });
 for (const r of vRows) console.log(`         ${r.n.padEnd(12)} pearl-vs-glass  dL ${r.dL}  dC ${r.dC}  dH ${r.dH}   glass c ${r.glassC}`);
 
+/* ⚠ THE FLOOR MOVED 5 -> 4 BECAUSE THE POPULATION DID, and it is a floor rather than a count so it
+   still catches the subject collapsing. Seven palettes ship and three are achromatic-exempt, so
+   four take the tint rule. A literal left at 5 would have gone red on a retirement rather than
+   on a defect, which is the benign-common-failure shape this record refuses. */
 t("V0 ⚠ THE TINT SUBJECT IS NON-EMPTY AND COVERS EVERY PALETTE THAT DECLARES A VESSEL, against a literal",
-  vSubjects.length >= 5, true);
+  vSubjects.length >= 4, true);
 t("V0b ⚠ EVERY EXEMPTED PALETTE IS REAL AND NAMES AN END CONDITION — an exemption for a palette that does not exist is a rule quietly deleted",
   Object.entries(TINT_EXEMPT).filter(([n, why]) => !(n in vBlocks) || !/END:/.test(why)).map(([n]) => n), []);
 t("V0c …and every exemption is EARNED — a palette that would pass the rule must not be exempt from it",

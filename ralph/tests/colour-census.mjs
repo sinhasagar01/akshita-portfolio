@@ -472,10 +472,20 @@ const okl = colourKey;
 const firstPaletteBlock = globals.indexOf('[data-theme="', globals.indexOf("@theme"));
 const themeSrc = globals.slice(globals.indexOf("@theme"),
   firstPaletteBlock === -1 ? undefined : firstPaletteBlock);
+  /* ⚠ THE ACHROMATIC EXTREMES ARE EXCLUDED, AND THE REASON IS WHAT THIS ROW IS FOR. It reports a
+     custom property holding a colour a token already names, so the property can reference the
+     token instead. That remedy only makes sense when the match is an IDENTITY.
+     Pure black and pure white are VALUES, not identities. `drawing-office` declares its accent as
+     `oklch(0% 0 0)`, and the moment it became the default this row reported six black shadow
+     properties as duplicating the BRAND COLOUR. Every one is real arithmetic and none is a defect:
+     pointing a drop shadow at `--color-accent-500` would couple decoration to the brand and break
+     the day the accent stops being black. Skipped as an extreme rather than exempted by name, so a
+     future palette whose accent is pure white is covered too. */
+  const EXTREMES = new Set([colourKey("oklch(0% 0 0)"), colourKey("oklch(100% 0 0)")].filter(Boolean));
 const tokenByValue = new Map();
 for (const m of themeSrc.matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) {
   const k = colourKey(m[2].trim());
-  if (k && !tokenByValue.has(k)) tokenByValue.set(k, m[1]);
+  if (k && !EXTREMES.has(k) && !tokenByValue.has(k)) tokenByValue.set(k, m[1]);
 }
 const longhand = [];
 for (const [name, lits] of customProps) {
@@ -500,8 +510,8 @@ t("A5b …and a color-mix carrying a literal is not mistaken for a derivation",
 t("A5b …while a color-mix over a token alone is",
   authoredPart("color-mix(in srgb, var(--color-ink-950) 8%, transparent)").match(COLOUR), null);
 
-t("A5b the token index now sees NON-OKLCH tokens — four of them, all created by this arc",
-  ["#4a4239", "rgb(120, 90, 60)", "rgb(23, 20, 18)", "rgb(222, 213, 199)"]
+t("A5b the token index sees NON-OKLCH tokens — four live rgb declarations, so the index is not oklch-only",
+  ["rgb(15, 15, 15)", "rgb(243, 243, 243)", "rgb(172, 172, 172)", "rgb(12, 12, 12)"]
     .every((v) => tokenByValue.has(colourKey(v))), true);
 
 t("A5 the token index is populated — a zero here would make A3 pass by comparing against nothing",
@@ -1015,7 +1025,12 @@ t("T1 the base palette is a real population — a zero here means the block matc
 
 const orphans = [];
 let checkedThemes = 0;
-for (const name of ["harbour", "cream-verify"]) {
+/* ⚠ THIS NAMED `harbour` AND `cream-verify`, AND BOTH RETIRED — so the loop ran zero times, T2
+   passed over nothing, and T3 was the only thing that noticed. Derived from the bundle now:
+   every `[data-theme]` selector it actually contains, so a retirement cannot empty the subject
+   and a new palette joins it without an edit. */
+const bundleThemes = [...new Set([...bundle.matchAll(/\[data-theme=["']?([a-z-]+)["']?\]/g)].map((m) => m[1]))];
+for (const name of bundleThemes) {
   const b = themeBlock(name);
   if (!b) continue;
   checkedThemes++;
