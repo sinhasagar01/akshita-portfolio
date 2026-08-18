@@ -119,7 +119,18 @@ export default function GalleryBrowser({ items }: { items: readonly GalleryItem[
                    than left to inherit. The work filter's own entry records why: a chip that draws
                    an accent ground and inherits its foreground is the one shape the role layer
                    cannot check, because no cascade walk reaches a ground painted by a sibling. */
-                className={`sheet-mono-label px-3.5 py-2 transition-colors ${
+                /* ⚠ THE SIZE AND TRACKING, NOT THE CLASS — AND THIS ROW SHIPPED THE OPPOSITE ONE
+                   UNIT AGO AND WAS LIVE AT 2.30. `#647` replaced this chip's mono utilities with
+                   `.sheet-mono-label`, which is UNLAYERED and paints `var(--sheet-mark)`. That
+                   outranks both arms of the ternary below, so the PRESSED chip drew
+                   `text-secondary` on the accent fill — `oklch(0.4 0 0)` on `oklch(0 0 0)` —
+                   measured 2.30 against a 4.5 floor on production.
+
+                   THE MONO ROLES CARRY THEIR COLOUR, so they cannot be used anywhere the colour is
+                   CONDITIONAL or the ground is not the page's. Two instances, one rule: this chip,
+                   and the gallery modal, whose dark scrim would have taken the same dark ink. Both
+                   take the direction's SIZE and TRACKING with their own colour left in place. */
+                className={`px-3.5 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
                   on
                     ? "bg-accent font-medium text-on-accent"
                     : "text-text-subtle hover:text-text-lead"

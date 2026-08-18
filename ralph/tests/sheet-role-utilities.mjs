@@ -320,5 +320,81 @@ t("F1c …nor on a role with a NON-margin inline style, so the row keys on the p
 t("F1d …and a commented-out instance is not counted, on the same strip section D proves",
   inlineMarginOnRole('// <p className="sheet-lede" style={{ marginTop: "18px" }}>x</p>'), []);
 
+console.log("\n--- G. A MONO ROLE'S COLOUR OUTRANKING A CONDITIONAL ONE ---");
+// ⚠ THIS SECTION EXISTS BECAUSE THE DEFECT SHIPPED AND WAS LIVE. The gallery filter chip took
+// `.sheet-mono-label` for its size and tracking. That class is UNLAYERED and paints
+// `var(--sheet-mark)`, so it outranked both arms of the chip's own ternary — the PRESSED chip drew
+// `text-secondary` on the accent fill and measured 2.30 against a 4.5 floor on production.
+//
+// THE MONO ROLES CARRY THEIR COLOUR. That is fine wherever the element's colour is the role's, and
+// wrong in two situations this repository now has one instance of each:
+//
+//   a CONDITIONAL colour   the chip, whose colour depends on `aria-pressed`
+//   a foreign GROUND       the gallery modal, a dark scrim inside a light `:root`, where the
+//                          role's dark ink would vanish and nothing sets `data-ground` — which
+//                          only works at `:root` anyway
+//
+// Both take the direction's SIZE and TRACKING as utilities and keep their own colour. The rule is
+// not "never use the roles" — it is that a role which supplies colour cannot sit on an element
+// whose colour is decided by something else.
+const MONO_ROLES = ["sheet-mono-label", "sheet-mono-micro", "sheet-mono-text", "sheet-mark-text"];
+// A colour utility that only makes sense against a ground the page does not supply, or that is
+// chosen per state. `on-*` covers the inverted roles; the ternary case is caught by a role and a
+// `text-*` colour appearing in one class expression at all, since the role would always win.
+const FOREIGN_COLOUR = /\btext-(on-[a-z-]+|accent[a-z-]*)\b/;
+// ⚠ THE ATTRIBUTE IS EXTRACTED BY COUNTING, AND TWO EARLIER DRAFTS OF THIS ROW GOT IT WRONG IN
+// OPPOSITE DIRECTIONS. The first matched `className=` then a lazy run to the next quote — and a
+// template literal's `${...}` contains quotes, so the capture stopped INSIDE the interpolation and
+// never reached the colour on the other side of the ternary. Reintroducing the exact expression
+// that shipped left the section green. The second used a fixed 400-character window instead, which
+// ran PAST the element into its siblings and reported six false positives, every one a role on one
+// element and an accent hover on the next.
+//
+// Too short and it misses the defect; too long and it invents one. A class expression is delimited
+// by balanced braces, so this counts them — the rule this repository has now written down six times
+// about matchers that need to know where a construct ends.
+const classExpr = (src, at) => {
+  let i = src.indexOf("=", at) + 1;
+  while (i < src.length && /\s/.test(src[i])) i++;
+  if (src[i] === '"' || src[i] === "'") {
+    const q = src[i], end = src.indexOf(q, i + 1);
+    return end < 0 ? "" : src.slice(i + 1, end);
+  }
+  if (src[i] !== "{") return "";
+  let depth = 0;
+  for (let j = i; j < src.length; j++) {
+    if (src[j] === "{") depth++;
+    else if (src[j] === "}") { depth--; if (depth === 0) return src.slice(i + 1, j); }
+  }
+  return "";
+};
+const clash = [];
+for (const rel of files) {
+  const src = blankTsx(readFileSync(join(ROOT, rel), "utf8"));
+  for (const m of src.matchAll(/className\s*=/g)) {
+    const expr = classExpr(src, m.index).replace(/\s+/g, " ");
+    if (!expr) continue;
+    if (!MONO_ROLES.some((r) => new RegExp(`\\b${r}\\b`).test(expr))) continue;
+    if (FOREIGN_COLOUR.test(expr)) clash.push(`${rel} :: ${expr.slice(0, 78)}`);
+  }
+}
+t("G1 ⚠ NO MONO ROLE SITS BESIDE A COLOUR IT WOULD SILENTLY OUTRANK — the 2.30 that shipped",
+  clash, []);
+t("G1a …and the EXTRACTOR reproduces the expression that shipped, ternary and all",
+  (() => {
+    const shipped = 'className={`sheet-mono-label px-3.5 py-2 ${on ? "bg-accent text-on-accent" : "text-text-subtle"}`}';
+    const e = classExpr(shipped, 0);
+    return [MONO_ROLES.some((r) => new RegExp(`\\b${r}\\b`).test(e)), FOREIGN_COLOUR.test(e)];
+  })(), [true, true]);
+t("G1b ⚠ …and it STOPS at the element's own attribute — the 400-character window ran into siblings",
+  (() => {
+    const two = 'className="sheet-mono-label">x</p><h2 className="text-on-accent">y</h2>';
+    return FOREIGN_COLOUR.test(classExpr(two, 0));
+  })(), false);
+t("G1c …and a role with no competing colour is the ordinary correct use and is not reported",
+  FOREIGN_COLOUR.test(classExpr('className="sheet-mono-label"', 0)), false);
+t("G2 …and the roles still declare `color`, so G1 has a subject",
+  MONO_ROLES.every((r) => (roles.get(r) ?? new Set()).has("color")), true);
+
 console.log(`\nsheet-role-utilities result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
