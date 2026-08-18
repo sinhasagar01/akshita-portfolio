@@ -12456,6 +12456,57 @@ documented sibling limit. **Twenty-eight are `sheet-stamp` at 1.60 to 1.74**, a 
 with the sheet grammar after that header was written and that nobody has ruled on. Not this unit's
 subject, not caused by it, and named so it is not mistaken for it.
 
+## ⚠ THE TOKEN BOARDED FOR A RELATION PAINTED NOTHING, AND THE ENTRY THAT BOARDED IT WAS WRONG TWICE
+
+`reveal-sand` was boarded the day before as the same absolute `case-study-sand` had been, "13.45
+points below redline's sheet", with a one-line relation as the remedy and a render to pick the
+percentage. **Both halves of that were wrong.**
+
+**THE REFERENCE WAS THE SHEET AND IT SHOULD HAVE BEEN `surface`.** The panel settles to
+`var(--color-surface)`, so a transition start is a displacement from its own END STATE rather than
+from the page. Measured against `surface` the value was **already near-constant** — 13.5 points on
+drawing-office and 13.45 on redline — because both palettes declare `cream-50` at about 98.5. A real
+number about a subject nobody had named, which is this record's own name-the-reference entry
+arriving in the entry written by the person who had just re-read it.
+
+**AND THE CONSUMER DID NOT RESOLVE.** `.reveal-panel` declares `background-color:
+var(--color-reveal-sand)` at 0-1-0, and both surfaces that render a panel override it at 0-2-0 in
+BOTH states. Censused across ten public routes:
+
+    51 `.reveal-panel` elements   ·   0 painting a non-transparent ground
+
+at rest and revealed, on the two light palettes and the four dark ones, and under
+`prefers-reduced-motion`. One render site, `RevealSection.tsx`, and every consumer sits under
+`main.sheet-scope` or `article.case-study`. **Presence and resolution, again.** The sheet direction
+retired the panel grounds and left the token behind, and the override's own comment says the colour
+leg "becomes a no-op rather than being removed from a shared transition list" — an honest note about
+not stripping a property, which is how a token outlives its job.
+
+**DELETED RATHER THAN MADE CORRECT.** Eight declarations, the panel's `background-color` in both
+states, the `background-color` leg of its transition, the reduced-motion copy, and both `transparent`
+overrides. Building the relation would have been a fix for a subject that does not exist.
+
+**⚠ THE OVERRIDES WENT FOR A SPECIFICITY REASON RATHER THAN FOR TIDINESS.** Every panel also carries
+`section-card`, and both scopes already zero that. Deleting the token but keeping
+`.reveal-panel.is-revealed { background-color: surface }` would have left it TIED with
+`.sheet-scope .section-card` at 0-2-0 and decided by source order. Nothing ties now.
+
+**PROVED BY MEASUREMENT ON BOTH SIDES.** The panel census is identical before and after — 51, zero
+painting, every route, both grounds, reduced motion — and the wipe still runs, clip-path stepping
+100 to 69 to 22 to 2.4 to 0 with `visibility` flipping on entry.
+
+**⚠ AND TWO REGISTRIES NAMED THE TOKEN, OF WHICH ONLY ONE WAS GUARDED.** `theme-contrast`'s `E2`
+went red the moment the declaration left, exactly as designed — a stale exclusion hides a colour too.
+`role-layer`'s `GROUND_SCOPED` kept a dead key and the suite stayed **green**, because its
+classification row walks CONSUMED TOKENS and asks whether each is registered, and has no opinion
+about a registry key naming a token that does not exist. Two registries, one shape, one guard. `L0e`
+is the complement and it kills on the same mutation.
+
+**⚠ AND A FIGURE IN THE DELETED COMMENT HAD DRIFTED, FOUND ONLY BECAUSE IT WAS BEING DELETED.** It
+read "14% against `surface`'s 6%" while `--color-surface` eight lines above declares **8%**. A number
+in prose beside a number in code with nothing comparing them, and it would never have been read again
+if the mechanism had been left alone.
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

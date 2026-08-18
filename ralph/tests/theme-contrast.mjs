@@ -1122,7 +1122,9 @@ console.log("\nE · ⚠ THE BOUNDARY IS COMPLETE — every public colour is comp
 /* Measured with a public-consumer count before being written here, so "unused" is a fact rather
  * than an assumption. These six serve /studio from the public block; moving them is its own PR. */
 const BOUNDARY = {
-  "reveal-sand": "artwork — the reveal panel's ground, never a text pair",
+  /* `reveal-sand` stood here and its token is gone. The panel's colour leg was retired once
+     measurement showed 51 panels painting nothing on any surface, so there is no colour left to
+     exclude. E2 is what would have caught it if it had been left. */
   "case-study-sand": "artwork — the warm sand behind a case study",
   "glow-web": "atmosphere — a glow, never a foreground on a ground",
   "ink-200": "zero public consumers",

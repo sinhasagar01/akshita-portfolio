@@ -214,21 +214,6 @@ board that cannot be read is a board that gets batched, which is how a fix rides
 gates.
 
 
-- **⚠ BOARDED: `reveal-sand` IS THE SAME ABSOLUTE AS `case-study-sand` WAS, AND IT WAS SCOPED OUT OF
-  THE FIX ON PURPOSE.** It is pinned at `oklch(85.0% …)` in `@theme` and in six scoped blocks by the
-  identical hand, so it holds its distance from nothing in exactly the same way — 10.5 points below
-  drawing-office's canvas and **13.45 below redline's sheet**.
-
-  **IT IS QUIETER BECAUSE IT ONLY SHOWS FOR THE SWEEP.** `.reveal-panel` starts at `reveal-sand` and
-  settles to `var(--color-surface)`, so a visitor sees it for roughly 0.9 seconds per panel rather
-  than for the length of the page. That is the whole reason it did not ride along, and one property
-  at a time is the dead-utilities arc's rule.
-
-  **THE FIX IS ALREADY WRITTEN AND IT IS ONE LINE** — the same mix into the canvas, at whatever
-  percentage a render says the sweep wants, which is not necessarily the ground's 6% because a
-  transition start is meant to be MORE present than a resting ground. **The dark half already themes
-  and must not be touched**, per the note beside it.
-
 - **⚠ BOARDED: 28 `sheet-stamp` ELEMENTS MEASURE 1.60 TO 1.74 AGAINST A 4.5 FLOOR, AND NOBODY HAS
   RULED ON THEM.** Found while running `paint-floors` before and after an unrelated change, on four
   real drawing-office builds across five pages. **Identical in both runs**, so they are pre-existing
@@ -589,6 +574,56 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED BY DELETION: `reveal-sand` PAINTED NOTHING, AND THE ENTRY THAT BOARDED IT NAMED THE
+  WRONG REFERENCE AND THE WRONG FIX.** It was boarded as the same absolute as `case-study-sand`,
+  "13.45 points below redline's sheet", with a one-line relation as the remedy. **Every part of that
+  was wrong except the observation that the value was an absolute.**
+
+  **THE REFERENCE WAS THE SHEET AND IT SHOULD HAVE BEEN `surface`.** The panel settles to
+  `var(--color-surface)`, so a transition start is a displacement from its own END STATE rather than
+  from the page. Measured against `surface` the value was **already near-constant** — 13.5 points on
+  drawing-office and 13.45 on redline — because both palettes declare `cream-50` at about 98.5. The
+  boarded figure was a real number about a subject nobody had named, which is this file's own
+  name-the-reference entry arriving in the entry written by the person who had just re-read it.
+
+  **AND THE CONSUMER DID NOT RESOLVE, WHICH NO REFERENCE WOULD HAVE FIXED.** `.reveal-panel` declares
+  `background-color: var(--color-reveal-sand)` at 0-1-0, and BOTH surfaces that render a panel
+  override it at 0-2-0:
+
+      .sheet-scope .reveal-panel, .sheet-scope .reveal-panel.is-revealed  { transparent }
+      .case-study  .reveal-panel, .case-study  .reveal-panel.is-revealed  { transparent }
+
+  Censused across ten public routes: **51 `.reveal-panel` elements, ZERO painting a non-transparent
+  ground**, at rest and revealed, on the two light palettes and the four dark ones, and under
+  `prefers-reduced-motion`. One render site, `RevealSection.tsx`, and every consumer of it sits under
+  `main.sheet-scope` or `article.case-study`. **Presence and resolution, for the eleventh time.**
+
+  **THE SHEET DIRECTION RETIRED THE PANEL GROUNDS AND LEFT THE TOKEN BEHIND.** The override's own
+  comment says the colour leg "becomes a no-op rather than being removed from a shared transition
+  list" — an honest note about not bothering to strip a property, which is exactly how a token
+  outlives its job.
+
+  **DELETED RATHER THAN MADE CORRECT, ON THIS FILE'S OWN RULE THAT ZERO CONSUMERS IS A REASON TO
+  DELETE A TOKEN.** Eight declarations, the panel's `background-color` in both states, the
+  `background-color` leg of its transition, the reduced-motion copy and both `transparent` overrides.
+  **Building the relation would have been a fix for a subject that does not exist** — the shape U2's
+  three inverted censuses already cost this record once.
+
+  **⚠ AND THE OVERRIDES WENT WITH IT FOR A SPECIFICITY REASON RATHER THAN FOR TIDINESS.** Every panel
+  also carries `section-card`, and both scopes already zero THAT. Deleting the token but keeping
+  `.reveal-panel.is-revealed { background-color: surface }` would have left it tied with
+  `.sheet-scope .section-card` at 0-2-0 and decided by source order. **A correct result that depends
+  on which rule was written later is the arrangement this record has an entry about.** Nothing ties
+  now — the background comes from `section-card` alone.
+
+  **THE REVEAL IS UNTOUCHED.** It was always carried by the clip and the visibility switch. Measured
+  before and after across every route, palette and state, the rendered panel background is identical.
+
+  **⚠ AND A FIGURE IN THE DARK BLOCK'S PROSE HAD DRIFTED, FOUND ONLY BECAUSE THE COMMENT WAS BEING
+  DELETED.** It read "14% against `surface`'s 6%" while `--color-surface` eight lines above declares
+  **8%**. A number in prose beside a number in code with nothing comparing them — and it would never
+  have been read again if the mechanism had simply been left alone.
 
 - **⚠ CLOSED: A GROUND THAT HELD ITS DISTANCE FROM NOTHING, AND THE COMMENT EXPLAINING THE FIX BROKE
   NINE ROWS OF THE GATE THAT PROVED IT.** `--color-case-study-sand` was `oklch(88.5% …)` in `@theme`

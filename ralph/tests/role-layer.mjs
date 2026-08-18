@@ -855,11 +855,14 @@ const RATCHET = {
 
 /* ⚠ THE FIFTH KIND, EARNED RATHER THAN CONVENIENT. A ROLE IS A NAME A COMPONENT READS; THESE ARE
  * VALUES A CONTEXT RESOLVES THAT NO COMPONENT NAMES. `case-study-sand` is a route's page ground set
- * by a fixed full-bleed layer; `reveal-sand` is a transition's start state. Neither is spelled by
- * any component, so neither can be a role — and both must change with the ground, so neither is
- * invariant and neither is un-migrated debt. The vocabulary had no slot for this.
+ * by a fixed full-bleed layer, spelled by no component, changing with the ground — so it can be
+ * neither a role nor invariant nor un-migrated debt. The vocabulary had no slot for this.
  *
- * ⚠ AND `reveal-sand` IS THE SHARPEST MEMBER: A TRANSITION WHOSE END STATE THEMED AND WHOSE START
+ * ⚠ `reveal-sand` WAS THE OTHER FOUNDING MEMBER AND ITS TOKEN NO LONGER EXISTS. It is described in
+ * the past tense throughout what follows, because the REASONING is about the class and survives the
+ * member. See the note at its old position for what the measurement found.
+ *
+ * ⚠ AND `reveal-sand` WAS THE SHARPEST MEMBER: A TRANSITION WHOSE END STATE THEMED AND WHOSE START
  * STATE DID NOT. Section G's whole-pair rule applied to a TEMPORAL pair rather than a spatial one —
  * and G cannot express it, because G looks at elements CO-EXISTING rather than at one element over
  * time. G's fourth vocabulary failure, and the first where widening the selector cannot help: both
@@ -873,9 +876,9 @@ const RATCHET = {
  * THAN THE RULE. It read "values a context resolves that NO COMPONENT NAMES" — true of both members
  * at the time, and incidental to what made them members.
  *
- * THE PROPERTY IS THAT THEY RESOLVE PER GROUND AND KEEP THEIR LIGHT VALUE UNTOUCHED. That is true of
- * `case-study-sand` and `reveal-sand` as well, which is what makes this accurate rather than
- * stretched — a definition widened to admit a case would not have to hold for the existing members,
+ * THE PROPERTY IS THAT THEY RESOLVE PER GROUND AND KEEP THEIR LIGHT VALUE UNTOUCHED. That was true of
+ * `case-study-sand` and of `reveal-sand` while it existed, which is what makes this accurate rather
+ * than stretched — a definition widened to admit a case would not have to hold for the existing members,
  * and this one does.
  *
  * ⚠ AND IT IS THE ONLY REPAIR THAT DOES NOT MOVE LIGHT PIXELS. Every role assignment — rung-wide or
@@ -908,8 +911,12 @@ const GROUND_SCOPED = {
     + "#382 and that refusal stands; this resolves it per ground without naming it.",
   "case-study-sand": "a ROUTE's page ground, painted by `.case-study-bg` as a fixed full-bleed "
     + "layer. No component names it. Remapped to the page ground on dark.",
-  "reveal-sand": "a TRANSITION's start state, settling to `var(--color-surface)`. No component "
-    + "names it. Remapped so the sweep arrives lighter than the ground and settles down.",
+  /* ⚠ `reveal-sand` STOOD HERE AND ITS TOKEN IS DELETED, WHICH RETIRES THIS REGISTRY'S SHARPEST
+   * MEMBER. It was a transition's start state and the header above still explains why a temporal
+   * pair is a kind section G cannot express — that reasoning is kept because it is about the CLASS
+   * rather than about this member. The member itself went when measurement showed the panel's
+   * background forced to `transparent` in both states on both surfaces that render one, so the
+   * token painted nothing on either ground. Section N still guards the class. */
 };
 
 /* ⚠ THE VESSEL, AND IT IS A DIFFERENT KIND AGAIN — a MECHANIC rather than a set of values. Arrived
@@ -949,6 +956,32 @@ t("L0a …and it reached all three file types, which is the boundary the role mi
   ["tsx", "ts", "css"].filter((ext) =>
     !srcFiles.some((f) => f.endsWith("." + ext) && !/^components\/studio\/|^app\/studio\//.test(f.replace(root, "")))), []);
 t("L0b …and the palette subject is non-empty, against a literal", paletteTokens.size >= 30, true);
+
+/* ⚠ L0c IS THE COMPLEMENT OF THE CLASSIFICATION ROW, AND ITS ABSENCE WAS FOUND BY MUTATION RATHER
+ * THAN BY READING. `unclassified` walks CONSUMED TOKENS and asks whether each is in a registry. It
+ * has no opinion about a registry key naming a token that does not exist — so when `reveal-sand`
+ * was deleted from the stylesheet, leaving its entry in `GROUND_SCOPED` kept this suite GREEN while
+ * the registry described a token nothing declares.
+ *
+ * `theme-contrast`'s E2 already states the rule for its own list — a stale exclusion hides a colour
+ * too — and it fires on exactly this mutation. Two registries in two suites, one shape, and only one
+ * of them was guarded. Same family as the exemption rule this record carries: a conditional
+ * assertion needs its complement asserted, because the complement is where a value and its
+ * documentation come apart.
+ *
+ * Declared-in-the-stylesheet rather than consumed, deliberately. A token can be legitimately
+ * declared and have no public consumer, and that is section L's subject rather than a dead key. */
+const declaredTokens = new Set([...css.matchAll(/--color-([a-z0-9-]+)\s*:/g)].map((m) => m[1]));
+const registryKeys = [
+  ...Object.keys(ROLES).map((k) => ["ROLES", k]),
+  ...Object.keys(GROUND_INVARIANT).map((k) => ["GROUND_INVARIANT", k]),
+  ...Object.keys(GROUND_SCOPED).map((k) => ["GROUND_SCOPED", k]),
+  ...DEFERRED_REDRAW.tokens.map((k) => ["DEFERRED_REDRAW", k]),
+];
+t("L0e ⚠ NO REGISTRY NAMES A TOKEN THE STYLESHEET DOES NOT DECLARE — a dead key describes nothing and reads as coverage",
+  registryKeys.filter(([, k]) => !declaredTokens.has(k)).map(([reg, k]) => `${reg}.${k}`).sort(), []);
+t("L0f …and the registries are non-empty, or L0e passes over nothing",
+  registryKeys.length >= 25, true);
 t("L0c …and the freeze was applied by DIRECTORY before any pattern ran", studioSkipped > 0, true);
 
 /* ⚠ THE ROW THE RENDER HAD TO FIND. Every themed token a public surface paints must be classified:
