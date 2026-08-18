@@ -456,7 +456,7 @@ sections:
     id: solution
     index: '07'
     eyebrow: The solution
-    title: ''
+    title: Any dataset, one clear read.
     lead: >-
       A clean, clutter free profiling interface that turns any data model into a
       clear read on its own **quality**.
@@ -583,7 +583,7 @@ sections:
     id: screens
     index: ''
     eyebrow: Screens
-    title: ''
+    title: Where the numbers live.
     lead: A selection of profiling and data quality views.
     northStar: ''
     layout: stack
@@ -642,7 +642,7 @@ sections:
     id: before-after
     index: ''
     eyebrow: Before and after
-    title: ''
+    title: Manual checks, made legible.
     lead: >-
       Manual inspection beside the profiling view, the same checks made fast and
       legible.
