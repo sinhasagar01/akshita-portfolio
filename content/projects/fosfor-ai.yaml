@@ -374,10 +374,12 @@ sections:
           features:
             - index: '01'
               category: Companion
-              title: Contextual intelligence
+              title: Help that knows where you are.
               body: >-
-                Suggestions and prompts grounded in the user's current task, not
-                generic AI noise.
+                Generic assistance means reading suggestions that have nothing
+                to do with the task in front of you. Prompts are grounded in the
+                current step instead, so the companion answers the question
+                actually being asked.
               image:
                 src: /images/projects/fosfor-ai/workflow-after.webp
                 alt: >-
@@ -390,10 +392,11 @@ sections:
                 z: null
             - index: '02'
               category: Companion
-              title: A unified experience
+              title: Three roles, one companion.
               body: >-
-                One consistent companion across the three personas, so help
-                feels the same wherever you are in the journey.
+                Data, Insight and Decision Designers each hit the wall at a
+                different point. One companion runs the whole journey rather
+                than three tools, so help feels the same wherever you join it.
               image:
                 src: /images/projects/fosfor-ai/solution-companion.webp
                 alt: >-
@@ -406,10 +409,11 @@ sections:
                 z: null
             - index: '03'
               category: Companion
-              title: Security and trust
+              title: You can see what it did.
               body: >-
-                Clear controls and transparent operations, so people trust the
-                companion with their data.
+                An assistant people cannot audit is one they route around.
+                Controls are explicit and every generated solution can be
+                reviewed and rated, so trust is earned rather than assumed.
               image:
                 src: /images/projects/fosfor-ai/feedback-loop.webp
                 alt: >-
@@ -422,10 +426,12 @@ sections:
                 z: null
             - index: '04'
               category: Companion
-              title: The companion architecture
+              title: It remembers the conversation.
               body: >-
-                A four layer model, context, interaction, response, and memory,
-                that lets the assistant hold a thread across a session.
+                Assistance that forgets between questions makes the person carry
+                the thread. Four layers, context, interaction, response and
+                memory, hold it instead, so a session builds rather than
+                restarting.
               image:
                 src: /images/projects/fosfor-ai/workflow-before.webp
                 alt: >-
