@@ -289,7 +289,16 @@ export default function PaletteConsole({ palettes, initialSlug, ownsRootTheme }:
               caught it on the first run after the conversion, which is the gate doing exactly what
               it was built for one unit earlier. What renders is 40px at 24ch, which is what the
               screenshot showed and what reads. */}
-          <h1 className="sheet-h2 mt-6">
+          {/* ⚠ `mx-auto` IS LOAD-BEARING HERE AND THE FIRST DRAFT DROPPED IT. `.sheet-h2` caps the
+              measure at 24ch, so the heading's BOX is narrower than the centred column around it —
+              `text-center` on the header centres the lines INSIDE that box, and the box itself sat
+              hard left. Before the role it had no max-width at all and filled the column, which is
+              why nothing needed centring. The lede below always carried `mx-auto`; the heading lost
+              its centring at the moment it gained a measure.
+
+              It works because the type roles stopped declaring `margin` — an auto margin here would
+              have drawn nothing before that change. */}
+          <h1 className="sheet-h2 mx-auto mt-6">
             {/* Upright and in ink, on the gallery hero's ruling: the slant is the retired device
                 and a headline word is not one of the four sanctioned accent uses. */}
             Nine palettes.<br />One <em className="not-italic">hue</em> apart.
