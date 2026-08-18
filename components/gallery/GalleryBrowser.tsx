@@ -97,7 +97,10 @@ export default function GalleryBrowser({ items }: { items: readonly GalleryItem[
         <div
           role="group"
           aria-label="Filter by kind"
-          className="flex gap-0.5 rounded-full border border-border bg-surface p-[3px]"
+          /* ⚠ SQUARED ON `.work-filter`'s PRECEDENT, which carries no radius at all since the nav
+             ruling. Two chip groups on one site, the same contract — `role="group"` with
+             `aria-pressed` and an accent fill — and they drew different corners. */
+          className="flex gap-0.5 border border-border bg-surface p-[3px]"
         >
           {(["all", ...GALLERY_KINDS] as const).map((k) => {
             const on = kind === k;
@@ -116,7 +119,7 @@ export default function GalleryBrowser({ items }: { items: readonly GalleryItem[
                    than left to inherit. The work filter's own entry records why: a chip that draws
                    an accent ground and inherits its foreground is the one shape the role layer
                    cannot check, because no cascade walk reaches a ground painted by a sibling. */
-                className={`rounded-full px-3.5 py-2 font-mono text-[9.5px] uppercase tracking-[0.13em] transition-colors ${
+                className={`sheet-mono-label px-3.5 py-2 transition-colors ${
                   on
                     ? "bg-accent font-medium text-on-accent"
                     : "text-text-subtle hover:text-text-lead"

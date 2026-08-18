@@ -96,12 +96,16 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
       <div aria-hidden className="gallery-hero-glow" />
 
       <div className="relative z-[2] mx-auto max-w-[980px] px-[30px]">
-        <span className="inline-flex items-center gap-2.5 rounded-full border border-etch/8 bg-surface px-[15px] py-2">
-          <i className="h-[7px] w-[7px] rounded-full bg-accent-500" />
-          <span className="font-mono text-[9.5px] font-medium uppercase tracking-[0.26em] text-text-subtle">
-            Gallery · a record of looking
-          </span>
-        </span>
+        {/* ⚠ A STANDALONE TRACKED-CAPS EYEBROW IN A PILL IS THE CONSTRUCTION THIS DIRECTION RETIRES
+            BY NAME, and it is the last one on the public site. It also carried a fifth mono size
+            (9.5px) and a fourth tracking value (0.26em) against a vocabulary of three sizes and one
+            tracking — the erosion `globals.css` predicts in the mono block's own comment.
+            The dot was an accent use with no job beside it; the rule's object line does that work. */}
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Gallery</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">A record of looking</span>
+        </div>
 
         {/* ⚠ NO FAMILY OR WEIGHT UTILITY HERE. The unlayered `h1, h2` reset sets both and beats
             anything in `@layer utilities`, so either would be inert — the gallery masthead this
@@ -112,7 +116,13 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
           {HEADLINE.lead}
           <br />
           {HEADLINE.tail}
-          <em className="font-medium italic text-accent-text">{HEADLINE.accent}</em>.
+          {/* ⚠ UPRIGHT AND IN INK, WHICH IS TWO RULINGS AT ONCE. The slant is the retired device,
+              and the accent was a FIFTH use — the direction sanctions it for the current floor, the
+              readout figures, the outcome column and the resume control, and a headline word is
+              none of them. The accent has not left the hero: it moved to the fact row below, where
+              a readout figure is one of the four. The `<em>` stays because the emphasis is real
+              markup; only its treatment changes. */}
+          <em className="font-medium not-italic">{HEADLINE.accent}</em>.
         </h1>
 
         {/* ⚠ `text-lead`, WHICH IS WHAT THE MASTHEAD THIS REPLACES USED — and moving it to the
@@ -127,6 +137,9 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
         </p>
 
         <div className="mt-7 flex flex-wrap justify-center gap-[11px]">
+          {/* ⚠ BOTH CONTROLS LOSE THEIR CAPSULE, on the nav ruling that squared every control on the
+              site. The accent fill stays on the primary — a page's single primary action is the
+              resume control's precedent, which is one of the direction's four sanctioned uses. */}
           {/* ⚠ AN ANCHOR TO A FRAGMENT, NOT A SCROLL HANDLER. The target is the grid below; a
               handler would need the client boundary and would break for a reader who opens it in a
               new tab. The browser's own fragment navigation already honours reduced motion. */}
@@ -136,13 +149,13 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
               are asserted unlayered in `globals.css` beside this note's other half. */}
           <a
             href="#gallery-grid"
-            className="gallery-hero-cta inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-[13px] font-semibold transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+            className="gallery-hero-cta inline-flex items-center gap-2 bg-accent px-5 py-3 text-[13px] font-semibold transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
           >
             Browse everything <span aria-hidden>↓</span>
           </a>
           <Link
             href="/#work"
-            className="gallery-hero-cta-ghost inline-flex items-center gap-2 rounded-full border border-etch/8 px-5 py-3 text-[13px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
+            className="gallery-hero-cta-ghost inline-flex items-center gap-2 border border-etch/8 px-5 py-3 text-[13px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500"
           >
             See the work instead <span aria-hidden>↗</span>
           </Link>
@@ -157,7 +170,7 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
           return (
             <span
               key={i}
-              className={`gallery-hero-frame relative block flex-none overflow-hidden rounded-[11px] border bg-surface-well ${
+              className={`gallery-hero-frame relative block flex-none overflow-hidden border bg-surface-well ${
                 item ? "border-etch/8" : "gallery-hero-frame--empty border-dashed border-etch/8"
               }`}
               style={{
@@ -187,8 +200,15 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
         })}
       </div>
 
-      {/* The fact row and its hairline. Scope ends here. */}
-      <div className="relative z-[2] mx-auto mt-[26px] flex max-w-[980px] flex-wrap justify-center gap-x-11 gap-y-6 border-t border-etch/8 px-[30px] pt-[26px]">
+      {/* ⚠ THE FACT ROW BECOMES `.sheet-readout`, AND IT IS THAT DEVICE'S FIRST CONSUMER. The
+          device was declared with the grammar and had zero consumers until now — a 2px accent rule
+          above, a hairline below, and equal columns divided by hairlines. A count of what is in the
+          collection is exactly the readout it was drawn for.
+
+          ⚠ AND THIS IS WHERE THE HEADLINE'S ACCENT WENT. `.sheet-readout-value` paints
+          `--color-accent`, which is one of the direction's four sanctioned uses, so the hero keeps
+          its one accent and moves it from a decorative word to a figure that means something. */}
+      <div className="sheet-readout relative z-[2] mx-auto mt-[26px] max-w-[980px] px-[30px]">
         {FACTS.map((f) => {
           const n = f.key === "all" ? all : byKind[f.key] ?? 0;
           return (
@@ -196,14 +216,12 @@ export default function GalleryHero({ items }: { items: readonly GalleryItem[] }
               {/* ⚠ THE ZERO IS QUIETER AND STILL PRESENT. A hidden figure would make "are there any
                   drawings" answerable only by noticing an absence, which is the one thing a reader
                   cannot do — the same argument `GalleryBrowser` records for its zero chips. */}
-              <b
-                className={`block font-mono text-[22px] font-medium tracking-[-0.03em] ${
-                  n === 0 ? "text-text-subtle" : "text-text-primary"
-                }`}
-              >
-                {n}
-              </b>
-              <span className="mt-[7px] block font-mono text-[8.5px] uppercase tracking-[0.2em] text-text-subtle">
+              {/* ⚠ THE ZERO KEEPS ITS QUIETER INK, WHICH IS WHY THE COLOUR IS STILL STATED. The
+                  device paints every figure in the accent; a zero in the accent would advertise an
+                  empty bucket as loudly as a full one, and the note above records why the zero is
+                  shown at all rather than hidden. */}
+              <b className={`sheet-readout-value block${n === 0 ? " text-text-subtle" : ""}`}>{n}</b>
+              <span className="sheet-readout-key sheet-mono-micro block">
                 {n === 1 ? f.one : f.many}
               </span>
             </div>
