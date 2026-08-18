@@ -126,8 +126,8 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * pigeonhole those notes describe never applies to it. The ceiling was a property of the unit, not
  * of the circle. They are kept rather than corrected, because the reasoning was sound and it is the
  * unit that moved underneath them. */
-t("A8a the selectable set is the ten real palettes — six light and four dark",
-  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office"]);
+t("A8a the selectable set is the eleven real palettes — seven light and four dark",
+  selectableThemes(), ["cream", "harbour", "orchid", "cerise", "fern", "sapphire", "ink-flare", "nocturne", "basalt", "drawing-office", "redline"]);
 /* ⚠ AND THE SITE MUST NOT SAY A DIFFERENT NUMBER FROM THE ONE IT OFFERS, WHICH IT DID FOR AS LONG
  * AS DRAWING-OFFICE HAS BEEN SHIPPED. Three user-facing strings read "nine" against ten selectable
  * palettes — `All nine` and `See all nine` as visible text, and `See all nine palettes` as an
@@ -141,7 +141,7 @@ t("A8a the selectable set is the ten real palettes — six light and four dark",
  * count rather than pinning a word. Past twelve the helper falls back to digits, which is correct
  * and plain — this row is what makes that a safety net rather than the thing that ships. */
 t("A8a-word ⚠ THE PALETTE COUNT HAS A WORD FOR ITS CURRENT SIZE — three labels said `nine` while ten shipped",
-  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["ten", true]);
+  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["eleven", true]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",

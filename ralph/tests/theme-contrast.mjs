@@ -1441,7 +1441,7 @@ const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
   basalt: [3.65, 2.69], cream: [4.70, 7.22],
   harbour: [4.87, 7.11], orchid: [5.76, 8.45], cerise: [4.66, 7.75], fern: [4.63, 6.88],
-  "drawing-office": [20.12, 20.12],
+  "drawing-office": [20.12, 20.12], redline: [7.32, 9.57],
 };
 /* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
  * to this map fails here instead of being quietly unmeasured — which is the whole defect above,

@@ -1545,6 +1545,71 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-case-study-sand:   oklch(88.5% 0.000 0);
   --color-glow-web:          oklch(48.0% 0.000 0);
 }
+/* ─────────────────────────────────────────────────────────────────────────────
+   `redline` — A MARKED-UP PROOF. Drawing Office's sheet with ONE signal that has a real job.
+
+   ⚠ IT NEEDS NO NEW ROLE, WHICH IS WHY IT COULD SHIP BEFORE MACHINE ROOM. The proposal adds a
+   signal-and-reference PAIR because Machine Room carries TWO signals doing different jobs. Redline
+   carries ONE, and `accent` already is that role. So this is a value swap over the existing
+   vocabulary rather than a structural change.
+
+   ⚠ THE GROUND CLEARS THE BAND BY 16.76 dE FROM DRAWING OFFICE, MEASURED IN THE GATE'S OWN UNIT.
+   `sepIn` compares grounds by euclidean sRGB distance, not by OKLab. Solved in OKLab first, this
+   ground reported ZERO candidates across the whole band — the wrong-unit defect, in the solver
+   written to place a palette. In the right unit 63 candidates clear, and this is one of them.
+
+   THE IDENTITY, AND WHY EACH AXIS MOVES. The paper is warm because a proof is printed stock rather
+   than bright white, which is what makes this ground "near extreme" where Drawing Office is
+   extreme. The chrome stays ACHROMATIC — a proof is not coloured, it is corrected — so every ink
+   rung, the rule and both text roles hold chroma 0. The only hue in the interface is the red, and
+   it is the correction.
+   ───────────────────────────────────────────────────────────────────────────── */
+[data-theme="redline"] {
+  --vessel-dark-n: 4%;
+  --color-cream-50:          oklch(98.5% 0.010 70);
+  --color-cream-100:         oklch(96.8% 0.014 70);
+  --color-cream-200:         oklch(93.5% 0.020 70);
+  --color-cream-300:         oklch(88.0% 0.022 70);
+  /* Elevation inverts here exactly as it does on Drawing Office, and for the same reason — on a
+     sheet the paper is the brightest thing in the room and the chrome sits back from it. */
+  --color-canvas:            oklch(95.5% 0.020 70);
+  --color-ink-950:           oklch(15.0% 0.000 0);
+  --color-ink-800:           oklch(26.2% 0.000 0);
+  --color-ink-600:           oklch(40.0% 0.000 0);
+  --color-ink-400:           oklch(56.0% 0.000 0);
+  --color-ink-200:           oklch(80.0% 0.000 0);
+  /* The red pencil. Solved for 6.65 against this ground and gamut-checked before the ratio was
+     believed, because an unrepresentable colour returns a plausible number rather than refusing. */
+  --color-accent-500:        oklch(46.1% 0.145 27);
+  --color-accent-600:        oklch(39.5% 0.130 27);
+  --color-text-subtle:       oklch(48.7% 0.000 0);
+  --color-text-body:         oklch(37.5% 0.000 0);
+  --color-rule:              oklch(48.5% 0.000 0);
+  --color-band-dark:         rgb(20, 17, 16);
+  --color-on-dark:           rgb(244, 240, 236);
+  --color-on-dark-muted:     rgb(174, 168, 163);
+  --color-on-dark-quote:     oklch(81.5% 0.008 70);
+  --color-accent-on-dark:    oklch(72.0% 0.140 27);
+  --color-smoke-1:           oklch(0.84 0.010 70 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.010 70 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.008 70 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.010 70 / 0.74);
+  --color-vessel-ink:        rgb(14, 12, 11);
+  --color-vessel-capsule:    rgb(202, 195, 188);
+  /* `pearl` against `glass` is the vessel's own relation — dL 2.00, dH 0.00, dC -0.009 to -0.013 —
+     and it is asserted by `theme` section V. The reference is glass, not canvas, which this record
+     records three plausible refutations of. */
+  --color-vessel-glass:      oklch(94.5% 0.016 70);
+  --color-vessel-pearl:      oklch(96.5% 0.005 70);
+  --color-vessel-shadow:     oklch(92.5% 0.018 70);
+  --color-vessel-wave:       oklch(93.5% 0.016 70);
+  --color-glow-paper:        oklch(0.63 0.060 27 / 0.2);
+  --color-bounce:            oklch(99.5% 0.000 0);
+  --color-reveal-sand:       oklch(85.0% 0.020 70);
+  --color-case-study-sand:   oklch(88.5% 0.020 70);
+  --color-glow-web:          oklch(48.0% 0.130 27);
+}
+
 
 
 

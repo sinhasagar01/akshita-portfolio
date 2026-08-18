@@ -449,7 +449,7 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_OG)
-    count: 44
+    count: 48
     files: [lib/theme.ts]
     reason: >
       ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — TWENTY-FOUR VALUES ACROSS SIX ENTRIES.
@@ -479,7 +479,7 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_SPLASH)
-    count: 11
+    count: 12
     files: [lib/theme.ts]
     reason: >
       ⚠ THIS ROW EXISTED AS PROSE IN `lib/theme.ts` AND NOWHERE IN THIS FILE, WHICH IS WHY THE COUNT
