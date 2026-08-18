@@ -12445,10 +12445,19 @@ the REAL brace anyway — the bug produces the right answer by luck, which is ex
 long-standing mention never bit. Reverting the fix left the row GREEN. `R5b` asserts the decoy is
 there, so the row cannot quietly return to proving nothing.
 
-**WHAT THE RENDER SAID.** `paint-floors` on four real builds, five pages each. Redline after the
-change is **1200 measured, 0 below floor, worst 9.40**. Drawing office was run BEFORE and AFTER on
-its own builds and the findings are an **identical multiset — 39 to 39, zero different, down to the
-ratio at three decimals** — so the change is neutral there and clean on redline.
+**WHAT THE RENDER SAID.** `paint-floors` on four real builds, five pages each. Drawing office was
+run BEFORE and AFTER on its own builds and the findings are an **identical multiset — 39 to 39, zero
+different, down to the ratio at three decimals** — so the change is neutral there.
+
+**⚠ AND THE REDLINE FIGURE REPORTED HERE AND IN #669's BODY WAS AN INSTRUMENT CONDITION.** It read
+*"1200 measured, 0 below floor, worst 9.40"*. **It has not reproduced once.** Four later runs on
+clean builds all give **1068 measured and 39 below floor**, identical to drawing office — including
+one run made deliberately with a server up during the build, to test the hazard this record already
+names, which reproduced the CLEAN figure rather than the anomalous one. **The mechanism is
+unidentified and is deliberately not guessed at**, after two refuted mechanisms in the deploy entry
+taught what a third confident framing is worth. What is established is that the reproducible figure
+is 1068 and 39, and that a `worst` of 9.40 identical on five different pages was the tell nobody
+read.
 
 **⚠ AND THOSE 39 ARE PRE-EXISTING AND MOSTLY UNTRIAGED.** Five are the footer's `Ciao`, which this
 harness's header already declares as its one exclusion, and three are the work-filter chip's
@@ -12506,6 +12515,58 @@ is the complement and it kills on the same mutation.
 read "14% against `surface`'s 6%" while `--color-surface` eight lines above declares **8%**. A number
 in prose beside a number in code with nothing comparing them, and it would never have been read again
 if the mechanism had been left alone.
+
+## ⚠ THE SHEET STAMPS, RULED — AND THE MEASUREMENT REFUSED THE RULING EVERYONE EXPECTED
+
+28 stamps on every case study at **1.72 against a floor of 3.0**. Boarded as "probably the same
+decorative call as the footer's `Ciao`", which is exactly why it was ruled with numbers instead.
+
+**⚠ TWO FIGURES IN THE ENTRY THAT BOARDED IT WERE WRONG AND BOTH WERE MINE.** It said *"against a 4.5
+floor"* — the stamps render at **24.32px at weight 500**, which is large text, so the harness applied
+3.0 and always had. And it said **NOT LIVE ON THE PUBLISHED PALETTE**, on the strength of a redline
+run reporting 0 below floor across 1200 measured elements. **That run has never reproduced.** Four
+later runs on clean builds give 1068 and 39, identical to drawing office — including one made
+deliberately with a server up during the build, to test the hazard this record already names, which
+reproduced the CLEAN figure. The mechanism is unidentified and is not guessed at. **The stamps are
+live on redline and have been since it published.**
+
+**`Ciao` EARNED ITS EXCLUSION DESPITE INVERTING** — 1.37 on light against 11.67 on dark, a whisper
+that becomes a shout. The stamp was expected to be the same class. Composited over its resolved
+ground, the browser doing the composite:
+
+    drawing-office 1.82   redline 1.80   sapphire 2.22   ink-flare 2.24   nocturne 2.23   basalt 2.23
+
+**IT HOLDS ITS RELATION, 1.80 TO 2.24 ACROSS THE FLIP.** That is `etch` doing what its own entry says
+an alpha-based pigment role does — resolving to an INK rather than a finished colour, so a consumer's
+chosen weight survives the ground change. A decorative mark that stays decorative on every palette is
+one doing its job. The sweep's own 1.72 agrees with the token composite's 1.80 to within 0.08 by a
+route that shares no code with it.
+
+**THE RULING RESTS ON WHAT THE DESIGN DECLARED, NOT ON THE RATIO.** `aria-hidden="true"` on the render
+site means a screen-reader user never receives the stamp, so the design has already ruled it not
+information — if it carried something a reader needs, that attribute would be the defect rather than
+the contrast. Plus `pointer-events: none`, `user-select: none`, a deliberate 26% alpha, desktop only,
+and **zero overlap with any element that draws text**, measured across every stamp.
+
+**⚠ THE COUNTER IS RECORDED RATHER THAN ANSWERED AWAY.** The component's own comment says *"a small
+ruled mark a reader CAN read"*. Censused at 1440 across the four studies: **30 stamps, 15 echoing a
+word already in their own section, and the ELEVEN INDEX NUMERALS appearing NOWHERE ELSE in theirs.**
+For a feature row the stamp is the only place its number is written. Settled by `aria-hidden` rather
+than by the ratio — the rows are in visual order and the index is already withheld from assistive
+technology.
+
+**⚠ AND MY FIRST READING OF THE DARK HALF WAS THE DOUBLE-COMPOSITE FAULT, IN THE ONE PLACE IT IS BEST
+DOCUMENTED.** Filling white then painting a 26% alpha returned **251,252,253 on a near-black ground**
+at a ratio of 16.46 — which reads as a spectacular `Ciao`-style inversion and would have inverted the
+ruling. **A 26% alpha cannot paint near-white on near-black**, and that impossibility is the only
+reason it was caught. `paint-floors`' own header records this as the fault that manufactured 140 of
+208 findings, and I committed it while ruling on that harness's output.
+
+**NOT ENCODED AS A CODE EXCLUSION.** The obvious predicate — `aria-hidden` plus `pointer-events:
+none` plus `user-select: none` — is a real property rather than a class list, and **`.footer-ciao`
+carries only the last two**, so it would silence 28 and go on reporting 5. Whether the sweep should
+carry a decoration predicate at all is now its own boarded decision, with a third ruled class as the
+trigger.
 
 ## WHAT'S NEXT
 
