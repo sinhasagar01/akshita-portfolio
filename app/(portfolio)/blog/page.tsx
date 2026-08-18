@@ -69,26 +69,24 @@ function FeaturedCard({ post }: { post: BlogCard }) {
         href={blogPath(post.slug)}
         className="group grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:items-center"
       >
+        {/* The frame loses its corner and keeps its hairline — a box around content, per the
+            radius ruling. `Shot` supplies the ticks that make it a plate. */}
         <Shot
           heroImage={post.heroImage}
           title={post.title}
           topic={post.topic}
           sizes="(max-width: 1024px) 100vw, 55vw"
           priority
-          className="aspect-[16/10] rounded-xl border border-etch/8"
+          className="aspect-[16/10] border border-etch/8"
         />
         <div>
-          <p className="text-[11.5px] uppercase tracking-[0.13em] text-text-secondary">
-            Latest · {formatLongDate(post.date)}
-          </p>
-          <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2rem)] font-normal leading-[1.12] tracking-[-0.01em] text-text-primary transition-colors group-hover:text-accent-text">
+          <p className="sheet-mono-label">Latest · {formatLongDate(post.date)}</p>
+          <h2 className="sheet-h3 mt-3 transition-colors group-hover:text-accent-text">
             {post.title}
           </h2>
-          {post.dek ? (
-            <p className="mt-3 text-[17px] leading-[1.6] text-text-lead">{post.dek}</p>
-          ) : null}
+          {post.dek ? <p className="sheet-lede mt-3">{post.dek}</p> : null}
           <div className="mt-5 flex items-center gap-4 text-[12.5px] text-text-secondary">
-            <span>{post.readingTime} min read</span>
+            <span className="sheet-mono-label">{post.readingTime} min read</span>
             {/* A readout. This sits inside the card's block-level <Link>, where a <button>
                 would be an invalid content model — not just a click to stop. */}
             <LoveButton slug={post.slug} variant="readout" />
@@ -107,16 +105,34 @@ function PostCard({ post }: { post: BlogCard }) {
         title={post.title}
         topic={post.topic}
         sizes="(max-width: 1024px) 100vw, 45vw"
-        className="aspect-[16/10] rounded-xl border border-etch/8"
+        className="aspect-[16/10] border border-etch/8"
       />
-      <div className="mt-3.5 flex items-center gap-3 text-[12px] uppercase tracking-[0.1em] text-text-secondary">
-        <span>{formatShortDate(post.date)}</span>
-        <span>{post.readingTime} min</span>
+      <div className="mt-3.5 flex items-center gap-3">
+        <span className="sheet-mono-label">{formatShortDate(post.date)}</span>
+        <span className="sheet-mono-label">{post.readingTime} min</span>
       </div>
-      <h3 className="mt-2 display-face text-[21px] font-normal leading-[1.2] text-text-primary transition-colors group-hover:text-accent-text">
+      {/* ⚠ THE STREAM TITLE TAKES THE SAME ROLE AS THE FEATURED ONE, AND THE HIERARCHY MOVES TO
+          LAYOUT. The index wants three heading levels — page, lead item, stream item — and the
+          direction declares two. Rather than invent a third role for one surface, the featured
+          card keeps its full-width row and 55vw plate while the stream sits in a two-column grid,
+          which is how a drawing register separates a lead sheet from the sheets after it.
+
+          The alternative was a size override, and that is exactly the defect three units of this
+          arc removed: `.sheet-h3` declares `font-size`, so an arbitrary size utility beside it
+          would draw nothing while reading as a decision. The missing level has a derived population
+          of thirteen sites, eleven of them case-study card titles in the 20 to 24px band, and that
+          is the unit that earns a fourth role rather than this one.
+
+          ⚠ AND THE SENTENCE ABOVE ORIGINALLY SPELLED THE RETIRED UTILITY OUT, WHICH MADE THIS
+          COMMENT THE ONLY THING GENERATING IT. `css-comment-trap` A5 caught it and named this file.
+          Fifth instance of explaining-it-requires-writing-it in this arc, and it was then RESTORED
+          BY A `git checkout HEAD --` run to measure something else, which is this record's oldest
+          warning arriving on the one file whose fix was not yet committed.
+          DESCRIBE A RETIRED UTILITY, NEVER SPELL ONE. */}
+      <h3 className="sheet-h3 mt-2 transition-colors group-hover:text-accent-text">
         {post.title}
       </h3>
-      {post.dek ? <p className="mt-2 text-[14.5px] leading-[1.55] text-text-secondary">{post.dek}</p> : null}
+      {post.dek ? <p className="sheet-lede mt-2">{post.dek}</p> : null}
       <div className="mt-3">
         {/* Readout, same reason as the featured card. */}
         <LoveButton slug={post.slug} variant="readout" />

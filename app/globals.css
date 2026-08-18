@@ -5677,15 +5677,34 @@ a {
 
    ⚠ AND IT IS LARGER THAN THE TITLE VERSION WAS, BECAUSE THE SUBJECT GOT SHORTER. A topic is two
    or three words against a full sentence, so the same box holds more of it — 16ch against 22. */
+/* ⚠ NOT ITALIC, AND THIS ONE WAS INVISIBLE TO THE MARKUP CENSUS. `typography` section E reads
+   `className` strings, so it reported the blog surface clean while the slant was set HERE, in the
+   stylesheet, on a span the component never names. A census bounded by markup cannot see a
+   property it never reads — the file-type-boundary defect arriving as a LANGUAGE boundary.
+
+   ⚠ AND IT MOVES TO THE MONO FACE, WHICH THE FIRST DRAFT OF THIS CHANGE GOT WRONG. Setting it
+   upright at weight 600 in the display face put it a pixel away from the card title directly
+   beneath — same family, same weight, 30px against 31px — so the plate and the post's name read as
+   two attempts at the same sentence. The italic had been doing the separating, and removing it
+   revealed that nothing else was.
+
+   The mono face is what a title plate on a drawing actually carries, and it separates by REGISTER
+   rather than by slant, which is the thing this direction replaced italics with everywhere else.
+   It also stops the plate competing for the eye with the title it introduces.
+
+   ⚠ THE COLOUR IS DELIBERATELY UNTOUCHED. `ink-800` is a raw rung and moving it to a role is the
+   right direction, but this element's ground is the KNOWN mix recorded above — `cream-100` to
+   `cream-200`, where no foreground clears both ends. Changing the ink here would pick which end
+   fails, which is the boarded surface-role decision and not a typography one. */
 .blog-plate span {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(20px, 3vw, 30px);
-  line-height: 1.16;
-  letter-spacing: -0.01em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: clamp(12px, 1.5vw, 16px);
+  line-height: 1.5;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   color: var(--color-ink-800);
-  max-width: 16ch;
+  max-width: 18ch;
 }
 
 /* ============================================================ VESSEL + CAPSULE

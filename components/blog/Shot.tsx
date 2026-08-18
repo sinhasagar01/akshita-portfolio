@@ -55,6 +55,18 @@ export default function Shot({
           <span>{plateText}</span>
         </div>
       )}
+      {/* ⚠ THE CORNER TICKS, ON `ProjectCard`'s PRECEDENT AND FOR ITS REASON. Two corners rather
+          than four is the printed convention, and it is what makes this read as a frame rather
+          than a card. This is the device's THIRD consumer and the second that is not a
+          `.sheet-plate` — an existing frame that becomes one by gaining marks, which is why the
+          tick rule was deliberately not scoped to the plate class.
+
+          They sit OUTSIDE the image/plate branch so both states carry them: a post with a hero
+          photograph and a post without are the same object on the index, and a frame that only
+          gets its marks when the picture is missing would say otherwise. Rendered unconditionally
+          and inert outside the sheet scope, because the mark colour falls back to transparent. */}
+      <span className="sheet-tick sheet-tick-tl" aria-hidden="true" />
+      <span className="sheet-tick sheet-tick-br" aria-hidden="true" />
     </div>
   );
 }

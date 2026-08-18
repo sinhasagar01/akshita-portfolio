@@ -635,8 +635,21 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      `max-width` and `line-height` and NO family — so those were live utilities all along. An inert
      count is per PROPERTY, never per class name, and reading the diff would have given five.
 
-     THE EIGHTH MOVE, AND STILL THE SIXTH KIND. */
-  inert.filter(outside).length, 3);
+     THE EIGHTH MOVE, AND STILL THE SIXTH KIND.
+
+     ⚠ 3 -> 1 WITH THE BLOG CARDS, AND IT IS THE PAIR-TWICE SHAPE A FOURTH TIME. The featured card's
+     `h2` carried the display family class and a weight utility, both agreeing with the unlayered
+     `h1, h2` reset they could not beat. It took `.sheet-h3`, which declares its own family and
+     weight on the CLASS, so there is nothing left for the element rule to win.
+
+     Diffed by checkout-and-remeasure rather than read off the diff — the three changed files were
+     restored at the parent commit and the suite re-run: 3 before, 1 after, with 183 files and 1
+     public collision unchanged on both sides.
+
+     THE NINTH MOVE. Four of the nine have now been this one kind, which is what a conversion arc
+     looks like from inside this inventory: headings leaving the element reset's reach by taking a
+     class that beats it. */
+  inert.filter(outside).length, 1);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);
