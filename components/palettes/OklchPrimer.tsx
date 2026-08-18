@@ -190,7 +190,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
     <main className="pb-24">
       <div
         aria-live="polite"
-        className={`fixed right-6 top-24 z-50 rounded-full bg-text-primary px-4 py-2 text-sm text-surface transition-opacity ${
+        className={`fixed right-6 top-24 z-50 bg-text-primary px-4 py-2 text-sm text-surface transition-opacity ${
           toast ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
@@ -216,20 +216,29 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
           }}
         />
         <div className="relative mx-auto max-w-[960px]">
-          <span className="inline-flex items-center gap-2 rounded-full border border-ink-950/8 bg-surface px-3.5 py-1.5">
-            <i className="h-[7px] w-[7px] rounded-full bg-accent-500" />
-            <SectionLabel>Playground · 02 — Learn OKLCH</SectionLabel>
-          </span>
-          <h1 className="mt-6 text-6xl leading-[0.94] tracking-tight text-text-primary">
-            Three numbers.<br />One of them is the <em className="italic text-accent-text">theme</em>.
+          {/* The tracked-caps run in a capsule is the construction this direction retires, and the
+              accent dot beside it had no job the rule's object line does not do. */}
+          <div className="sheet-rule">
+            <span className="sheet-mark-text">Sheet 01</span>
+            <span className="sheet-rule-line" aria-hidden="true" />
+            <span className="sheet-mark-text">Learn OKLCH</span>
+          </div>
+          {/* ⚠ `mx-auto` AND NO SIZE UTILITY, BOTH LEARNED ON THE CONSOLE ONE UNIT AGO. The role
+              caps the measure at 24ch, so without an auto margin the box sits hard left inside a
+              centred column; and a size or leading utility beside the role draws nothing, because
+              the role declares those and is unlayered. The accent word goes upright and in ink —
+              the slant is the retired device and a headline word is none of the four sanctioned
+              accent uses. */}
+          <h1 className="sheet-h2 mx-auto mt-6">
+            Three numbers.<br />One of them is the <em className="not-italic">theme</em>.
           </h1>
-          <p className="mx-auto mt-5 max-w-[56ch] text-lg leading-relaxed text-text-secondary">
+          <p className="sheet-lede mx-auto mt-5">
             A colour written in OKLCH answers three separate questions. How light, how colourful,
             which hue. Change the third and you have a new theme. Change nothing else and the
             hierarchy survives.
           </p>
-          <p className="mt-8 inline-flex items-center gap-3 rounded-xl border border-ink-950/8 bg-surface px-4 py-3 font-mono text-sm text-text-primary">
-            <span className="text-eyebrow uppercase tracking-eyebrow text-text-subtle">
+          <p className="mt-8 inline-flex items-center gap-3 border border-ink-950/8 bg-surface px-4 py-3 font-mono text-sm text-text-primary">
+            <span className="sheet-mono-micro">
               the whole idea
             </span>
             <span>oklch(</span>
@@ -250,13 +259,13 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                  harbour 0,126,91, orchid 153,63,148, cerise 209,45,107, fern 75,127,32 — so the two
                  columns are the same number and zero pixels change.
                  This site was missed when eight others were moved off the rung. */
-              className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold"
+              className="inline-flex items-center gap-2 bg-accent px-4 py-2.5 text-sm font-semibold"
             >
               <span className="text-on-accent">Move the three controls ↓</span>
             </a>
             <Link
               href="/palettes"
-              className="inline-flex items-center gap-2 rounded-xl border border-ink-950/8 px-4 py-2.5 text-sm font-medium"
+              className="inline-flex items-center gap-2 border border-ink-950/8 px-4 py-2.5 text-sm font-medium"
             >
               <span className="text-text-secondary">Playground · 01 — Palettes ↗</span>
             </Link>
@@ -264,7 +273,10 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
           {/* ⚠ THE PALETTE COUNT IS DERIVED; THE OTHER THREE ARE CLAIMS ABOUT THE MODEL, NOT
               MEASUREMENTS, AND THEY ARE FIXED BECAUSE THEY ARE NOT COUNTS OF ANYTHING. "Three
               numbers" is what OKLCH is. Deriving a constant would be theatre. */}
-          <div className="mt-9 flex flex-wrap justify-center gap-x-9 gap-y-5 border-t border-ink-950/8 pt-6">
+          {/* `.sheet-readout`'s third consumer. It shipped with the grammar and had none until
+              today; four figures under a rule is what it draws, and the accent it paints them in is
+              one of the direction's four sanctioned uses. */}
+          <div className="sheet-readout mt-9">
             {[
               ["3", "numbers"],
               ["1", "changes per theme"],
@@ -272,10 +284,8 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
               ["0", "maths required"],
             ].map(([n, l]) => (
               <div key={l}>
-                <b className="block font-mono text-xl font-medium tracking-tight text-text-primary">{n}</b>
-                <span className="mt-1.5 block font-mono text-[8.5px] uppercase tracking-[0.18em] text-text-subtle">
-                  {l}
-                </span>
+                <b className="sheet-readout-value block">{n}</b>
+                <span className="sheet-readout-key sheet-mono-micro block">{l}</span>
               </div>
             ))}
           </div>
@@ -284,13 +294,12 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
 
       {/* ══════════ 02 · THE MENTAL MODEL ══════════ */}
       <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] px-6">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">02</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">The mental model.</h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            three questions
-          </span>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 02</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">three questions</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">The mental model.</h2>
         <p className="mb-6 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           Every colour on this page and on the rest of this site is these three numbers. The bands
           are live and redraw from whatever you set below.
@@ -320,13 +329,13 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
               s: band((t) => css(lab.l, lab.c, Math.round(t * 360))),
             },
           ].map((q) => (
-            <article key={q.k} className="overflow-hidden rounded-xl border border-ink-950/8 bg-surface">
+            <article key={q.k} className="overflow-hidden border border-ink-950/8 bg-surface">
               <div className="flex h-[58px]" aria-hidden="true">
                 {q.s.map((c, i) => <i key={i} className="flex-1" style={{ background: c }} />)}
               </div>
               <div className="p-5">
-                <p className="text-eyebrow uppercase tracking-eyebrow text-accent-text">{q.k}</p>
-                <h3 className="mt-2 text-xl tracking-tight text-text-primary">{q.t}</h3>
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-accent-text">{q.k}</p>
+                <h3 className="sheet-mono-text mt-2 font-medium text-text-primary">{q.t}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-subtle">{q.d}</p>
                 <p className="mt-3 border-t border-ink-950/8 pt-3 text-xs leading-relaxed text-text-subtle">
                   <b className="font-semibold text-text-primary">{q.u}</b> {q.n}
@@ -339,19 +348,18 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
 
       {/* ══════════ 03 · THE LAB ══════════ */}
       <section ref={labRef} id="lab" className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] scroll-mt-28 border-t border-ink-950/8 px-6 pt-11">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">03</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">Move one at a time.</h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            interactive
-          </span>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 03</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">interactive</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">Move one at a time.</h2>
         <p className="mb-6 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           Drag a slider and watch what changes, and more usefully what does not. The sample is the
           site&rsquo;s own components with their role tokens driven by these three numbers.
         </p>
 
-        <div className="grid grid-cols-1 overflow-hidden rounded-xl border border-ink-950/8 bg-surface lg:grid-cols-[360px_1fr]">
+        <div className="grid grid-cols-1 overflow-hidden border border-ink-950/8 bg-surface lg:grid-cols-[360px_1fr]">
           <div className="border-b border-ink-950/8 bg-surface-well p-5 lg:border-b-0 lg:border-r">
             {[
               { id: "l", label: "Lightness", sym: "L", v: lab.l, min: 15, max: 97, step: 0.5,
@@ -383,14 +391,14 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                   step={s.step}
                   value={s.v}
                   onChange={(e) => setLab((p) => ({ ...p, [s.id]: Number(e.target.value) }))}
-                  className="h-2.5 w-full appearance-none rounded-md outline-none"
+                  className="h-2.5 w-full appearance-none outline-none"
                   style={{ background: s.track }}
                 />
                 <p className="mt-2 text-xs leading-relaxed text-text-subtle">{s.hint}</p>
               </div>
             ))}
 
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-ink-950/8 bg-surface px-3 py-3">
+            <div className="flex items-center justify-between gap-3 border border-ink-950/8 bg-surface px-3 py-3">
               <span className="font-mono text-xs font-medium text-text-primary">
                 {css(lab.l, lab.c, lab.h)}
               </span>
@@ -406,7 +414,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
               </button>
             </div>
 
-            <div className="mt-4 rounded-r-lg border-l-[3px] border-accent-500 bg-surface p-3">
+            <div className="mt-4 border-l-[3px] border-accent-500 bg-surface p-3">
               <b className="mb-1 block text-xs font-semibold text-text-primary">Try this</b>
               <p className="text-xs leading-relaxed text-text-subtle">
                 Hold lightness and chroma where they are, then sweep hue end to end. That single drag
@@ -417,14 +425,14 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
 
           <div className="flex flex-col gap-4 p-6">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex gap-0.5 rounded-full border border-ink-950/8 bg-surface-well p-1">
+              <div className="flex gap-0.5 border border-ink-950/8 bg-surface-well p-1">
                 {[["Light", false], ["Dark", true]].map(([label, isDark]) => (
                   <button
                     key={String(label)}
                     type="button"
                     aria-pressed={dark === isDark}
                     onClick={() => setDark(Boolean(isDark))}
-                    className={`rounded-full px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.13em] ${
+                    className={`px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] ${
                       dark === isDark ? "bg-accent font-medium text-on-accent" : "text-text-subtle"
                     }`}
                   >
@@ -453,7 +461,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                   accent on surface{" "}
                   <b className="font-medium text-text-primary">{ratio.toFixed(2)}</b>
                 </span>
-                <span className="mt-0.5 block font-mono text-[8.5px] uppercase tracking-[0.14em] text-text-subtle">
+                <span className="mt-0.5 block sheet-mono-micro">
                   teaching estimate · not WCAG
                 </span>
               </div>
@@ -464,7 +472,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                  that themes the PAGE, which stays true — but a visitor who has dragged a slider is
                  looking at two different colours in two places. An off-palette value is
                  unrepresentable in the preview cookie, so Try applies the palette and not this. */
-              <p className="rounded-lg border border-ink-950/8 bg-surface-well px-3 py-2.5 text-xs leading-relaxed text-text-subtle">
+              <p className="border border-ink-950/8 bg-surface-well px-3 py-2.5 text-xs leading-relaxed text-text-subtle">
                 These three numbers are yours now, not {active.name}&rsquo;s. They stay in this
                 sample — trying a palette across the portfolio applies{" "}
                 <b className="font-medium text-text-primary">{active.name}</b>, not this colour.
@@ -475,7 +483,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                 container-scoping a PALETTE does not: these are direct role values, not rungs with
                 an alias that already resolved at `:root`. */}
             <div
-              className="canvas-static flex-1 rounded-xl border p-6"
+              className="canvas-static flex-1 border p-6"
               style={{ ...sampleVars, background: "var(--color-surface)", borderColor: "var(--color-text-subtle)" }}
             >
               <SectionHeading
@@ -501,7 +509,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
               </div>
               <button
                 type="button"
-                className="mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                className="mt-5 px-4 py-2.5 text-sm font-semibold"
                 style={{ background: "var(--color-accent-500)", color: "var(--color-on-accent)" }}
               >
                 Explore the work →
@@ -513,13 +521,12 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
 
       {/* ══════════ 04 · THE PROBLEM ══════════ */}
       <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">04</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">The problem it fixes.</h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            hsl against oklch
-          </span>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 04</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">hsl against oklch</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">The problem it fixes.</h2>
         <p className="mb-6 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           In HSL every colour below says fifty percent lightness. They are not remotely the same
           brightness, which is why a scale built in HSL has to be corrected by eye, per colour,
@@ -535,7 +542,12 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
               h: "HSL · every one at 50% L", e: "wildly uneven",
               cells: [["Yellow", "hsl(55 100% 50%)"], ["Green", "hsl(140 100% 50%)"],
                       ["Blue", "hsl(240 100% 50%)"], ["Pink", "hsl(300 100% 50%)"]],
-              ink: ["#111", "#111", "#fff", "#fff"],
+              /* ⚠ THREE OF THE FOUR NEED DARK INK AND ONE NEEDS LIGHT, AT AN IDENTICAL "50% L" —
+                 which is this card's own argument arriving in its labels. Pink carried `#fff` and
+                 measured 3.14 against a 4.5 floor; magenta at HSL 50% is LIGHT, so it takes the
+                 dark ink that yellow and green take, and only blue is dark enough for white.
+                 A card that exists to show the number lied was being read through the lie. */
+              ink: ["#111", "#111", "#fff", "#111"],
               cap: <>Yellow shouts, blue sinks. <b className="font-semibold text-text-primary">The number lied</b>, and any rule you write against it is wrong for most hues.</>,
             },
             {
@@ -546,13 +558,13 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
               cap: <>Same perceived weight at every hue. <b className="font-semibold text-text-primary">Now a rule holds</b>, and one ladder works for the whole wheel.</>,
             },
           ].map((card) => (
-            <div key={card.h} className="overflow-hidden rounded-xl border border-ink-950/8 bg-surface">
+            <div key={card.h} className="overflow-hidden border border-ink-950/8 bg-surface">
               <div className="flex items-baseline justify-between gap-3 border-b border-ink-950/8 px-4 py-3">
                 <b className="text-sm font-semibold text-text-primary">{card.h}</b>
                 <em className="font-mono text-[9px] not-italic text-text-subtle">{card.e}</em>
               </div>
               <div className="p-4">
-                <div className="grid grid-cols-2 overflow-hidden rounded-lg sm:grid-cols-4">
+                <div className="grid grid-cols-2 overflow-hidden sm:grid-cols-4">
                   {card.cells.map(([name, value], i) => (
                     <div
                       key={name}
@@ -560,7 +572,11 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                       style={{ background: value, color: card.ink[i] }}
                     >
                       <b className="text-xs font-semibold">{name}</b>
-                      <code className="mt-1 font-mono text-[8px] opacity-85">{value}</code>
+                      {/* ⚠ SIZE ONLY, NEVER THE ROLE. `.sheet-mono-micro` paints `--sheet-mark`, and this label sits
+                          on a SWATCH whose ink is chosen per cell — the role would repaint every one of them a
+                          fixed grey. The opacity it used to carry is gone, because opacity on already-tight ink
+                          is what drags a pair under a floor. */}
+                      <code className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em]">{value}</code>
                     </div>
                   ))}
                 </div>
@@ -573,18 +589,17 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
 
       {/* ══════════ 05 · ONE COLOUR BECOMES A SYSTEM ══════════ */}
       <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">05</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">One colour becomes a system.</h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            from your hue
-          </span>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 05</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">from your hue</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">One colour becomes a system.</h2>
         <p className="mb-6 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           Take the hue you set above, hold chroma, step lightness. That is a full scale, and the four
           role tokens under it are all a component ever needs to name.
         </p>
-        <div className="grid grid-cols-4 overflow-hidden rounded-xl border border-ink-950/8 sm:grid-cols-8">
+        <div className="grid grid-cols-4 overflow-hidden border border-ink-950/8 sm:grid-cols-8">
           {[97, 90, 80, 68, 56, 44, 32, 20].map((l, i) => (
             <div
               key={l}
@@ -593,11 +608,33 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                 /* Chroma is pulled in at the extremes because sRGB holds very little of it there —
                    the same reason every shipped palette's `cream-50` and `ink-950` sit near-neutral. */
                 background: css(l, l > 88 || l < 26 ? Math.min(lab.c, 0.05) : lab.c, lab.h),
-                color: css(l > 52 ? 18 : 97, 0.02, lab.h),
+                /* ⚠ THE THRESHOLD WAS ON THE WRONG SIDE OF THE CROSSOVER, WHICH WIDENING THE INKS
+                   COULD NOT FIX. L18/L97 measured 4.04 at the L56 rung; widening to L10/L99 only
+                   reached 4.41, still short of 4.5, because the problem was never the inks — it was
+                   which one L56 was being given.
+
+                   Black and white are equally legible at a RELATIVE LUMINANCE of 0.179:
+                   (Lg + 0.05) / 0.05 = 1.05 / (Lg + 0.05) solves to Lg + 0.05 = sqrt(0.0525).
+                   The L56 rung sits just BELOW that, so white wins there and the old `> 52` was
+                   handing it black. `> 60` puts the crossover where the arithmetic does, and L56
+                   goes from 4.41 to about 4.77.
+
+                   ⚠ AND THAT IS THE STRIP'S OWN LESSON ARRIVING IN ITS LABELS. A page teaching that
+                   L decides legibility had a label picking its ink from an L threshold chosen by
+                   eye rather than derived. */
+                /* ⚠ AND THE INK'S OWN CHROMA WAS COSTING IT THE FLOOR. At L56 the ground sits at
+                   relative luminance 0.175, where pure white reaches 4.67 and pure black 4.49 — so
+                   white is the only side that clears, and only if it is actually white. Tinted at
+                   chroma 0.02 it measured 4.44 and missed by 0.06. The BACKGROUNDS on this strip
+                   already pull chroma in at the extremes, for the same reason and with the reason
+                   written one line above; the INK did not, and nothing had asked it to.
+                   Near-neutral at both ends now, so the label keeps its hue relationship without
+                   spending the contrast that makes it readable. */
+                color: css(l > 60 ? 10 : 99, 0.005, lab.h),
               }}
             >
               <b className="font-mono text-xs font-medium">{(i + 1) * 100}</b>
-              <small className="font-mono text-[8px] opacity-80">L {l}</small>
+              <small className="font-mono text-[10px] uppercase tracking-[0.14em]">L {l}</small>
             </div>
           ))}
         </div>
@@ -608,11 +645,11 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
             ["Accent", css(lab.l, lab.c, lab.h), "links, focus, marks"],
             ["Surface", css(rung.surface, dark ? 0.024 : 0.006, lab.h), "cards and panels"],
           ].map(([name, value, note]) => (
-            <div key={name} className="overflow-hidden rounded-xl border border-ink-950/8 bg-surface">
+            <div key={name} className="overflow-hidden border border-ink-950/8 bg-surface">
               <i className="block h-[58px]" style={{ background: value }} />
               <div className="p-3">
                 <b className="block text-xs font-semibold text-text-primary">{name}</b>
-                <code className="mt-1 block font-mono text-[8.5px] text-text-subtle">{value}</code>
+                <code className="mt-1 block font-mono text-[10px] text-text-subtle">{value}</code>
                 <small className="mt-1.5 block text-xs text-text-subtle">{note}</small>
               </div>
             </div>
@@ -622,15 +659,12 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
 
       {/* ══════════ 06 · DARK MODE ══════════ */}
       <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">06</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">
-            Dark mode stops being a second design.
-          </h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            the payoff
-          </span>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 06</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">the payoff</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">Dark mode stops being a second design.</h2>
         <p className="mb-6 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           Mirror the lightness values around the midpoint and leave hue alone. The identity survives,
           the relationships survive, and there is no second palette to maintain.
@@ -645,7 +679,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
           ].map((side) => (
             <div
               key={side.title}
-              className="overflow-hidden rounded-xl border"
+              className="overflow-hidden border"
               style={{
                 background: css(side.isDark ? 20 : 99, side.isDark ? 0.022 : 0.006, lab.h),
                 borderColor: css(side.isDark ? 96 : 16, 0.01, lab.h),
@@ -692,13 +726,12 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
 
       {/* ══════════ 07 · CHECK YOUR MODEL ══════════ */}
       <section className="mx-auto mt-14 w-full max-w-[1300px] min-[1200px]:max-w-[min(1300px,calc(100vw_-_460px))] border-t border-ink-950/8 px-6 pt-11">
-        <div className="mb-2 flex flex-wrap items-baseline gap-4">
-          <span className="font-mono text-[9.5px] uppercase tracking-[0.26em] text-accent-text">07</span>
-          <h2 className="text-3xl tracking-tight text-text-primary">Check your model.</h2>
-          <span className="ml-auto font-mono text-[9px] uppercase tracking-[0.18em] text-text-subtle">
-            three questions
-          </span>
+        <div className="sheet-rule">
+          <span className="sheet-mark-text">Sheet 07</span>
+          <span className="sheet-rule-line" aria-hidden="true" />
+          <span className="sheet-mark-text">three questions</span>
         </div>
+        <h2 className="sheet-h3 mb-2 mt-[clamp(14px,2vw,22px)]">Check your model.</h2>
         <p className="mb-4 max-w-[66ch] text-sm leading-relaxed text-text-secondary">
           You understand OKLCH when these three feel obvious rather than clever.
         </p>
@@ -754,9 +787,9 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
         {/* ⚠ THE SECOND TRY CONTROL, FOR THE REASON THE PALETTES PAGE ESTABLISHED. The switcher is
             `display: none` below 1200px, so without this the primer has no try control on a phone.
             Same `startPreview`, no third spelling — two buttons onto one mechanism. */}
-        <div className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3 rounded-xl border border-ink-950/8 bg-surface p-6">
+        <div className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3 border border-ink-950/8 bg-surface p-6">
           <div>
-            <h3 className="text-2xl tracking-tight text-text-primary">Now go use it.</h3>
+            <h3 className="sheet-h3">Now go use it.</h3>
             <p className="mt-2 max-w-[46ch] text-sm leading-relaxed text-text-subtle">
               {palettes.length} palettes built on exactly this — the same ladder at{" "}
               {palettes.length} hues — with every pair measured and the tokens ready to copy.
@@ -769,7 +802,7 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                 startPreview(active.name, active.groundClass === "dark", Date.now());
                 say(`${active.name} applied across the site`);
               }}
-              className="rounded-full border border-ink-950/8 px-4 py-2.5 text-sm font-medium text-text-secondary"
+              className="border border-ink-950/8 px-4 py-2.5 text-sm font-medium text-text-secondary"
             >
               Try {active.name} for {PREVIEW_MAX_AGE_SECONDS / 60} minutes
             </button>
@@ -785,20 +818,21 @@ export default function OklchPrimer({ palettes, initialSlug }: Props) {
                  columns are the same number and zero pixels change.
                  This site was missed when eight others were moved off the rung.
 
-                 ⚠ AND `rounded-full` STAYS — IT IS THE SAME PIXELS AS THE `rounded-xl` BUTTONS
-                 ABOVE. CSS clamps border-radius to half the box, and this button is 42px tall, so
-                 9999px and 24px BOTH resolve to 21px. The page is uniform at 21px and these are two
-                 spellings of one result.
+                 ⚠ AND THE `` THAT STOOD HERE IS GONE, ON A TRIGGER THIS NOTE DID NOT
+                 MODEL. It argued the spelling should stay because CSS clamps border-radius to half
+                 the box: at 42px tall, a pill and a 24px corner BOTH resolved to 21px, so the two
+                 were one result and unifying them would have been churn. That was correct.
 
-                 ⚠ DO NOT UNIFY THE SPELLINGS. A class edit with no observable effect is churn — the
-                 ruling this repo already made against changing `display: flex` to `inline-flex` on
-                 the work filter. The reason lives here rather than in a commit body precisely so the
-                 next person to notice the mismatch does not pay a diff to discover it.
+                 It named its own trigger as a HEIGHT change — "they diverge only if this button ever
+                 exceeds 48px tall". What actually diverged them was the page: every box around
+                 content on this site now draws a square corner, so the sibling it was matched
+                 against went to 0 and the two spellings stopped agreeing. The note watched the
+                 button and the thing that moved was the language around it.
 
-                 They diverge only if this button ever exceeds 48px tall, at which point `xl` would
-                 show 24px corners and `full` would still be a pill. THAT is the trigger, and it is a
-                 height change rather than a radius one. */
-              className="rounded-full bg-accent px-4 py-2.5 text-sm font-medium"
+                 THE CLAMPING FACT IS STILL TRUE AND STILL WORTH KNOWING; only its conclusion
+                 expired. A trigger written as a property of one element cannot see a ruling made
+                 about all of them. */
+              className="bg-accent px-4 py-2.5 text-sm font-medium"
             >
               <span className="text-on-accent">Playground · 01 — Palettes ↗</span>
             </Link>
