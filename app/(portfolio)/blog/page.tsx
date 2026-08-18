@@ -119,9 +119,20 @@ function PostCard({ post }: { post: BlogCard }) {
 
           The alternative was a size override, and that is exactly the defect three units of this
           arc removed: `.sheet-h3` declares `font-size`, so an arbitrary size utility beside it
-          would draw nothing while reading as a decision. The missing level has a derived population
-          of thirteen sites, eleven of them case-study card titles in the 20 to 24px band, and that
-          is the unit that earns a fourth role rather than this one.
+          would draw nothing while reading as a decision.
+
+          ⚠ AND THE SENTENCE THAT SAT HERE CLAIMED A POPULATION THAT DOES NOT EXIST. It said the
+          missing level had "a derived population of thirteen sites, eleven of them case-study card
+          titles in the 20 to 24px band", and offered that as the argument for a fourth role. It was
+          derived from a SOURCE grep that read `text-2xl` as a static 24px. Measured from the paint,
+          `--text-2xl` is `clamp(1.5rem, 1.35rem + 0.75vw, 1.875rem)` and tops out at 30px, so every
+          one of those headings already renders at `.sheet-h3`'s own size. There is no 20 to 24px
+          band and there is no level missing between h3 and the lede.
+
+          A REDEFINED SCALE STEP READ AS A TAILWIND DEFAULT — the same shape as a declared value read
+          as a rendered one, arriving in a token rather than in a class. The stream title takes
+          `sheet-h3` because that is where it already belongs, not as a stand-in for a role somebody
+          still owes.
 
           ⚠ AND THE SENTENCE ABOVE ORIGINALLY SPELLED THE RETIRED UTILITY OUT, WHICH MADE THIS
           COMMENT THE ONLY THING GENERATING IT. `css-comment-trap` A5 caught it and named this file.

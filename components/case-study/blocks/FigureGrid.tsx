@@ -60,7 +60,7 @@ export default function FigureGrid({
                 {it.title && (
                   <div
                     {...edit(`items.${i}.title`, "Edit figure title")}
-                    className={`font-display font-normal text-xl text-text-primary leading-[1.15]${aff}`}
+                    className={`font-display text-xl text-text-primary leading-[1.15]${aff}`}
                   >
                     {it.title}
                   </div>

@@ -235,7 +235,15 @@ function RatingStat({ from, to }: { from: string; to: string }) {
         <span aria-hidden="true" className="text-base text-accent">
           →
         </span>
-        <span className="font-display text-3xl font-medium text-accent">{to}★</span>
+        {/* ⚠ `font-medium` WAS HERE AND IT DREW NOTHING, WHICH MEANS THE INTENDED WEIGHT CONTRAST
+            BETWEEN THE TWO RATINGS HAS NEVER RENDERED. `.case-study .font-display` is 0-2-0 and
+            already supplies 500, so the `from` span above — which asks for no weight — and this one
+            paint at the SAME weight. The class expressed an intent the cascade had already decided.
+
+            The class is removed rather than replaced, because making the after-rating genuinely
+            heavier is a design change and this is a cleanup. THE SIZE CONTRAST IS LIVE AND IS DOING
+            THE WORK: `text-lg` against `text-3xl`, which is what a reader actually sees. */}
+        <span className="font-display text-3xl text-accent">{to}★</span>
       </div>
     </div>
   );
@@ -397,7 +405,7 @@ export default function BeforeAfterStory({
                     <h3
                       {...inlineEditProps(editable, blockIndex, `pairs.${i}.title`, "Edit screen name")}
                       className={
-                        "font-display text-2xl font-normal leading-tight text-text-primary" +
+                        "font-display text-2xl leading-tight text-text-primary" +
                         (editable ? EDIT_AFFORD : "")
                       }
                     >
@@ -493,7 +501,7 @@ export default function BeforeAfterStory({
                     <h3
                       {...inlineEditProps(editable, blockIndex, `pairs.${i}.title`, "Edit screen name")}
                       className={
-                        "font-display text-2xl font-normal leading-tight text-text-primary" +
+                        "font-display text-2xl leading-tight text-text-primary" +
                         (editable ? EDIT_AFFORD : "")
                       }
                     >

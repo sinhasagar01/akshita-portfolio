@@ -22,7 +22,7 @@ export default function GlanceGrid({ items, web = false, editable = false, block
           <div key={i} className="reveal-card border-t-2 border-accent pt-4">
             <h3
               {...inlineEditProps(editable, blockIndex, `items.${i}.label`, "Edit label")}
-              className={`font-display text-2xl font-normal text-text-primary leading-[1.1]${aff}`}
+              className={`font-display text-2xl text-text-primary leading-[1.1]${aff}`}
             >
               {it.label}
             </h3>

@@ -70,7 +70,7 @@ export default function FeatureRows({
               </div>
               <h3
                 {...inlineEditProps(editable, blockIndex, `features.${i}.title`, "Edit title")}
-                className={`font-display font-normal text-2xl text-text-primary leading-[1.07] mt-3${
+                className={`font-display text-2xl text-text-primary leading-[1.07] mt-3${
                   editable ? EDIT_AFFORD : ""
                 }`}
               >
