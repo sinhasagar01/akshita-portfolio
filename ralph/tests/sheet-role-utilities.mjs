@@ -149,27 +149,24 @@ const total = Object.values(counts).reduce((a, b) => a + b, 0);
 // a severity — `SPACING` means the markup asks for a gap the page does not have, `MEASURE` means a
 // width cap that never applied, `LEADING` means a line-height that never applied.
 const EXPECTED = {
-  "app/(portfolio)/error.tsx": 2,                                // SPACING — rule to heading, heading to lede, both flush
-  "app/not-found.tsx": 2,                                        // SPACING — the same pair, same construction
-  "components/case-study/CaseSectionHeader.tsx": 2,              // SPACING — EVERY case-study section head, 53 sections
-  "components/case-study/CaseStudyView.tsx": 2,                  // SPACING — the north star's centring and its top gap
-  "components/case-study/PrincipleCard.tsx": 1,                  // LEADING — the card index, measured 17.6px against leading-none's 11
-  "components/case-study/SectionRenderer.tsx": 1,                // SPACING — the north star line's top gap
-  "components/case-study/blocks/BeforeAfterStory.tsx": 2,        // LEADING — a rail numeral and a label
-  "components/case-study/blocks/ClosingLine.tsx": 1,             // SPACING — the centred closing line
-  "components/sections/ContactSection.tsx": 2,                   // SPACING — two heading bottom gaps on the home page
-  "components/sections/ExperienceSection.tsx": 1,                // SPACING — the role row's heading
-  "components/sections/ProcessSection.tsx": 2,                   // SPACING — a heading's top and bottom gap
+  "components/case-study/PrincipleCard.tsx": 1,           // LEADING — the card index, 17.6px against leading-none's 11
+  "components/case-study/blocks/BeforeAfterStory.tsx": 2, // LEADING — a rail numeral and a label
 };
-const EXPECTED_TOTAL = 18;
+const EXPECTED_TOTAL = 3;
+
+// ⚠ THE MARGIN CATEGORY IS DRAINED, AND IT IS ASSERTED BY NAME RATHER THAN BY ABSENCE FROM THE
+// REGISTRY ABOVE. Fifteen of the eighteen were `mt-*`, `mb-*` and `mx-auto` losing to a `margin: 0`
+// shorthand the three type roles no longer declare. A category that empties silently is a category
+// the next author refills, so section E asks the question directly.
+const MARGIN_PROP = "margin";
 
 console.log("\n--- A. THE DERIVED SUBJECT ---");
 t("A1 the role table parses at least the seven type roles, so the census has a subject",
   TYPE_ROLES.every((r) => roles.has(r)), true);
 t("A1a …and every type role declares at least one property, so no lookup is a silent empty set",
   TYPE_ROLES.filter((r) => (roles.get(r) ?? new Set()).size === 0), []);
-t("A2 the three that own `margin` are the three that produce the SPACING kind — the shorthand is the mechanism",
-  TYPE_ROLES.filter((r) => roles.get(r)?.has("margin")), ["sheet-h2", "sheet-h3", "sheet-lede"]);
+t("A2 ⚠ NO TYPE ROLE DECLARES `margin` ANY MORE — the drain, asserted at its cause rather than at its symptom",
+  TYPE_ROLES.filter((r) => roles.get(r)?.has(MARGIN_PROP)), []);
 t("A2a …and the two that own `max-width` are the two whose measure cannot be overridden",
   TYPE_ROLES.filter((r) => roles.get(r)?.has("max-width")), ["sheet-h2", "sheet-lede"]);
 t("A3 the property map covers `margin` and `max-width`, the two that shipped live defects",
@@ -178,9 +175,9 @@ t("A3a …and the file walk is non-empty, so a broken walk cannot pass as a clea
   files.length > 100, true);
 
 console.log("\n--- B. THE PINNED POPULATION ---");
-t("B1 ⚠ EIGHTEEN INERT UTILITIES ARE LIVE, and this row is a census rather than a pass",
+t("B1 ⚠ THREE INERT UTILITIES REMAIN, all of them a line-height and none of them a margin",
   total, EXPECTED_TOTAL);
-t("B2 …and they sit in exactly the eleven named files, with the named count each",
+t("B2 …and they sit in exactly the two named files, with the named count each",
   counts, EXPECTED);
 t("B2a …and the registry's own arithmetic reconciles, so the total is derived from the members",
   Object.values(EXPECTED).reduce((a, b) => a + b, 0), EXPECTED_TOTAL);
@@ -195,7 +192,7 @@ t("C1 the blog surface carries none — its heads take their spacing from a colu
   blogInert, []);
 t("C1a …and the blog surface is genuinely in the walk, so C1's zero is a measurement",
   files.filter((f) => /blog/.test(f)).length > 4, true);
-t("C2 no file outside the named eleven carries one, so a new instance fails on arrival",
+t("C2 no file outside the named two carries one, so a new instance fails on arrival",
   Object.keys(counts).filter((f) => !(f in EXPECTED)), []);
 
 console.log("\n--- D. THE .tsx COMMENT STRIP, ASSERTED AGAINST A FIXTURE ---");
@@ -219,18 +216,57 @@ const inertIn = (src) => {
 // ⚠ THE FIXTURE IS THREE LINES RATHER THAN ONE, WHICH THIS REPOSITORY LEARNED THE HARD WAY. A
 // one-line comment cannot tell BLANKING from DELETION, because deleting it removes no newline and
 // every position after it still lines up. `cascade-public`'s A0c is the entry that records it.
+// ⚠ THE FIXTURE MOVED FROM `mt-8` TO `max-w-[40ch]`, AND THE REASON IS THIS UNIT. `sheet-h2` no
+// longer declares `margin`, so `mt-8` competes with nothing and BOTH fixtures would return an empty
+// list — D1 would pass while asserting nothing and D2 would fail. A fixture has to name a property
+// the role still owns, or the strip is being proved against a subject that no longer exists.
 const FIXTURE_COMMENTED = [
   "/* a retired head, quoted as markup:",
-  '   <h2 className="sheet-h2 mt-8"> */',
+  '   <h2 className="sheet-h2 max-w-[40ch]"> */',
   '<h2 className="sheet-h2">Live</h2>',
 ].join("\n");
-const FIXTURE_REAL = '<h2 className="sheet-h2 mt-8">Live</h2>';
+const FIXTURE_REAL = '<h2 className="sheet-h2 max-w-[40ch]">Live</h2>';
 t("D1 a competing utility quoted inside a comment is NOT counted",
   inertIn(FIXTURE_COMMENTED), []);
 t("D2 …and the same string in real markup IS counted, so D1 cannot pass by counting nothing",
-  inertIn(FIXTURE_REAL), ["mt-8"]);
+  inertIn(FIXTURE_REAL), ["max-w-[40ch]"]);
 t("D3 …and a line comment is stripped too, which is the form every note in this repository uses",
-  inertIn('// <h2 className="sheet-h2 mt-8">\n<h2 className="sheet-h2">Live</h2>'), []);
+  inertIn('// <h2 className="sheet-h2 max-w-[40ch]">\n<h2 className="sheet-h2">Live</h2>'), []);
+
+console.log("\n--- E. THE DRAINED CATEGORY ---");
+// ⚠ ASKED OF THE WHOLE TREE RATHER THAN OF THE REGISTRY, because the registry is a list of what IS
+// and this is a claim about what IS NOT. A margin utility on a type role used to be the single
+// largest inert category on the site — fifteen of eighteen, across every case-study section head,
+// two home-page headings, the 404 and the error boundary. It is now unrepresentable: the roles
+// declare no margin, so the base reset supplies the zero and any utility beats it.
+// ⚠ `census` IS A Map. The first draft of these two rows used `Object.entries` on it, which returns
+// an EMPTY ARRAY — so E1 passed while looking at nothing, in the section written to prove a category
+// is empty. Caught because E2 wanted a NON-empty answer from the same expression and went red; had
+// both rows expected emptiness, both would have passed vacuously and the drain would be unproven.
+// An assertion that something is absent needs a sibling that demands something present.
+const censusEntries = [...census.entries()];
+const marginInert = censusEntries.flatMap(([f, set]) =>
+  [...set].filter((s) => s.endsWith(`vs ${MARGIN_PROP}`)).map((s) => `${f} :: ${s}`));
+t("E0 the census structure E1 reads is non-empty — without this, breaking the read passes E1 vacuously",
+  censusEntries.length, Object.keys(EXPECTED).length);
+t("E1 ⚠ NOT ONE MARGIN UTILITY ON A TYPE ROLE IS INERT — was 15, and this is the unit's whole claim",
+  marginInert, []);
+t("E1a …and margin utilities on type roles genuinely EXIST, so E1 is a measurement and not an empty set",
+  (() => {
+    let n = 0;
+    for (const rel of files) {
+      const src = blankTsx(readFileSync(join(ROOT, rel), "utf8"));
+      for (const m of src.matchAll(/className\s*=\s*\{?[`"\']([^`"\']*)/g)) {
+        const cls = m[1].replace(/\s+/g, " ");
+        if (!TYPE_ROLES.some((r) => new RegExp(`\\b${r}\\b`).test(cls))) continue;
+        if (/(?:^|\s)-?m[trblxy]?-\S+/.test(cls)) n++;
+      }
+    }
+    return n > 10;
+  })(), true);
+t("E2 …and the surviving category is LEADING alone, so the registry and the drain agree",
+  [...new Set([...census.values()].flatMap((s) => [...s].map((x) => x.split(" vs ")[1])))].sort(),
+  ["line-height"]);
 
 console.log(`\nsheet-role-utilities result: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
