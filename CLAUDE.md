@@ -64,7 +64,9 @@ What followed Phase 5, all shipped.
   gaps 2 and 3 were filled, and gap 1 shipped with its marker destroyed.
 - The inline canvas. Blog prose is edited in place at the public measure, so the canvas and
   the article render through the same components.
-- The lint gate. ESLint runs in CI beside ralph, and the repo sits at zero problems.
+- The lint gate. ESLint runs in CI beside ralph, as a step `ralph/run.mjs` does NOT contain.
+  **⚠ The repo sat at TWO warnings for four merges and every one of those PR bodies quoted a
+  green ralph**, which was true and was about the other subject. See the entry in `Recorded`.
 
 The record of what shipped, in order and with its reasoning, is docs/STATE.md. Read that
 rather than inferring history from this list.
@@ -212,27 +214,6 @@ board that cannot be read is a board that gets batched, which is how a fix rides
 gates.
 
 
-
-- **⚠ BOARDED: NOTHING HERE MEASURES WHERE A BOX SITS, AND SEVEN OWNER REPORTS IN ONE SESSION WERE
-  ALL GEOMETRY.** Six corners that belonged to no surface, and a heading sitting hard left inside a
-  centred column. Every instrument this repository has measures COLOUR, SIZE or WEIGHT — the token
-  gates, the palette sweeps, and `paint-floors`, which was built the same day.
-
-  **⚠ THE FLOOR SWEEP WOULD HAVE PASSED THE HEADING AT 17.27 WHILE IT SAT IN THE WRONG PLACE.** That
-  is the shape: an element can be perfectly legible and perfectly misplaced, and every check here
-  looks at the first half. `.sheet-h2` caps the measure at 24ch, so taking the role gave the
-  playground heading a box narrower than its column; `text-center` centred the lines INSIDE that box
-  the whole time and nothing was wrong with any of them.
-
-  **THE POPULATION IS DERIVED AND IT IS THE OWNER'S OWN REPORTS.** Six radii plus one alignment, none
-  found by a gate, all found by looking. That is a real seven, not a hypothetical.
-
-  **⚠ AND THE CHEAP FORM IS NOT OBVIOUS, WHICH IS WHY THIS IS BOARDED RATHER THAN BUILT.** "Is this
-  box where its container implies" has no floor to check against — a 24ch box inside a 960px centred
-  column is correct on a case study and wrong on the playground. The candidate that survives a
-  moment's thought is narrower: **an element whose parent centres its text, whose own box is
-  narrower than that parent, and which has no auto margin** — which is exactly the defect, states no
-  preference, and would have fired on the one instance. Whether it has more members is unmeasured.
 
 - **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
   Its resolver treats any `font-display` inside a case-study component as sitting under
@@ -564,6 +545,74 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ MAIN'S CI WAS RED FOR FOUR MERGES AND I QUOTED A GREEN IN EVERY ONE OF THEIR PR BODIES.**
+  `node ralph/run.mjs` was honestly green at 3635 the whole time. **It does not run eslint.** The CI
+  job runs `npm run lint` as a SEPARATE STEP with `--max-warnings 0`, and two imports went dead when
+  the playground and the primer were converted to the sheet grammar.
+
+      41739ec   playground conversion   run CANCELLED — nothing ever went red on the commit
+      28b59b1   six corners             failure
+      470d7b8   the primer              failure
+      8a5aa87   the record pass         failure
+
+  **⚠ THE FIRST ONE WAS CANCELLED RATHER THAN FAILED, WHICH IS WHY NOBODY SAW IT START.** A cancelled
+  run reports no verdict, so the commit that BROKE the gate is the one commit in the sequence that
+  did not say so. By the time a run failed, red was already the standing state — and a state reads as
+  background rather than as a new fact.
+
+  **⚠ AND `ralph 3635 across 109 suites` WAS TRUE IN ALL FOUR BODIES.** Nobody skipped a check. The
+  figure simply answered a different question from the one a reader takes it for, which is this
+  file's signature defect arriving in **a verification line rather than in a measurement.** Same
+  family as the bundle grep that proved two values PRESENT when the question was which one RESOLVED.
+
+  **THE RULE THIS FILE ALREADY STATES AND I DID NOT APPLY: BEFORE TRUSTING A GREEN, ASK WHAT IT
+  ACTUALLY RAN.** It is the same question that found `upstream` skipped by name, and `parity` and
+  `studio-type` before it. **A local runner and a CI job are two subjects**, and the local one is the
+  one that feels like the answer.
+
+  **⚠ AND THE CLAIM IN THIS FILE'S OWN BUILD SEQUENCE WENT FALSE WITH IT.** It reads *"the repo sits
+  at zero problems"* — true when written, false from `41739ec`, and it is the sentence a reader would
+  cite to argue the check was covered. **Corrected in the same commit as the imports**, because a
+  false claim standing beside a true mechanism is how the next reader stops looking.
+
+  **THE CHEAP FORM IS ONE COMMAND AFTER A MERGE, AND IT IS NOT A GATE:** read the run's conclusion on
+  `main`. Nothing here has a CI RESULT as its subject — every instrument reads the working tree,
+  which is the same gap `upstream.mjs` was built for and does not cover, because a lint verdict is
+  not a deploy.
+
+- **⚠ CLOSED THE DAY IT WAS BOARDED, AND THE SECOND CHECK IS THE ONE THAT PAID.** The entry said
+  nothing here measures where a box sits, after seven owner reports in one session that were all
+  geometry — six corners and a heading standing hard left. `ralph/tests/geometry.mjs` is the answer,
+  skipped by `run.mjs` by name like every browser-bound suite.
+
+  **CHECK A — A BLOCK STRANDED IN A CENTRED PARENT — HAS AN EMPTY POPULATION AND WAS PROVED TO
+  FIRE.** `text-align: center` centres INLINE content; it does nothing to a block child's box, so a
+  role-capped heading acquires a narrower box and sits left while its own lines centre inside it.
+  Removing the auto margin from the playground heading reports `H1.sheet-h2 w=576/960 gaps 0|384`
+  and nothing else. Clean, dirty, clean. **A zero from a detector nobody has seen fire is worth
+  nothing**, which is the whole reason the reproduction was run.
+
+  **⚠ AND ITS FIRST DRAFT REPORTED 14 FINDINGS ON ONE PAGE, EVERY ONE THE LAYOUT WORKING.** It
+  omitted the parent's display, so every `.sheet-rule` mark and flex cell was flagged — `text-align`
+  does not position a flex item. Both parent and child must be block containers for the defect to be
+  possible at all.
+
+  **CHECK B — A RADIUS CENSUS WHOSE SUBJECT IS THE RENDERED PAGE — FOUND SIX MORE ON ITS FIRST
+  RUN.** The skip link at 8px and five mobile-menu social chips at 9px, all shared chrome, all on
+  EVERY page. Three earlier passes were each scoped to a SURFACE, so an element belonging to no
+  surface was never anybody's subject — which is exactly why the owner had to find the first six by
+  looking. Squared in the same unit; the census now reads **zero corners on five of six pages**.
+
+  **⚠ AND ITS CLASSIFIER TOOK FOUR DRAFTS, WHICH IS THE HONEST WORK IN A CENSUS RATHER THAN A
+  FOOTNOTE.** A radius is not one thing, and the ruling can only decide between kinds it can tell
+  apart. One draft called a 6x6 dot a capsule by testing the radius before the squareness; another
+  called every decorative wash a cornered box. **Both would have reported real elements under a name
+  that decides their fate.**
+
+  **THE FOUR THAT REMAIN ARE ARTWORK AND KEEP THEIR CORNERS** — the process diagram's depicted phone
+  and browser at 18px, whose rounded corners are the thing being drawn. No predicate decides that,
+  which is why check B prints rather than fails.
 
 - **⚠ THE SECOND BOARD PASS: FOUR MORE ENTRIES CLOSED, AND THREE OF THEM BY WORK DONE THE SAME DAY.**
   The first pass moved nine that were marked closed and left in the action list. These four were not

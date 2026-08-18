@@ -96,7 +96,10 @@ const TESTS = path.join(HERE, "tests");
  * here that measures a RENDERED element against the ground it is actually painted on. The token
  * gates judge declared pairs, and a pairing that exists only because one class outranked another is
  * declared nowhere — which is how a chip shipped at 2.30 and was live for eighteen minutes. */
-const NOT_RUNNABLE = new Set(["parity", "studio-type", "upstream", "paint-sites", "paint-floors"]);
+/* `geometry` joins them, and it closes the axis the others do not touch: every instrument here
+ * measures colour, size or weight, and seven owner reports in one session were about WHERE A BOX
+ * SITS. A heading can be legible at 17.27 and standing in the wrong place. */
+const NOT_RUNNABLE = new Set(["parity", "studio-type", "upstream", "paint-sites", "paint-floors", "geometry"]);
 
 const suites = readdirSync(TESTS)
   .filter((f) => f.endsWith(".mjs"))

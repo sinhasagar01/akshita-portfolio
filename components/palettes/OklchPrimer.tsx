@@ -6,7 +6,6 @@ import type { PaletteCompatibility } from "@/lib/palettes/compatibility";
 import { PREVIEW_MAX_AGE_SECONDS, startPreview } from "@/lib/palettes/preview-cookie";
 import PaletteSwitcher from "@/components/palettes/PaletteSwitcher";
 import SectionHeading from "@/components/ui/SectionHeading";
-import SectionLabel from "@/components/ui/SectionLabel";
 import StatCard from "@/components/case-study/StatCard";
 import PrincipleCard from "@/components/case-study/PrincipleCard";
 

@@ -152,16 +152,6 @@ entries:
       can move it.
 
   # ---- added with the sheet direction's completion, 2026-08-18 ----
-  - match: "NOTHING HERE MEASURES WHERE A BOX SITS"
-    kind: absence
-    # Stale the moment anything in `ralph/tests` starts asking about position. The pattern is
-    # deliberately about the CONCEPT rather than a filename: a geometry check could land in an
-    # existing suite, and an entry keyed to a file nobody creates would never expire.
-    holds_while:
-      file: ralph/tests/paint-floors.mjs
-      pattern: "measures COLOUR, SIZE or WEIGHT|colour, size or weight"
-      expect: absent
-
   - match: "`cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES"
     kind: structural
     # The entry is true only while S2a exists to name them. Correcting the resolver removes S2a

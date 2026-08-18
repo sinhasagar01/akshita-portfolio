@@ -4051,11 +4051,15 @@ a {
   .header-mobile-menu.open .header-mob-socials { opacity: 1; }
 }
 
+/* ⚠ FOUND BY A SITE-WIDE RADIUS CENSUS, NOT BY A SURFACE ONE. These five chips sit in the mobile
+   menu and belong to no page, so three passes scoped to the case studies, the nav, the blog and the
+   gallery all walked past them — the same reason the owner had to report six others by looking.
+   36x36 with a 9px corner is a box around content, not a circle. */
 .header-mob-soc-chip {
   width: 36px;
   height: 36px;
   border: 1px solid color-mix(in srgb, var(--color-rule) 30%, transparent);
-  border-radius: 9px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
