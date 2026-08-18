@@ -193,10 +193,14 @@ const { rawDecl, aliasOf, publicTokens: PUBLIC } = SOURCE;
  * ⚠ AND THE AUDIT SAYS WHAT REMAINS. Every listed token now parses. The one that never did was
  * `on-dark-line`, a `color-mix()` over another token — unparseable by NATURE rather than by defect,
  * because it was derived rather than literal. It has been deleted (zero consumers, its job already
- * done by `--color-border` on the dark ground at the identical 16%), so E8's expected set is empty.
+ * done by `--color-border` on the dark ground at the identical 16%).
  * The distinction it existed to draw is still asserted: a parse failure is acceptable ONLY when the
  * value references another token, which is E7, and E8 keeps the population enumerated so a future
- * derived token cannot be filtered away silently the way this one nearly was. */
+ * derived token cannot be filtered away silently the way this one nearly was.
+ *
+ * ⚠ AND THE SET IS NO LONGER EMPTY. `case-study-sand` became a relation rather than an absolute,
+ * because an absolute cannot hold its distance from a ground that moves — it read as drafting paper
+ * on a 95.5% canvas and as a grey slab on redline's 98.45% sheet. E8 names it. */
 const { defaults: CREAM, unparseable } = SOURCE;
 
 /* ============================================================================================
@@ -683,6 +687,44 @@ t("R3a …and at 0% it is the second, which is the other half of the same mistak
   oklchToRgb(1, 0, 0));
 t("R4 ⚠ AND AN UNFOLLOWABLE VALUE RETURNS null RATHER THAN A GUESS — P1's refusal depends on it",
   rgbIn({ x: "var(--color-nope)" }, "x"), null);
+
+/* ⚠ R5 — A FIFTH WAY TO RETURN A PLAUSIBLE WRONG COLOUR, AND IT COST NINE ROWS BEFORE IT WAS A ROW.
+ * The block reader took the FIRST occurrence of a selector, and this stylesheet discusses its own
+ * selectors in prose. A comment added inside the defaults block, naming which selector outranks
+ * which, made the reader slice from the wrong brace and hand a light palette's body back as the
+ * dark ground's overrides. Every dark palette then merged the same values and D12 reported every
+ * ground pair 0.0 dE apart — six confident, checkable-looking numbers, all of one wrong subject.
+ *
+ * ⚠ AND THE SELECTORS BELOW ARE ASSEMBLED RATHER THAN TYPED, so this fixture cannot become the very
+ * trap it tests. That is the explaining-it-requires-writing-it shape, which this repository has now
+ * hit in five scanners, and it is the reason the row is built from pieces. */
+const MARK = ":root" + "[data-" + 'ground="dark"' + "]";
+const OPEN = "/" + "*", CLOSE = "*" + "/";
+/* ⚠ THE DECOY RULE IS THE WHOLE FIXTURE, AND THE FIRST DRAFT LACKED IT AND COULD NOT FAIL. Without
+ * something between the comment and the real rule, a bare `indexOf` lands in the comment and then
+ * walks forward to the REAL opening brace anyway, so the wrong-marker bug produces the right body
+ * by luck. That is why the stylesheet's long-standing mention of this selector, thirteen lines above
+ * its rule, never bit. Reverting the fix left this row GREEN until the decoy was added — an
+ * assertion that could not fail for the reason it names, caught by mutation and not by reading. */
+const fixture = [
+  "@theme {",
+  "  " + OPEN + " a comment that merely NAMES " + MARK + " and declares no rule " + CLOSE,
+  "  --color-canvas: oklch(95.0% 0.000 0);",
+  "}",
+  "[data-theme=" + '"decoy"' + "] {",
+  "  --color-canvas: oklch(50.0% 0.000 0);",
+  "}",
+  MARK + " {",
+  "  --color-canvas: oklch(17.0% 0.000 0);",
+  "}",
+].join("\n");
+const fixtureSrc = readPaletteSource(fixture);
+t("R5 ⚠ A COMMENT THAT NAMES A SELECTOR IS NOT THAT SELECTOR — the reader takes the RULE",
+  fixtureSrc.groundDark["canvas"], "oklch(17.0% 0.000 0)");
+t("R5a …and the fixture's comment really does contain the marker, or R5 proves nothing",
+  fixture.slice(0, fixture.indexOf(MARK + " {")).includes(MARK), true);
+t("R5b ⚠ …AND A DECOY RULE SITS BETWEEN THEM, or a bare indexOf reaches the right brace by luck",
+  fixture.slice(fixture.indexOf(MARK), fixture.indexOf(MARK + " {")).includes("{"), true);
 
 /* ⚠ THREE LAYERS, NOT TWO. A dark palette resolves its roles through the ground block, which is what
    the screen does and what this suite did not. `GROUND_TOKEN` decides which token IS the page ground
@@ -1175,8 +1217,16 @@ t("E6 …and every palette entry actually parsed, so no row reads a broken value
  * defect, and being on the boundary list must never make one invisible again. */
 t("E7 every unparseable token is DERIVED, not a literal the parser cannot read",
   unparseable.filter((u) => !u.derived).map((u) => `${u.name}: ${u.value}`), []);
+/* ⚠ ONE MEMBER, AND IT IS A DELIBERATE RELATION RATHER THAN A DEFECT. `case-study-sand` is
+ * `color-mix(in oklch, ink-950 6%, canvas)` in the defaults, so `parseColor` declines it and E7
+ * confirms it declines it for the right reason. `paletteResolver` computes it — P2 reads the mixed
+ * value on every palette — so nothing downstream is blind to it.
+ *
+ * ⚠ THE VALUE OF THIS ROW IS THAT THE SET IS NAMED. It sat at zero for an era, so a second derived
+ * token arriving would have had to be added HERE by whoever added it, which is the point. Listing
+ * the member rather than counting it means the next arrival names itself in the diff. */
 t("E8 …and the unparseable set is enumerated rather than filtered away silently",
-  unparseable.map((u) => u.name).sort(), []);
+  unparseable.map((u) => u.name).sort(), ["case-study-sand"]);
 
 
 console.log("\nK · ⚠ THE GAMUT CHECK — is the colour one sRGB can actually hold?");

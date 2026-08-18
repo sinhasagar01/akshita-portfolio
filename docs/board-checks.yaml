@@ -168,3 +168,22 @@ entries:
       which palettes it has been driven on. The unresolved-ground count is the same shape: 144 of
       298 on one page, and what those 144 ARE is a judgement about elements rather than a value any
       pattern can read.
+
+  # ---- added with the case-study-sand relation, 2026-08-19 ----
+  - match: "`reveal-sand` IS THE SAME ABSOLUTE AS"
+    kind: structural
+    # The entry exists only while the token is still an absolute. Converting it to a mix into the
+    # canvas — which is the fix the entry describes — is exactly what makes this pattern vanish, and
+    # the entry expires with it rather than sitting open over finished work.
+    holds_while:
+      file: app/globals.css
+      pattern: "--color-reveal-sand: oklch\\(85\\.0%"
+      expect: present
+
+  - match: "28 `sheet-stamp` ELEMENTS MEASURE"
+    kind: measurement
+    why: >-
+      Whether a corner registration mark at 1.60 is a defect or a decorative whisper is a judgement
+      about what the element is for, and no predicate over CSS can tell those apart — the record
+      already carries that exact limit against the footer's Ciao. The count itself needs a browser
+      run on a drawing-office build, which no file records having been driven.

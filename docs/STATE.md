@@ -12397,6 +12397,65 @@ mid-unit, on the primer's swatch labels, while applying it.
 
 **A gate that only ever catches other people is a gate nobody has tested.**
 
+## ⚠ A GROUND THAT HELD ITS DISTANCE FROM NOTHING
+
+The owner reported a grey slab under the hero on all four case studies, on redline. `.case-study-bg`
+is a fixed full-bleed layer at z-index -1 painting `--color-case-study-sand`, and that token was
+`oklch(88.5% …)` in `@theme` and re-declared at **exactly 88.5%** in six scoped blocks. An absolute,
+so its step from the page depended entirely on where the page happened to sit. Measured through a
+canvas pixel, sanity 21.000 first:
+
+    drawing-office   sand 217,217,217   ground 240,240,240   1.239    a 7.0-point drop
+    redline          sand 217,217,212   ground 250,250,248   1.355    a 9.95-point drop
+
+**AND ON REDLINE THE SAND WAS DARKER THAN THE HAIRLINE RUNG** — 217,217,212 against `cream-300`'s
+222,222,216 — a page ground below the line colour, which is inverted. Redline's card and canvas are
+also the SAME pixel, so the sand was doing every bit of the separation on its own.
+
+**THE FIX IS 6% OF INK INTO THE CANVAS, AND THE PERCENTAGE WAS CHOSEN BY LOOKING.** Both palettes
+were rendered side by side at 4, 6 and 8 rather than inheriting the 7.0. Ink sits about 80.5
+lightness points below canvas on every light palette, so one percentage yields one drop everywhere —
+the spread across the two light palettes went from 0.116 to **0.005**, and the sand now lands between
+the `cream-200` panel rung and the `cream-300` hairline on both, so the inversion cannot recur.
+
+**FOUR OF THE SIX SCOPED DECLARATIONS WERE DEAD AND NOBODY KNEW.** The root dark-ground block at
+0-2-0 outranks a theme block at 0-1-0, so on sapphire, ink-flare, nocturne and basalt the sand had
+been resolving to the dark band the whole time. Measured, not reasoned — all four painted their page
+ground exactly, before and after. The honest population was **three live absolutes and four dead
+ones**, not the seven this was scoped as.
+
+**⚠ AND THE COMMENT EXPLAINING THE FIX BROKE NINE ROWS OF THE GATE THAT PROVED IT.**
+`blockBodyAt` took the FIRST occurrence of a selector with a bare `indexOf`, and this stylesheet
+discusses its own selectors in prose. A comment added inside the defaults block, naming which
+selector outranks which, made the reader slice from the wrong brace and hand a light palette's body
+back as the dark ground's overrides. Every dark palette then merged the same values and `D12`
+reported **every ground pair 0.0 dE apart** — six confident, checkable-looking numbers, all of one
+wrong subject. The explaining-it-requires-writing-it shape, arriving in the comment about the
+mechanism it broke.
+
+**THE PRE-EXISTING MENTION SURVIVED ONLY BY LUCK, WHICH IS WHY THE FIX IS A MECHANISM.** A comment
+naming that same selector has sat thirteen lines above the real rule for a long time, and it was
+harmless purely because it contains no opening brace before the real one. A defence held for a
+different purpose is not a defence anyone chose. `blockBodyAt` now skips a marker inside a comment,
+and `R5` is the fixture.
+
+**⚠ AND `R5` COULD NOT FAIL ON ITS FIRST DRAFT, WHICH ONLY THE MUTATION SHOWED.** Without a decoy
+rule between the comment and the real one, a bare `indexOf` lands in the comment and walks forward to
+the REAL brace anyway — the bug produces the right answer by luck, which is exactly why the
+long-standing mention never bit. Reverting the fix left the row GREEN. `R5b` asserts the decoy is
+there, so the row cannot quietly return to proving nothing.
+
+**WHAT THE RENDER SAID.** `paint-floors` on four real builds, five pages each. Redline after the
+change is **1200 measured, 0 below floor, worst 9.40**. Drawing office was run BEFORE and AFTER on
+its own builds and the findings are an **identical multiset — 39 to 39, zero different, down to the
+ratio at three decimals** — so the change is neutral there and clean on redline.
+
+**⚠ AND THOSE 39 ARE PRE-EXISTING AND MOSTLY UNTRIAGED.** Five are the footer's `Ciao`, which this
+harness's header already declares as its one exclusion, and three are the work-filter chip's
+documented sibling limit. **Twenty-eight are `sheet-stamp` at 1.60 to 1.74**, a class that arrived
+with the sheet grammar after that header was written and that nobody has ruled on. Not this unit's
+subject, not caused by it, and named so it is not mistaken for it.
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.
