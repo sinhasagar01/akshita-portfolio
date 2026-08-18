@@ -140,7 +140,7 @@ sections:
     id: impact
     index: '02'
     eyebrow: Impact
-    title: At a glance.
+    title: In four regions, on real jobs.
     lead: ''
     northStar: ''
     layout: stack
@@ -163,7 +163,7 @@ sections:
               highlighted: false
             - value: 1,899
               suffix: ''
-              body: Field uploads across regions - Field uploads across regions
+              body: Field uploads across regions
               tag: uploads
               highlighted: true
             - value: '4'
@@ -559,7 +559,7 @@ sections:
     id: reflection
     index: ''
     eyebrow: Reflection
-    title: What this project taught me.
+    title: Influence, as much as screens.
     lead: ''
     northStar: ''
     layout: stack

@@ -160,7 +160,7 @@ sections:
     id: impact
     index: '02'
     eyebrow: Impact
-    title: At a glance.
+    title: People came back for it.
     lead: ''
     northStar: ''
     layout: stack
@@ -727,7 +727,7 @@ sections:
     id: reflection
     index: ''
     eyebrow: Reflection
-    title: What this project taught me.
+    title: Less friction beats a better screen.
     lead: ''
     northStar: ''
     layout: stack

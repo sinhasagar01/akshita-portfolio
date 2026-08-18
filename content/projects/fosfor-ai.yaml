@@ -152,7 +152,7 @@ sections:
     id: impact
     index: '02'
     eyebrow: Impact
-    title: At a glance.
+    title: Faster to insight, for all three.
     lead: ''
     northStar: ''
     layout: stack
@@ -580,7 +580,7 @@ sections:
     id: reflection
     index: ''
     eyebrow: Reflection
-    title: What this project taught me.
+    title: Find the spine before the edges.
     lead: ''
     northStar: ''
     layout: stack
