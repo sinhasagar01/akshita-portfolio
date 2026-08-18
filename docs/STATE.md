@@ -12666,6 +12666,60 @@ is 312 elements with 74 drawing text; the three together are **25, all 25 drawin
 are exactly `footer-ciao`, the stamps and the hero's `crest` watermark. Corrected in all three
 places that carried it.
 
+## ⚠ THE SWEEP WAS WRONG IN BOTH DIRECTIONS, AND ONLY RE-RUNNING THE DARK PALETTES FOUND IT
+
+The board carried **52 below floor across four dark palettes, of which 28 are accent-filled controls
+whose fill is painted by a positioned SIBLING**. Both halves were wrong, and the two faults pushed
+opposite ways.
+
+    the fallback dropped an element's OWN FILL     manufactured findings, loud
+    the foreground was composited over WHITE       HID findings, silent
+
+**THE SECOND IS THE ONE THIS RECORD'S OWN ASYMMETRY RULE WARNS ABOUT.** `px()` fills white then
+paints, which the harness header already documents for GROUNDS and which had been repaired there.
+The identical call sat on the foreground one line away, unrepaired. The sheet stamp paints at 26%
+alpha, and on a real build:
+
+    redline    px() 193,193,193   true 189,189,188    1.72 fails   1.80 FAILS
+    sapphire   px() 251,252,253   true  69, 74, 80   18.61 PASSES  2.14 FAILS
+    basalt     px() 252,252,252   true  74, 74, 74   18.68 PASSES  2.16 FAILS
+
+On a near-white palette the error is small and the row still surfaced. On a dark ground a genuinely
+sub-floor element read about 18 and **passed**. Sapphire went from 8 findings to 37 the moment it
+was fixed, so **the 52 was itself understated by 29 per palette.**
+
+**AND THE SIBLING ATTRIBUTION WAS WRONG TOO.** Classified from the DOM, the equivalent class on
+redline was **10 of 10 SELF-fill** — the off-screen fallback dropping the element's own background,
+not `.wf-thumb` at all. Two confident numbers about one population, neither derived.
+
+**WHAT IT MEASURES NOW, ON FIVE REAL BUILDS:**
+
+    redline, 15 public pages     2,288 measured    4 findings, all documented
+    sapphire                     1,036 measured    3 findings
+    ink-flare · nocturne · basalt 1,026 each       3 findings each
+
+The documented four are the work filter's chip and its count, which resolve through `wf-thumb` at
+the accent and clear at 6.65, and the About captions, which the STRONG path refuses outright.
+
+**⚠ AND ONE REAL SITE DEFECT CAME OUT OF IT, WHICH IS WHAT THE RE-RUN WAS FOR.**
+`VideoEmbed.tsx:100` carries `text-accent-500` — the raw rung as a foreground — measuring **3.32 ·
+3.32 · 3.24 · 3.65 against a floor of 4.5**, with foregrounds that are each palette's own
+`accent-500` exactly. That is the ninth site of the class the eight-foreground entry closed, and it
+survived because it is a **Tailwind class rather than a CSS declaration**: T1 covers a `color:`
+declaration and R2 covers a JSX class PAIR, and neither covers a bare foreground utility. Boarded
+with the fix and the row that would have caught it.
+
+**THE DECORATION PREDICATE WAS BUILT IN THE SAME UNIT, MEASURED BEFORE IT WAS WRITTEN.**
+`aria-hidden` plus `pointer-events: none` plus `user-select: none`, plus the `data-texture` marker
+`SkillsBody` created for exactly this purpose and which nothing had ever honoured. Across seven
+public pages `aria-hidden` alone is **312 elements with 74 drawing text**; the three together are
+**25, all 25 drawing text**. **The standing output went from 47 findings to 4**, and the skip is
+reported as a count rather than quietly shrinking the total.
+
+**⚠ AND THE COVERAGE FIGURE IT NOW PRINTS IS THE ONE NOBODY HAD:** `paint-stack 129 · ancestor-walk
+851`. **Six sevenths of every figure this harness has ever produced came from the weaker path**,
+because a viewport cannot hold a page, and nothing said so.
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

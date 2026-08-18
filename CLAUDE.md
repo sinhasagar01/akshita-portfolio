@@ -213,6 +213,29 @@ sharing no subject, of which 35 were finished work nobody could tell from unfini
 board that cannot be read is a board that gets batched, which is how a fix rides in on another fix's
 gates.
 
+- **⚠ BOARDED: `VideoEmbed` PAINTS THE RAW RUNG AS A FOREGROUND, AND IT IS THE NINTH SITE OF A CLASS
+  CLOSED FOR EIGHT.** `components/case-study/blocks/VideoEmbed.tsx:100` carries
+  `text-accent-500` on the block's eyebrow. Measured on four real dark builds:
+
+      sapphire 3.32   ink-flare 3.32   nocturne 3.24   basalt 3.65     against a floor of 4.5
+
+  and the foregrounds are each palette's own `accent-500` exactly — 73,91,203 · 162,78,2 ·
+  115,79,185 · 82,119,0. **The rung does not remap on a dark ground**, which is the entire finding
+  the eight-foreground entry already closed.
+
+  **⚠ IT SURVIVED BECAUSE IT IS A TAILWIND CLASS RATHER THAN A CSS DECLARATION.** `role-layer` T1
+  asserts no `color` DECLARATION takes the rung, and T was written after R2 missed a CSS instance —
+  so the two rows between them cover a CSS `color:` and a JSX class PAIR, and neither covers a bare
+  foreground utility. A gate blind to the form the next instance takes, for the second time in the
+  same family.
+
+  **NOT LIVE.** Redline is published and it clears there. It fails on all four dark palettes, which
+  is one field in /studio away.
+
+  **THE UNIT IS THE FIX PLUS THE ROW THAT WOULD HAVE CAUGHT IT**, and the row is the harder half —
+  the rung is legitimate as a ground, a border, a fill and a glow, so the assertion has to be about
+  FOREGROUND utilities rather than about the rung.
+
 
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
@@ -234,33 +257,6 @@ gates.
   item rather than a copy item.
 
 
-- **⚠ BOARDED: SHOULD `paint-floors` CARRY A DECORATION PREDICATE, NOW THAT 33 OF ITS 39 FINDINGS ARE
-  PRE-RULED?** Five are the footer's `Ciao` and twenty-eight are the sheet stamps, both ruled
-  decorative with their numbers in the harness's own triage header. **A reader of a fresh run now
-  meets 39 rows of which six are live**, and this record's standing argument is that a gate whose
-  common output is benign is one people learn to skip.
-
-  **⚠ AND THE REASON THIS ENTRY FIRST GAVE FOR NOT BUILDING IT WAS FALSE.** It said the predicate
-  covers one of the two, because `.footer-ciao` carried only two of the three parts. **It carries all
-  three.** I read that off the className, where `aria-hidden` is an ATTRIBUTE — sitting one line above
-  it in the source the whole time. Presence read from the wrong half of the element.
-
-  **MEASURED FROM THE DOM ACROSS SEVEN PUBLIC PAGES, WHICH IS WHAT THE ENTRY SHOULD HAVE CARRIED:**
-
-      aria-hidden alone                    312 elements, 74 of them drawing text
-      plus pointer-events and user-select   25 elements, ALL 25 drawing text
-
-  The 25 are `footer-ciao`, the sheet stamps and the hero's `crest` watermark. **Everything that
-  would still be reported is a real affordance** — arrows, `hover →`, `← back`, `Click to zoom`. So
-  the three-part predicate is exactly right, and `aria-hidden` alone is exactly the over-wide rule
-  `SkillsBody`'s comment already warned about when it recorded 8 of 17 such nodes being real prose.
-
-  **THE TRIGGER IS MET AND THE WORK IS STILL ITS OWN UNIT.** A third ruled class exists, the
-  population is 25 rather than a hunch, and encoding it changes what every future run reports — which
-  is not something to smuggle in beside a correctness fix to the same file.
-
-
-
 - **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
   Its resolver treats any `font-display` inside a case-study component as sitting under
   `.case-study .font-display` at 0-2-0. The DOM disagrees: the hero's `h1` sits under
@@ -272,28 +268,6 @@ gates.
 
   **THE FIX IS A CHANGE TO THAT SUITE'S CASCADE MODEL**, with its own blast radius over every other
   row it feeds, so it is not smuggled into a cleanup. It takes S2 to a true zero.
-
-- **⚠ BOARDED: THE RENDERED-FLOOR SWEEP HAS NOW RUN ON FIVE PALETTES, AND WHAT REMAINS IS THE
-  UNRESOLVED HALF.** The four dark palettes were driven on **four real builds**, five pages each —
-  **2,966 elements measured against a resolved ground, 288 unresolved, 52 below floor** — and the
-  52 triage to one real finding, the arrow entry above.
-
-  **⚠ AND THE UNRESOLVED COUNT IS NOW A REPORTED FIGURE RATHER THAN AN UNKNOWN ONE, WHICH IS HALF
-  THE FIX.** The sweep refuses on two named grounds and says which:
-
-      centre-missed-element   the element is not under its own centre point
-      over-image              its ground is a picture, so no single colour is honest
-
-  **WHAT IS STILL UNCHARACTERISED IS WHETHER THE REFUSALS ARE THE RIGHT ONES.** 288 of 3,254 is a
-  tenth of the subject, and a clean run means "no defect among the elements it could resolve" — a
-  sentence that is only honest while somebody knows how large the other half is and what is in it.
-  **Nobody has looked at the 288.**
-
-  **⚠ AND ONE KNOWN CLASS SITS INSIDE THE RESOLVED HALF RATHER THAN THE REFUSED ONE, WHICH IS
-  WORSE.** 28 of the 52 findings are accent-filled controls whose fill is painted by a positioned
-  SIBLING — the `.wf-thumb` shape this record already carries. The sweep resolves the page instead,
-  reports about 1.1, and **does not refuse**, so those arrive as findings rather than as unresolved.
-  A wrong ground reported confidently is the defect this whole file is about.
 
 - **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
   IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
@@ -600,6 +574,51 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED: THE RENDERED-FLOOR SWEEP'S OWN FIGURES WERE WRONG IN BOTH DIRECTIONS, AND RE-RUNNING
+  THE DARK PALETTES IS WHAT FOUND IT.** The entry said **52 below floor across four dark palettes,
+  of which 28 are accent-filled controls whose fill is painted by a positioned SIBLING**. Both
+  halves were wrong, and the two faults pushed opposite ways.
+
+      the fallback dropped an element's OWN FILL      manufactured findings, loud
+      the foreground was composited over WHITE        HID findings, silent
+
+  **THE SECOND IS THE ONE THIS RECORD'S OWN ASYMMETRY RULE WARNS ABOUT.** `px()` fills white then
+  paints, which the header already documents for GROUNDS and which had been repaired there. The
+  identical call sat on the foreground one line away. The sheet stamp paints at 26% alpha:
+
+      redline    px() 193,193,193   true 189,189,188    1.72 fails   1.80 FAILS
+      sapphire   px() 251,252,253   true  69, 74, 80   18.61 PASSES  2.14 FAILS
+      basalt     px() 252,252,252   true  74, 74, 74   18.68 PASSES  2.16 FAILS
+
+  On a near-white palette the error is small and the row still surfaced. On a dark ground a
+  sub-floor element read about 18 and passed. **28 findings per dark palette were invisible**, so
+  the 52 was itself understated.
+
+  **AND THE 28-ARE-SIBLING-FILL ATTRIBUTION WAS WRONG TOO.** Classified from the DOM on redline, the
+  equivalent class was **10 of 10 SELF-fill** — the fallback dropping the element's own background,
+  not `.wf-thumb`. Two confident numbers about one population, neither derived.
+
+  **WHAT IT MEASURES NOW, ON FIVE REAL BUILDS:**
+
+      redline, 15 public pages     2,288 measured    4 findings, all documented
+      each dark palette, 5 pages   ~1,030 measured   3 findings — 2 documented, 1 real
+
+  The four documented are the work filter's chip and its count, which resolve through `wf-thumb` at
+  the accent and clear at 6.65, and the About captions, which the STRONG path refuses outright. The
+  real one is `VideoEmbed`'s eyebrow, boarded above.
+
+  **AND THE DECORATION PREDICATE WAS BUILT IN THE SAME UNIT, MEASURED BEFORE IT WAS WRITTEN.**
+  `aria-hidden` plus `pointer-events: none` plus `user-select: none`, plus the `data-texture` marker
+  `SkillsBody` created for exactly this and nothing had ever honoured. Across seven public pages
+  `aria-hidden` alone is **312 elements with 74 drawing text** and the three together are **25, all
+  25 drawing text**. **The standing output went from 47 findings to 4**, and the skip is REPORTED as
+  a count rather than quietly shrinking the total, because an exclusion nobody can see is one nobody
+  chose.
+
+  **⚠ AND THE COVERAGE FIGURE IT NOW PRINTS IS THE THING NOBODY HAD:** `paint-stack 129 ·
+  ancestor-walk 851`. **Six sevenths of every figure this harness has ever produced came from the
+  weaker path**, because a viewport cannot hold a page, and nothing said so.
 
 - **⚠ RULED DECORATIVE: THE SHEET STAMPS, AND THEY ARE THE OPPOSITE OF `Ciao` ON THE ONE TEST THAT
   MATTERS.** 28 of them on every case study at **1.72 against a floor of 3.0**. Ruled with the
