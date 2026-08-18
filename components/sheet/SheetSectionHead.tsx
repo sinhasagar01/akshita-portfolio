@@ -1,4 +1,4 @@
-import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 /**
  * THE SECTION RULE PLUS THE HEADING IT INTRODUCES — the sheet grammar's replacement for the
@@ -51,9 +51,18 @@ type Props = {
 /* The gap below the rule and above the heading, and the gap under the heading block. Both are
    fluid on the same curve as the sheet's own vertical rhythm so a narrow viewport does not spend
    its height on air — the record already carries a hero that put 126px of air in a 573px column
-   and pushed its scroll cue below the fold. */
-const RULE_GAP: CSSProperties = { marginTop: "clamp(18px, 2.4vw, 30px)" };
-const LEDE_GAP: CSSProperties = { marginTop: "clamp(12px, 1.4vw, 18px)" };
+   and pushed its scroll cue below the fold.
+
+   ⚠ THESE WERE INLINE STYLES AND THE REASON THEY HAD TO BE IS GONE. `.sheet-lede` declared
+   `margin: 0` while being UNLAYERED, so a `mt-*` utility on it resolved to nothing and an inline
+   style was the only spelling that reached the element. The roles stopped declaring `margin`, so
+   the utilities work, and these are the same two numbers `CaseSectionHeader` has always written —
+   which is the point. One intent had two mechanisms across two components, and only one drew.
+
+   AND THE CLASSES COST NOTHING, MEASURED RATHER THAN ASSUMED. Both already exist in the built
+   stylesheet because the case-study head emits them, so this is a second consumer of an existing
+   rule and not a new one. An inline style, by contrast, is emitted per element into every rendered
+   page and is invisible to every gate this repository has. */
 
 export default function SheetSectionHead({
   sheet,
@@ -74,12 +83,12 @@ export default function SheetSectionHead({
         <span className="sheet-mark-text">{mark ?? title}</span>
       </div>
 
-      <div style={RULE_GAP}>
+      <div className="mt-[clamp(18px,2.4vw,30px)]">
         <h2 className="sheet-h2" {...titleProps}>
           {title}
         </h2>
         {lede ? (
-          <p className="sheet-lede" style={LEDE_GAP}>
+          <p className="sheet-lede mt-[clamp(12px,1.4vw,18px)]">
             {lede}
           </p>
         ) : null}
