@@ -12568,6 +12568,51 @@ carries only the last two**, so it would silence 28 and go on reporting 5. Wheth
 carry a decoration predicate at all is now its own boarded decision, with a third ruled class as the
 trigger.
 
+## ⚠ THE FOSFOR AI CASE STUDY WAS SHOWING THE DATA PROFILING PRODUCT AS ITS OWN PROTOTYPE
+
+The rendered pass boarded this as **R1, "one prototype video serves two case studies, and it is
+letterboxed"** — a reuse-and-quality finding. Re-derived before scoping the work, it is not that.
+
+Both Fosfor studies point at the identical file, `video-wide-2x1.mp4`. Sampled at three points
+across its 92 seconds:
+
+    t=3s    a dataset register — columns `Data profile enabled` and `Last data profiled on`,
+            and a `Register dataset` button
+    t=45s   the Configure, Filter and Schedule dialog, which is word for word what
+            data-profiling's own caption describes
+    t=90s   back to the dataset register
+
+**THE WHOLE FILE IS THE DATA PROFILING PRODUCT. THERE IS NO AI COMPANION IN IT.** So the Fosfor AI
+case study presented another project's product as its Final design, under the heading `Prototype`,
+live on production. Confirmed on `www.akshitas.com` before anything changed.
+
+**⚠ AND R2 COLLAPSED INTO THE SAME DECISION, WHICH IS WHY WRITING COPY WOULD HAVE BEEN THE WRONG
+MOVE.** R2 recorded that section as the emptiest on the site, and the repo-fixable half looked like
+a heading and a caption — data-profiling's equivalent block is the SAME 977px tall and carries three
+times the words purely because it was written. **Any honest caption for fosfor-ai would have
+described the profiler.** Confident copy over the wrong footage is the fabrication this record
+refuses, and the ruling was taken by the owner rather than assumed.
+
+**THE SECTION IS REMOVED**, on the same ruling as the blog hero image — removing an asset that is
+not ready is not an exemption. 33 lines of yaml, one section, and the study keeps every part of the
+eleven-section spine because `final-video` was an extra rather than a spine member.
+
+    worst px per word        162.8  (12.4x median)  ->  54.3  (4.3x)
+    corpus median            13.1                   ->  12.5
+    fosfor-ai page height    14539px                ->  13562px
+    fosfor-ai video elements 1                      ->  0
+    sections                 15                     ->  14
+
+The new worst is data-profiling's own `final-video`, which is the one that was actually written.
+Nothing renumbers, because the sheet number comes from an authored `index` and this section's was
+empty. `parity` was driven on all four studies afterwards — **53 sections, PARITY OK on every one**.
+
+**⚠ AND THE OTHER THREE RENDERED-PASS ITEMS WERE RE-DERIVED AND ARE CLOSED.** R3's contrast findings
+on the case studies are **32, of which 32 are the sheet stamps and `footer-ciao`** — zero unruled,
+since #671 ruled both. R4 was clean with one depicted device corner. R5's mobile unpin is by design
+and was recorded so the number does not read as a defect. **The rendered pass has one open item and
+it needs footage nobody in this repository can make.**
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.
