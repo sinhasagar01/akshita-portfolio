@@ -465,9 +465,6 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
     ".hero-name em": "EMPHASIS — an `<em>` the author writes inside the hero name, which is the "
       + "hero's own typographic system and not the sheet's. Markup emphasis, not a heading style",
     ".hero-line em": "EMPHASIS — the same `<em>` contract on the hero's thesis line, same system",
-    ".blog-prose blockquote": "PROSE — a pulled quotation in long-form body copy, which is an "
-      + "editorial convention rather than a heading treatment. The prose column owns its block "
-      + "elements and deliberately does not restyle inline marks",
   };
   const cssRaw = css; // the stylesheet this suite already loads at the top
   const cssBlank = cssRaw.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "));
@@ -480,9 +477,17 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
   t("F1a the stylesheet was actually read, against a literal — a walk that reads nothing reports the same empty set",
     cssRaw.length > 100000, true);
   t("F2 …and every member declares a category with a reason, on section E's own rule",
-    Object.entries(CSS_ITALIC).filter(([, v]) => !/^(EMPHASIS|PROSE) — .{20,}/.test(v)).map(([k]) => k), []);
+    Object.entries(CSS_ITALIC).filter(([, v]) => !/^EMPHASIS — .{20,}/.test(v)).map(([k]) => k), []);
   t("F3 ⚠ THE BLOG PLATE IS GONE FROM IT — the member that proved this gap has members",
     cssFound.filter((s) => /blog-plate/.test(s)), []);
+  /* ⚠ THE PROSE CATEGORY DRAINED ONE UNIT AFTER IT WAS WRITTEN. The blog's pull quote was its only
+     member, categorised here as "an editorial convention rather than a heading treatment" — which
+     was true of the quote in isolation and missed that the CASE STUDY renders the same object
+     upright behind a hairline. Two surfaces, one object, and the category existed because only one
+     of them had been looked at. The surviving category is EMPHASIS alone: an `<em>` an author
+     types, which is markup rather than a treatment this direction chooses. */
+  t("F5 the surviving category is exactly EMPHASIS — PROSE drained when the pull quotes agreed",
+    [...new Set(Object.values(CSS_ITALIC).map((v) => v.split(" ")[0]))].sort(), ["EMPHASIS"]);
   /* ⚠ F4 IS THE STRIP'S OWN ASSERTION AND IT IS NOT DECORATION. Without it, deleting the blank step
      makes F1 report every commented mention as a declaration — which is a LOUD failure, so the risk
      is not the strip breaking. It is the strip being removed as tidy-up while F1's list is edited to
