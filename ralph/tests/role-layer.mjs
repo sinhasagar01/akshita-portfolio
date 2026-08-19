@@ -1356,6 +1356,67 @@ console.log("\nS · a ground DECLARATION must be reachable by a remap");
     anyRung > 0, true);
   t("T1 \u26a0 NO color DECLARATION TAKES accent-500 \u2014 the rung does not remap on a dark ground, so a glyph on it fails there while passing every light palette",
     fgSites, []);
+
+  /* ---- T2 · THE THIRD FORM, AND EACH ROW HERE WAS WRITTEN AFTER THE ONE BEFORE IT MISSED ------
+     R2 matches a JSX class PAIR — a ground and a foreground in one string. T1 matches a CSS `color`
+     DECLARATION. Neither sees a BARE FOREGROUND UTILITY, and that is what `VideoEmbed`'s eyebrow
+     was: `text-accent-500` with no ground beside it, in markup rather than in the stylesheet.
+
+     Measured on four real dark builds before this row existed:
+
+         sapphire 3.32   ink-flare 3.32   nocturne 3.24   basalt 3.65     floor 4.5
+
+     and the foregrounds were each palette's own accent-500 exactly. Ninth site of a class closed
+     for eight, found by a rendered sweep rather than by any of the three rows watching for it.
+
+     ⚠ VARIANT PREFIXES COUNT. The eight-foreground census found SIX of the eight needed a hover or
+     a mobile viewport to be reachable, so `hover:text-accent-500` fails identically and a matcher
+     anchored to a bare class start would miss the majority of the population.
+
+     ⚠ AND THE RUNG IS STILL NOT BANNED. `bg-`, `border-`, `fill-`, `stroke-` and the gradient
+     stops are grounds, edges and artwork, and none owes a text floor. T1 restricts itself to the
+     `color` property for the same reason; this restricts itself to `text-`.
+
+     ⚠ COMMENTS ARE BLANKED, AND THE FIX'S OWN COMMENT IS THE FIXTURE. The note left at the repair
+     site names the retired class, so a raw scan reports the very line that fixed it. T2c asserts
+     the raw file still carries the string and the blanked one does not, which is this repository's
+     explaining-it-requires-writing-it trap turned into a test. */
+  const TEXT_RUNG = /(?:^|[\s"'`{])(?:[a-z-]+:)*text-accent-500(?=[\s"'`}]|$)/;
+  /* `srcFiles` holds ABSOLUTE paths — the walk above joins from a URL pathname. The first draft
+     re-joined them onto root and every read threw ENOENT on a doubled path. */
+  const shortOf = (abs) => abs.slice(abs.lastIndexOf("/portfolio-design/") + 18) || abs;
+  const publicTsx = srcFiles.filter((f) =>
+    /\.tsx?$/.test(f) && !/components\/studio\/|app\/studio\//.test(f));
+  const utilSites = [];
+  for (const abs of publicTsx) {
+    const src = blankCommentBodies(readFileSync(abs, "utf8"));
+    src.split("\n").forEach((line, i) => {
+      if (TEXT_RUNG.test(line)) utilSites.push(`${shortOf(abs)}:${i + 1}`);
+    });
+  }
+  console.log(`      public .tsx/.ts scanned for a bare foreground utility: ${publicTsx.length}`);
+  t("T2 \u26a0 NO PUBLIC MARKUP APPLIES accent-500 AS A TEXT UTILITY \u2014 R2 sees a class PAIR and T1 sees a CSS declaration, and this form is neither",
+    utilSites, []);
+  t("T2a \u2026and the walk found real files, so T2 is not passing over an empty subject",
+    publicTsx.length > 40, true);
+  t("T2b \u2026and the matcher fires on the retired form and on its hover variant, or T2 proves nothing",
+    [TEXT_RUNG.test('className="uppercase text-accent-500">'),
+     TEXT_RUNG.test('className="hover:text-accent-500 mt-2">'),
+     TEXT_RUNG.test('className="bg-accent-500 border-accent-500">')],
+    [true, true, false]);
+  /* ⚠ T2c RAN ON THE REAL FILE AND FAILED FOR A REASON IT DOES NOT NAME. Under the mutation that
+     puts a LIVE `text-accent-500` back, the blanked source contains one — so the row reddened while
+     claiming blanking was broken, when blanking was fine and T2's own subject had changed. That is
+     the assertion-that-cannot-fail-for-its-stated-reason shape wearing its inverse. The blanking
+     claim now runs on a FIXTURE, where nothing but blanking can move it, and the claim that the
+     hazard is REAL is a separate row against the real file. */
+  const fixture = '{/* this note names text-accent-500 */}\n<p className="text-secondary">x</p>';
+  t("T2c \u26a0 \u2026and blanking removes a class named only inside a comment \u2014 on a fixture, so only blanking can move it",
+    [/text-accent-500/.test(fixture), /text-accent-500/.test(blankCommentBodies(fixture))],
+    [true, false]);
+  const repairSite = readFileSync(join(root, "components/case-study/blocks/VideoEmbed.tsx"), "utf8");
+  t("T2d \u2026and the trap is live in a real file, not invented \u2014 the repair's own note names the retired class",
+    /text-accent-500/.test(repairSite), true);
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
