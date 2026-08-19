@@ -242,26 +242,6 @@ gates.
   light palette, `band-dark` on a dark one — which is a derivation `THEME_GROUND` already carries.
   `theme` section I would need its comparison retargeted with it.
 
-- **⚠ BOARDED: THE SITE'S OWN SHARE CARD IS DRAWN IN A PALETTE THE SITE NO LONGER HAS.**
-  `app/opengraph-image.png` is a STATIC PNG committed in `cd1c658`, long before the media. Sampled,
-  its dominant colours are a warm cream ground `251,246,238`, a warm ink `28,24,19` and a terracotta
-  accent `181,97,60` — the retired cream palette. **No current palette is warm at those values**:
-  drawing-office is `250,250,250`, redline `250,250,248`, machine-room `244,252,251`.
-
-  **⚠ AND THE PER-PAGE CARDS DO FOLLOW THE THEME, WHICH IS WHAT MAKES THIS A GAP RATHER THAN A
-  DECISION.** `/projects/<slug>/og` and `/blog/<slug>/og` render through `THEME_OG` and were
-  measured on this publish at exactly `244,252,251`. So the site has two share surfaces, one themed
-  and one frozen, and the frozen one is the image every link to the domain root shows.
-
-  **IT IS LIVE ON REDLINE TODAY AND WAS NOT CAUSED BY PUBLISHING MACHINE ROOM** — it was found by
-  checking the publish rather than by a gate, which is the fourth time a publish or a render has
-  found something no suite has as its subject.
-
-  **⚠ THE FIX IS A DESIGN DECISION AND THAT IS WHY IT IS NOT TAKEN HERE.** A fixed brand card is a
-  legitimate choice — the favicon is exactly that, by ruling. **A card in a RETIRED palette is not
-  a choice anybody made.** Either redraw it in the current identity, or generate it the way the
-  per-page cards already are. The second is smaller and the first may be what an owner wants.
-
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
@@ -600,6 +580,87 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ CLOSED: THE SITE CARD IS GENERATED AND THEMED, AND THE OWNER RULED THE GROUND QUESTION THAT
+  CAME WITH IT.** The static PNG is deleted and `/og` renders the identity lockup — monogram, the
+  script signature over its construction grid, the surname between rules, the job line — in the
+  published palette's card colours. Verified on both ground classes: machine-room's near-black sheet
+  with an amber surname, redline's near-white one with a red surname. **The same lockup the nav draws,
+  in the same colours, which is what it never was.**
+
+  **THE GROUND RULE WENT FIRST AND SEPARATELY, BECAUSE IT WAS A VALUE CHANGE AND THIS IS A RENDERER.**
+  `THEME_OG` held the light ladder for all seven palettes, so five per-page cards of seven were
+  near-white too. That shipped as its own unit with `theme` I2 rekeyed and `theme-contrast` section O
+  added — the first time the card had been measured as a surface rather than checked for equality with
+  a token.
+
+  **⚠ AND THE OWNER'S DECISION WAS PUT WITH THREE RENDERS RATHER THAN A DESCRIPTION**, which is why it
+  took one exchange instead of four. The retired card, the lockup on the page ground and the lockup on
+  `cream-50`, all at true size. The ruling was page ground, every card.
+
+  **⚠ AND MY OWN OPTION LABEL INVERTED THE COUNT WHILE ITS TABLE WAS RIGHT.** I offered it as
+  *"cream-50 on the five light palettes, band-dark on the two dark ones"*. It is **two light and five
+  dark**. Prose and data in one place, looking like one claim and being two — the defect this file
+  already names against a `count:` field and an `A8a` title, committed inside the question that asked
+  for a ruling.
+
+  **⚠ THE NEAR-MISS IS THE PART WORTH READING: THE FILE CONVENTION SILENTLY REMOVED `og:image` FROM
+  THREE PAGES.** The first build used Next's `opengraph-image` convention and deleted the three
+  hand-spelled URLs on the theory that the convention would supply them. **Next merges metadata per
+  TOP-LEVEL FIELD**, so a page declaring its own `openGraph` replaces the parent's whole object,
+  images included:
+
+      /            og:image ABSENT      declares openGraph
+      /blog        og:image ABSENT      declares openGraph
+      /gallery     og:image ABSENT      declares openGraph
+      /palettes    og:image present     declares none, inherits
+      /oklch       og:image present     declares none, inherits
+
+  **`twitter:image` SURVIVED ON ALL FIVE, WHICH IS WHAT MADE IT EASY TO MISS** — a second convention
+  file supplied that tag directly. A page with a Twitter card and no Open Graph card previews
+  correctly in one tool and blank in another, so **an asymmetric failure reads as a working feature
+  from whichever side you check first.** The three URLs that looked redundant were load-bearing.
+
+  **`ralph/tests/share-cards.mjs` IS THE GATE, AND ITS SUBJECT IS THE BUILT HTML BECAUSE EVERY PART
+  WAS CORRECT IN SOURCE.** The route rendered, the helper returned a URL, the pages compiled; what was
+  wrong was how four metadata objects RESOLVED against each other, which no regex over `app/` can see.
+  20 shareable pages, excluded by property rather than by name, and `B1` fires on the exact defect.
+
+  **⚠ AND ITS SECOND ROW WAS UNFALSIFIABLE UNTIL TWO MUTATIONS SAID SO.** `B2` began as *"and none is
+  missing `twitter:image`"*. Removing the layout's `twitter.images` left it green; giving a page a
+  `twitter` object with no images left it green. **Next DERIVES `twitter:image` from
+  `openGraph.images`**, so asserting both tags present is asserting one thing twice — and the
+  divergence that made the original defect asymmetric came from a second convention file that no
+  longer exists. Rewritten as the claim that IS falsifiable: **the two tags name the same image**,
+  killed by a page hand-supplying a different one.
+
+  **AND SATORI IS NOT A BROWSER, WHICH COST THREE DRAFTS OF ONE GRID.** Borders drew nothing. As 1px
+  fills the verticals drew and the horizontals did not, in both the `width` and the `left`+`right`
+  form, and a clean rebuild produced byte-identical output. **The first of those shipped a
+  STRIKETHROUGH through the name** — only the middle rule drawing — which is the second time in two
+  days that one line across type has read as cancellation. It is a rasterised SVG now, because the
+  monogram already proved Satori draws those faithfully.
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS MEASUREMENT IS WHAT MADE THE CASE:**
+
+- **⚠ BOARDED: THE SITE'S OWN SHARE CARD IS DRAWN IN A PALETTE THE SITE NO LONGER HAS.**
+  `app/opengraph-image.png` is a STATIC PNG committed in `cd1c658`, long before the media. Sampled,
+  its dominant colours are a warm cream ground `251,246,238`, a warm ink `28,24,19` and a terracotta
+  accent `181,97,60` — the retired cream palette. **No current palette is warm at those values**:
+  drawing-office is `250,250,250`, redline `250,250,248`, machine-room `244,252,251`.
+
+  **⚠ AND THE PER-PAGE CARDS DO FOLLOW THE THEME, WHICH IS WHAT MAKES THIS A GAP RATHER THAN A
+  DECISION.** `/projects/<slug>/og` and `/blog/<slug>/og` render through `THEME_OG` and were
+  measured on this publish at exactly `244,252,251`. So the site has two share surfaces, one themed
+  and one frozen, and the frozen one is the image every link to the domain root shows.
+
+  **IT IS LIVE ON REDLINE TODAY AND WAS NOT CAUSED BY PUBLISHING MACHINE ROOM** — it was found by
+  checking the publish rather than by a gate, which is the fourth time a publish or a render has
+  found something no suite has as its subject.
+
+  **⚠ THE FIX IS A DESIGN DECISION AND THAT IS WHY IT IS NOT TAKEN HERE.** A fixed brand card is a
+  legitimate choice — the favicon is exactly that, by ruling. **A card in a RETIRED palette is not
+  a choice anybody made.** Either redraw it in the current identity, or generate it the way the
+  per-page cards already are. The second is smaller and the first may be what an owner wants.
 - **⚠ CLOSED BY THE OWNER, AND THE ENTRY WAS A RE-REPORT OF A RULING THAT WAS ALREADY IN THE
   COMPONENT'S OWN HEADER.** `ReadingVessel.tsx` has said for an arc that the waterline crossing a
   label is a PROPERTY rather than a defect — the fill is continuous and the rows are fixed, so on

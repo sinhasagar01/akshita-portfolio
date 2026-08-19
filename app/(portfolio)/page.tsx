@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getHomePageData } from "@/lib/keystatic";
-import { SITE_URL, absoluteUrl } from "@/lib/site";
+import { SITE_URL, SITE_NAME, AUTHOR_JOB_TITLE, siteOgImageUrl } from "@/lib/site";
 import { personSchema, webSiteSchema } from "@/lib/structured-data";
 import JsonLd from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
@@ -19,16 +19,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   openGraph: {
     url: SITE_URL,
-    images: [
-      {
-        url: absoluteUrl("/opengraph-image.png"),
-        width: 1200,
-        height: 630,
-        alt: "Akshita Singh, Product Designer",
-      },
-    ],
+    /* ⚠ THIS PAGE DECLARES `openGraph`, SO IT MUST NAME THE CARD ITSELF. Next merges metadata per
+       top-level field: declaring this object replaces the root layout's, and an inherited image
+       goes with it. Measured — removing these three entries left `og:image` ABSENT on `/`, `/blog`
+       and `/gallery` while `twitter:image` survived, which is the asymmetry that makes it easy to
+       miss. One helper, so the four call sites cannot drift. */
+    images: [{ url: siteOgImageUrl(), width: 1200, height: 630, alt: `${SITE_NAME}, ${AUTHOR_JOB_TITLE}` }],
   },
-  twitter: { images: [absoluteUrl("/twitter-image.png")] },
 };
 
 export default async function HomePage() {

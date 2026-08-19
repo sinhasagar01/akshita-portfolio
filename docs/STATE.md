@@ -13168,6 +13168,84 @@ board entry for it stays open. This unit is the per-page cards and the rule; the
 renderer rather than a value, and it goes next.
 
 
+## ⚠ THE SITE'S SHARE CARD IS GENERATED, AND THE FILE CONVENTION SILENTLY REMOVED IT FROM THREE PAGES
+
+`app/opengraph-image.png` was a static PNG committed in `cd1c658` — ground `251,246,238`, ink
+`28,24,19`, accent `181,97,60`, the retired cream palette. It is deleted. `/og` renders the identity
+lockup in the published palette: monogram, the script signature over its construction grid, the
+surname between rules, the job line. Verified on both ground classes — machine-room's near-black
+sheet with an amber surname, redline's near-white one with a red surname.
+
+**IT WAS A DEFECT RATHER THAN A CHOICE BECAUSE THE NAV DRAWS THE SAME LOCKUP AND FOLLOWS THE
+PALETTE.** A fixed brand asset is legitimate — the favicon is exactly that, by ruling, because hue is
+not perceptible at 16 to 64px. This is 1200x630, and `.logo-singh` takes `--color-accent` while
+`.logo-sig` takes the ink. **One mark, two surfaces, and on a dark palette they disagreed outright.**
+
+**⚠ THE NEAR-MISS IS THE PART WORTH READING.** The first build used Next's `opengraph-image` FILE
+CONVENTION and deleted the three hand-spelled URLs home, blog and gallery carried, on the theory that
+the convention would supply them. **Next merges metadata per TOP-LEVEL FIELD**, so a page declaring
+its own `openGraph` replaces the parent's whole object, images included:
+
+    /            og:image ABSENT      declares openGraph
+    /blog        og:image ABSENT      declares openGraph
+    /gallery     og:image ABSENT      declares openGraph
+    /palettes    og:image present     declares none, inherits
+    /oklch       og:image present     declares none, inherits
+
+**`twitter:image` SURVIVED ON ALL FIVE, WHICH IS WHAT MADE IT EASY TO MISS** — a second convention
+file, `twitter-image.png`, supplied that tag directly. A page with a Twitter card and no Open Graph
+card previews correctly in one tool and blank in another, so **an asymmetric failure reads as a
+working feature from whichever side you check first.** The three URLs that looked redundant were
+load-bearing: the convention cannot reach a page that declares `openGraph`, and a generated card's
+convention URL carries a build hash no page can name.
+
+**THE SHAPE IS A ROUTE WITH A STABLE URL AND ONE HELPER.** `siteOgImageUrl()` in `lib/site.ts`, named
+by the root layout for every page that declares no `openGraph`, and by the three that do. Four call
+sites, one string — which is the pattern `ogImageUrl(slug)` already established and the thing the
+three drifting literals could not do.
+
+**⚠ AND THE GATE'S SUBJECT IS THE BUILT HTML BECAUSE EVERY PART WAS CORRECT IN SOURCE.**
+`ralph/tests/share-cards.mjs`. The route rendered, the helper returned a URL, the pages compiled;
+what was wrong was how four metadata objects RESOLVED against each other, which no regex over `app/`
+can see — the same reason `rendered-theme` reads `.next` rather than the layout. 20 shareable pages,
+excluded by PROPERTY rather than by name, and `B1` fires on the exact defect naming the page.
+
+**⚠ AND ITS SECOND ROW WAS UNFALSIFIABLE UNTIL TWO MUTATIONS SAID SO.** `B2` began as *"and none is
+missing `twitter:image`"*. Removing the layout's `twitter.images` left it green; giving a page a
+`twitter` object with no images left it green. **Next DERIVES `twitter:image` from
+`openGraph.images`**, so asserting both tags present is asserting one thing twice — and the
+divergence that made the original defect asymmetric came from a convention file that no longer
+exists. **A row guarding a state the architecture no longer has is documentation wearing an
+assertion's clothes.** Rewritten as the claim that IS falsifiable — the two tags name the same image
+— and killed by a page hand-supplying a different one.
+
+**⚠ AND SATORI IS NOT A BROWSER, WHICH COST THREE DRAFTS OF ONE GRID:**
+
+    borders on the box and each column      NOTHING drew
+    1px fills, verticals                    drew
+    1px fills, horizontals                  did NOT, in either the `width` or the
+                                            `left`+`right` form, and a clean rebuild
+                                            produced BYTE-IDENTICAL output
+
+**THE FIRST OF THOSE SHIPPED A STRIKETHROUGH THROUGH THE NAME** — with only the middle rule drawing,
+the card read as the wordmark crossed out. Second time in two days that one line across type has read
+as cancellation rather than as structure, and the first time I caused it. It is a rasterised SVG now,
+because the monogram already proved Satori draws those faithfully. **The failure mode is what makes
+this worth recording: a line that does not draw looks exactly like a line nobody asked for.**
+
+**⚠ AND THE MONOGRAM'S THREE FILLS WERE THREE MORE FROZEN VALUES.** `#D89067`, `#9B4F2C` and
+`#7E3F22`, hardcoded in `docs/logo-assets/monogram-mark.svg` and inlined in the card. They are
+derived from the card's accent now — the ribbon is one material lit from the top left, so the
+gradient is that accent lightened and darkened rather than two unrelated hues.
+
+**AND THE SCRIPT FACE GAINED THE GATE THE SANS ALREADY HAD.** `typography` D5 to D8 mirror D1 to D3
+for `SCRIPT_FONT`, matched on the FAMILY STRING rather than the var chain because `--font-script` is
+`var(--font-script-loaded, "Kaushan Script", cursive)` — a next/font handle with a literal fallback,
+so there is no single `--font-<face>` to compare names with. **D3 itself went red when the loader was
+generalised for a second face**, which is the matcher-narrower-than-its-concept shape arriving in the
+row written to stop exactly this drift. Both hops are asserted now.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.
