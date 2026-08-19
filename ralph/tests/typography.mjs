@@ -341,10 +341,47 @@ t("C4: exactly two faces are preloaded — one family now serves display AND bod
   t("D1: the OG card names its face in ONE constant, not three string literals", brand, "IBM Plex Sans");
   t("D2: …and that face is the one --font-display resolves to, so a card and its page cannot disagree",
     brand && role("display") === `--font-${brand.toLowerCase().replace(/ /g, "-").replace("-4", "")}`, true);
+  /* ⚠ THIS ROW WENT RED WHEN THE LOADER WAS GENERALISED, AND IT WAS THE MATCHER RATHER THAN THE
+   * CODE. It asserted `family=${BRAND_FONT` — the constant interpolated DIRECTLY into the URL. The
+   * brand card needs two faces, so the fetch became `loadGoogleFont(family, axis)` and the constant
+   * now reaches the query through a parameter. Narrower-than-its-concept, in the row written to stop
+   * exactly this drift, and caught because the row went red rather than because anyone read it.
+   *
+   * BOTH HOPS ARE ASSERTED NOW, or the chain has an unchecked link: the call site must name the
+   * constant, and the loader must build its query from the parameter it was given. */
   t("D3: the Google query, the applied family and Satori's registration all read the constant",
-    [/family=\$\{BRAND_FONT/.test(og), /fontFamily = font \? BRAND_FONT/.test(og), /name: BRAND_FONT/.test(og)],
+    [/loadGoogleFont\(BRAND_FONT, "wght@600"\)/.test(og), /fontFamily = font \? BRAND_FONT/.test(og), /name: BRAND_FONT/.test(og)],
     [true, true, true]);
+  t("D3a: …and the loader interpolates the family it was PASSED, so the constant reaches the URL",
+    /family=\$\{query\}/.test(og) && /const query = `\$\{family\.replace/.test(og), true);
   t("D4: no literal Fraunces survives in the card renderer", /"Fraunces"/.test(og), false);
+
+  /* ⚠ THE SCRIPT FACE IS THE SECOND ONE THE CARD LAYER LOADS, AND IT ARRIVED WITH THE BRAND CARD.
+   * The site's own share card draws the wordmark, so it needs the script face that `--font-script`
+   * names — a face `renderOgImage` never touched. Same three-place agreement, same silent failure:
+   * a `fontFamily` Satori has no entry for falls back to the built-in, so the card renders the
+   * signature as a grotesque and looks deliberate.
+   *
+   * ⚠ MATCHED ON THE FAMILY STRING RATHER THAN ON THE VAR CHAIN, WHICH IS WHERE THIS DIFFERS FROM
+   * D2. `--font-display` aliases a single `--font-<face>` custom property, so D2 can compare names.
+   * `--font-script` is `var(--font-script-loaded, "Kaushan Script", cursive)` — a next/font handle
+   * with a LITERAL FALLBACK — so what is checkable is that the declaration names the same family
+   * this constant does. Asserting the var chain here would be asserting a shape that does not
+   * exist. */
+  const script = (/const SCRIPT_FONT = "([^"]+)"/.exec(og) ?? [])[1] ?? null;
+  t("D5: the brand card names its script face in ONE constant", script, "Kaushan Script");
+  t("D6: …and --font-script names that same family, so the card and the nav draw one signature",
+    script !== null && new RegExp(`--font-script:[^;]*"${script}"`).test(cssCode), true);
+  t("D7: the query, the applied family and Satori's registration all read the constant",
+    [/loadGoogleFont\(SCRIPT_FONT\)/.test(og), /fontFamily: SCRIPT_FONT/.test(og), /name: SCRIPT_FONT/.test(og)],
+    [true, true, true]);
+  /* ⚠ AND EACH FACE IS APPLIED ONLY IF ITS OWN BYTES ARRIVED. A half-loaded pair that still names
+   * both families is the silent-fallback failure with extra steps — the sans arrives, the script
+   * does not, and the signature renders in the sans while every other element is correct, which
+   * reads as a design choice. */
+  t("D8: each face is applied only when its own bytes loaded, so a half-loaded pair cannot name a face Satori lacks",
+    [/\.\.\.\(sans \? \{ fontFamily: BRAND_FONT \}/.test(og), /\.\.\.\(script \? \{ fontFamily: SCRIPT_FONT \}/.test(og)],
+    [true, true]);
 }
 
 /* ================================================ E. THE CASE-STUDY ITALIC CENSUS

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getGalleryItems } from "@/lib/keystatic";
-import { absoluteUrl } from "@/lib/site";
+import { absoluteUrl, SITE_NAME, AUTHOR_JOB_TITLE, siteOgImageUrl } from "@/lib/site";
 import GalleryBrowser from "@/components/gallery/GalleryBrowser";
 import GalleryHero from "@/components/gallery/GalleryHero";
 
@@ -41,9 +41,13 @@ export const metadata: Metadata = {
     url: absoluteUrl("/gallery"),
     title: "Gallery",
     description: MASTHEAD.dek,
-    images: [{ url: absoluteUrl("/opengraph-image.png"), width: 1200, height: 630, alt: "Gallery" }],
+    /* ⚠ THIS PAGE DECLARES `openGraph`, SO IT MUST NAME THE CARD ITSELF. Next merges metadata per
+       top-level field: declaring this object replaces the root layout's, and an inherited image
+       goes with it. Measured — removing these three entries left `og:image` ABSENT on `/`, `/blog`
+       and `/gallery` while `twitter:image` survived, which is the asymmetry that makes it easy to
+       miss. One helper, so the four call sites cannot drift. */
+    images: [{ url: siteOgImageUrl(), width: 1200, height: 630, alt: `${SITE_NAME}, ${AUTHOR_JOB_TITLE}` }],
   },
-  twitter: { images: [absoluteUrl("/opengraph-image.png")] },
 };
 
 export default async function GalleryPage() {

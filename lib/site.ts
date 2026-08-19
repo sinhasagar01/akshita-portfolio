@@ -51,6 +51,18 @@ export function ogImageUrl(slug: string): string {
 }
 
 /**
+ * Absolute URL of the SITE's own share card — the identity lockup at `/og`.
+ *
+ * ⚠ FOUR CALLERS AND A STABLE PATH, BECAUSE THE FILE CONVENTION CANNOT SERVE THREE OF THEM. Next
+ * merges metadata per top-level field, so a page declaring its own `openGraph` replaces the parent's
+ * object and loses the `images` an `opengraph-image` file injects. Home, blog and gallery all declare
+ * one; the root layout covers everything that does not. See the route for the measurement.
+ */
+export function siteOgImageUrl(): string {
+  return absoluteUrl("/og");
+}
+
+/**
  * Absolute URL of a blog post's generated OG card. Same shape as `ogImageUrl` above, and here
  * for the same reason: the article page used to spell `/opengraph-image.png` inline and read
  * it twice in one function, so og:image and twitter:image were two literals that happened to

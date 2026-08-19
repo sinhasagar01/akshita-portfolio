@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getBlogPosts, type BlogCard } from "@/lib/keystatic";
-import { absoluteUrl, blogPath } from "@/lib/site";
+import { absoluteUrl, blogPath, SITE_NAME, AUTHOR_JOB_TITLE, siteOgImageUrl } from "@/lib/site";
 import { formatLongDate, formatShortDate } from "@/lib/blog/format";
 import Shot from "@/components/blog/Shot";
 import LoveButton from "@/components/blog/LoveButton";
@@ -23,9 +23,13 @@ export const metadata: Metadata = {
     url: absoluteUrl("/blog"),
     title: "Blog",
     description: MASTHEAD.dek,
-    images: [{ url: absoluteUrl("/opengraph-image.png"), width: 1200, height: 630, alt: "Blog" }],
+    /* ⚠ THIS PAGE DECLARES `openGraph`, SO IT MUST NAME THE CARD ITSELF. Next merges metadata per
+       top-level field: declaring this object replaces the root layout's, and an inherited image
+       goes with it. Measured — removing these three entries left `og:image` ABSENT on `/`, `/blog`
+       and `/gallery` while `twitter:image` survived, which is the asymmetry that makes it easy to
+       miss. One helper, so the four call sites cannot drift. */
+    images: [{ url: siteOgImageUrl(), width: 1200, height: 630, alt: `${SITE_NAME}, ${AUTHOR_JOB_TITLE}` }],
   },
-  twitter: { images: [absoluteUrl("/opengraph-image.png")] },
 };
 
 // ⚠ THE COUNT IS A PROP RATHER THAN A SECOND READ, AND IT IS THE RULE'S RIGHT MARK. The section

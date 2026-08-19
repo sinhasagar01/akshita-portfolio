@@ -12,6 +12,8 @@ import {
   AUTHOR_NAME,
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
+  AUTHOR_JOB_TITLE,
+  siteOgImageUrl,
 } from "@/lib/site";
 import { getSiteSettings } from "@/lib/keystatic";
 import { DEFAULT_THEME, THEME_GROUND, THEME_NAMES } from "@/lib/theme";
@@ -142,6 +144,10 @@ const spaceGrotesk = Space_Grotesk({
   preload: false,
 });
 
+/** The site's own share card, spelled ONCE. Four metadata objects need it and a fifth copy is
+ *  how the three that existed before drifted from each other in their `alt` text. */
+const BRAND_CARD = { url: siteOgImageUrl(), width: 1200, height: 630, alt: `${SITE_NAME}, ${AUTHOR_JOB_TITLE}` };
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -159,11 +165,18 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     locale: "en_US",
+    /* ⚠ THE CARD LIVES HERE SO EVERY ROUTE THAT DECLARES NO `openGraph` OF ITS OWN INHERITS IT —
+     * `/palettes`, its eleven slug pages and `/oklch`. It is NOT the file convention, and the
+     * difference is measured: Next merges per top-level field, so a page declaring `openGraph`
+     * replaces this object entirely and would lose the image. The three that declare one name the
+     * same helper. See `app/(portfolio)/og/route.ts`. */
+    images: [BRAND_CARD],
   },
   twitter: {
     card: "summary_large_image",
     title: "Akshita Singh, Product Designer",
     description: SITE_DESCRIPTION,
+    images: [BRAND_CARD],
   },
   /* ⚠ NO `icons` KEY, DELIBERATELY — the Next FILE CONVENTION is the single source of truth.
    *
