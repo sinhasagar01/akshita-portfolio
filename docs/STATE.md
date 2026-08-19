@@ -13398,6 +13398,40 @@ lime card are the loudest things on the page. Boarded rather than fixed, because
 change to the hero art and this unit is a palette.
 
 
+## ⚠ BLUEPRINT IS PUBLISHED, AND IT IS THE FIRST PALETTE TO EXERCISE EVERY SURFACE BUILT TODAY
+
+`theme: blueprint` in `content/site-settings.yaml`. The fourth medium and the second dark palette
+this site has published — and the first whose publish had a full set of themed surfaces waiting for
+it rather than three frozen ones.
+
+    origin/main            theme: machine-room
+    remote draft branch    none            (checked BEFORE writing, as the last publish established)
+    ralph                  3673 across 110 suites
+    paint-floors           666 measured over six pages, 2 below floor
+
+The two are the work filter's chip and its count, the documented sibling limit. Read from the served
+build rather than from the merge:
+
+    html                   data-theme="blueprint"  data-ground="dark"
+    manifest splash        #0E2A47                 the page ground, not cream-50
+    /og                    200, the generated lockup on the cyanotype ground
+
+**⚠ AND THAT IS THE POINT WORTH RECORDING: THREE SURFACES THAT WOULD HAVE BEEN WRONG A DAY AGO WERE
+RIGHT WITHOUT A DECISION.** Publishing machine-room this morning exposed all three — a near-white PWA
+splash in front of a near-black app, per-page cards on the light ladder, and a site card frozen in a
+retired palette. Blueprint inherited the repaired versions of all three and needed no per-palette
+work on any of them. **A rule fixed once is what makes the next palette cheap**, which is the
+argument the record keeps making about mechanisms over care, arriving as a measurement rather than as
+a claim.
+
+**⚠ AND THE BOARDED ILLUSTRATION ENTRY'S TRIGGER FIRED, SO ITS OWN CLAIM WAS CORRECTED IN THE SAME
+COMMIT.** It read "it is unpublished today, so the cost is zero and the decision can wait" — true
+when written, false from the moment the palette went out. This record carries nine board entries that
+aged into being wrong; the only thing that has ever prevented a tenth is correcting the claim in the
+commit that falsifies it. The owner saw the render before publishing, so the discomfort is accepted
+rather than unnoticed; what stays open is the remedy, because a mount is a change to shared artwork.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

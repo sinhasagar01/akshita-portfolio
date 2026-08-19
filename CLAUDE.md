@@ -238,8 +238,15 @@ gates.
   drawing-office. **Not fixed here, because a palette unit must not smuggle in a change to the
   artwork it renders.**
 
-  **THE TRIGGER IS PUBLISHING BLUEPRINT.** It is unpublished today, so the cost is zero and the
-  decision can wait for the render to be looked at at true size.
+  **⚠ THE TRIGGER HAS FIRED — BLUEPRINT IS PUBLISHED, SO THE COST IS LIVE RATHER THAN ZERO.** This
+  entry read "it is unpublished today, so the cost is zero and the decision can wait", which was true
+  when written and false from the moment the palette went out. **A board entry is a claim about the
+  present**, and this file's own record carries nine of them that aged into being wrong; correcting
+  it in the same commit as the publish is the only thing that has ever prevented a tenth.
+
+  The owner saw the render before publishing, so the discomfort is accepted rather than unnoticed.
+  What remains open is the remedy: a mount is a change to SHARED artwork, and it needs the other
+  seven palettes judged with it rather than blueprint alone.
 
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
