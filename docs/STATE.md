@@ -12890,6 +12890,106 @@ idea, but it has to be chosen rather than inherited from where a placeholder hap
 value, and a stray scratch directory one of the render scripts created was inspected before being
 removed.
 
+## ⚠ THE `reference` ROLE, AND THE TEAL WAS NOT IN A SPARE SLOT — IT WAS IN THE ACCENT'S OWN TEXT RUNG
+
+The sheet grammar's specification asked for a `reference` role and `globals.css` refused it, in a
+note that named its own end condition: on every palette that had shipped, reference and secondary
+text hold ONE value, so the role would resolve identically to one that already existed — a second
+spelling entering the vocabulary at birth. `--sheet-mark` took the quiet text role instead, with the
+words *"the quiet text role rather than a new one"* at the line.
+
+**MACHINE ROOM IS THE PALETTE WHERE THEY DIFFER.** `--ref #4FB8B0` against `--mut #8B9A98`, 114.9
+degrees apart, which is the trigger the refusal itself wrote down. `--color-reference` is declared in
+`@theme` defaulting to `text-secondary`, every palette block declares it because `theme` G4 requires
+the whole set, and `--sheet-mark` reads it. **The role went back exactly where it was refused from**,
+which is a derivation from the record rather than a mapping somebody chose.
+
+**⚠ AND THE CENSUS INVERTED THE WORDMARK ENTRY'S DIAGNOSIS.** The board said the teal was parked in
+`on-dark-quote` as *"the only existing slot shaped like a second saturated colour on a dark ground"*.
+It is not that slot:
+
+    palette        a (accent-on-dark)      aTxt (on-dark-quote)     dL      dC       dH
+    sapphire       70.0% 0.142 272.0       74.4% 0.118 272.0      +4.4   -0.023     0.0
+    ink-flare      70.0% 0.156  51.7       77.9% 0.133  51.6      +8.0   -0.022    -0.1
+    nocturne       69.9% 0.171 296.0       77.6% 0.131 297.8      +7.6   -0.040    +1.8
+    basalt         70.1% 0.166 128.1       77.9% 0.141 127.9      +7.9   -0.024    -0.2
+    machine-room   77.2% 0.157  73.5       71.9% 0.097 188.4      -5.3   -0.060  +114.9
+
+Three of the four older dark palettes are authored as the preview rung **`aTxt`** against
+`accent-on-dark`'s **`a`**, and say so in their own comments. So `on-dark-quote` is the ACCENT'S TEXT
+STEP, and the park put a second hue on four elements that carry the signal everywhere else — the
+wordmark's surname, the current-page nav mark, the two hero backdrop words and the dark glow.
+
+**⚠ THE TOKEN HAS ZERO QUOTE CONSUMERS, WHICH IS WHAT MADE THE SLOT LOOK FREE.** `PullQuote`'s band
+variant and `SectionRenderer`'s copy of it were both deleted when the mid-page dark ground went. The
+name is a fossil, and a fossil name is exactly what invites a value with nowhere else to live. The
+role registry's entry read *"the dark answer for the italic tagline"* — correct when written, false
+for an arc, corrected in the same commit as the code.
+
+**THE RELATION WAS WRITTEN DOWN FOUR TIMES AS A VALUE AND NEVER ONCE AS A CLAIM.** `theme-contrast`
+section N is the claim: the hue within 3 degrees, the step lighter than the accent, the light
+palettes excluded BY NAME with the exclusion proved non-empty, and `N5` failing the moment a light
+palette overrides `reference` — because that palette would be making Machine Room's claim and would
+owe the same scrutiny. Machine Room's own value is derived on one axis, the accent's hue held
+exactly, the generator's +7.8 lightness, chroma at 0.120 because 0.132 overshoots sRGB by 2.41 at
+that lightness.
+
+**⚠ IT IS THE FIRST ROLE WHOSE DEFAULT IS ANOTHER ROLE, AND THAT IS A KIND RATHER THAN A SHORTCUT.**
+Aliasing a RUNG would have broken it on dark — `ink-600` does not remap, so the sheet marks would
+paint near-black on a near-black page, the defect `text-subtle` and `text-body` shipped. And it must
+NOT gain a dark answer of its own: `:root[data-ground="dark"]` is 0-2-0 against a palette block's
+0-1-0, so a declaration there would silently SHADOW Machine Room's teal on the one palette the role
+exists for. `role-layer` A3e to A3h are those four rows, all mutation-killed.
+
+**⚠ AND A `!== one-kind` PREDICATE BROKE TWICE IN ONE COMMIT WHEN THE THIRD KIND ARRIVED.**
+`RUNG_ROLES` was `v.kind !== "palette-declared"`, which swept a role-aliased entry into rows that
+would have demanded it resolve to a rung it does not name; `A3d` was the same shape and reported an
+entry that DOES declare a kind as not declaring one. A two-member vocabulary encoded as
+not-the-other-one is a fixed list wearing a negation, and it fails on the third member.
+
+**⚠ AND THE FIRST DRAFT OF `A3f` WAS A TEMPORAL DEAD ZONE, THE FIFTH IN THIS RECORD.** It asked
+whether the alias target was absent from `GROUND_INVARIANT`, declared five hundred lines below it.
+`node --check` parses that perfectly and it threw the moment the row ran. The replacement asks
+whether the DARK BLOCK redeclares the target — a fact about what ships rather than about what a list
+says — and `darkBlock` was hoisted beside `themeBlock` so the row can reach it. Mechanism, not
+memory.
+
+**⚠ AND THE UNIT'S CENTRAL CLAIM WAS PROSE UNTIL A MUTATION SAID SO.** "A role with no reader is a
+second spelling, so the reader ships with the role" was asserted by nothing. Pointing `--sheet-mark`
+back at `text-secondary` leaves the role declared by eight blocks and read by none — and
+`consumer-count`, `role-layer`, `theme-contrast` and `theme` ALL STAYED GREEN.
+
+**TWO CORRECT SCOPES AND A CLAIM FALLING BETWEEN THEM.** `consumer-count` skips every `--color-*`
+token deliberately, because Tailwind generates utilities from `@theme` so a `var()` count is not
+their consumer measure — and its comment sends colour orphans to role-layer's ratchet. **The ratchet
+cannot take them**: `unclassified` walks tokens that HAVE a consumer, so a token nothing reads is not
+in its subject at all. `L5` is the row, and it kills the mutation.
+
+**⚠ AND THE WIDER ROW IS NOT MERELY UNBUILT — THAT MAP CANNOT EXPRESS IT.** `consumers` is keyed on
+tokens a PALETTE BLOCK declares, and of the fourteen entries in `ROLES` only three are in that
+subject: `text-subtle` 24, `text-body` 3, `reference` 1. The other eleven are `@theme` aliases no
+palette redeclares, so a row over all fourteen would report eleven orphans that are nothing of the
+kind. Asking the same question of them is a different walk.
+
+**MEASURED ON THE PUBLISHED PALETTE, ZERO PIXELS MOVED, FROM THE PAINT RATHER THAN BY ARGUMENT.** On
+redline, `--sheet-mark`, `--color-text-secondary` and `--color-reference` all resolve to
+`oklch(0.3959 0.01 106.8)` on `/`, `/projects/boat-crest`, `/blog` and `/gallery`, and all 91 sheet
+marks paint it. `paint-floors` on a real redline build reads **580 measured, 2 below floor** — the
+work filter's documented sibling limit, unchanged.
+
+**AND ON MACHINE ROOM IT READS AS THE MEDIUM.** 590 measured across the same five pages, the same 2,
+worst 4.83 everywhere else. The sheet number and the sheet title are teal, the plate numbers are
+teal, the figures and the marker annotation are amber — **the drawing's own apparatus in one signal
+and what it reports in the other**, which is what "two signals doing different jobs" meant. The
+wordmark's surname is amber again, matching every other palette.
+
+**⚠ AND A THIRD BOARD ENTRY CLOSED IN THIS PASS WAS CLOSED BY THE PREVIOUS PR.** *"MACHINE ROOM IS
+BUILT AND UNRENDERED"* was answered by the render protocol arc and went on asking, because its
+register row is a `judgement` — **a kind the gate cannot expire**. The two `structural` rows beside
+it fired on the minute. Not a defect in the gate; it is the boundary the gate states about itself,
+and this is the first time the half it cannot reach has cost an entry its currency.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

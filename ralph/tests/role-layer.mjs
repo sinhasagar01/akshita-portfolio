@@ -52,6 +52,29 @@ const themeBlock = (() => {
   return css.slice(o + 1, e);
 })();
 
+/* ⚠ HOISTED TO SIT BESIDE `themeBlock`, AND A TEMPORAL DEAD ZONE IS WHY. It was declared five
+ * hundred lines below beside its own section, and section A now reads it too — a `const` referenced
+ * above its declaration PARSES PERFECTLY and throws only when the line runs, which is the shape this
+ * record has logged four times. Its section-K reasoning stays where the rows that use it are; only
+ * the extractor moved. */
+/* ⚠ ANCHORED AT A LINE START, AND A BARE indexOf WAS WRONG. Prose in `globals.css` now NAMES this
+ * selector while explaining a token that was deleted in its favour, so the first match in the file
+ * is inside a comment and the brace walk then measured something else entirely — K1 reported all
+ * eight remapped roles as missing. Same family as the PR-number-as-hex trap: a convention of the
+ * prose collided with a matcher, and the note about the mechanism became the defect. */
+const darkBlock = (() => {
+  /* ⚠ THE FINDER FOLLOWS THE SELECTOR'S REPAIR. The block was raised to `:root[data-ground="dark"]`
+ * (0-2-0) after five of its values shipped SHADOWED by a later `:root` at the old 0-1-0 — so this
+ * matcher accepts the :root-prefixed form and refuses the bare one, because a bare block reappearing
+ * is the regression `ground-block` A2 exists to catch. */
+const at = css.search(/^:root\[data-ground="dark"\]/m);
+  if (at < 0) return null;
+  const o = css.indexOf("{", at);
+  let d = 0, e = -1;
+  for (let i = o; i < css.length; i++) { if (css[i] === "{") d++; else if (css[i] === "}" && --d === 0) { e = i; break; } }
+  return css.slice(o + 1, e);
+})();
+
 /* ⚠ THE REGISTRY DECLARES THE QUESTION AND EACH ENTRY ANSWERS IT — the Z8 shape from
  * `docs/colour-boundary.yaml`, which forces the reasoning to be written rather than matching a list
  * of accepted phrases. `job` answers "what is this colour FOR", and `rung` is what it must resolve
@@ -68,6 +91,22 @@ const ROLES = {
   "text-primary": { rung: "ink-950", job: "body and heading text at full strength" },
   "text-secondary": { rung: "ink-600", job: "supporting text — meta lines, captions, labels" },
   "text-lead": { rung: "ink-800", job: "the DEK — a standfirst above body copy, larger than prose and darker than text-body" },
+  /* ⚠ THE FIRST ROLE WHOSE DEFAULT IS ANOTHER ROLE, AND THE KIND IS DECLARED RATHER THAN INFERRED.
+   * `reference` is the sheet grammar's second signal. It was refused for arcs on the grounds that
+   * reference and secondary text hold ONE value on every palette that had shipped, and Machine Room
+   * is the palette where they differ — a teal 114.9 degrees from its grey.
+   *
+   * ⚠ IT ALIASES A ROLE RATHER THAN A RUNG BECAUSE A RUNG WOULD BREAK IT ON DARK. `ink-600` does not
+   * remap, so pointing there would paint the sheet marks near-black on a near-black page — the exact
+   * defect `text-subtle` and `text-body` shipped. `text-secondary` carries a dark answer in the
+   * ground block, and the alias inherits it because a custom property substitutes at USE time.
+   *
+   * ⚠ AND IT MUST NOT GAIN A DARK ANSWER OF ITS OWN. `:root[data-ground="dark"]` is 0-2-0 and a
+   * palette block is 0-1-0, so a declaration there would SHADOW Machine Room's teal and the role
+   * would resolve to grey on the one palette it exists for. A3f is the assertion that keeps the
+   * target following the ground so this one never has to. */
+  "reference": { kind: "role-aliased", aliasOf: "text-secondary",
+    job: "the SECOND SIGNAL — sheet marks, plate numbers and corner ticks, read through `--sheet-mark`; it is the secondary text role on every medium that sets the two to one value" },
   /* ⚠ THE ONLY ROLE THAT IS AN INK RATHER THAN A FINISHED COLOUR. Consumers keep their own alpha
    * (`border-etch/8`, `bg-etch/15`), because seven distinct weights are in use and one baked alpha
    * could not serve them. Measured: every weight lands within 6% of its light separation on a dark
@@ -147,9 +186,13 @@ console.log(`         ${declared.size} role tokens declared as var() aliases in 
  * palette-declared role carries its own literal per palette because it was never on the ladder.
  * Every row below splits on the DECLARED kind rather than assuming the common case — a widened
  * contract whose assertion did not widen is a correct extension nothing checks. */
-const RUNG_ROLES = Object.entries(ROLES).filter(([, v]) => v.kind !== "palette-declared");
+const RUNG_ROLES = Object.entries(ROLES).filter(([, v]) => v.kind === undefined);
 const PALETTE_ROLES = Object.entries(ROLES).filter(([, v]) => v.kind === "palette-declared");
-console.log(`         ${RUNG_ROLES.length} rung-aliased roles, ${PALETTE_ROLES.length} palette-declared`);
+/* ⚠ THE THIRD KIND, AND THE SPLIT IS ON THE DECLARED FIELD RATHER THAN ON `!== palette-declared`.
+ * That predicate silently swept a new kind into the rung-aliased rows, where A3 would have demanded
+ * `reference` resolve to a RUNG it does not name — a row failing for a reason it does not state. */
+const ROLE_ROLES = Object.entries(ROLES).filter(([, v]) => v.kind === "role-aliased");
+console.log(`         ${RUNG_ROLES.length} rung-aliased roles, ${PALETTE_ROLES.length} palette-declared, ${ROLE_ROLES.length} role-aliased`);
 
 t("A0 the parse found a real population, against a literal", declared.size >= 8, true);
 t("A1 ⚠ EVERY RUNG-ALIASED ROLE IS DECLARED — a missing one is a name the migration would resolve to nothing",
@@ -173,8 +216,38 @@ t("A3b …and each is declared as a literal by EVERY palette, which is what make
  * deliberate, so it fails here and someone states why that token is not on the ladder either. */
 t("A3c ⚠ PALETTE-DECLARED IS EXACTLY TWO — a third must be argued for, not absorbed",
   PALETTE_ROLES.length, 2);
+/* ⚠ A ROLE-ALIASED ROLE IS SAFE ONLY IF ITS TARGET FOLLOWS THE GROUND, AND THAT IS THE WHOLE
+ * CONTRACT. It carries no dark answer of its own by design, so everything about how it behaves on a
+ * near-black page is inherited from the role it names. A3f is what makes that inheritance a claim
+ * rather than an assumption. */
+t("A3e ⚠ EVERY ROLE-ALIASED ROLE IS DECLARED AS AN ALIAS OF THE ROLE ITS ENTRY NAMES",
+  ROLE_ROLES.filter(([r, v]) => declared.get(r) !== v.aliasOf)
+    .map(([r, v]) => `${r} -> ${declared.get(r) ?? "UNDECLARED"}, registry says ${v.aliasOf}`), []);
+/* ⚠ THE TARGET IS CHECKED AGAINST THE STYLESHEET RATHER THAN AGAINST A REGISTRY, AND A TEMPORAL
+ * DEAD ZONE IS HOW THAT GOT DECIDED. The first draft asked whether the target was absent from
+ * `GROUND_INVARIANT`, which is declared five hundred lines below this — `node --check` parsed it
+ * perfectly and it threw a ReferenceError the moment the row ran, the fifth instance of that shape
+ * here. The replacement is the stronger claim anyway: the target FOLLOWS THE GROUND because the
+ * dark block redeclares it, which is a fact about what ships rather than about what a list says. */
+t("A3f ⚠ …AND THE TARGET IS A REGISTERED ROLE THE DARK BLOCK REDECLARES — an invariant target would paint a light value on a dark page, which is the defect this whole layer exists for",
+  ROLE_ROLES.filter(([, v]) => !(v.aliasOf in ROLES)
+    || !new RegExp(`--color-${v.aliasOf}\\s*:`).test(darkBlock ?? ""))
+    .map(([r, v]) => `${r} aliases ${v.aliasOf}, which is not a ground-following role`), []);
+/* ⚠ AND IT MUST NOT ACQUIRE ONE, WHICH IS THE SPECIFICITY HALF. The ground block outranks a palette
+ * block, so a dark answer here would shadow the one palette whose value differs — silently, and in
+ * the direction that looks correct on every other palette. */
+t("A3g ⚠ …AND NO ROLE-ALIASED ROLE IS REDECLARED IN THE DARK GROUND BLOCK — 0-2-0 beats 0-1-0, so that would shadow the palette the role was added for",
+  ROLE_ROLES.map(([r]) => r).filter((r) => new RegExp(`--color-${r}\\s*:`).test(darkBlock ?? "")), []);
+t("A3h ⚠ ROLE-ALIASED IS EXACTLY ONE — a second is a vocabulary decision, not an absorption",
+  ROLE_ROLES.length, 1);
+/* ⚠ THE PREDICATE NAMES EVERY KIND THAT MAY OMIT A RUNG RATHER THAN ONE OF THEM. It read
+ * `v.kind !== "palette-declared"`, so the arrival of a third kind failed this row for a reason it
+ * does not state — the entry declared a kind and was reported as not declaring one. Second time in
+ * one commit that a `!== one-kind` predicate broke when a kind arrived, after the RUNG_ROLES split
+ * above, which is what makes it a property of the two-kind vocabulary rather than two slips. */
+const RUNGLESS_KINDS = ["palette-declared", "role-aliased"];
 t("A3d …and every entry declares a kind at all, so the default can never be assumed",
-  Object.entries(ROLES).filter(([, v]) => !v.rung && v.kind !== "palette-declared").map(([r]) => r), []);
+  Object.entries(ROLES).filter(([, v]) => !v.rung && !RUNGLESS_KINDS.includes(v.kind)).map(([r]) => r), []);
 
 console.log("\nB · the rungs are real, so a role cannot alias a colour that does not exist");
 
@@ -654,23 +727,6 @@ console.log("\nK · ⚠ THE DARK BLOCK REMAPS EVERY ROLE THAT NEEDS IT — the c
  * ⚠ AND THE SAME GAP EXISTS FOR EVERY ROLE THE BLOCK IS MEANT TO REMAP, which is why this is a
  * registry rather than four assertions: a role added to the layer tomorrow needs a dark answer, and
  * without this row its absence is invisible until someone renders a dark page. */
-/* ⚠ ANCHORED AT A LINE START, AND A BARE indexOf WAS WRONG. Prose in `globals.css` now NAMES this
- * selector while explaining a token that was deleted in its favour, so the first match in the file
- * is inside a comment and the brace walk then measured something else entirely — K1 reported all
- * eight remapped roles as missing. Same family as the PR-number-as-hex trap: a convention of the
- * prose collided with a matcher, and the note about the mechanism became the defect. */
-const darkBlock = (() => {
-  /* ⚠ THE FINDER FOLLOWS THE SELECTOR'S REPAIR. The block was raised to `:root[data-ground="dark"]`
- * (0-2-0) after five of its values shipped SHADOWED by a later `:root` at the old 0-1-0 — so this
- * matcher accepts the :root-prefixed form and refuses the bare one, because a bare block reappearing
- * is the regression `ground-block` A2 exists to catch. */
-const at = css.search(/^:root\[data-ground="dark"\]/m);
-  if (at < 0) return null;
-  const o = css.indexOf("{", at);
-  let d = 0, e = -1;
-  for (let i = o; i < css.length; i++) { if (css[i] === "{") d++; else if (css[i] === "}" && --d === 0) { e = i; break; } }
-  return css.slice(o + 1, e);
-})();
 
 /* Which roles MUST be redirected on a dark ground, and which deliberately must not. */
 const DARK_EXEMPT = {
@@ -707,6 +763,13 @@ const DARK_EXEMPT = {
    * GROUND THE ROLE'S NAME CLAIMS. Checkable in principle, and nothing asks it. */
   "accent": "remapped, but under the `--color-accent` name — listed here only so the count below "
     + "reads as deliberate rather than short.",
+  /* ⚠ THE ONLY EXEMPTION WHOSE REASON IS A SPECIFICITY FACT RATHER THAN A COLOUR ONE, AND IT IS THE
+   * ONE K3 CANNOT CHECK. K3 hardcodes `on-accent`, so it would not notice this role being remapped
+   * after all — A3g is the derived row that does, and it is stated here because an exemption whose
+   * guard is somewhere else reads as unguarded. */
+  "reference": "role-aliased: it resolves THROUGH `text-secondary`, which the block does remap, so "
+    + "it follows the ground without naming it. A declaration here would be 0-2-0 against a palette "
+    + "block's 0-1-0 and would SHADOW Machine Room's teal — the one palette the role exists for.",
 };
 const mustRemap = Object.keys(ROLES).filter((r) => !(r in DARK_EXEMPT));
 const remapped = darkBlock ? new Set([...darkBlock.matchAll(/--color-([a-z0-9-]+)\s*:/g)].map((m) => m[1])) : new Set();
@@ -799,7 +862,15 @@ for (const f of srcFiles) {
 const GROUND_INVARIANT = {
   "on-dark": "IS the dark answer — a role remapping to it would be circular.",
   "on-dark-muted": "IS the dark answer for secondary text, same reason.",
-  "on-dark-quote": "IS the dark answer for the italic tagline, same reason.",
+  /* ⚠ THE REASON HERE SAID "the italic tagline" AND THE TAGLINE HAS BEEN GONE FOR AN ARC. Both
+   * quote consumers — `PullQuote`'s band variant and the section renderer's copy of it — were
+   * deleted when the mid-page dark ground went, so the token has ZERO quote consumers and five
+   * live ones. Censused: `.logo-singh`, the current-page nav mark, the two hero backdrop words
+   * and `--glow-on-dark`. Three of the four older dark palettes author it as the preview rung
+   * `aTxt` in their own comments, which is what it actually is. */
+  "on-dark-quote": "IS the dark answer for ACCENT TEXT — the accent's own hue one lightness step "
+    + "above `accent-on-dark`, asserted by `theme-contrast` section N. The name is a fossil of a "
+    + "quote variant that no longer exists.",
   "accent-on-dark": "IS the dark answer for the accent, referenced BY `--color-accent` in the block.",
   "band-dark": "the dark ground itself — it is what the other side remaps TO.",
   "glow-paper": "IS the light ground's answer for a glow; `--glow-on-dark` is its pair and the "
@@ -1012,6 +1083,31 @@ t("L3a …and the artwork files were excluded by FILE, the unit section H is wri
  * token that gained a consumer; this catches one that LOST every consumer and kept its entry. */
 t("L4 ⚠ AND NO GROUND-INVARIANT ENTRY HAS LOST ITS CONSUMERS — zero consumers is a reason to delete a token, not to exempt it forever",
   Object.keys(GROUND_INVARIANT).filter((t2) => !consumers.has(t2)), []);
+/* ⚠ A ROLE-ALIASED ROLE WITH NO READER IS A SYNONYM, AND NOTHING IN THIS REPOSITORY COULD SAY SO.
+ * `consumer-count` deliberately skips every `--color-*` token — Tailwind generates utilities from
+ * `@theme`, so a `var()` count is not their consumer measure, and its comment sends colour orphans
+ * here. THE RATCHET CANNOT TAKE THEM: `unclassified` walks tokens that HAVE a consumer, so a token
+ * nothing reads is not in its subject at all. Two correct scopes, and a claim falling between them.
+ *
+ * ⚠ FOUND BY MUTATION AND NOT BY READING. Pointing `--sheet-mark` back at `text-secondary` leaves
+ * the `reference` role declared by eight blocks and read by nothing — and `consumer-count`,
+ * `role-layer`, `theme-contrast` and `theme` all stayed GREEN. The PR's central claim, that the
+ * reader ships with the role, was prose.
+ *
+ * ⚠ SCOPED TO THE ROLE-ALIASED KIND, AND NOT BECAUSE THE WIDER ROW WAS DEFERRED — THIS MAP CANNOT
+ * EXPRESS IT. `consumers` is keyed on tokens a PALETTE BLOCK declares, and of the fourteen entries
+ * in `ROLES` only three are in that subject: `text-subtle` at 24, `text-body` at 3 and `reference`
+ * at 1. The other eleven live in `@theme` as aliases that no palette redeclares, so the map holds
+ * no entry for them and a row over all fourteen would report eleven orphans that are nothing of the
+ * kind — the wrong-noun error at four times the scale. Asking the same question of them needs a
+ * different walk, and that is a unit rather than a widened filter.
+ *
+ * AND THIS KIND OWES THE PROOF MOST ANYWAY, because a role whose default IS another role is
+ * indistinguishable from that role until something reads it by its own name. */
+const roleAliasedOrphans = ROLE_ROLES.map(([r]) => r).filter((r) => !consumers.has(r));
+console.log(`         role-aliased consumers: ${ROLE_ROLES.map(([r]) => `${r} ${consumers.get(r) ?? 0}`).join(", ")}`);
+t("L5 ⚠ AND EVERY ROLE-ALIASED ROLE IS ACTUALLY READ — one that nothing reads is a second spelling for the role it aliases, which is what this kind exists to avoid",
+  roleAliasedOrphans, []);
 
 
 console.log("\nN · ⚠ A TRANSITION PAIRS TWO VALUES, AND NOTHING HAS EVER CHECKED BOTH SIDES THEME");
