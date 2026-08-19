@@ -239,52 +239,6 @@ gates.
   cheapest honest option is probably that the label ducks — but that is a design call on a component
   the owner has ruled on before.
 
-- **⚠ BOARDED: THE WORDMARK'S SURNAME IS TEAL ON MACHINE ROOM, AND IT IS AN ACCIDENT OF A
-  PLACEHOLDER.** `.logo-singh` paints `oklch(0.7192 0.097 188.4)`, which is exactly the value parked
-  in `on-dark-quote` as a provisional home for the medium's `--ref`. The surname changed colour as a
-  side effect of a token having nowhere else to live.
-
-  **⚠ IT LOOKS DELIBERATE, WHICH IS WORSE THAN LOOKING WRONG.** An accidental difference that reads
-  as a decision is indistinguishable from one, and this record already carries the mirror — an
-  unrecorded deliberate difference is indistinguishable from drift, and cost four rounds. Nobody
-  looking at the hero would guess the surname's colour was chosen by a parking decision.
-
-  **THIS IS THE `reference` ROLE'S FIRST NAMED CONSUMER QUESTION, AND IT IS THE USEFUL HALF.** That
-  unit is boarded needing a reader, because a role with nothing reading it is a second spelling. The
-  wordmark is a candidate reader — a signature marked in the reference colour is a real idea — but it
-  has to be CHOSEN rather than inherited from where a placeholder happened to sit.
-
-
-- **⚠ BOARDED: MACHINE ROOM IS BUILT AND UNRENDERED, AND THE CONVENTION SAYS THAT IS NOT SHIPPED.**
-  The palette gates green — 33 tokens, its own band, a role-aware dark ladder — and **no human eye
-  has been on it.** The rule this repository already carries is that a candidate palette is judged
-  by the instrument and THEN by the render, and neither step is optional.
-
-  **THE VESSEL IS THE ONE TO WATCH, AND THIS IS THE FIRST PALETTE WHERE THAT IS A NEW QUESTION.**
-  Every existing dark palette was derived from a light ladder; Machine Room was designed dark, so
-  its vessel tones are an interpolation of a chrome ramp rather than a darkening of something drawn
-  light. The record already carries the vessel as the component whose ground only a pixel can
-  answer.
-
-  **THE PROTOCOL IS WRITTEN DOWN: the full home page plus the work card, the glass nav, the hero
-  ground and the Pearl Smoke vessel**, then judge. `theme:` restores to the published value read
-  from `origin/main` afterwards.
-
-- **⚠ BOARDED: THE `reference` ROLE, WHOSE TRIGGER THIS PALETTE FINALLY MEETS.** `globals.css`
-  records that the role was refused because on every palette that shipped, reference and secondary
-  text are the SAME value — "the trigger for adding it is a palette where the two genuinely differ".
-  Machine Room's `--ref` is a teal at 71.92% 0.097 188.4 and its `--mut` is 67.37% 0.017 187.1. They
-  differ.
-
-  **THE TEAL IS PARKED IN `on-dark-quote` AND THAT IS FLAGGED AT THE LINE.** It is the only existing
-  slot shaped like a second saturated colour on a dark ground, and it is a provisional home rather
-  than a claim that a quote is what the medium means by reference.
-
-  **THE UNIT IS THE ROLE PLUS ITS CONSUMERS, AND THE SECOND HALF IS THE HARD ONE.** A role with no
-  reader is a second spelling entering the vocabulary at birth, which this record deletes on sight —
-  so the PR has to name what reads it. Blueprint is the only other medium where the two differ, so
-  the population is two.
-
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
@@ -622,6 +576,141 @@ that was taken, the measurement that settled it, the shape it turned out to be a
 that ages into being false while still reading as verification; summarising a closed finding is how
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
+
+- **⚠ CLOSED, THREE AT ONCE, AND THE TEAL WAS NOT IN A SPARE SLOT — IT WAS IN THE ACCENT'S OWN TEXT
+  RUNG.** The `reference` role was refused for arcs on a rule that named its own end condition:
+  reference and secondary text hold ONE value on every palette that had shipped, so the role would
+  resolve identically to one that already existed. Machine Room is the palette where they differ —
+  `--ref #4FB8B0` against `--mut #8B9A98`, **114.9 degrees apart** — which is the trigger the
+  refusal itself wrote down.
+
+  **`--color-reference` IS DECLARED, DEFAULTS TO `text-secondary`, AND `--sheet-mark` READS IT.** A
+  role with no reader is a second spelling entering the vocabulary at birth, so the reader shipped
+  in the same commit — and it is not an invented mapping. `--sheet-mark`'s own comment said *"the
+  quiet text role rather than a new one"*, which is the substitution the refusal note four thousand
+  lines below records making. **The role went back exactly where it was refused from.**
+
+  **⚠ AND THE CENSUS INVERTED THE WORDMARK ENTRY'S DIAGNOSIS.** The teal was parked in
+  `on-dark-quote` as *"the only existing slot shaped like a second saturated colour on a dark
+  ground"*. It is not that slot. Measured:
+
+      palette        a (accent-on-dark)      aTxt (on-dark-quote)     dL      dC       dH
+      sapphire       70.0% 0.142 272.0       74.4% 0.118 272.0      +4.4   -0.023     0.0
+      ink-flare      70.0% 0.156  51.7       77.9% 0.133  51.6      +8.0   -0.022    -0.1
+      nocturne       69.9% 0.171 296.0       77.6% 0.131 297.8      +7.6   -0.040    +1.8
+      basalt         70.1% 0.166 128.1       77.9% 0.141 127.9      +7.9   -0.024    -0.2
+      machine-room   77.2% 0.157  73.5       71.9% 0.097 188.4      -5.3   -0.060  +114.9
+
+  **THREE OF THE FOUR OLDER DARK PALETTES SAY IT IN THEIR OWN COMMENTS** — authored as the preview
+  rung `aTxt` against `accent-on-dark`'s `a`. So `on-dark-quote` is the ACCENT'S TEXT STEP, and the
+  park put a second hue on four elements that carry the signal everywhere else: the wordmark's
+  surname, the current-page nav mark, the two hero backdrop words and the dark glow.
+
+  **⚠ AND THE TOKEN HAS ZERO QUOTE CONSUMERS, WHICH IS WHAT MADE THE SLOT LOOK FREE.** `PullQuote`'s
+  band variant and the section renderer's copy of it were both deleted when the mid-page dark ground
+  went. **The name is a fossil**, and a fossil name is exactly what invites a value that has nowhere
+  else to live. The role registry's entry for it said *"the dark answer for the italic tagline"* —
+  correct when written, false for an arc, and corrected in the same commit.
+
+  **THE RELATION WAS WRITTEN DOWN FOUR TIMES AS A VALUE AND NEVER ONCE AS A CLAIM.**
+  `theme-contrast` section N is that claim now — the hue within 3 degrees, the step lighter, the
+  light palettes excluded by name with the exclusion proved non-empty. **Machine-room's own value is
+  derived on one axis**, the accent's hue held exactly, the generator's +7.8 lightness, chroma at
+  0.120 because 0.132 overshoots sRGB by 2.41 at that lightness.
+
+  **⚠ THE ROLE IS THE FIRST WHOSE DEFAULT IS ANOTHER ROLE, AND THAT IS A KIND RATHER THAN A
+  SHORTCUT.** Pointing it at a RUNG would have broken it on dark — `ink-600` does not remap, so the
+  sheet marks would have painted near-black on a near-black page, which is the defect `text-subtle`
+  and `text-body` shipped. And it must NOT gain a dark answer of its own: `:root[data-ground="dark"]`
+  is 0-2-0 against a palette block's 0-1-0, so a declaration there would SHADOW Machine Room's teal
+  on the one palette the role exists for. `role-layer` A3e to A3h are the rows.
+
+  **⚠ AND A `!== one-kind` PREDICATE BROKE TWICE IN ONE COMMIT WHEN THE THIRD KIND ARRIVED.**
+  `RUNG_ROLES` was `v.kind !== "palette-declared"`, so a role-aliased entry was swept into rows that
+  would have demanded it resolve to a rung it does not name; `A3d` was the same shape and reported an
+  entry that DOES declare a kind as not declaring one. **A two-member vocabulary encoded as
+  not-the-other-one is a fixed list wearing a negation**, and it fails on the third member rather
+  than on the second.
+
+  **⚠ AND THE FIRST DRAFT OF `A3f` WAS A TEMPORAL DEAD ZONE, THE FIFTH HERE.** It asked whether the
+  alias target was absent from `GROUND_INVARIANT`, which is declared five hundred lines below it.
+  `node --check` parses that perfectly; it threw the moment the row ran. The replacement asks
+  whether the DARK BLOCK redeclares the target, which is a fact about what ships rather than about
+  what a list says — and `darkBlock` had to be hoisted beside `themeBlock` for it, which is the
+  mechanism rather than a reminder.
+
+  **MEASURED ON THE PUBLISHED PALETTE, ZERO PIXELS MOVED — FROM THE PAINT RATHER THAN BY ARGUMENT.**
+  On redline, `--sheet-mark`, `--color-text-secondary` and `--color-reference` all resolve to
+  `oklch(0.3959 0.01 106.8)` on `/`, `/projects/boat-crest`, `/blog` and `/gallery`, and all 91
+  sheet marks paint it. `paint-floors` on a real redline build reads **580 measured, 2 below floor**
+  — the work filter's documented sibling limit, unchanged.
+
+  **AND ON MACHINE ROOM IT READS AS THE MEDIUM.** 590 measured across the same five pages, the same
+  2, worst 4.83 everywhere else. The sheet number and sheet title are teal, the plate numbers are
+  teal, the figures and the annotation are amber — **the drawing's own apparatus in one signal and
+  what it reports in the other**, which is what "two signals doing different jobs" meant.
+
+  **⚠ AND THE THIRD ENTRY CLOSED BY THIS PASS WAS CLOSED BY THE PREVIOUS PR, NOT BY THIS ONE.**
+  *"MACHINE ROOM IS BUILT AND UNRENDERED"* was answered by the render protocol arc, and it went on
+  asking because its register row is a `judgement` — **a kind the gate cannot expire.** The two
+  `structural` rows beside it fired on the minute. That is not a defect in the gate; it is the
+  boundary the gate states about itself, and this is the first time the half it cannot reach has
+  cost an entry its currency.
+
+  **⚠ AND NO ACTION SURVIVES ON THE WORDMARK, WHICH IS SAID RATHER THAN LEFT IMPLIED.** The board
+  asked for the surname's colour to be CHOSEN rather than inherited. It is now the accent hue on all
+  seven palettes, which is the design's own standing statement — `.logo-singh` takes
+  `--color-accent` on light and the accent's text step on dark. **Whether a signature should
+  deliberately carry the reference colour is a preference with no trigger**, so it is not boarded.
+
+  **THE THREE ENTRIES AS THEY STOOD, KEPT BECAUSE THE WORDMARK ONE'S DIAGNOSIS WAS WRONG IN A WAY
+  WORTH READING:**
+
+- **⚠ BOARDED: THE WORDMARK'S SURNAME IS TEAL ON MACHINE ROOM, AND IT IS AN ACCIDENT OF A
+  PLACEHOLDER.** `.logo-singh` paints `oklch(0.7192 0.097 188.4)`, which is exactly the value parked
+  in `on-dark-quote` as a provisional home for the medium's `--ref`. The surname changed colour as a
+  side effect of a token having nowhere else to live.
+
+  **⚠ IT LOOKS DELIBERATE, WHICH IS WORSE THAN LOOKING WRONG.** An accidental difference that reads
+  as a decision is indistinguishable from one, and this record already carries the mirror — an
+  unrecorded deliberate difference is indistinguishable from drift, and cost four rounds. Nobody
+  looking at the hero would guess the surname's colour was chosen by a parking decision.
+
+  **THIS IS THE `reference` ROLE'S FIRST NAMED CONSUMER QUESTION, AND IT IS THE USEFUL HALF.** That
+  unit is boarded needing a reader, because a role with nothing reading it is a second spelling. The
+  wordmark is a candidate reader — a signature marked in the reference colour is a real idea — but it
+  has to be CHOSEN rather than inherited from where a placeholder happened to sit.
+
+
+- **⚠ BOARDED: MACHINE ROOM IS BUILT AND UNRENDERED, AND THE CONVENTION SAYS THAT IS NOT SHIPPED.**
+  The palette gates green — 33 tokens, its own band, a role-aware dark ladder — and **no human eye
+  has been on it.** The rule this repository already carries is that a candidate palette is judged
+  by the instrument and THEN by the render, and neither step is optional.
+
+  **THE VESSEL IS THE ONE TO WATCH, AND THIS IS THE FIRST PALETTE WHERE THAT IS A NEW QUESTION.**
+  Every existing dark palette was derived from a light ladder; Machine Room was designed dark, so
+  its vessel tones are an interpolation of a chrome ramp rather than a darkening of something drawn
+  light. The record already carries the vessel as the component whose ground only a pixel can
+  answer.
+
+  **THE PROTOCOL IS WRITTEN DOWN: the full home page plus the work card, the glass nav, the hero
+  ground and the Pearl Smoke vessel**, then judge. `theme:` restores to the published value read
+  from `origin/main` afterwards.
+
+- **⚠ BOARDED: THE `reference` ROLE, WHOSE TRIGGER THIS PALETTE FINALLY MEETS.** `globals.css`
+  records that the role was refused because on every palette that shipped, reference and secondary
+  text are the SAME value — "the trigger for adding it is a palette where the two genuinely differ".
+  Machine Room's `--ref` is a teal at 71.92% 0.097 188.4 and its `--mut` is 67.37% 0.017 187.1. They
+  differ.
+
+  **THE TEAL IS PARKED IN `on-dark-quote` AND THAT IS FLAGGED AT THE LINE.** It is the only existing
+  slot shaped like a second saturated colour on a dark ground, and it is a provisional home rather
+  than a claim that a quote is what the medium means by reference.
+
+  **THE UNIT IS THE ROLE PLUS ITS CONSUMERS, AND THE SECOND HALF IS THE HARD ONE.** A role with no
+  reader is a second spelling entering the vocabulary at birth, which this record deletes on sight —
+  so the PR has to name what reads it. Blueprint is the only other medium where the two differ, so
+  the population is two.
 
 - **⚠ CLOSED: THE NINTH FOREGROUND TOOK THE RUNG, AND THREE ROWS WERE WATCHING FOR IT IN TWO OTHER
   SHAPES.** `VideoEmbed.tsx` painted `text-accent-500` on the video block's eyebrow. Measured on

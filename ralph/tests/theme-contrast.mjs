@@ -2026,5 +2026,69 @@ t("M0a …and the scan found grounds to look inside, against a literal", windows
 t("M1 ⚠ NO NON-TEXT TOKEN IS DRAWN AS TEXT ON THE GROUND ITS ROW NAMES — the claim both rows got wrong",
   [...new Set(violations)].sort(), []);
 
+/* ============================================================================================
+   N · ⚠ THE DARK ACCENT'S TEXT STEP — `on-dark-quote` IS THE ACCENT AT ANOTHER LIGHTNESS, AND
+   NOTHING HAD EVER SAID SO.
+
+   The token's NAME says quote and it has ZERO quote consumers: the italic tagline and the
+   full-bleed quote band were both deleted when the mid-page dark ground went. Its five live readers
+   are `.logo-singh`, the current-page nav mark, the two hero backdrop words and `--glow-on-dark` —
+   four of which draw the accent's colour on every palette that was drawn before Machine Room.
+
+   ⚠ AND THE FOUR OLDER DARK PALETTES SAY IT IN THEIR OWN COMMENTS. Three are authored as the
+   preview rung `aTxt` against `accent-on-dark`'s `a`, at the SAME HUE and one lightness step above.
+   So the relation was written down four times as a value and never once as a claim.
+
+   ⚠ WHAT THAT COST: a teal was parked here as "the only existing slot shaped like a second
+   saturated colour on a dark ground", 114.9 degrees from Machine Room's amber, and the wordmark's
+   surname went teal on a page whose every other signal is amber. It was found by RENDERING the
+   palette, which is the second finding in a week that no instrument here could reach — and unlike
+   the vessel's progress line, this one is expressible as a number.
+
+   ⚠ THE SUBJECT IS DARK PALETTES ONLY AND THE COMPLEMENT IS ASSERTED. On a light palette the token
+   is a near-grey by design — drawing-office and redline both set reference and secondary text to
+   one value — so demanding the accent's hue there would fail correct palettes. N4 names them, and
+   N4a proves the exclusion is not the whole population, since an exemption that covers everything
+   is a gate that has quietly stopped requiring anything.
+============================================================================================ */
+console.log("\nN · ⚠ THE DARK ACCENT'S TEXT STEP — the relation four palettes hold and one broke");
+const HUE_TOL = 3;
+const stepRows = THEME_NAMES.filter((n) => THEME_GROUND[n] === "dark").map((n) => {
+  const pal = resolvedPalette(paletteOf(n));
+  const a = oklchOf(pal["accent-on-dark"]);
+  const q = oklchOf(pal["on-dark-quote"]);
+  if (!a || !q) return { n, missing: true };
+  const dH = ((q.H - a.H + 540) % 360) - 180;
+  return { n, dL: (q.L - a.L) * 100, dC: q.C - a.C, dH };
+});
+for (const r of stepRows)
+  console.log(r.missing
+    ? `         ${r.n.padEnd(14)} UNCOMPUTED — a token is missing`
+    : `         ${r.n.padEnd(14)} dL ${r.dL.toFixed(1).padStart(5)}   dC ${r.dC.toFixed(3).padStart(6)}   dH ${r.dH.toFixed(1).padStart(6)}`);
+
+t("N1 the population is real — every dark palette resolves BOTH tokens, asserted against a literal",
+  stepRows.length >= 4 && stepRows.every((r) => !r.missing), true);
+t(`N2 ⚠ ON EVERY DARK PALETTE THE ACCENT'S TEXT STEP HOLDS THE ACCENT'S HUE within ${HUE_TOL} degrees — the teal sat 114.9 away and four elements that carry the signal carried a second one`,
+  stepRows.filter((r) => !r.missing && Math.abs(r.dH) > HUE_TOL).map((r) => `${r.n} dH ${r.dH.toFixed(1)}`), []);
+t("N3 …and it is LIGHTER than the accent, which is what makes it the TEXT step rather than a second accent",
+  stepRows.filter((r) => !r.missing && r.dL <= 0).map((r) => `${r.n} dL ${r.dL.toFixed(1)}`), []);
+/* ⚠ THE COMPLEMENT, AND IT IS THE HALF AN EXEMPTION ALWAYS SKIPS. An exclusion only ever makes a
+ * gate MORE permissive, so without these two rows a light palette silently joining the dark set —
+ * or the dark set draining to nothing — would read exactly like a clean run. */
+const lightWithQuote = THEME_NAMES.filter((n) => THEME_GROUND[n] !== "dark");
+t("N4 the excluded set is the LIGHT palettes and it is named rather than implied",
+  lightWithQuote.every((n) => THEME_GROUND[n] === "light"), true);
+t("N4a …and it has members, so the exclusion is not the whole population",
+  lightWithQuote.length >= 2, true);
+/* ⚠ AND THE EXCLUSION IS ONLY SAFE WHILE THE LIGHT PALETTES REALLY DO SET THE TWO TO ONE VALUE.
+ * `reference` defaults to `text-secondary`, so a light palette that overrode it would be making the
+ * same claim Machine Room makes and would owe the same scrutiny. This fails when one does. */
+const lightRefDrift = lightWithQuote.filter((n) => {
+  const raw = themeOverrides(n)["reference"];
+  return raw !== undefined && !/var\(\s*--color-text-secondary\s*\)/.test(raw);
+});
+t("N5 ⚠ NO LIGHT PALETTE OVERRIDES `reference` — the moment one does, reference and secondary text differ there too and the exclusion above stops describing it",
+  lightRefDrift, []);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

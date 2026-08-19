@@ -515,6 +515,29 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      the public `text-subtle` instead would have left the frozen token with no public counterpart —
      the exact asymmetry that made `studio-ground` invisible to C1's pairing in 6a. */
   --color-text-subtle: oklch(48.7% 0.000 0);
+
+  /* ⚠ `reference` — THE SECOND SIGNAL, AND IT WAS REFUSED TWICE BEFORE IT EARNED ITSELF. The sheet
+     grammar's specification asked for this role and the note four thousand lines below records the
+     refusal in its own words: on every palette that shipped, reference and secondary text are the
+     SAME value, so the role would have been a second spelling entering the vocabulary at birth.
+     `--sheet-mark` took the quiet text role instead, and that substitution is what this declaration
+     undoes.
+
+     ⚠ THE TRIGGER THE REFUSAL NAMED IS A PALETTE WHERE THE TWO GENUINELY DIFFER, AND MACHINE ROOM
+     IS IT. Its specification carries `--ref #4FB8B0` against `--mut #8B9A98` — a teal and a grey,
+     114.9 degrees apart. Every other medium sets the two to one value, which is why this defaults to
+     the secondary text role and why six of the seven palettes move ZERO PIXELS.
+
+     ⚠ AND IT IS DECLARED BY EVERY PALETTE RATHER THAN ONLY BY THE ONE THAT DIFFERS. `theme` G4
+     requires the whole set in every block, and the reason is the defect it was written for — a
+     palette missing a token silently inherits the ancestor's. Declaring the identity explicitly is
+     also what makes it CHECKABLE rather than implied, so the next medium has to decide rather than
+     inherit.
+
+     WHAT READS IT is `--sheet-mark`, which draws the sheet marks, the plate numbers and the corner
+     ticks — a drawing's reference annotations, which is what the role is named for. A role with no
+     reader is a second spelling, so the reader ships in the same commit as the role. */
+  --color-reference:     var(--color-text-secondary);
   --color-accent:        var(--color-accent-500);
 
   /* ⚠ `accent-text` — THE ACCENT AT A LIGHTNESS THAT CLEARS 4.5 AS TEXT. `accent` is the same brand
@@ -844,6 +867,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500:        oklch(0.0% 0.000 0);
   --color-accent-600:        oklch(0.0% 0.000 0);
   --color-text-subtle:       oklch(48.7% 0.000 0);
+  --color-reference:       var(--color-text-secondary);
   --color-text-body:         oklch(37.5% 0.000 0);
   --color-rule:              oklch(48.5% 0.000 0);
   --color-band-dark:         rgb(15, 15, 15);
@@ -1106,6 +1130,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500: oklch(52.0% 0.174 272);
   --color-accent-600: oklch(45.0% 0.178 272);
   --color-text-subtle: oklch(48.7% 0.020 250);
+  --color-reference: var(--color-text-secondary);
   --color-text-body: oklch(37.5% 0.017 250);
   --color-rule: oklch(48.5% 0.026 250);
   --color-band-dark: oklch(17.0% 0.016 250);
@@ -1165,6 +1190,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500:        oklch(52.0% 0.133 52);
   --color-accent-600:        oklch(45.0% 0.116 52);
   --color-text-subtle:       oklch(48.7% 0.018 44);
+  --color-reference:       var(--color-text-secondary);
   --color-text-body:         oklch(37.5% 0.015 44);
   --color-rule:              oklch(48.5% 0.023 44);
   --color-band-dark: rgb(20, 13, 10);  /* authored — preview rung `bg` */
@@ -1224,6 +1250,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500:        oklch(52.0% 0.160 296);
   --color-accent-600:        oklch(45.0% 0.164 296);
   --color-text-subtle:       oklch(48.7% 0.030 282);
+  --color-reference:       var(--color-text-secondary);
   --color-text-body:         oklch(37.5% 0.026 282);
   --color-rule:              oklch(48.5% 0.039 282);
   --color-band-dark: rgb(13, 14, 25);  /* authored — preview rung `bg` */
@@ -1293,6 +1320,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500:        oklch(52.0% 0.136 128);
   --color-accent-600:        oklch(45.0% 0.117 128);
   --color-text-subtle:       oklch(48.7% 0.000 0);
+  --color-reference:       var(--color-text-secondary);
   --color-text-body:         oklch(37.5% 0.000 0);
   --color-rule:              oklch(48.5% 0.000 0);
   --color-band-dark:         rgb(15, 15, 15);  /* authored — preview rung `bg` */
@@ -1438,6 +1466,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500:        oklch(48.77% 0.183 29.1);
   --color-accent-600:        oklch(39.87% 0.142 28.7);
   --color-text-subtle:       oklch(45.09% 0.011 106.8);
+  --color-reference:       var(--color-text-secondary);
   --color-text-body:         oklch(33.54% 0.007 106.8);
   --color-rule:              oklch(63.58% 0.009 106.6);
   --color-band-dark:         oklch(17.72% 0.002 106.6);
@@ -1502,13 +1531,19 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    palette's SEPARATION class differ from its GROUND class — this one is a dark ground in a band of
    its own.
 
-   ⚠ AND THE TEAL HAS NO ROLE YET, WHICH IS SAID PLAINLY. `--ref` is the medium's second signal and
-   this repository has no `reference` role — `globals.css` already records that the role was refused
-   because on every palette that shipped, reference and secondary text are the SAME value, and that
-   "the trigger for adding it is a palette where the two genuinely differ". This is that palette.
-   Until the role exists the teal sits in `on-dark-quote`, the only existing slot shaped like a
-   second saturated colour on a dark ground. That is a provisional home and not a claim that a
-   quote is what the medium means by reference.
+   ⚠ AND THE TEAL NOW HAS A ROLE, WHICH IT DID NOT WHEN THIS PALETTE SHIPPED. `--ref` is the
+   medium's second signal, and this repository had no `reference` role because on every palette that
+   shipped, reference and secondary text were the SAME value. This is the palette where they differ,
+   which is the trigger the refusal itself named. `--color-reference` is declared in `@theme` and
+   read by `--sheet-mark`, so the sheet marks, plate numbers and corner ticks take the teal here and
+   the secondary text role everywhere else.
+
+   ⚠ AND THE PROVISIONAL HOME WAS WORSE THAN PROVISIONAL, WHICH ONLY A CENSUS SHOWED. The teal was
+   parked in `on-dark-quote` as "the only existing slot shaped like a second saturated colour on a
+   dark ground". It is not that slot. Its four siblings are authored as the preview rung `aTxt` and
+   their own comments say so, so it is the ACCENT'S TEXT STEP — and the park put a second hue on the
+   wordmark's surname, the current-page nav mark, the hero backdrop word and the dark glow. See the
+   note at the token below.
    ───────────────────────────────────────────────────────────────────────────── */
 [data-theme="machine-room"] {
   /* The light ladder, interpolated across the medium's own chrome ramp, hue 222.7 at the ground to
@@ -1540,6 +1575,10 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-accent-500:        oklch(54.00% 0.114 73.6);
   --color-accent-600:        oklch(47.00% 0.100 72.8);
   --color-text-subtle:       oklch(48.70% 0.013 209.1);
+  /* --ref #4FB8B0, THE MEDIUM'S SECOND SIGNAL, IN A ROLE OF ITS OWN. It sat in
+     `on-dark-quote` while no role existed, which was the accent's own text rung — see the
+     note above the block. */
+  --color-reference:       oklch(71.92% 0.097 188.4);
   --color-text-body:         oklch(37.50% 0.014 214.9);
   /* --obj, DERIVED. Hue and chroma are the medium's; only lightness moved. See the note above. */
   --color-rule:              oklch(53.37% 0.021 209.5);
@@ -1547,8 +1586,30 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-band-dark:         oklch(22.42% 0.013 222.7);
   --color-on-dark:           oklch(91.63% 0.008 186.9);
   --color-on-dark-muted:     oklch(67.37% 0.017 187.1);
-  /* --ref #4FB8B0, provisionally housed. See the note above. */
-  --color-on-dark-quote:     oklch(71.92% 0.097 188.4);
+  /* ⚠ THE ACCENT'S TEXT STEP, DERIVED — AND THE SLOT THE TEAL WAS PARKED IN WAS NEVER A QUOTE
+     SLOT. `on-dark-quote` has ZERO quote consumers: the italic tagline and the quote band were both
+     deleted when the mid-page dark ground went, and its five live readers are the wordmark's
+     surname, the current-page nav mark, the hero backdrop word and the dark glow. On the other four
+     dark palettes it is authored as the preview rung `aTxt` and their own comments say so — the
+     accent's text step, at the accent's hue, one lightness step above `accent-on-dark`.
+
+         palette        a (accent-on-dark)      aTxt (on-dark-quote)     dL      dC       dH
+         sapphire       70.0% 0.142 272.0       74.4% 0.118 272.0      +4.4   -0.023     0.0
+         ink-flare      70.0% 0.156  51.7       77.9% 0.133  51.6      +8.0   -0.022    -0.1
+         nocturne       69.9% 0.171 296.0       77.6% 0.131 297.8      +7.6   -0.040    +1.8
+         basalt         70.1% 0.166 128.1       77.9% 0.141 127.9      +7.9   -0.024    -0.2
+         machine-room   77.2% 0.157  73.5   ->  85.0% 0.120  73.6      +7.8   -0.037     0.0
+
+     The teal sat at 71.9% 0.097 188.4, which is 114.9 DEGREES from the amber, so four elements that
+     carry the signal hue on every other palette carried a second hue nothing else on the page
+     shared. Section N of `theme-contrast` is the assertion that was missing.
+
+     ⚠ ONLY LIGHTNESS AND CHROMA MOVE AND THE HUE IS THE ACCENT'S EXACTLY, which is the same
+     one-axis discipline `--obj` was derived under. The lightness takes the generator's +7.8. The
+     chroma would be -0.025 by that rule and 0.132 overshoots sRGB by 2.41 at L 85 against a 0.5
+     epsilon, so it lands at 0.120 — inside the band the four observed steps already span, and the
+     third time in this palette that chroma has not been comparable across hues. */
+  --color-on-dark-quote:     oklch(85.00% 0.120 73.6);
   /* The amber IS the dark-ground accent — this medium's signal does not change with the ground. */
   --color-accent-on-dark:    oklch(77.22% 0.157 73.6);
   --color-smoke-1:           oklch(0.84 0.008 200 / 0.74);
@@ -6229,13 +6290,21 @@ a {
    readout band, margin notes and an inspection block. Everything on the page is built from
    those six, which is what stops eleven case-study sections becoming eleven inventions.
 
-   ⚠ THE SPEC ASKED FOR A NEW `reference` ROLE AND IT IS DELIBERATELY NOT ADDED. That role was
-   justified by a palette named Machine Room, whose reference value was a teal distinct from its
-   secondary text. THAT PALETTE WAS NEVER BUILT. On `drawing-office`, the one medium that
-   shipped, the spec sets reference and secondary text to the SAME value — so on every palette
-   this repository actually has, the new role would resolve identically to a role that already
-   exists. That is a second spelling entering the vocabulary at birth, which this record deletes
-   on sight. The trigger for adding it is a palette where the two genuinely differ.
+   ⚠ THE SPEC ASKED FOR A NEW `reference` ROLE, IT WAS REFUSED HERE, AND THE REFUSAL'S OWN TRIGGER
+   HAS SINCE FIRED. The refusal read: that role was justified by a palette named Machine Room, whose
+   reference value was a teal distinct from its secondary text, and THAT PALETTE WAS NEVER BUILT. On
+   `drawing-office`, the one medium that shipped, the spec sets reference and secondary text to the
+   SAME value — so on every palette this repository actually had, the new role would resolve
+   identically to a role that already existed. A second spelling entering the vocabulary at birth,
+   which this record deletes on sight. **The trigger for adding it is a palette where the two
+   genuinely differ**, and Machine Room was built.
+
+   ⚠ THE REFUSAL IS KEPT RATHER THAN REPLACED, BECAUSE IT NAMED ITS OWN END CONDITION AND THAT IS
+   THE PART WORTH READING. It did not say the role was wrong; it said the role had no way to be
+   distinguished from `text-secondary` on any palette that existed. `--color-reference` now sits in
+   `@theme` defaulting to exactly that role, `--sheet-mark` reads it, and six of the seven palettes
+   move zero pixels — which is the same claim the refusal made, now expressed as a default instead
+   of as an absence.
 
    ⚠ AND THE SPEC NAMED THE WRONG ROLE FOR THE OBJECT LINE, WHICH IS THE ONE MAPPING WORTH
    READING TWICE. It calls the object line `border`. In this repository that role aliases the
@@ -6273,8 +6342,12 @@ a {
   --sheet-hair: color-mix(in oklch, var(--color-etch) 12%, transparent);
   --sheet-object: var(--color-rule);
   --sheet-boundary: var(--color-accent);
-  /* Sheet marks, plate numbers and corner ticks. The quiet text role rather than a new one. */
-  --sheet-mark: var(--color-text-secondary);
+  /* ⚠ SHEET MARKS, PLATE NUMBERS AND CORNER TICKS — AND THIS LINE IS WHERE THE REFUSED ROLE WENT.
+     It read `var(--color-text-secondary)` with the words "the quiet text role rather than a new
+     one", which is the substitution the note below records refusing the `reference` role for. The
+     role exists now and it defaults to that same quiet role, so every palette but one draws exactly
+     what it drew before. Machine Room is the one, and its marks take its teal. */
+  --sheet-mark: var(--color-reference);
   --sheet-gutter: clamp(20px, 4.6vw, 66px);
 }
 

@@ -882,6 +882,18 @@ export const USAGE: readonly UsageRow[] = [
      no public element pairs `text-subtle` or `text-body` with a cream-50/100 ground (Q4). */
   ...TEXT("text-subtle", ["canvas", "cream-200"]),
 
+  /* ⚠ `reference` LOOKS LIKE A SECOND COPY OF `text-secondary`'s ROWS AND IS THE OPPOSITE OF ONE.
+     `text-muted` was deleted for exactly that reason — it held the same value, so its rows restated
+     these. This role RESOLVES to `text-secondary` on six of seven palettes and diverges on the
+     seventh, so a shared row could not express the thing it exists to check. On machine-room the
+     teal reads 7.18 on the page ground and 6.38 on the surface against the grey's 5.84 and 5.19.
+
+     THE CONSUMERS ARE `--sheet-mark`'s — the sheet marks, the plate numbers and the corner ticks,
+     drawn at 10px and 11px mono, which is why the floor is the text one rather than 3.0. The tick
+     is a 1px border on the same token and rides along under the tighter of the two. */
+  ...TEXT("reference", ["canvas", "surface"],
+    "the sheet marks, plate numbers and corner ticks — every `--sheet-mark` consumer."),
+
   /* ⚠ `accent-text`'s FOUR ROWS, AND THE CONSUMERS ARE NAMED BECAUSE A ROW WITHOUT ITS SUBJECTS IS
      HOW THE `accent-500` ROW OUTLIVED ITS OWN. That row said "the work-card category tint and the
      process diagram's accent outline"; the outline had migrated to the accent ROLE and the tint did
