@@ -80,6 +80,35 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
      A token rather than two literals because the studio canvas has to match the page exactly. */
   --color-case-study-sand: color-mix(in oklch, var(--color-ink-950) 6%, var(--color-canvas));
 
+  /* ============================================================================================
+     ⚠ THE DARK LADDER'S RUNGS, ONE KNOB PER SEMANTIC BAND — AND THEY WERE SEVEN LITERALS SHARING
+     ONE CALIBRATION.
+
+     `:root[data-ground="dark"]` derives every dark role by mixing toward the ground or toward the
+     muted ink at a fixed percentage. Those seven numbers were tuned once, on a near-black ground,
+     and every dark palette inherited them because every dark ground was near-black.
+
+     ⚠ THE SURFACE FAMILY SURVIVES A LIGHTER GROUND AND THE TEXT FAMILY DOES NOT, WHICH IS THE WHOLE
+     REASON THIS SPLIT EXISTS. Measured across the five dark palettes, the surfaces hold — surface
+     1.14 to 1.17, border 1.38 to 1.43 — because they mix INTO the ground and move with it. The text
+     roles are anchored to `on-dark` and `on-dark-muted`, so a ground 5.4 lightness points lighter
+     takes text-primary from 17.3 to 13.4 and text-subtle from 6.10 to 4.46, through the floor.
+
+     ⚠ AND IT WAS A ONE-POINT MISS, WHICH IS WHY A SHARED NUMBER LOOKED FINE FOR SO LONG. On a
+     near-black ground the subtle rung can be pulled 28% toward the page before it fails; the shared
+     value is 15%, so it carried 13 points of headroom and nobody had to think about it. On
+     machine-room the ceiling is 14% and the shared value is 15%.
+
+     A knob per band means a palette answers PER ROLE instead of inheriting one ladder. The defaults
+     below are the seven numbers that shipped, so every existing palette is byte-identical. */
+  --dk-surface-well:  3%;
+  --dk-surface:       8%;
+  --dk-panel:        12%;
+  --dk-border:       16%;
+  --dk-text-lead:    55%;
+  --dk-text-body:    18%;
+  --dk-text-subtle:  15%;
+
   --color-ink-950: oklch(15.0% 0.000 0);
   --color-ink-800: oklch(26.2% 0.000 0);
   --color-ink-600: oklch(40.0% 0.000 0);
@@ -1434,6 +1463,145 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-glow-web:          oklch(48.0% 0.150 29.1);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   `machine-room` — THE LIT SERVICE PANEL. Two signals, live and reference,
+   doing different jobs.
+
+   ⚠ THE NINE VALUES ARE THE OWNER'S, READ FROM THE PROPOSAL RATHER THAN FROM ITS PROSE. Redline
+   shipped a beige for 34 minutes because a DESCRIPTION was interpreted while the artifact carried
+   the values in a block nobody opened. The same artifact carries these, and its redline block is
+   byte-identical to the nine the owner later gave by hand — which is what makes it the
+   specification rather than a description.
+
+       --g #151D20   --panel #1E282B   --hair #2C383B   --obj #4E5F62   --ink #DEE5E4
+       --mut #8B9A98   --sig #F0A31E   --ref #4FB8B0   --onsig #151D20
+
+   ⚠ THREE OF ITS FOUR STATED CONTRASTS REPRODUCE FROM THOSE VALUES AND THE FOURTH DOES NOT.
+   Computed against the ground, ink 13.38 against a stated 13.3, muted 5.84 against 5.80, signal
+   8.11 against 8.08 — agreement that is what proves the values were read correctly. The object
+   line computes 2.55 where the table states 3.32, and it is the only medium of five that fails to
+   reproduce: drawing office 3.28, redline 3.24, blueprint 3.46, photostat 3.21, all within 0.05.
+
+   ⚠ SO ONE VALUE IS DERIVED AND IT IS NAMED HERE RATHER THAN BURIED. `--obj` as written FAILS the
+   3.0 non-text floor at 2.55, and the proposal's own text calls the object line "the number to
+   gate, because it is the one a future darkening moves first". The derivation moves ONE AXIS —
+   the medium's hue 209.5 and chroma 0.0214 are held exactly and only lightness rises, from 47.23%
+   to 53.37%, landing on 3.338 against the stated 3.32 with zero sRGB overshoot.
+
+   ⚠ AND `--onsig` NEEDED NO NEW MECHANISM, WHICH WAS NOT OBVIOUS. The medium sets type on the amber
+   to the ground colour, and `:root[data-ground="dark"]` already declares
+   `--color-on-accent: var(--color-band-dark)` for the reason its own comment gives — a dark
+   palette's accent is a LIGHT accent, so what sits on it is a dark glyph. Measured, the ground on
+   the amber is 8.11 where the ink on it is 1.65. The vocabulary already did this.
+
+   ⚠ AND THE GROUND SITS IN ITS OWN BAND, WHICH IS THE STRUCTURAL COST OF THIS PALETTE. At L 0.2242
+   it is above the dark band's 0.200 ceiling and below the light band's 0.950 floor, so it belonged
+   to NO class — the state `L1d` refuses by name. Widening the dark band to hold it drops `L2`'s
+   swing from 28.1% to 13.6% against a 25 floor, which is the escape hatch L2 exists to close. The
+   registry gains a third band rather than a stretched one, and `THEME_BAND` is the axis that lets a
+   palette's SEPARATION class differ from its GROUND class — this one is a dark ground in a band of
+   its own.
+
+   ⚠ AND THE TEAL HAS NO ROLE YET, WHICH IS SAID PLAINLY. `--ref` is the medium's second signal and
+   this repository has no `reference` role — `globals.css` already records that the role was refused
+   because on every palette that shipped, reference and secondary text are the SAME value, and that
+   "the trigger for adding it is a palette where the two genuinely differ". This is that palette.
+   Until the role exists the teal sits in `on-dark-quote`, the only existing slot shaped like a
+   second saturated colour on a dark ground. That is a provisional home and not a claim that a
+   quote is what the medium means by reference.
+   ───────────────────────────────────────────────────────────────────────────── */
+[data-theme="machine-room"] {
+  /* The light ladder, interpolated across the medium's own chrome ramp, hue 222.7 at the ground to
+     186.9 at the ink. A dark palette still declares it — the cards and the vessel read it before
+     the ground layer remaps what it remaps. */
+  --color-cream-50:          oklch(98.50% 0.009 186.9);
+  --color-cream-100:         oklch(96.80% 0.009 186.9);
+  --color-cream-200:         oklch(93.50% 0.009 186.9);
+  --color-cream-300:         oklch(88.00% 0.009 188.8);
+  --color-canvas:            oklch(92.00% 0.009 186.9);
+  --color-ink-950:           oklch(15.00% 0.015 222.7);
+  --color-ink-800:           oklch(26.20% 0.015 220.8);
+  --color-ink-600:           oklch(40.00% 0.013 213.6);
+  --color-ink-400:           oklch(56.00% 0.012 205.3);
+  --color-ink-200:           oklch(80.00% 0.010 192.9);
+  /* ⚠ --sig #F0A31E IS THE DARK-GROUND ACCENT, AND THE RUNG IS THE SAME SIGNAL AT A MID LIGHTNESS.
+     My first draft put the spec amber in BOTH, which every dark palette avoids for a reason: the
+     rung serves light contexts and the amber is a LIGHT accent, so `accent-500 on cream-50` came
+     back at 2.02 against a 4.5 floor. Sapphire carries 52% and 70% at one hue; this carries 54% and
+     77.22%. P2 named both rows. Chroma falls to 0.114 because the amber hue simply holds less at
+     mid lightness — 0.157 is out of gamut there, which is chroma not being comparable across hues
+     arriving twice in one palette.
+
+     ⚠ AND THE RUNG IS PINNED BY TWO FLOORS PULLING OPPOSITE WAYS, WHICH IS WHY IT IS 54 AND NOT 50.
+     It must clear 4.5 on `cream-50` — which wants it DARKER — and 3.0 on `band-dark` as a non-text
+     pair, which wants it LIGHTER. The window is L 52 to 56 and nothing outside it satisfies both.
+     54 sits in the middle at 4.94 and 3.32, and that 3.32 is the same figure sapphire's rung
+     carries on its own ground, reached independently. */
+  --color-accent-500:        oklch(54.00% 0.114 73.6);
+  --color-accent-600:        oklch(47.00% 0.100 72.8);
+  --color-text-subtle:       oklch(48.70% 0.013 209.1);
+  --color-text-body:         oklch(37.50% 0.014 214.9);
+  /* --obj, DERIVED. Hue and chroma are the medium's; only lightness moved. See the note above. */
+  --color-rule:              oklch(53.37% 0.021 209.5);
+  /* --g #151D20, the page ground, and what `on-accent` resolves to on this ground. */
+  --color-band-dark:         oklch(22.42% 0.013 222.7);
+  --color-on-dark:           oklch(91.63% 0.008 186.9);
+  --color-on-dark-muted:     oklch(67.37% 0.017 187.1);
+  /* --ref #4FB8B0, provisionally housed. See the note above. */
+  --color-on-dark-quote:     oklch(71.92% 0.097 188.4);
+  /* The amber IS the dark-ground accent — this medium's signal does not change with the ground. */
+  --color-accent-on-dark:    oklch(77.22% 0.157 73.6);
+  --color-smoke-1:           oklch(0.84 0.008 200 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.007 200 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.005 195 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.007 200 / 0.74);
+  --color-vessel-ink:        oklch(16.00% 0.014 222.0);
+  --color-vessel-capsule:    oklch(80.50% 0.010 192.0);
+  /* ⚠ THE VESSEL'S TINT IS A RELATION AND MY FIRST DRAFT BROKE ALL THREE HALVES OF IT. `theme` V2
+     requires pearl and glass at exactly ONE hue, V3 requires the chroma step to sit in -0.013 to
+     -0.009, and V4 requires glass to carry at least 0.013 so the step does not collapse onto
+     lightness alone. Drafted from the chrome ramp they came out at dH -1, dC -0.003 and glass
+     0.011 — three refusals from one careless interpolation, and the gate named each. */
+  --color-vessel-glass:      oklch(94.50% 0.020 188.0);
+  --color-vessel-pearl:      oklch(96.50% 0.009 188.0);
+  --color-vessel-shadow:     oklch(92.50% 0.016 188.0);
+  --color-vessel-wave:       oklch(93.50% 0.013 188.0);
+  /* ⚠ 0.157 HERE WAS +93.2 OUTSIDE sRGB, WHICH IS CHROMA NOT BEING COMPARABLE ACROSS HUES. The
+     accent carries 0.157 at L 0.77 and the amber hue holds only 0.133 at L 0.63, where sapphire's
+     violet holds 0.174. Copying the accent's chroma down the ladder is the mistake this record
+     already names, and K2 caught it. */
+  --color-glow-paper:        oklch(0.63 0.120 73.6 / 0.20);
+  --color-bounce:            oklch(99.50% 0.003 187.0);
+  --color-glow-web:          oklch(48.00% 0.083 209.5);
+  /* ⚠ THREE BANDS ANSWERED PER ROLE, AND THE TEXT ONE COULD NOT BE FIXED ALONE. The subtle rung
+     pulls toward the page, and this page is 5.4 lightness points lighter than every other dark
+     ground, so the shared 15% lands at 4.46 against a 4.5 floor — a one-point miss on a ceiling of
+     14%. Dropping that knob alone still failed, because the rung must clear the SURFACES too and
+     they are mixed toward the same lighter ground: at the shared 8% and 12% the best the text rung
+     could do on the panel was 4.21.
+
+     ⚠ SO THE SURFACES MOVED AS WELL, WHICH IS THE WHOLE POINT OF A KNOB PER BAND. Pulling surface
+     to 6% and the panel to 9% darkens them toward the ground and gives the text rung its room back:
+     5.43 on the page, 4.83 on the surface, 4.52 on the panel. It also fixes `ink-400 on cream-200`
+     without touching the light ladder, because that pair was failing against a panel that was too
+     light rather than against an ink that was wrong.
+
+     ⚠ AND THE SURFACE STEP IS 1.12, WHICH THIS RECORD ALREADY BOUNDS. Its own derivation says 1.050
+     does not read as elevation on a dark ground while 1.130 reads clearly as a raised card, so the
+     looser solutions this solve offered — surface at 4%, giving 1.08 — were refused on that
+     evidence rather than on preference.
+
+     ⚠ AND THE STEP BELOW `text-secondary` IS SMALLER HERE THAN ON THE OTHER DARKS, SAID RATHER THAN
+     ROUNDED AWAY. They step 8.45 to 6.10, a factor of 1.38; this steps 5.84 to 5.43, a factor of
+     1.08. The medium's muted anchor is its own — the proposal states 5.80 and it measures 5.84 —
+     and a 1.38 step down from there lands at 4.23, under the floor. The medium has less room in its
+     text ladder, which is a property of a lit panel rather than a value anyone chose badly. */
+  --dk-surface:      6%;
+  --dk-panel:        9%;
+  --dk-text-subtle:  4%;
+}
+
+
 
 
 
@@ -1831,7 +1999,7 @@ a {
      elevation on a dark ground, looked at. That rules out the LOW end. It never argued for 1.130
      specifically, and nothing was checking it against the light site because the light site had two
      answers and no ruling. */
-  --color-surface:       color-mix(in oklch, var(--color-on-dark) 8%, var(--color-band-dark));
+  --color-surface:       color-mix(in oklch, var(--color-on-dark) var(--dk-surface), var(--color-band-dark));
   /* ⚠ `cream-200` RESOLVES PER GROUND WITHOUT GAINING A ROLE. #382 refused it a name — gradient
      endpoints in four sites, no single job — and that refusal stands. A REFUSAL TO NAME IS NOT A
      REFUSAL TO RESOLVE: nine of its twelve sites are GROUNDS (pills, highlighted stat cards, feature
@@ -1926,12 +2094,12 @@ a {
      lines up: the nav's stroke had a dark answer and this border did not, which is what made it an
      omission rather than a decision. */
   --vessel-edge: 31.9%;
-  --color-cream-200:     color-mix(in oklch, var(--color-on-dark) 12%, var(--color-band-dark));
-  --color-surface-well:  color-mix(in oklch, var(--color-on-dark) 3%, var(--color-band-dark));
-  --color-border:        color-mix(in oklch, var(--color-on-dark) 16%, var(--color-band-dark));
+  --color-cream-200:     color-mix(in oklch, var(--color-on-dark) var(--dk-panel), var(--color-band-dark));
+  --color-surface-well:  color-mix(in oklch, var(--color-on-dark) var(--dk-surface-well), var(--color-band-dark));
+  --color-border:        color-mix(in oklch, var(--color-on-dark) var(--dk-border), var(--color-band-dark));
   --color-text-primary:  var(--color-on-dark);
   --color-text-secondary: var(--color-on-dark-muted);
-  --color-text-lead:     color-mix(in oklch, var(--color-on-dark) 55%, var(--color-on-dark-muted));
+  --color-text-lead:     color-mix(in oklch, var(--color-on-dark) var(--dk-text-lead), var(--color-on-dark-muted));
   /* ⚠ THE TWO THE RENDER FOUND, AND THEY ARE PALETTE-DECLARED ROLES RATHER THAN RUNG-ALIASED ONES.
      Both were declared by every palette, named in the `text-` family beside the three above, and
      consumed publicly — and both were absent from this block, so on a dark ground they kept a
@@ -1953,8 +2121,8 @@ a {
      reproduced here, so the ordering primary > lead > body > secondary > subtle holds on BOTH
      grounds. Contrast was then checked rather than solved for — 9.76 and 6.36 on sapphire, and no
      palette falls below 5.9 on either. */
-  --color-text-body:     color-mix(in oklch, var(--color-on-dark) 18%, var(--color-on-dark-muted));
-  --color-text-subtle:   color-mix(in oklch, var(--color-band-dark) 15%, var(--color-on-dark-muted));
+  --color-text-body:     color-mix(in oklch, var(--color-on-dark) var(--dk-text-body), var(--color-on-dark-muted));
+  --color-text-subtle:   color-mix(in oklch, var(--color-band-dark) var(--dk-text-subtle), var(--color-on-dark-muted));
   /* ⚠ THE INK INVERTS AND THE ALPHAS SURVIVE — measured in #386, every weight lands within 6% of
      its light separation, so a consumer's chosen opacity needs no change. */
   --color-etch:          var(--color-on-dark);

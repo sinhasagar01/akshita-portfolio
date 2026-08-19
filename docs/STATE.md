@@ -12756,6 +12756,93 @@ says nothing about whether the file still compiles.
 retired class — so the pattern matches a fixed file forever. A presence claim read from the wrong
 half of the file, in the row written to stop exactly that.
 
+## ⚠ MACHINE ROOM, AND THE DARK SYSTEM HAD TO BECOME ROLE-AWARE TO HOLD IT
+
+The third medium. Its nine values are the owner's, read from the proposal artifact rather than from
+its prose — and the check that makes that a fact rather than a hope is that the artifact's REDLINE
+block is byte-identical to the nine the owner later gave by hand. Redline shipped a beige for 34
+minutes because a description was interpreted while the values sat in a block nobody opened.
+
+    --g #151D20   --panel #1E282B   --hair #2C383B   --obj #4E5F62   --ink #DEE5E4
+    --mut #8B9A98   --sig #F0A31E   --ref #4FB8B0   --onsig #151D20
+
+**THREE OF ITS FOUR STATED CONTRASTS REPRODUCE AND THE FOURTH DOES NOT.** Ink 13.38 against a stated
+13.3, muted 5.84 against 5.80, signal 8.11 against 8.08 — agreement that is what proves the values
+were read correctly. The object line computes **2.55 where the table states 3.32**, and it is the
+only medium of five that fails to reproduce: drawing office 3.28, redline 3.24, blueprint 3.46,
+photostat 3.21, all within 0.05. As written it FAILS the 3.0 non-text floor, and the proposal's own
+text calls the object line "the number to gate". Derived by moving ONE AXIS — hue 209.5 and chroma
+0.0214 held exactly, lightness 47.23% to 53.37%, landing on 3.338.
+
+**⚠ THE GROUND BELONGS TO NO BAND, AND THE BAND COULD NOT STRETCH TO HOLD IT.** At L 0.2242 it sits
+above the dark band's 0.200 ceiling and below the light band's 0.950 floor — the between-bands state
+`L1d` refuses by name. Widening the dark band takes `L2`'s swing from 28.1% to 13.6% against a 25
+floor, and L2 exists precisely to close that hatch. The registry gained a third band, `panel`
+0.204–0.244, width matching the light band and centred on its member, swing 41.4%, `hueFloor: null`
+because a band with one member has no separation to enforce — which the registry's own header
+already said in as many words.
+
+**⚠ AND RELABELLING THE GROUND CLASS WOULD HAVE BROKEN THE PALETTE OUTRIGHT.** `app/layout.tsx`
+emits the ground attribute on `ground === "dark"`, so a palette labelled anything else never gets
+the remap and every role stays at its light value on a near-black page. Band and ground class had to
+come apart rather than one being renamed. `THEME_BAND` is that axis, `L1c` now keys on it, and
+`L1e`/`L1f` are the complement so the new axis cannot become a way for a light palette to inherit
+the dark band's floors.
+
+**⚠ THEN THE ROLE LAYER REFUSED IT, AND THE OWNER'S DIAGNOSIS WAS THE RIGHT ONE.** The dark block
+derived every role from one two-anchor ladder, seven literals calibrated once on a near-black
+ground. Measured across all five dark palettes:
+
+    role             sapphire  ink-flare  nocturne  basalt   machine-room
+    text-primary       17.32     17.41     17.32    17.27       13.38
+    text-secondary      8.45      8.48      8.43     8.44        5.84
+    text-subtle         6.10      6.13      6.08     6.08   4.46 -> 5.43
+    surface             1.14      1.14      1.14     1.14        1.12
+    border              1.39      1.38      1.38     1.39        1.43
+
+The surfaces mix INTO the ground so they track it and hold. The text roles were anchored to
+absolutes, and a ground 5.4 lightness points lighter took every one of them down by roughly a
+quarter. **The seven literals are now seven named knobs, one per semantic band, and the four
+existing palettes are byte-identical figure for figure.**
+
+**⚠ AND FIXING THE TEXT BAND ALONE WAS NOT ENOUGH, WHICH IS WHAT PROVED THE FRAMING.** The subtle
+rung must clear the SURFACES too, and they are mixed toward the same lighter ground — at the shared
+8% and 12% the best it could reach on the panel was 4.21. Machine Room answers three bands: surface
+6%, panel 9%, text-subtle 4%. That also fixed `ink-400 on cream-200` without touching the light
+ladder, because the pair was failing against a panel that was too light rather than an ink that was
+wrong. The surface step is 1.12, and the looser solutions were refused on this record's own evidence
+that 1.05 does not read as elevation while 1.13 does.
+
+**FOUR DEFECTS OF MINE, EVERY ONE NAMED BY A GATE.** `glow-paper` at +93.2 outside sRGB and the
+accent chroma out of gamut at mid lightness — chroma is not comparable across hues, twice in one
+palette. The vessel tint relation broken all three ways at once. The signal collapsed onto ONE
+lightness where every dark palette splits it. And the accent rung turned out to be pinned between
+two floors pulling opposite ways — 4.5 on `cream-50` wants it darker, 3.0 on `band-dark` wants it
+lighter — with a window of only L 52 to 56.
+
+**⚠ THE ACCENT EXEMPTION IS ON `ink-flare`, NOT ON MACHINE ROOM, AND THAT IS THE RULING.** The amber
+lands 24.2 dE from ink-flare's orange against a 48 floor. `AUTHORED_PRESET` scopes exemptions to
+independently authored dark presets, drawn before most of the shipped palette existed. Machine Room
+is the opposite — derived against this system, with a band the registry had to gain. **Exempting the
+derived palette would have switched the rule off for the one palette the rule was available to.**
+Recorded with it: the register is palette-keyed rather than pair-keyed, which is wider than this
+ruling needs, and the trigger for narrowing it is a second authored preset.
+
+**AND THE RESOLVER HAD TO LEARN THE NEW FORM.** A `var()` in a mix percentage made every dark role
+uncomputable, and `P1` refused them rather than guessing — the right failure, and still a failure.
+The knobs are namespaced under a reserved prefix so they cannot pollute the colour maps `G4`
+compares.
+
+**THREE COUNT-GATES FIRED AND EACH WAS THE MECHANISM WORKING.** The boundary file's `THEME_OG` count
+28 to 32 and `THEME_SPLASH` 7 to 8, with the prose beside them moved too. And `route-coverage` C3 6
+to 7, whose own comment says why it is a hand-edited literal: **"moving it is the notification, not
+the chore."**
+
+**WHAT IS NOT DONE.** The render, which the convention makes mandatory and no gate replaces — and
+the vessel is the one to watch, since this is the first medium designed as dark rather than derived
+from a light ladder. And the `reference` role: the teal is parked in `on-dark-quote`, flagged
+provisional, and this palette is finally the trigger the record named for building it.
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

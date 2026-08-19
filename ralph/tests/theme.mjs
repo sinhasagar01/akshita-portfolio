@@ -126,8 +126,8 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * pigeonhole those notes describe never applies to it. The ceiling was a property of the unit, not
  * of the circle. They are kept rather than corrected, because the reasoning was sound and it is the
  * unit that moved underneath them. */
-t("A8a the selectable set is the six real palettes — two light and four dark",
-  selectableThemes(), ["drawing-office", "sapphire", "ink-flare", "nocturne", "basalt", "redline"]);
+t("A8a the selectable set is the seven real palettes — two light and five dark",
+  selectableThemes(), ["drawing-office", "sapphire", "ink-flare", "nocturne", "basalt", "redline", "machine-room"]);
 /* ⚠ AND THE SITE MUST NOT SAY A DIFFERENT NUMBER FROM THE ONE IT OFFERS, WHICH IT DID FOR AS LONG
  * AS DRAWING-OFFICE HAS BEEN SHIPPED. Three user-facing strings read "nine" against ten selectable
  * palettes — `All nine` and `See all nine` as visible text, and `See all nine palettes` as an
@@ -139,9 +139,16 @@ t("A8a the selectable set is the six real palettes — two light and four dark",
  *
  * The labels now call `selectableCountWord()`, so this row asserts the WORD EXISTS for the current
  * count rather than pinning a word. Past twelve the helper falls back to digits, which is correct
- * and plain — this row is what makes that a safety net rather than the thing that ships. */
+ * and plain — this row is what makes that a safety net rather than the thing that ships.
+ *
+ * ⚠ AND THE COMMENT ABOVE SAYS IT DOES NOT PIN A WORD WHILE THE ROW PINS ONE. The literal moved
+ * from "six" to "seven" with this palette, which is the second half doing its job — a word is only
+ * a safety net if something notices when the count moves past it. Kept as a literal deliberately:
+ * deriving the expectation from `selectableCountWord()` would compare the helper to itself, which
+ * is the value-compared-to-itself shape this repository has a register for. The prose is corrected
+ * rather than the row, because the row is right and the sentence was describing an intention. */
 t("A8a-word ⚠ THE PALETTE COUNT HAS A WORD FOR ITS CURRENT SIZE — three labels said `nine` while ten shipped",
-  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["six", true]);
+  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["seven", true]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",

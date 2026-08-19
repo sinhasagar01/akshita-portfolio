@@ -404,6 +404,8 @@ export type PaletteSource = {
   groundDark: Record<string, string>;
   /** One theme's `[data-theme="…"]` block. Cream has none by design — `@theme` IS cream. */
   overridesOf: (name: string) => Record<string, string>;
+  /** The dark ladder's per-role knobs for one palette. Not colours — see `scalarDeclarations`. */
+  scalarsOf: (name: string) => Record<string, string>;
   /** The token an alias points at, or null when the declaration is a literal. */
   aliasOf: (name: string) => string | null;
 };
@@ -465,6 +467,19 @@ function colourDeclarations(body: string): Record<string, string> {
   return out;
 }
 
+/** ⚠ THE DARK LADDER'S PER-ROLE KNOBS, WHICH ARE NOT COLOURS AND SO ESCAPED EVERY READER HERE.
+ *  `--dk-*` carries the mix PERCENTAGE for one semantic band, and a palette overrides the bands its
+ *  ground cannot take at the shared value. They are deliberately kept out of the colour maps — G4
+ *  compares token SETS and a scalar joining that set would read as a palette declaring a colour
+ *  nobody else declares. */
+function scalarDeclarations(body: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const m of body.matchAll(/--(dk-[a-z0-9-]+):\s*([^;]+);/g)) {
+    if (!(m[1] in out)) out[m[1]] = m[2].trim();
+  }
+  return out;
+}
+
 /**
  * Read the palette layer out of `globals.css`.
  *
@@ -508,6 +523,11 @@ export function readPaletteSource(cssText: string): PaletteSource {
     unparseable,
     groundDark: colourDeclarations(blockBodyAt(cssText, ':root[data-ground="dark"]')),
     overridesOf: (name: string) => colourDeclarations(blockBodyAt(cssText, `[data-theme="${name}"]`)),
+    /** The knob defaults, plus whatever a palette overrides. Later wins, as the cascade does. */
+    scalarsOf: (name: string) => ({
+      ...scalarDeclarations(themeBody),
+      ...scalarDeclarations(blockBodyAt(cssText, `[data-theme="${name}"]`)),
+    }),
     aliasOf,
   };
 }
@@ -541,6 +561,10 @@ export function layerPalette(
   const overrides = name === opts.defaultTheme ? {} : src.overridesOf(name);
   const ground = opts.groundClass === "dark" ? src.groundDark : {};
   const merged: Palette = { ...src.defaults, ...overrides, ...ground };
+  /* ⚠ THE KNOBS RIDE ALONG UNDER A RESERVED PREFIX RATHER THAN JOINING THE PALETTE. They are mix
+   * percentages, not colours, and every consumer of a palette map assumes every value is a colour —
+   * so they are namespaced and skipped by the two functions that walk the map. */
+  for (const [k, v] of Object.entries(src.scalarsOf(name))) merged[`__${k}`] = v;
   const follow = (value: string | undefined, depth = 0): string | undefined => {
     const m = /^var\(\s*--color-([a-z0-9-]+)\s*\)$/.exec(String(value ?? "").trim());
     return m && depth < 8 ? follow(merged[m[1]], depth + 1) : value;
@@ -585,11 +609,20 @@ export function paletteResolver(rawDecl: Record<string, string>) {
    *  names. Mixing in sRGB would return a plausible different colour, so the space is honoured
    *  rather than approximated. Hue takes the shorter arc, as CSS specifies. */
   const mixIn = (pal: Palette, raw: string, depth: number): Rgb | null => {
-    const m = /^color-mix\(\s*in\s+oklch\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*(.+?)\s*\)$/.exec(raw.trim());
+    /* ⚠ THE PERCENTAGE MAY BE A var(), AND REQUIRING A LITERAL MADE SEVEN ROWS UNCOMPUTABLE. The
+     * dark ladder's rungs became `--dk-*` knobs so a palette can answer per semantic band, and this
+     * pattern demanded digits — so P1 correctly refused every dark role rather than guessing. A
+     * refusal is the right failure and it is still a failure; the reader had to learn the form. */
+    const m = /^color-mix\(\s*in\s+oklch\s*,\s*(.+?)\s+(var\(\s*--[a-z0-9-]+\s*\)|[\d.]+%)\s*,\s*(.+?)\s*\)$/.exec(raw.trim());
     if (!m) return null;
     const a = oklchOf(deref(pal, m[1], depth + 1)), b = oklchOf(deref(pal, m[3], depth + 1));
     if (!a || !b) return null;
-    const wa = Number(m[2]) / 100, wb = 1 - wa;
+    const pctRaw = /^var\(/.test(m[2])
+      ? pal[`__${/--([a-z0-9-]+)/.exec(m[2])?.[1] ?? ""}`]
+      : m[2];
+    const pct = Number(String(pctRaw ?? "").replace("%", "").trim());
+    if (!Number.isFinite(pct)) return null;
+    const wa = pct / 100, wb = 1 - wa;
     let dh = b.H - a.H;
     if (dh > 180) dh -= 360; else if (dh < -180) dh += 360;
     return oklchToRgb(a.L * wa + b.L * wb, a.C * wa + b.C * wb, a.H + dh * wb);
@@ -609,6 +642,7 @@ export function paletteResolver(rawDecl: Record<string, string>) {
   const resolvedPalette = (pal: Palette): Palette => {
     const out: Palette = {};
     for (const k of Object.keys(pal)) {
+      if (k.startsWith("__")) continue;
       const v = rgbIn(pal, k);
       out[k] = v ? hexOf(v) : pal[k];
     }
@@ -639,6 +673,7 @@ export function paletteResolver(rawDecl: Record<string, string>) {
   const authoredPalette = (pal: Palette): Palette => {
     const out: Palette = {};
     for (const k of Object.keys(pal)) {
+      if (k.startsWith("__")) continue;
       const raw = rawIn(pal, k);
       /* Unfollowable keeps its raw value, the same posture `resolvedPalette` takes, so the token
          surfaces as an alias a consumer can see rather than vanishing into a plausible colour. */

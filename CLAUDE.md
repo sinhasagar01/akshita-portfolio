@@ -213,6 +213,37 @@ sharing no subject, of which 35 were finished work nobody could tell from unfini
 board that cannot be read is a board that gets batched, which is how a fix rides in on another fix's
 gates.
 
+
+- **⚠ BOARDED: MACHINE ROOM IS BUILT AND UNRENDERED, AND THE CONVENTION SAYS THAT IS NOT SHIPPED.**
+  The palette gates green — 33 tokens, its own band, a role-aware dark ladder — and **no human eye
+  has been on it.** The rule this repository already carries is that a candidate palette is judged
+  by the instrument and THEN by the render, and neither step is optional.
+
+  **THE VESSEL IS THE ONE TO WATCH, AND THIS IS THE FIRST PALETTE WHERE THAT IS A NEW QUESTION.**
+  Every existing dark palette was derived from a light ladder; Machine Room was designed dark, so
+  its vessel tones are an interpolation of a chrome ramp rather than a darkening of something drawn
+  light. The record already carries the vessel as the component whose ground only a pixel can
+  answer.
+
+  **THE PROTOCOL IS WRITTEN DOWN: the full home page plus the work card, the glass nav, the hero
+  ground and the Pearl Smoke vessel**, then judge. `theme:` restores to the published value read
+  from `origin/main` afterwards.
+
+- **⚠ BOARDED: THE `reference` ROLE, WHOSE TRIGGER THIS PALETTE FINALLY MEETS.** `globals.css`
+  records that the role was refused because on every palette that shipped, reference and secondary
+  text are the SAME value — "the trigger for adding it is a palette where the two genuinely differ".
+  Machine Room's `--ref` is a teal at 71.92% 0.097 188.4 and its `--mut` is 67.37% 0.017 187.1. They
+  differ.
+
+  **THE TEAL IS PARKED IN `on-dark-quote` AND THAT IS FLAGGED AT THE LINE.** It is the only existing
+  slot shaped like a second saturated colour on a dark ground, and it is a provisional home rather
+  than a claim that a quote is what the medium means by reference.
+
+  **THE UNIT IS THE ROLE PLUS ITS CONSUMERS, AND THE SECOND HALF IS THE HARD ONE.** A role with no
+  reader is a second spelling entering the vocabulary at birth, which this record deletes on sight —
+  so the PR has to name what reads it. Blueprint is the only other medium where the two differ, so
+  the population is two.
+
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
