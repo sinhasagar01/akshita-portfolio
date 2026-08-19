@@ -461,6 +461,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
   }
 
   const fails = rows.filter((x) => x.ratio !== null && !x.pass).sort((a, b) => a.ratio - b.ratio);
+  const refused = rows.filter((x) => x.unresolved);
   const dark = rows.filter((x) => x.bg && lum(x.bg.split(',').map(Number)) < 0.15);
   return JSON.stringify({
     sanity,
@@ -507,6 +508,22 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       ? Math.min(...rows.filter((x) => x.ratio !== null).map((x) => x.ratio)) : null,
     failureCount: fails.length,
     failures: fails.slice(0, 25),
+    /* ⚠ THE REFUSALS WERE COUNTED AND NEVER SHOWN, WHICH IS WHY NOBODY HAD LOOKED AT THEM. The
+       board carried "nobody has looked at the unresolved half" as an open item for arcs, and the
+       reason was the instrument rather than anybody's attention: this object returned a COUNT and a
+       breakdown by reason, and no way to see WHICH elements were in it. A population you cannot
+       enumerate is one nobody can triage.
+
+       A clean run means no defect among the elements it could resolve, and that sentence is only
+       worth anything while somebody can read the other half. Same shape as the byMethod field —
+       the honest half of a coverage claim has to be inspectable, not just countable. */
+    refusedByTag: refused
+      .reduce((a, x) => { const k = x.tag + (x.cls ? '.' + x.cls.split(' ')[0] : ''); a[k] = (a[k] || 0) + 1; return a; }, {}),
+    refused: refused.slice(0, 40).map((x) => ({
+      why: x.why, text: x.text, tag: x.tag, cls: x.cls,
+      size: x.size, fg: x.fg, rect: x.rect, onScreen: x.onScreen,
+      animatingOn: x.animatingOn,
+    })),
     /* ⚠ THE VERDICT NAMES WHAT WAS REFUSED, BECAUSE "FLOORS OK" OVER A MOSTLY-REFUSED RUN IS THE
        claim this record refuses. A clean run means no defect among the elements it could resolve,
        and that sentence is only honest while it says how many it could not. */
@@ -517,6 +534,87 @@ export const FLOORS_SCRIPT = String.raw`(() => {
   }, null, 1);
 })()`;
 
+// ---- ⚠ THE REFUSAL POPULATION, ENUMERATED FOR THE FIRST TIME, 2026-08-19 ------------------
+//
+// The board carried "nobody has looked at the unresolved half" for arcs, and THE REASON WAS THIS
+// INSTRUMENT RATHER THAN ANYBODY'S ATTENTION. The report returned a COUNT and a breakdown by
+// reason, and no way to see WHICH elements were in it. A population you cannot enumerate is one
+// nobody can triage, so the fix was a field rather than a study.
+//
+// 64 GROUND REFUSALS ACROSS FIVE PAGES ON A PUBLISHED photostat BUILD, and they fall into four
+// classes with nothing left over:
+//
+//     31   DELIBERATELY HIDDEN CHROME     25 mobile-menu social chips (the menu is moved out of
+//                                         view at desktop rather than display:none — the off-screen
+//                                         container route this record already names), 5 skip links
+//                                         at clip-path: inset(50%), 3 palette-pill controls at
+//                                         opacity 0 until past the hero
+//     16   TEXT OVER PICTURES             the blog's figure labels and values, the hero fig label,
+//                                         7 case-study block captions — correct by the stated rule
+//     14   THE /palettes SWITCHER PANEL   a FIXED panel over the page, so elementsFromPoint returns
+//                                         the panel at the label's own centre
+//      3   one case-study block title, and two /palettes labels of the same shape
+//
+// ⚠ EVERY ONE IS CORRECT, WHICH IS THE RESULT RATHER THAN A DISAPPOINTMENT. The honest claim a
+// clean run makes has always been "no defect among the elements it could resolve"; this is the
+// first time anyone can say what the other half contained. **Not one is an element a visitor is
+// looking at**, and the two largest classes are things the design deliberately hides.
+//
+// ⚠ AND IT DOES NOT CLOSE THE GENERAL QUESTION, SAID RATHER THAN IMPLIED. This is five pages at
+// one width on one palette. The record's older figure was 288 unresolved of 3,254 across four dark
+// palettes and five pages each — a different and larger run. What is established is the SHAPE of
+// the population and that the instrument can now show it, not that every refusal on every page is
+// benign.
+//
+// ---- ⚠ THE DECORATIVE CEILING — THE TRIGGER FIRED, AND THE SECOND INSTANCE IS THE CREST -------
+//
+// Every floor in this repository is a MINIMUM. A decorative mark needs a MAXIMUM: its whole job is
+// to stay a whisper, and nothing here measures a ratio a consumer must stay UNDER. The board's
+// trigger was a SECOND instance of a whisper inverting across the ground flip.
+//
+// Measured on `boat-crest` at 1920 wide, all eight palettes, sanity 21.000, each palette settled
+// and verified by its own resolved ink before reading. The ground is the first OPAQUE ancestor and
+// the ink is un-premultiplied before compositing, because these are all alpha-based pigments:
+//
+//     palette          class    Ciao      sheet stamp     crest
+//     drawing-office   light    1.09      1.80 - 1.82     1.31
+//     redline          light    1.00      1.80            1.24
+//     sapphire         dark     1.14      2.17 - 2.23     3.17
+//     ink-flare        dark     1.14      2.18 - 2.25     3.39
+//     nocturne         dark     1.14      2.19 - 2.25     3.34
+//     machine-room     dark     1.12      2.09 - 2.10     3.91
+//     blueprint        dark     1.15      2.11 - 2.14     4.62
+//     photostat        dark     1.12      2.14 - 2.23     5.52
+//
+//     band across all eight     x1.15     x1.25           x4.45
+//
+// ⚠ CIAO HAS STOPPED BEING AN INSTANCE, AND IT WAS REPAIRED BY WORK NOBODY FILED AGAINST THIS
+// ENTRY. The recorded figures were 1.37 on light and 11.67 on dark — a whisper becoming a shout.
+// It now paints `--color-background`, which is `canvas` on light and `band-dark` on dark, so the
+// word reads as the page showing through a raised panel and is ALWAYS darker than the panel.
+// 1.00 to 1.15 across eight palettes. `SiteFooter.tsx` carries that reasoning at the line.
+//
+// ⚠ AND THE CREST IS THE SECOND INSTANCE, MEASURED HERE FOR THE FIRST TIME. 1.24 on redline
+// against 5.52 on photostat — a whisper on the light media and a legible 176px mark on the darkest
+// one. It is `etch` at 55% alpha where the stamp is `etch` at 26%, and that is the whole difference:
+// the same pigment role at twice the weight amplifies the ground flip instead of surviving it.
+//
+// **SO THE POPULATION IS REAL AND THE REGISTRY HAS EARNED ITSELF.** Three decorative consumers,
+// two holding inside x1.25 and one spanning x4.45.
+//
+// ⚠ NO GATE IS BUILT HERE, AND THE REASON IS THAT EVERY AVAILABLE ONE WOULD DECIDE A DESIGN
+// QUESTION NOBODY HAS RULED. Pinning today's bands blesses x4.45 as acceptable — the
+// pin-the-current-state trap. Failing on x4.45 rules that a 176px watermark must be as quiet on
+// near-black as on paper, which is an owner's call about a mark they have looked at on five
+// palettes and not on the other three. **The measurement is the deliverable; the ruling is owed.**
+//
+// THE TWO CANDIDATE RULINGS, PRICED, so whoever takes it starts from evidence:
+//   drop the crest's alpha toward the stamp's    — one value, and it makes the mark quieter on
+//                                                  EVERY palette including the light ones where it
+//                                                  is already 1.24
+//   scope the alpha to the ground class          — a second value, and it is the honest shape if
+//                                                  the mark is meant to read equally on both
+//
 // ---- ⚠ THE STALE-COMPUTED-VALUE REFUSAL, 2026-08-19, photostat, sanity 21.000 ------------
 //
 // THIRTY-SIX FALSE FINDINGS ACROSS FOUR PAGES, NINE PER PAGE, EVERY ONE THE NAV. They read 1.02 to
