@@ -13057,6 +13057,55 @@ line as separate pixels in one strip across the whole vessel — is what made 1.
 a coincidence.
 
 
+## ⚠ MACHINE ROOM IS PUBLISHED, AND CHECKING THE PUBLISH FOUND TWO THINGS NO SUITE HAS AS ITS SUBJECT
+
+`theme: machine-room` in `content/site-settings.yaml`. The third medium, and the first DARK palette
+this site has ever published — every previous published value was a light one.
+
+**THE ROUTE IS THE CODE PATH RATHER THAN /studio, AND THE PRECEDENT IS IN THE BRANCH NAMES.**
+`chore/publish-redline` and `chore/publish-redline-true` are how the last palette went out. /studio
+is owner-gated so nothing here can drive it, and the draft branch was checked EMPTY first — a publish
+through a PR while an owner holds unpublished settings edits would be a silent overwrite.
+
+    origin/main            theme: redline
+    remote draft branch    none
+    ralph                  3648 across 109 suites
+    paint-floors           666 measured over six pages, 2 below floor
+
+The two are the work filter's chip and its count, the documented sibling limit that resolves to 6.65
+through the strong path. Worst on every other page is 4.83.
+
+**⚠ AND `rendered-theme` A3 WENT RED FIRST, WHICH IS THE GATE WORKING RATHER THAN A DEFECT.** ralph
+ran before the build, so it read a stale `.next` and reported all 24 prerendered pages carrying
+`redline` against a content file saying `machine-room`. This record already states the rule —
+*"rebuild first, and check the mutation reached the subject rather than only the file"* — and the
+suite is the one instrument here whose subject is the built output rather than the source.
+
+**⚠ THE PWA SPLASH IS A NEAR-WHITE ON ALL FIVE DARK PALETTES.** `THEME_SPLASH` maps each palette to
+its `cream-50`, which IS the page ground on a light palette and is NOT on a dark one. An installed
+app opens near-white and paints near-black. **Third instance of the ground-is-per-class defect and
+the first outside a contrast measurement** — the other two were a foreground measured against
+`canvas` and a role resolved against the wrong rung. Exposure is zero today because
+`background_color` is only drawn for an installed PWA.
+
+**⚠ AND MY OWN COMMENT ON THE MACHINE-ROOM ROW DEFENDS IT WITH A RULING ABOUT A DIFFERENT
+QUESTION.** It cites *"a surface whose ground sits at an extreme buys nothing from theming"*, which
+is the FAVICON ruling and is about whether hue is perceptible at 16 to 64px. The splash is
+full-bleed and the question is lightness. **A true rule cited about the wrong subject, written by me
+one commit before publishing a dark palette.**
+
+**⚠ AND THE SITE'S OWN SHARE CARD IS DRAWN IN A PALETTE THE SITE NO LONGER HAS.**
+`app/opengraph-image.png` is a static PNG from `cd1c658`. Sampled: ground `251,246,238`, ink
+`28,24,19`, accent `181,97,60` — the retired cream palette. No current palette is warm at those
+values. **The per-page cards DO follow the theme** — `/projects/boat-crest/og` measured exactly
+`244,252,251`, machine-room's `cream-50` — so the site has two share surfaces, one themed and one
+frozen, and the frozen one is what every link to the domain root shows. Live on redline too.
+
+**BOTH WERE FOUND BY CHECKING THE PUBLISH RATHER THAN BY A GATE**, which is the fourth time a
+publish or a render has found something no suite has as its subject. Neither is caused by this
+change and both are boarded with their measurements.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

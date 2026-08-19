@@ -215,6 +215,53 @@ gates.
 
 
 
+- **⚠ BOARDED: THE PWA SPLASH IS A NEAR-WHITE ON ALL FIVE DARK PALETTES, AND IT IS `cream-50` BEING
+  READ AS "THE PAGE GROUND" WHEN IT IS NOT.** `THEME_SPLASH` maps each palette to its `cream-50`,
+  which IS the page ground on a light palette and is NOT on a dark one, where `band-dark` is. So an
+  installed app opens on a near-white splash and paints near-black:
+
+      sapphire #F7FBFF   ink-flare #FEF9F7   nocturne #F9FAFF   basalt #FAFAFA
+      machine-room #F4FCFB   against a ground of #151D20
+
+  **⚠ THIRD INSTANCE OF THE GROUND-IS-PER-CLASS DEFECT, AND THE FIRST OUTSIDE A CONTRAST
+  MEASUREMENT.** The other two were a dark foreground measured against `canvas` and a role resolved
+  against the wrong rung. This is the same substitution arriving in a MANIFEST, where no contrast
+  gate looks.
+
+  **⚠ AND MY OWN COMMENT ON THE MACHINE-ROOM ROW DEFENDS IT WITH A RULING ABOUT A DIFFERENT
+  QUESTION.** It cites *"a surface whose ground sits at an extreme buys nothing from theming"* —
+  which is the favicon ruling, and that ruling is about whether HUE is perceptible at 16 to 64px.
+  The splash is FULL-BLEED and the question is lightness rather than hue. **A true rule cited about
+  the wrong subject**, written by me, one commit before publishing a dark palette.
+
+  **EXPOSURE IS ZERO TODAY AND THAT IS WHY IT IS BOARDED RATHER THAN FIXED.** `background_color` is
+  only drawn for an INSTALLED PWA, and nothing suggests anyone has installed this. It has also been
+  true of four dark palettes for arcs, so publishing machine-room reveals it rather than causing it.
+
+  **THE FIX IS ONE MAP AND A RULE: the splash takes the palette's PAGE ground** — `cream-50` on a
+  light palette, `band-dark` on a dark one — which is a derivation `THEME_GROUND` already carries.
+  `theme` section I would need its comparison retargeted with it.
+
+- **⚠ BOARDED: THE SITE'S OWN SHARE CARD IS DRAWN IN A PALETTE THE SITE NO LONGER HAS.**
+  `app/opengraph-image.png` is a STATIC PNG committed in `cd1c658`, long before the media. Sampled,
+  its dominant colours are a warm cream ground `251,246,238`, a warm ink `28,24,19` and a terracotta
+  accent `181,97,60` — the retired cream palette. **No current palette is warm at those values**:
+  drawing-office is `250,250,250`, redline `250,250,248`, machine-room `244,252,251`.
+
+  **⚠ AND THE PER-PAGE CARDS DO FOLLOW THE THEME, WHICH IS WHAT MAKES THIS A GAP RATHER THAN A
+  DECISION.** `/projects/<slug>/og` and `/blog/<slug>/og` render through `THEME_OG` and were
+  measured on this publish at exactly `244,252,251`. So the site has two share surfaces, one themed
+  and one frozen, and the frozen one is the image every link to the domain root shows.
+
+  **IT IS LIVE ON REDLINE TODAY AND WAS NOT CAUSED BY PUBLISHING MACHINE ROOM** — it was found by
+  checking the publish rather than by a gate, which is the fourth time a publish or a render has
+  found something no suite has as its subject.
+
+  **⚠ THE FIX IS A DESIGN DECISION AND THAT IS WHY IT IS NOT TAKEN HERE.** A fixed brand card is a
+  legitimate choice — the favicon is exactly that, by ruling. **A card in a RETIRED palette is not
+  a choice anybody made.** Either redraw it in the current identity, or generate it the way the
+  per-page cards already are. The second is smaller and the first may be what an owner wants.
+
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A

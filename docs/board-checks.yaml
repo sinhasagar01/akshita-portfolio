@@ -164,6 +164,22 @@ entries:
 
   # ---- added with the case-study-sand relation, 2026-08-19 ----
 
+  - match: "THE PWA SPLASH IS A NEAR-WHITE ON ALL FIVE DARK PALETTES"
+    kind: structural
+    # The entry exists only while `THEME_SPLASH` maps machine-room to its `cream-50`. Pointing the
+    # splash at the page ground — which is the action — changes that value and expires the entry.
+    holds_while:
+      file: lib/theme.ts
+      pattern: "\\[TWELFTH_THEME\\]: \"#F4FCFB\""
+      expect: present
+
+  - match: "THE SITE'S OWN SHARE CARD IS DRAWN IN A PALETTE THE SITE NO LONGER HAS"
+    kind: judgement
+    why: >-
+      The card is a committed PNG, so no text pattern can watch it, and the choice between redrawing
+      it as a fixed brand asset and generating it from THEME_OG is the owner's. The measurement is
+      in the entry; whether a frozen card is wrong is a design call rather than a fact a file states.
+
   - match: "FOSFOR AI HAS NO PROTOTYPE FOOTAGE"
     kind: structural
     # The entry exists only while that study carries no video block. Adding the real footage — which
