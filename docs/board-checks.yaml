@@ -174,11 +174,3 @@ entries:
       pattern: "videoEmbed"
       expect: absent
 
-  - match: "THE READING VESSEL'S PROGRESS LINE CROSSES A LABEL"
-    kind: judgement
-    why: >-
-      Whether a progress line crossing a label matters, and which of the two should move, is a design
-      call on a component the owner has ruled on before. The collision itself is reproducible from a
-      browser at a known scroll position, and no file records it — position is the axis nothing here
-      measures.
-

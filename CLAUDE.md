@@ -214,30 +214,6 @@ board that cannot be read is a board that gets batched, which is how a fix rides
 gates.
 
 
-- **⚠ BOARDED: THE READING VESSEL'S PROGRESS LINE CROSSES A LABEL, ON THE PUBLISHED PALETTE, TODAY.**
-  Found by rendering machine-room and then checked on redline, which is what turned it from a new
-  palette's problem into a live one. Measured at four scroll positions on
-  `/blog/what-a-data-table-teaches-you-about-trust` at 1440x900:
-
-      scrollY 800    line y 323    crosses nothing
-      scrollY 1400   line y 225    crosses "Reading time"
-      scrollY 2200   line y 133    crosses nothing
-      scrollY 3000   line y 133    crosses nothing
-
-  **THE LINE IS SCROLL-DERIVED AND THE LABELS ARE FIXED**, so the collision is geometry rather than
-  colour and it is INTERMITTENT — which is exactly why nobody has caught it. A reader only meets it
-  while the article is about a third read, and it clears itself as they scroll on.
-
-  **⚠ AND IT IS NOT A CONTRAST DEFECT, WHICH IS WHY EVERY INSTRUMENT HERE IS SILENT ON IT.**
-  `paint-floors` measures a foreground against its ground and both are fine; `geometry` check A asks
-  whether a block is stranded in a centred parent, not whether two boxes overlap. This record already
-  names position as the axis nothing measures, and this is a second instance — the first was six
-  corners and a heading, found by an owner looking.
-
-  **THE FIX IS NOT OBVIOUS AND THAT IS WHY IT IS BOARDED RATHER THAN DONE.** Moving the labels
-  concedes the panel's layout to the line; moving the line breaks the one thing it means. The
-  cheapest honest option is probably that the label ducks — but that is a design call on a component
-  the owner has ruled on before.
 
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
@@ -577,6 +553,86 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ CLOSED BY THE OWNER, AND THE ENTRY WAS A RE-REPORT OF A RULING THAT WAS ALREADY IN THE
+  COMPONENT'S OWN HEADER.** `ReadingVessel.tsx` has said for an arc that the waterline crossing a
+  label is a PROPERTY rather than a defect — the fill is continuous and the rows are fixed, so on
+  every article some percentage lands on a label — and it closes with the sentence that should have
+  stopped this: *"THAT IS A DIFFERENT COMPONENT, and saying so is what stops this being reopened as
+  a tuning question."* **I reopened it as a tuning question.**
+
+  **⚠ THE SUBSTRATE-CLAIM SHAPE, IN THE DIRECTION NOBODY CHECKS.** This record already carries four
+  instances of asserting something was recorded when it was not. **This is the mirror: asserting
+  something was NOT recorded without looking**, and the place to look was the header of the one file
+  the finding is about. The render was real, the measurement was real, and the grep that would have
+  cost one command was never run.
+
+  **THE RULING SURVIVES AND THREE THINGS IN IT WERE WRONG OR MISSING, WHICH IS WHY THE PASS WAS NOT
+  WASTED.** Measured on redline at 1440x900, sanity 21.000 through the same raster path first:
+
+      227 of 983 sampled scroll positions put the 2px line INSIDE a glyph band
+      Loved by 29-31%   Enterprise UX 44-49%   Topic 53-56%   2 min 63-67%
+      Reading time 71-74%   the date 81-86%   Published 90-92%
+
+      glyph vs the line, inside the band ......  1.35
+      the same glyph five rows up ............   8.05
+      a label under the FILL rather than the line   6.5 to 7.7
+
+  **ONE, THE SUBJECT IS EVERY ROW IN TURN.** The entry named "Reading time", which is one of seven,
+  and naming it made a general property look like a specific defect. **TWO, IT IS THE 2px LINE AND
+  NOT THE FILL** — which inverts where anyone would look, because the fill is fine and always was.
+  **THREE, IT RENDERS AS A STRIKETHROUGH.** The header says *"washes the label out"*, a contrast
+  framing; on screen the word reads CANCELLED, and `READING TIME` shown struck through says
+  something the design does not mean. That is the half the ruling did not have, and it is why the
+  owner was asked again rather than told.
+
+  **⚠ AND FOUR TUNING FIXES WERE BUILT AND MEASURED BEFORE THE RULING WAS RE-AFFIRMED, WHICH IS WHAT
+  TURNS A JUDGEMENT INTO A JUDGEMENT WITH REFUTATIONS UNDER IT:**
+
+      inset to the gutters   still crosses — the label is 170px of the 172 available
+      glyph knockout         a 3px stroke in the surface colour takes the letterforms to hairline
+      faded middle           still reads as a strike, just less certainly
+      masked to the walls    band 1.35 -> 7.53 and zero crossings, AND the line stops being a
+                             waterline in the 77% of positions where it crosses nothing
+
+  **THE TRADE IS THE WHOLE ANSWER: EVERY CANDIDATE DEGRADES THE COMMON STATE TO REPAIR THE RARE
+  ONE.** The owner ruled accept on that evidence. The numbers are now in the component's header so
+  the next person meets them rather than re-deriving them, and the replacement the header names — a
+  fill beside the body, or a rail rather than a vessel — is still the only thing that would change
+  the outcome.
+
+  **⚠ AND `paint-floors` COULD HAVE SEEN THIS ALL ALONG, WHICH CORRECTS THE ENTRY'S SHARPEST CLAIM.**
+  It said no instrument here can reach it because position is the axis nothing measures. **A contrast
+  measurement reaches it perfectly** — 1.35 is a ratio like any other. What no instrument does is
+  measure a TRANSIENT SCROLL STATE: every sweep in this repository samples a settled page, and this
+  defect exists only while the fill is passing a row. **The gap is time, not position**, and stating
+  it wrongly is what made it look unreachable.
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS FIRST TWO PARAGRAPHS ARE THE ONES THAT WERE WRONG:**
+
+- **⚠ BOARDED: THE READING VESSEL'S PROGRESS LINE CROSSES A LABEL, ON THE PUBLISHED PALETTE, TODAY.**
+  Found by rendering machine-room and then checked on redline, which is what turned it from a new
+  palette's problem into a live one. Measured at four scroll positions on
+  `/blog/what-a-data-table-teaches-you-about-trust` at 1440x900:
+
+      scrollY 800    line y 323    crosses nothing
+      scrollY 1400   line y 225    crosses "Reading time"
+      scrollY 2200   line y 133    crosses nothing
+      scrollY 3000   line y 133    crosses nothing
+
+  **THE LINE IS SCROLL-DERIVED AND THE LABELS ARE FIXED**, so the collision is geometry rather than
+  colour and it is INTERMITTENT — which is exactly why nobody has caught it. A reader only meets it
+  while the article is about a third read, and it clears itself as they scroll on.
+
+  **⚠ AND IT IS NOT A CONTRAST DEFECT, WHICH IS WHY EVERY INSTRUMENT HERE IS SILENT ON IT.**
+  `paint-floors` measures a foreground against its ground and both are fine; `geometry` check A asks
+  whether a block is stranded in a centred parent, not whether two boxes overlap. This record already
+  names position as the axis nothing measures, and this is a second instance — the first was six
+  corners and a heading, found by an owner looking.
+
+  **THE FIX IS NOT OBVIOUS AND THAT IS WHY IT IS BOARDED RATHER THAN DONE.** Moving the labels
+  concedes the panel's layout to the line; moving the line breaks the one thing it means. The
+  cheapest honest option is probably that the label ducks — but that is a design call on a component
+  the owner has ruled on before.
 - **⚠ CLOSED, THREE AT ONCE, AND THE TEAL WAS NOT IN A SPARE SLOT — IT WAS IN THE ACCENT'S OWN TEXT
   RUNG.** The `reference` role was refused for arcs on a rule that named its own end condition:
   reference and secondary text hold ONE value on every palette that had shipped, so the role would

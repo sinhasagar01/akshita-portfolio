@@ -12990,6 +12990,73 @@ it fired on the minute. Not a defect in the gate; it is the boundary the gate st
 and this is the first time the half it cannot reach has cost an entry its currency.
 
 
+## ⚠ THE VESSEL'S WATERLINE, AND I REOPENED AS A TUNING QUESTION THE THING THE COMPONENT SAYS NOT TO
+
+`ReadingVessel.tsx` has carried the ruling for an arc: the waterline crossing a label is a PROPERTY
+rather than a defect, because the fill is continuous and the body's rows are fixed, so on every
+article some percentage lands on a label. It closes with the sentence that should have stopped the
+render pass — *"THAT IS A DIFFERENT COMPONENT, and saying so is what stops this being reopened as a
+tuning question."* **The render pass boarded it as a new finding without reading it.**
+
+**⚠ THE SUBSTRATE-CLAIM SHAPE, IN THE DIRECTION NOBODY CHECKS.** This record already carries four
+instances of asserting something WAS recorded when it was not. This is the mirror — asserting
+something was NOT recorded without looking — and the place to look was the header of the one file
+the finding is about. **One grep, never run.**
+
+**THE RULING SURVIVES AND THREE THINGS IN IT WERE WRONG OR MISSING.** Measured on redline at
+1440x900, sanity 21.000 through the same raster path before any figure was believed:
+
+    227 of 983 sampled scroll positions put the 2px line INSIDE a glyph band
+    Loved by 29-31%   Enterprise UX 44-49%   Topic 53-56%   2 min 63-67%
+    Reading time 71-74%   the date 81-86%   Published 90-92%
+
+    glyph vs the line, inside the band ..........  1.35
+    the same glyph five rows up .................  8.05
+    a label under the FILL rather than the line .  6.5 to 7.7
+
+**ONE, THE SUBJECT IS EVERY ROW IN TURN.** The board entry named "Reading time", which is one of
+seven — naming it made a general property read as a specific defect, which is the wrong-subject
+shape arriving in a board entry rather than in a measurement.
+
+**TWO, IT IS THE 2px LINE AND NOT THE FILL, WHICH INVERTS WHERE ANYONE WOULD LOOK.** A label sitting
+under the fill measures 6.5 to 7.7. The fill is fine and always was. The line covers 2 of the 7px cap
+height, so a third of each letter is replaced and the word survives.
+
+**THREE, IT RENDERS AS A STRIKETHROUGH.** *"Washes the label out"* is a contrast framing; on screen
+the word reads CANCELLED, and `READING TIME` or `PUBLISHED` shown struck through says something the
+design does not mean. **That is the half the original ruling did not have**, and it is why the owner
+was asked again rather than told.
+
+**⚠ AND FOUR TUNING FIXES WERE BUILT AND MEASURED BEFORE THE RULING WAS RE-AFFIRMED**, which is what
+turns a judgement into a judgement with refutations under it:
+
+    inset to the gutters   still crosses — the label is 170px of the 172 available
+    glyph knockout         a 3px stroke in the surface colour takes the letterforms to hairline
+    faded middle           still reads as a strike, just less certainly
+    masked to the walls    band 1.35 -> 7.53 and zero crossings, AND the line stops being a
+                           waterline in the 77% of positions where it crosses nothing
+
+**THE TRADE IS THE WHOLE ANSWER: EVERY CANDIDATE DEGRADES THE COMMON STATE TO REPAIR THE RARE ONE.**
+The owner ruled accept on that evidence, which is a different act from the original ruling being
+left unexamined. The numbers went into the component's header rather than into a commit body,
+because a commit body is not somewhere anyone looks before touching a file.
+
+**⚠ AND `paint-floors` COULD HAVE SEEN IT ALL ALONG, WHICH CORRECTS THE ENTRY'S SHARPEST CLAIM.** It
+said no instrument here can reach it because position is the axis nothing measures. A contrast
+measurement reaches it perfectly — 1.35 is a ratio like any other. **What no instrument does is
+measure a TRANSIENT SCROLL STATE**: every sweep in this repository samples a settled page, and this
+exists only while the fill is passing a row. **The gap is time, not position.**
+
+**⚠ AND MY FIRST MEASUREMENT OF IT WAS AN ARTEFACT OF THE METHOD.** To find the ground behind each
+label I set `visibility: hidden` on `.blog-vessel-body` and sampled the darkest pixel in the label's
+box — which returned the accent at 1.35 and was RIGHT BY LUCK. The reasoning was wrong: I assumed I
+had removed only the glyphs, and I could not tell from that reading whether the body carried a
+background of its own. It does not, so the number held. **A measurement that is right for a reason
+you have not checked is not a measurement**, and the confirming pass — reading the glyph and the
+line as separate pixels in one strip across the whole vessel — is what made 1.35 a fact rather than
+a coincidence.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.
