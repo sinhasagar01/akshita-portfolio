@@ -116,7 +116,61 @@ t("A6a …and the WARM dark really is less chromatic than the COLOURED one, so t
    LITERAL. It asserted ONE pair, cream and ink-flare. With drawing-office in harbour's place EVERY
    member's counterpart is also in the set, so any dot press shows that identity on the other ground
    rather than only two of them doing it. A literal left at the old pair goes red on an improvement. */
-t("A7 ⚠ FOUR OF THE FIVE PAIR INSIDE THE SET — redline's partner is sapphire, which the teaser does not carry",
+/* ⚠ THE RE-DERIVED CLAIMS ARE PINNED, BECAUSE THE PASS THAT PRODUCED THEM EXISTED ONLY BECAUSE THE
+   PREVIOUS ONES WERE NOT. The rationale beside the constant stated five claims about a palette set
+   that had since been replaced, and two of the five were false — "warm light" and "cool light"
+   described a GROUND HUE neither light member carries any more. Nothing read that prose, which is
+   why it survived a rename and two palette swaps.
+
+   ⚠ THESE ROWS DO NOT ASSERT THE ADJECTIVES. A gate cannot decide whether a ground reads as warm;
+   what it can do is hold the NUMERIC claims the prose rests on, so the next member that breaks one
+   turns a row red instead of quietly making a sentence wrong. */
+const accentChroma = (n) => oklchOf(
+  layerPalette(SRC, n, { defaultTheme: DEFAULT_THEME, groundClass: THEME_GROUND[n] })["accent-500"]
+).C;
+console.log(`         accent chroma: ${TEASER_THEMES.map((n) => `${n} ${accentChroma(n).toFixed(3)}`).join(", ")}`);
+
+/* ⚠ THE AXIS CLAIM. The rationale says the two lights differ by their ACCENT and not by their
+   ground, which is only true while their grounds sit together. A literal would go red on a retune
+   that changed nothing about the argument, so the row states the RELATION. */
+const lightMembers = TEASER_THEMES.filter((n) => THEME_GROUND[n] === "light");
+t("A8 ⚠ BOTH LIGHTS SHARE A NEUTRAL GROUND — the rationale's axis claim, and it is what makes the accent the differentiator",
+  lightMembers.length === 2
+    && Math.abs(groundChroma(lightMembers[0]) - groundChroma(lightMembers[1])) < 0.005, true);
+/* The complement, and it is the half that carries the claim: sharing a ground is only interesting
+   because the accents do NOT share one. Without this, two identical palettes would pass A8. */
+t("A8a …and their ACCENTS do not, which is the whole of the signal-only claim",
+  Math.abs(accentChroma(lightMembers[0]) - accentChroma(lightMembers[1])) > 0.10, true);
+/* ⚠ SCOPED TO THE SET, AND THE SCOPING IS THE ROW. This line read "the most chromatic dark ground
+   of all four darks" and then "on the site" — false since blueprint shipped at 0.063, which is not
+   a member. A superlative has to name its population, and a row is how that stops being prose. */
+t("A9 ⚠ nocturne CARRIES THE MOST CHROMATIC GROUND IN THIS SET — scoped to the five, because the site's is blueprint's 0.063",
+  TEASER_THEMES.slice().sort((a, b) => groundChroma(b) - groundChroma(a))[0], "nocturne");
+t("A9a …and the site's most chromatic ground is NOT a member, so the scoping is load-bearing rather than pedantic",
+  TEASER_THEMES.includes(
+    selectableThemes().slice().sort((a, b) => groundChroma(b) - groundChroma(a))[0]), false);
+/* ⚠ THE RECIPROCITY STRUCTURE, WHICH A7's COUNT CANNOT SEE. Four of five pairing inside the set is
+   true of "everyone points at a member" AND of "two point at each other and two point one way", and
+   the rationale claims the second. Stating the reciprocated pair by name is what separates them. */
+/* ⚠ THIS ROW WENT RED ON ITS FIRST RUN AND THE PROSE WAS THE THING THAT WAS WRONG, WHICH IS THE
+   whole argument for adding it. The rationale said redline "points out and is not pointed back".
+   Measured: `redline` and `machine-room` point at EACH OTHER — the pair is mutual and one half of
+   it simply is not a member. Three of the five are reciprocated, not two, and only one mutual pair
+   lies wholly inside the set. Two claims that a count cannot tell apart, separated by two rows. */
+t("A10 ⚠ THREE MEMBERS SIT IN A MUTUAL PAIR — being pointed back at is not the same as your partner being here",
+  TEASER_THEMES.filter((n) => THEME_COUNTERPART[THEME_COUNTERPART[n]] === n).sort(),
+  ["drawing-office", "photostat", "redline"]);
+t("A10a …and exactly ONE mutual pair lies wholly inside the set, which is the claim the rationale actually makes",
+  TEASER_THEMES.filter((n) => THEME_COUNTERPART[THEME_COUNTERPART[n]] === n
+    && TEASER_THEMES.includes(THEME_COUNTERPART[n])).sort(),
+  ["drawing-office", "photostat"]);
+
+/* ⚠ THE TITLE NAMED THE WRONG PARTNER AND THE ROW WAS PASSING FOR THE RIGHT REASON. It read
+   "redline's partner is sapphire". Measured: `THEME_COUNTERPART.redline` is `machine-room`, and
+   sapphire's partner is redline rather than the other way round. The ASSERTION is derived from the
+   registry so it never noticed — a title stating a fact its own row does not compute is the
+   prose-and-data gap this suite's own header exists for, sitting inside the suite. */
+t("A7 ⚠ FOUR OF THE FIVE PAIR INSIDE THE SET — redline's partner is machine-room, which the teaser does not carry",
   TEASER_THEMES.filter((n) => TEASER_THEMES.includes(THEME_COUNTERPART[n])).sort(),
   ["drawing-office", "ink-flare", "nocturne", "photostat"]);
 
