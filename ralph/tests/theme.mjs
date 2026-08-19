@@ -453,9 +453,12 @@ const near = (hex, decl) => {
  * ⚠ IT IS THE FIXED-LIST SHAPE INSIDE THE GATE THAT ENFORCES A TOKEN-LAYER CLAIM — the same place
  * `G4` was found comparing two palettes while its title claimed every one. Derived here so a third
  * ground class cannot silently inherit the light ladder. */
+/** The page ground per class — one name, read by both the splash comparison and `OG_TOKENS.cream`. */
+const GROUND_TOKEN_FOR = { light: "cream-50", dark: "band-dark" };
+
 const OG_TOKENS = {
-  light: [["cream", "cream-50"], ["ink", "ink-950"], ["muted", "ink-600"], ["accent", "accent-500"]],
-  dark: [["cream", "band-dark"], ["ink", "on-dark"], ["muted", "on-dark-muted"], ["accent", "accent-on-dark"]],
+  light: [["cream", GROUND_TOKEN_FOR.light], ["ink", "ink-950"], ["muted", "ink-600"], ["accent", "accent-500"]],
+  dark: [["cream", GROUND_TOKEN_FOR.dark], ["ink", "on-dark"], ["muted", "on-dark-muted"], ["accent", "accent-on-dark"]],
 };
 
 const drift = [];
@@ -465,8 +468,14 @@ for (const name of THEME_NAMES) {
   const splash = THEME_SPLASH[name];
   if (splash) {
     checked++;
-    const d = near(splash, declaredIn(block, "cream-50"));
-    if (d === null || d > 1) drift.push(`${name} splash ${splash} vs cream-50 — ${d === null ? "unresolvable" : d.toFixed(1)} away`);
+    /* ⚠ THE SPLASH TOKEN IS DERIVED FROM THE GROUND CLASS TOO, AND IT WAS A HARDCODED `cream-50`.
+     * The splash IS the palette's page ground, so on a dark palette it is `band-dark` — and the
+     * fixed form would have gone on comparing five dark palettes' splashes against their own
+     * `cream-50` and PASSING, because that is exactly what they held. Second row in this section
+     * with that shape, one PR apart, and the first was found the same way: by the values moving. */
+    const splashToken = GROUND_TOKEN_FOR[THEME_GROUND[name] === "dark" ? "dark" : "light"];
+    const d = near(splash, declaredIn(block, splashToken));
+    if (d === null || d > 1) drift.push(`${name} splash ${splash} vs ${splashToken} — ${d === null ? "unresolvable" : d.toFixed(1)} away`);
   }
   const og = THEME_OG[name];
   if (og) {
@@ -498,6 +507,13 @@ t("I4 ⚠ BOTH GROUND CLASSES HAVE OG PALETTES — a class with no members makes
  * again — the exact state this section was rewritten to make impossible. */
 t("I5 …and the two token lists genuinely differ, so the split is load-bearing rather than decorative",
   OG_TOKENS.light.map(([, t2]) => t2).filter((t2) => OG_TOKENS.dark.some(([, d]) => d === t2)), []);
+/* ⚠ AND THE CARD GROUND AND THE SPLASH ARE THE SAME QUANTITY, SO THEY READ ONE CONSTANT. Two maps
+ * holding "the palette's page ground" separately is how the OG map and the splash map came to hold
+ * the light ladder for five dark palettes independently — one defect, discovered twice, a PR apart.
+ * This asserts the card's ground key IS the splash token rather than merely equal to it today. */
+t("I6 ⚠ THE CARD'S GROUND AND THE SPLASH READ ONE PAGE-GROUND CONSTANT — two copies of this rule is how the same defect shipped in two maps",
+  [OG_TOKENS.light.find(([k]) => k === "cream")?.[1], OG_TOKENS.dark.find(([k]) => k === "cream")?.[1]],
+  [GROUND_TOKEN_FOR.light, GROUND_TOKEN_FOR.dark]);
 
 console.log("\nJ · every palette IN THE STYLESHEET is a palette the code knows about");
 
