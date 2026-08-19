@@ -215,39 +215,6 @@ gates.
 
 
 
-- **⚠ BOARDED: BLUEPRINT'S HERO ILLUSTRATION ARGUES WITH ITS OWN PAGE, AND THE OWNER PREDICTED IT
-  BEFORE THE PALETTE WAS BUILT.** The proposal artifact says it in as many words — her purple and
-  coral sit against a saturated blue ground, it is the one combination in the five where the artwork
-  argues with the page, it is legible and it is the least comfortable of the five, and if blueprint
-  ships that plate probably wants **a thin white mount** rather than sitting directly on the ground.
-
-  **CONFIRMED IN THE FIRST FRAME OF THE RENDER.** The coral shape and the lime card are the loudest
-  things on the page, louder than the name. On every other medium the illustration sits on a near-
-  white or a near-black ground and reads as artwork on paper; here it reads as artwork on a
-  competing colour.
-
-  **⚠ IT IS NOT A CONTRAST DEFECT AND NO INSTRUMENT HERE WILL EVER SAY SO.** `paint-floors` on the
-  blueprint build reads 590 measured and 2 below floor, both the documented work-filter limit — the
-  illustration is a picture, the sweep refuses it as `over-image`, and being uncomfortable is not a
-  ratio. This is the same class as the vessel's progress line: a real finding whose axis nothing
-  measures.
-
-  **THE ACTION IS A MOCK RATHER THAN A VALUE.** A mount is a change to the hero art's presentation
-  on one palette, so it needs an owner's eye on what the mount does to the other seven — the
-  illustration is shared and a mount that helps blueprint may look like a frame nobody asked for on
-  drawing-office. **Not fixed here, because a palette unit must not smuggle in a change to the
-  artwork it renders.**
-
-  **⚠ THE TRIGGER HAS FIRED — BLUEPRINT IS PUBLISHED, SO THE COST IS LIVE RATHER THAN ZERO.** This
-  entry read "it is unpublished today, so the cost is zero and the decision can wait", which was true
-  when written and false from the moment the palette went out. **A board entry is a claim about the
-  present**, and this file's own record carries nine of them that aged into being wrong; correcting
-  it in the same commit as the publish is the only thing that has ever prevented a tenth.
-
-  The owner saw the render before publishing, so the discomfort is accepted rather than unnoticed.
-  What remains open is the remedy: a mount is a change to SHARED artwork, and it needs the other
-  seven palettes judged with it rather than blueprint alone.
-
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
@@ -586,6 +553,88 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ RULED: ACCEPT. THE MOUNT IS NOT CONSTRUCTIBLE IN THIS HERO'S GEOMETRY, AND THREE MORE ROUTES
+  ARE EACH REFUSED BY A STANDING RULE OR AN EXISTING GATE.** The discomfort is real, measured and
+  accepted — not dismissed. What is ruled is the REMEDY.
+
+  **⚠ ONE. THE ARTWORK DOES NOT SIT INSIDE A FRAME, SO THERE IS NOWHERE FOR A MOUNT TO GO.** Measured
+  on the live layout at 1440x1000:
+
+      panel  `.hero-art`     x 670 to 1425     755px wide, overflow hidden
+      figure `.hero-figure`  x 319 to 1776    1457px wide — 193% OF THE PANEL
+      overflow                                 351px off each side, clipped
+
+  The plate is coincident with the panel, and the figure is nearly twice its width and cropped by
+  it. **A border on the plate is a border on the CLIPPING WINDOW**, which the artwork crosses on
+  both sides — rendered, it draws as a broken white frame cut by the figure and by the nav. The
+  proposal describes a relationship this hero does not have.
+
+  **⚠ TWO. A MOUNT ON BLUEPRINT ALONE IS THE FORBIDDEN SHAPE.** *A component may choose what kind of
+  thing it is; it may not choose where it lives.* A mount keyed to the ground is `PullQuote`'s `dark`
+  prop exactly, which this record spent an arc removing.
+
+  **⚠ THREE. A MOUNT ON ALL EIGHT PAYS ON SEVEN TO FIX ONE, AND THE CONDITION HAS ONE MEMBER BY
+  MEASUREMENT.** Ground chroma, every palette:
+
+      blueprint 0.063 | nocturne 0.023 | sapphire 0.016 | ink-flare 0.014
+      machine-room 0.013 | redline 0.003 | drawing-office 0.000 | basalt 0.000
+
+  **Blueprint carries 2.8x the next-highest**, at a lightness where chroma reads. It is the only
+  chromatic ground the site has.
+
+  **⚠ FOUR. A MOUNT BAKED INTO THE ASSET IS REFUSED BY A GATE THAT ALREADY EXISTS, AND ITS
+  DISCRIMINATOR IS EXACTLY THIS.** `raster-grounds` A4 asks whether cream-like pixels are
+  BORDER-CONNECTED. The figure passes today at **8.4% interior, 0 border-connected** — the cream is
+  enclosed by her, the drawn UI cards and the coral block. **A white margin would be border-connected
+  on all four sides**, which is the Fosfor-illustration case A4 was built for. The gate would refuse
+  it, and it would be right to.
+
+  **AND THE PLATE THAT DOES EXIST IS A RECESS RATHER THAN A MOUNT, WHICH IS WHY IT LOOKS LIKE THE
+  ART SITS ON THE GROUND.** `--hx-field` is `surface-well`, and it measures **1.04 to 1.07** against
+  the page ground on all eight palettes — invisible as a boundary by construction. Raising it cannot
+  be done through the token layer on a dark palette either: `cream-200` remaps to the dark panel, so
+  a lighter plate needs a literal, which is route two again.
+
+  **WHAT WOULD ACTUALLY CHANGE IT, NAMED SO NOBODY RE-DERIVES IT.** A redrawn illustration whose own
+  palette does not compete — and this record already boards a larger re-export from the original
+  file as owner-only work, which is the event that would reopen it. Or a change to blueprint's ground
+  chroma, which is the medium itself: *the whole page is one hue at four values*. **Both are the
+  owner's and both are large.** Neither is a mount.
+
+  **THE BOARDED FRAMING, KEPT BECAUSE THE OBSERVATION WAS RIGHT AND ONLY ITS REMEDY WAS NOT:**
+
+- **⚠ BOARDED: BLUEPRINT'S HERO ILLUSTRATION ARGUES WITH ITS OWN PAGE, AND THE OWNER PREDICTED IT
+  BEFORE THE PALETTE WAS BUILT.** The proposal artifact says it in as many words — her purple and
+  coral sit against a saturated blue ground, it is the one combination in the five where the artwork
+  argues with the page, it is legible and it is the least comfortable of the five, and if blueprint
+  ships that plate probably wants **a thin white mount** rather than sitting directly on the ground.
+
+  **CONFIRMED IN THE FIRST FRAME OF THE RENDER.** The coral shape and the lime card are the loudest
+  things on the page, louder than the name. On every other medium the illustration sits on a near-
+  white or a near-black ground and reads as artwork on paper; here it reads as artwork on a
+  competing colour.
+
+  **⚠ IT IS NOT A CONTRAST DEFECT AND NO INSTRUMENT HERE WILL EVER SAY SO.** `paint-floors` on the
+  blueprint build reads 590 measured and 2 below floor, both the documented work-filter limit — the
+  illustration is a picture, the sweep refuses it as `over-image`, and being uncomfortable is not a
+  ratio. This is the same class as the vessel's progress line: a real finding whose axis nothing
+  measures.
+
+  **THE ACTION IS A MOCK RATHER THAN A VALUE.** A mount is a change to the hero art's presentation
+  on one palette, so it needs an owner's eye on what the mount does to the other seven — the
+  illustration is shared and a mount that helps blueprint may look like a frame nobody asked for on
+  drawing-office. **Not fixed here, because a palette unit must not smuggle in a change to the
+  artwork it renders.**
+
+  **⚠ THE TRIGGER HAS FIRED — BLUEPRINT IS PUBLISHED, SO THE COST IS LIVE RATHER THAN ZERO.** This
+  entry read "it is unpublished today, so the cost is zero and the decision can wait", which was true
+  when written and false from the moment the palette went out. **A board entry is a claim about the
+  present**, and this file's own record carries nine of them that aged into being wrong; correcting
+  it in the same commit as the publish is the only thing that has ever prevented a tenth.
+
+  The owner saw the render before publishing, so the discomfort is accepted rather than unnoticed.
+  What remains open is the remedy: a mount is a change to SHARED artwork, and it needs the other
+  seven palettes judged with it rather than blueprint alone.
 - **⚠ CLOSED: THE SPLASH IS THE PAGE GROUND, AND THE ENTRY'S "ONE MAP AND A RULE" WAS MISSING A
   CONSEQUENCE — A SPLASH IS THE GROUND BEHIND A FIXED ICON.** `THEME_SPLASH` now holds each palette's
   `band-dark` on the five dark palettes and its `cream-50` on the two light ones. The two light values

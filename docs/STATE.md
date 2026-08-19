@@ -13432,6 +13432,58 @@ commit that falsifies it. The owner saw the render before publishing, so the dis
 rather than unnoticed; what stays open is the remedy, because a mount is a change to shared artwork.
 
 
+## ⚠ THE MOUNT IS RULED, AND THE REMEDY WAS NOT CONSTRUCTIBLE IN THE GEOMETRY IT WAS PROPOSED FOR
+
+The proposal predicted this before blueprint was built: her purple and coral sit against a saturated
+blue ground, it is the one combination in the five where the artwork argues with the page, and if
+blueprint ships the plate probably wants **a thin white mount** rather than sitting directly on the
+ground. **The observation was right and is accepted. The remedy is refused, on four measurements.**
+
+**⚠ ONE. THE ARTWORK DOES NOT SIT INSIDE A FRAME.** Measured on the live layout at 1440x1000:
+
+    panel  `.hero-art`     x 670 to 1425     755px wide, overflow hidden
+    figure `.hero-figure`  x 319 to 1776    1457px wide — 193% OF THE PANEL
+    overflow                                 351px off each side, clipped
+
+The plate is coincident with the panel and the figure is nearly twice its width, cropped by it. **A
+border on the plate is a border on the CLIPPING WINDOW** — rendered, it draws as a broken white frame
+cut by the figure and by the nav. The remedy describes art inside a mat; this hero is a figure
+overflowing a viewport.
+
+**⚠ TWO. A MOUNT ON BLUEPRINT ALONE IS THE FORBIDDEN SHAPE.** *A component may choose what kind of
+thing it is; it may not choose where it lives.* A mount keyed to the ground is `PullQuote`'s `dark`
+prop exactly.
+
+**⚠ THREE. A MOUNT EVERYWHERE PAYS ON SEVEN TO FIX ONE.** Ground chroma across the set —
+blueprint 0.063, nocturne 0.023, sapphire 0.016, ink-flare 0.014, machine-room 0.013, redline 0.003,
+drawing-office and basalt 0.000. **Blueprint carries 2.8x the next-highest**, at a lightness where
+chroma reads. The condition has exactly one member and it is measurable.
+
+**⚠ FOUR. A MOUNT BAKED INTO THE ASSET IS REFUSED BY A GATE THAT ALREADY EXISTS, AND ITS
+DISCRIMINATOR IS PRECISELY THIS QUESTION.** `raster-grounds` A4 asks whether cream-like pixels are
+BORDER-CONNECTED. The figure passes today at **8.4% interior, 0 border-connected** — the cream is
+enclosed by her, the drawn cards and the coral block. A white margin would be border-connected on all
+four sides, which is the Fosfor case A4 was built for. **The gate would refuse it and would be
+right.**
+
+**AND THE PLATE THAT DOES EXIST IS A RECESS RATHER THAN A MOUNT**, which is why the art reads as
+sitting on the ground. `--hx-field` is `surface-well` and it measures **1.04 to 1.07** against the
+page ground on all eight palettes — invisible as a boundary by construction. Raising it through the
+token layer is impossible on a dark palette anyway: `cream-200` remaps to the dark panel, so a
+lighter plate needs a literal, which is route two again.
+
+**WHAT WOULD ACTUALLY CHANGE IT:** a redrawn illustration whose own palette does not compete — and
+this record already boards a larger re-export from the original file as owner-only work, which is the
+event that reopens it — or a change to blueprint's ground chroma, which is the medium itself. Both
+are the owner's and both are large.
+
+**⚠ AND THE SHAPE HERE IS ONE THIS RECORD KEEPS MEETING FROM THE OTHER SIDE: A CORRECT OBSERVATION
+WITH A REMEDY THAT DOES NOT SURVIVE MEASUREMENT.** The vessel's progress line was the same — four
+tuning fixes built and each losing more than it won. Both times the ruling only became a ruling
+because the alternatives were CONSTRUCTED rather than reasoned about, and both times the first
+candidate looked obviously right in prose.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.
