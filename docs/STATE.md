@@ -13307,6 +13307,97 @@ measured by `theme-contrast` O, the site card is generated and guarded by `share
 splash follows it with `raster-grounds` C over the icon that sits on it.
 
 
+## ⚠ BLUEPRINT, AND IT IS THE FIRST MEDIUM WHOSE NINE VALUES NEEDED NO DERIVATION AT ALL
+
+The fourth medium and the third to ship. Its nine values are the owner's, read from the proposal
+artifact's `.med-blueprint` block rather than from its prose:
+
+    --g #0E2A47   --panel #143354   --hair #24476B   --obj #4E7FB0   --ink #E8F0F8
+    --mut #9DB8D0   --sig #EAF4FF   --ref #8FC4F0   --onsig #0E2A47
+
+**⚠ AND THE READ IS PROVED BY THE TWO BLOCKS ALREADY IN THE STYLESHEET.** The same extraction returns
+redline's nine and machine-room's nine BYTE-IDENTICALLY to what those palettes shipped. That check
+exists because redline shipped a beige for 34 minutes when a DESCRIPTION was interpreted, and it is
+the difference between reading a specification and interpreting one.
+
+**ALL FOUR STATED CONTRASTS REPRODUCE, WHICH NO OTHER MEDIUM HAS MANAGED.** Sanity 21.000 first:
+
+    ink     12.67  against a stated 12.6
+    muted    7.08  against 7.01
+    signal  13.11  against 13.1
+    object   3.46  against 3.41
+
+Machine-room reproduced three of four and its object line had to be derived at 2.55 against a stated
+3.32. **Blueprint carries no derived value from the nine at all**, and its object line clears the
+PANEL step at 3.06 as written — the pair redline missed by 0.04 and needed a one-byte darkening for.
+The ground lands on L 0.2803 exactly, the figure `theme-contrast`'s band registry recorded from the
+artifact in an earlier session. Two readings, two sessions, one number.
+
+**⚠ THE FOURTH BAND, AND THE ARITHMETIC CHOSE IT.** The `panel` band's own note predicted this —
+"blueprint at L 0.2803 is outside this band too" — and left open whether the two mid grounds could
+share one. They cannot. Containing both needs 0.0561 of width; L2's 25% floor caps a band at
+0.05333, so a band holding both swings 22.8%. **It misses by 0.0028.**
+
+**⚠ AND THAT MAKES THE REGISTRY ONE BAND PER MID PALETTE, RECORDED AS A CONSEQUENCE RATHER THAN LEFT
+IMPLIED.** Two mid grounds can share a band only if they sit within 0.0533 of each other. With one
+member each, `hueFloor` stays null on both — so **no separation is ever enforced between mid grounds
+at all**, and a band exists to say which floor governs. The owner ruled the fourth band knowing that;
+a third mid medium is the trigger to ask whether banding is the right instrument down here.
+
+**⚠ AND THE ACCENT'S TEXT STEP IS NOT CONSTRUCTIBLE ON THIS MEDIUM, WHICH IS A DERIVED EXEMPTION
+RATHER THAN A CONCESSION.** `on-dark-quote` is the accent one step lighter. Every other dark palette
+puts its accent at ~70% and steps +4 to +8. **This accent is the medium's near-white signal at
+96.29%**: a step of the observed size lands past white, and a smaller one cannot survive the 8-bit
+round trip — at L 98.3 chroma 0.012 clips to 0.009 and the hue drags **7.8 degrees**, which is
+section N's own failure arriving from the gamut rather than from a wrong value.
+
+So the exemption is a property of the accent's POSITION rather than a palette name: there is no room
+when the accent sits within the step's own size of white. `N2b` pins the exempt value to the accent
+itself so the exemption cannot release anything, and `N2c` keeps the stepped set non-empty. **The
+visible consequence is that the wordmark reads as ONE colour here** where machine-room's reads as
+two — and the proposal's own table lists this medium as having ZERO separate signals, so that is the
+medium rather than a defect. Confirmed in the render.
+
+**⚠ AND `ink-400` IS 6.5 LIGHTNESS POINTS ABOVE EVERY OTHER PALETTE'S, WHICH IS THE GROUND'S DOING.**
+That rung draws icon rests on the three card grounds at a 3.0 floor. On a dark palette `cream-200`
+remaps to the panel while the rung does not remap, so the pair closes as the ground rises:
+
+    ground L 0.169   sapphire, ink-flare, nocturne, basalt   3.28 to 3.30
+    ground L 0.224   machine-room                            3.09
+    ground L 0.280   blueprint at the shared 56.00           2.51
+
+**Machine-room was already only 0.09 clear** and its panel knob is credited with fixing this pair —
+so this was a latent property of the dark ladder that a lighter ground exposed. At 62.50 all three
+clear with the widest margin available and the window runs 60.5 to 64.5.
+
+**AND THE ACCENT RUNG'S WINDOW IS 0.75 OF A LIGHTNESS POINT, FIVE TIMES NARROWER THAN
+MACHINE-ROOM'S** — pinned between 4.5 on `cream-50`, which wants it darker, and 3.0 on `band-dark`,
+which wants it lighter, with the ground 5.6 points lighter closing them on each other. 55.40 sits in
+the middle at 4.59 and 3.06. **Both margins are thin and that is said rather than rounded away.**
+
+**AND `cream-50` CARRIES 0.007 RATHER THAN THE 0.009 EVERY OTHER PALETTE HAS**, because at L 98.5 the
+blue hue holds less chroma than the teal — 0.009 overshoots sRGB by 1.07 here and is clean there.
+Third time in one palette family that chroma has not been comparable across hues.
+
+**THE ORACLE FIGURE IS A BROWSER READING AND HAD TO BE.** `[3.04, 2.23]` from a real build at
+`/palettes/blueprint`, post-hydration, sanity 21.000, settled two seconds past every transition —
+because that section's own note says a `curl` would measure the published theme and label it
+blueprint. **The 3.04 is the figure the rung was solved to analytically at 3.06**, reached through a
+browser canvas that shares no code with the resolver, and the resolver then agreed with it to 0.00.
+
+**THE RENDER.** `paint-floors` on a real blueprint build reads **590 measured, 2 below floor** — the
+work filter's documented sibling limit — with worst 4.79 elsewhere. The cyanotype reads as one hue at
+four values, the plates carry the reference blue in their plate numbers, and the vessel shows its
+fill without the pale-pill failure the record feared for dark grounds.
+
+**⚠ AND THE OWNER'S OWN WARNING ABOUT THE ILLUSTRATION IS CONFIRMED IN THE FIRST FRAME.** The
+proposal says: her purple and coral sit against a saturated blue ground, the one combination in the
+five where the artwork argues with the page, and if blueprint ships that plate probably wants a thin
+white mount rather than sitting directly on the ground. **It does argue** — the coral shape and the
+lime card are the loudest things on the page. Boarded rather than fixed, because a mount is a design
+change to the hero art and this unit is a palette.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

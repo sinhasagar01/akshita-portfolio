@@ -201,7 +201,7 @@ t("C2 …and it visits nothing that was not built, which would render the 404 pa
  * tells you a palette changed the public page count — it caught `drawing-office` arriving. A
  * derived form would have been silent, which is strictly worse than being edited. */
 t("C3 …and the declared exclusion has real members, so C1 is not passing over an empty rule",
-  PAGES.filter(opensAPaletteOnly).length, 7);
+  PAGES.filter(opensAPaletteOnly).length, 8);
 
 console.log(`\nroute-coverage result: ${pass} passed, ${fail} failed  ·  ${PAGES.length} public pages, ${listed.length} in sitemap, ${visited.length} under the ratchet`);
 process.exit(fail === 0 ? 0 : 1);

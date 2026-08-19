@@ -126,8 +126,8 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * pigeonhole those notes describe never applies to it. The ceiling was a property of the unit, not
  * of the circle. They are kept rather than corrected, because the reasoning was sound and it is the
  * unit that moved underneath them. */
-t("A8a the selectable set is the seven real palettes — two light and five dark",
-  selectableThemes(), ["drawing-office", "sapphire", "ink-flare", "nocturne", "basalt", "redline", "machine-room"]);
+t("A8a the selectable set is the eight real palettes — two light and six dark",
+  selectableThemes(), ["drawing-office", "sapphire", "ink-flare", "nocturne", "basalt", "redline", "machine-room", "blueprint"]);
 /* ⚠ AND THE SITE MUST NOT SAY A DIFFERENT NUMBER FROM THE ONE IT OFFERS, WHICH IT DID FOR AS LONG
  * AS DRAWING-OFFICE HAS BEEN SHIPPED. Three user-facing strings read "nine" against ten selectable
  * palettes — `All nine` and `See all nine` as visible text, and `See all nine palettes` as an
@@ -148,7 +148,7 @@ t("A8a the selectable set is the seven real palettes — two light and five dark
  * is the value-compared-to-itself shape this repository has a register for. The prose is corrected
  * rather than the row, because the row is right and the sentence was describing an intention. */
 t("A8a-word ⚠ THE PALETTE COUNT HAS A WORD FOR ITS CURRENT SIZE — three labels said `nine` while ten shipped",
-  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["seven", true]);
+  [selectableCountWord(), /^[a-z]+$/.test(selectableCountWord())], ["eight", true]);
 t("A8 selectable is exactly the resolvable names that have no stated exclusion",
   selectableThemes(), THEME_NAMES.filter((n) => !unselectableReason(n)));
 t("A8 ⚠ EVERY EXCLUSION CARRIES A REASON — an unexplained one is what a cleanup deletes",

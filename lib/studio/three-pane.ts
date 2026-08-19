@@ -270,6 +270,15 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
       viewport: "1456x795",
       element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as drawing-office, so this figure is derived by FONT IDENTITY rather than a second browser session — see this file's own note above)",
     },
+  },  "blueprint": {
+    bodyFont: "IBM Plex Sans",
+    measure68chPx: 652.797,
+    provenance: {
+      method: "browser",
+      route: "/blog/what-a-data-table-teaches-you-about-trust",
+      viewport: "1456x795",
+      element: "main.mx-auto.max-w-[var(--blog-measure)].px-6 (inherited: same body font as drawing-office, so this figure is derived by FONT IDENTITY rather than a second browser session — see this file's own note above)",
+    },
   },  "redline": {
     bodyFont: "IBM Plex Sans",
     measure68chPx: 652.797,

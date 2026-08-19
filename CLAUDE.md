@@ -215,6 +215,32 @@ gates.
 
 
 
+- **⚠ BOARDED: BLUEPRINT'S HERO ILLUSTRATION ARGUES WITH ITS OWN PAGE, AND THE OWNER PREDICTED IT
+  BEFORE THE PALETTE WAS BUILT.** The proposal artifact says it in as many words — her purple and
+  coral sit against a saturated blue ground, it is the one combination in the five where the artwork
+  argues with the page, it is legible and it is the least comfortable of the five, and if blueprint
+  ships that plate probably wants **a thin white mount** rather than sitting directly on the ground.
+
+  **CONFIRMED IN THE FIRST FRAME OF THE RENDER.** The coral shape and the lime card are the loudest
+  things on the page, louder than the name. On every other medium the illustration sits on a near-
+  white or a near-black ground and reads as artwork on paper; here it reads as artwork on a
+  competing colour.
+
+  **⚠ IT IS NOT A CONTRAST DEFECT AND NO INSTRUMENT HERE WILL EVER SAY SO.** `paint-floors` on the
+  blueprint build reads 590 measured and 2 below floor, both the documented work-filter limit — the
+  illustration is a picture, the sweep refuses it as `over-image`, and being uncomfortable is not a
+  ratio. This is the same class as the vessel's progress line: a real finding whose axis nothing
+  measures.
+
+  **THE ACTION IS A MOCK RATHER THAN A VALUE.** A mount is a change to the hero art's presentation
+  on one palette, so it needs an owner's eye on what the mount does to the other seven — the
+  illustration is shared and a mount that helps blueprint may look like a frame nobody asked for on
+  drawing-office. **Not fixed here, because a palette unit must not smuggle in a change to the
+  artwork it renders.**
+
+  **THE TRIGGER IS PUBLISHING BLUEPRINT.** It is unpublished today, so the cost is zero and the
+  decision can wait for the render to be looked at at true size.
+
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
