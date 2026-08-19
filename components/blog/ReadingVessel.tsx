@@ -29,6 +29,44 @@
 // that runs beside the body rather than behind it, or a rail rather than a vessel. THAT IS A
 // DIFFERENT COMPONENT, and saying so is what stops this being reopened as a tuning question.
 //
+// ---- ⚠ IT WAS REOPENED AS A TUNING QUESTION ANYWAY, AND THE MEASUREMENT IS WHY IT IS CLOSED ----
+//
+// A render pass boarded this as a new finding without reading the paragraph above it. The ruling
+// SURVIVES and three things in it were wrong or missing, so the numbers live here now rather than
+// being re-derived by whoever looks next. Redline, 1440x900, sanity pair 21.000 through the same
+// raster path before any figure was believed.
+//
+// ⚠ ONE. THE SUBJECT IS EVERY ROW IN TURN, NOT "READING TIME". Walking the article 2px at a time,
+// 227 of 983 sampled scroll positions put the 2px line INSIDE a glyph band — Loved by at 29-31%,
+// Enterprise UX at 44-49%, Topic at 53-56%, 2 min at 63-67%, Reading time at 71-74%, the date at
+// 81-86%, Published at 90-92%. 73% is one of seven, and naming it made the finding look specific.
+//
+// ⚠ TWO. IT IS THE 2px LINE AND NOT THE FILL, WHICH INVERTS WHERE ANYONE WOULD LOOK. A label
+// sitting UNDER the fill measures 6.5 to 7.7 — the fill is fine and always was. Inside the line's
+// band the glyph reads 1.35 against it; the same glyph five rows up reads 8.05. The line covers
+// 2 of the 7px cap height, so a third of each letter is replaced and the word survives.
+//
+// ⚠ THREE. IT RENDERS AS A STRIKETHROUGH, WHICH IS A SEMANTIC ACCIDENT RATHER THAN A LEGIBILITY
+// ONE. "Washes the label out" is a contrast framing; on screen the word reads CANCELLED, and
+// READING TIME or PUBLISHED shown struck through says something the design does not mean. That is
+// the half the original ruling did not have, and it is why the owner was asked again rather than
+// told.
+//
+// ⚠ AND FOUR TUNING FIXES WERE BUILT AND MEASURED BEFORE THE RULING WAS RE-AFFIRMED. Every one
+// either does not work or pays more than it buys:
+//
+//     inset to the gutters   still crosses — the label is 170px of the 172 available
+//     glyph knockout         a 3px stroke in the surface colour takes the letterforms to hairline
+//     faded middle           still reads as a strike, just less certainly
+//     masked to the walls    band 1.35 -> 7.53 and zero crossings, AND the line stops being a
+//                            waterline in the 77% of positions where it crosses nothing — its own
+//                            comment calls it the boldest mark in the component, and most of that
+//                            goes with it
+//
+// THE TRADE IS THE WHOLE ANSWER: every candidate degrades the COMMON state to repair the rare one.
+// The ruling above is now a judgement with four measured refutations under it rather than a
+// preference, and the replacement it names is still the only thing that would change the outcome.
+//
 // ⚠ AND IT IS NOT NEW FROM ALWAYS-ON. The old gate showed the vessel at 73% too. Always-on made the
 // state REACHABLE ON EVERY ARTICLE rather than created it — the third time in this arc a change has
 // revealed rather than caused, after the heading hierarchy and the Fosfor raster.
