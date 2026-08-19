@@ -12843,6 +12843,53 @@ the vessel is the one to watch, since this is the first medium designed as dark 
 from a light ladder. And the `reference` role: the teal is parked in `on-dark-quote`, flagged
 provisional, and this palette is finally the trigger the record named for building it.
 
+## ⚠ THE RENDER PROTOCOL ON MACHINE ROOM, AND IT FOUND A DEFECT IN THE PUBLISHED PALETTE
+
+The convention says a candidate palette is judged by the instrument and THEN by the render, and
+neither step is optional. Machine Room was driven on a real build — home page, work cards, about,
+a blog post for the vessel, and a case study.
+
+**IT READS AS THE MEDIUM IT IS NAMED FOR.** The amber does real work across the eyebrow, the italic
+name, the selected tab, the counter rules and the CTA; the ground carries a faint grid that reads as
+a service panel rather than as generic dark mode; and the illustration holds on it. `paint-floors`
+on the same build gives **1,036 measured, 2 below floor**, and both are the work filter's chip and
+its count — the documented sibling limit that resolves to 6.65 through the strong path. Worst on the
+case studies is 4.83.
+
+**⚠ AND THE VESSEL CAME OUT RIGHT, WHICH WAS THE ONE REAL RISK.** This record flagged the vessel as
+structurally light-ground, and Machine Room is the first medium designed dark rather than derived by
+darkening something drawn light — so its vessel tones are an interpolation of a chrome ramp. Rendered,
+it shows its thickness as transmitted light with the bubbles visible, not as the glaring pale pill
+the record feared.
+
+**⚠ AND THE RENDER FOUND TWO THINGS NO GATE HERE CAN SEE, ONE OF THEM ON THE PUBLISHED PALETTE.**
+
+The reading vessel's amber progress line crosses the "Reading time" label. Checked on REDLINE, which
+is what turned it from a new palette's problem into a live one:
+
+    scrollY 800    line y 323    crosses nothing
+    scrollY 1400   line y 225    crosses "Reading time"
+    scrollY 2200   line y 133    crosses nothing
+
+The line is scroll-derived and the labels are fixed, so it is geometry rather than colour and it is
+INTERMITTENT — a reader meets it about a third of the way through an article and it clears as they
+scroll on, which is why nobody has caught it. **Every instrument here is silent on it by
+construction**: `paint-floors` measures a foreground against its ground and both are fine, and
+`geometry` asks whether a block is stranded rather than whether two boxes overlap. Position is the
+axis nothing measures, and this is its second instance after the six corners.
+
+**AND THE WORDMARK'S SURNAME IS TEAL BECAUSE OF A PLACEHOLDER.** `.logo-singh` paints exactly the
+value parked in `on-dark-quote` as a provisional home for the medium's `--ref`. It looks deliberate,
+which is worse than looking wrong — an accidental difference that reads as a decision is
+indistinguishable from one, which is the mirror of the entry this record already carries about an
+unrecorded deliberate difference reading as drift. It is also the `reference` role's first named
+consumer question, and that is the useful half: a signature marked in the reference colour is a real
+idea, but it has to be chosen rather than inherited from where a placeholder happened to sit.
+
+**THE PROBE LEFT NOTHING BEHIND.** `theme:` restored from `origin/main`, rebuilt on the published
+value, and a stray scratch directory one of the render scripts created was inspected before being
+removed.
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

@@ -214,6 +214,47 @@ board that cannot be read is a board that gets batched, which is how a fix rides
 gates.
 
 
+- **⚠ BOARDED: THE READING VESSEL'S PROGRESS LINE CROSSES A LABEL, ON THE PUBLISHED PALETTE, TODAY.**
+  Found by rendering machine-room and then checked on redline, which is what turned it from a new
+  palette's problem into a live one. Measured at four scroll positions on
+  `/blog/what-a-data-table-teaches-you-about-trust` at 1440x900:
+
+      scrollY 800    line y 323    crosses nothing
+      scrollY 1400   line y 225    crosses "Reading time"
+      scrollY 2200   line y 133    crosses nothing
+      scrollY 3000   line y 133    crosses nothing
+
+  **THE LINE IS SCROLL-DERIVED AND THE LABELS ARE FIXED**, so the collision is geometry rather than
+  colour and it is INTERMITTENT — which is exactly why nobody has caught it. A reader only meets it
+  while the article is about a third read, and it clears itself as they scroll on.
+
+  **⚠ AND IT IS NOT A CONTRAST DEFECT, WHICH IS WHY EVERY INSTRUMENT HERE IS SILENT ON IT.**
+  `paint-floors` measures a foreground against its ground and both are fine; `geometry` check A asks
+  whether a block is stranded in a centred parent, not whether two boxes overlap. This record already
+  names position as the axis nothing measures, and this is a second instance — the first was six
+  corners and a heading, found by an owner looking.
+
+  **THE FIX IS NOT OBVIOUS AND THAT IS WHY IT IS BOARDED RATHER THAN DONE.** Moving the labels
+  concedes the panel's layout to the line; moving the line breaks the one thing it means. The
+  cheapest honest option is probably that the label ducks — but that is a design call on a component
+  the owner has ruled on before.
+
+- **⚠ BOARDED: THE WORDMARK'S SURNAME IS TEAL ON MACHINE ROOM, AND IT IS AN ACCIDENT OF A
+  PLACEHOLDER.** `.logo-singh` paints `oklch(0.7192 0.097 188.4)`, which is exactly the value parked
+  in `on-dark-quote` as a provisional home for the medium's `--ref`. The surname changed colour as a
+  side effect of a token having nowhere else to live.
+
+  **⚠ IT LOOKS DELIBERATE, WHICH IS WORSE THAN LOOKING WRONG.** An accidental difference that reads
+  as a decision is indistinguishable from one, and this record already carries the mirror — an
+  unrecorded deliberate difference is indistinguishable from drift, and cost four rounds. Nobody
+  looking at the hero would guess the surname's colour was chosen by a parking decision.
+
+  **THIS IS THE `reference` ROLE'S FIRST NAMED CONSUMER QUESTION, AND IT IS THE USEFUL HALF.** That
+  unit is boarded needing a reader, because a role with nothing reading it is a second spelling. The
+  wordmark is a candidate reader — a signature marked in the reference colour is a real idea — but it
+  has to be CHOSEN rather than inherited from where a placeholder happened to sit.
+
+
 - **⚠ BOARDED: MACHINE ROOM IS BUILT AND UNRENDERED, AND THE CONVENTION SAYS THAT IS NOT SHIPPED.**
   The palette gates green — 33 tokens, its own band, a role-aware dark ladder — and **no human eye
   has been on it.** The rule this repository already carries is that a candidate palette is judged
