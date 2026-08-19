@@ -108,7 +108,7 @@ import {
   readPaletteSource, layerPalette, paletteResolver, rgbToOklch, oklchOf, hexOf,
   USAGE, usageFor as usageForGround,
 } from "../../lib/theme-contrast.ts";
-import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME, THEME_GROUND, GROUND_TOKEN } from "../../lib/theme.ts";
+import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME, THEME_GROUND, THEME_BAND, GROUND_TOKEN } from "../../lib/theme.ts";
 
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -565,6 +565,37 @@ const BANDS = [
        + "ACHROMATIC GROUND AT ALL before measuring one against it. If such a ground separates by "
        + "lightness rather than by hue it needs a different predicate or a stated exemption, and "
        + "either beats a number that answers the wrong question." },
+  /* ⚠ A THIRD BAND, AND IT HAS ONE MEMBER ON PURPOSE. `machine-room`'s ground sits at L 0.2242 —
+   * above the dark band's 0.200 ceiling and below the light band's 0.950 floor, which is the
+   * between-bands state L1d refuses by name. It could not join the dark band: widening that to
+   * 0.2242 drops L2's swing from 28.1% to 13.6% against a 25 floor, and L2 exists precisely so a
+   * band cannot be stretched to admit a member. So the registry gains a band rather than losing a
+   * rule, which is the trade the light band already made in the other direction.
+   *
+   * ⚠ THE WIDTH IS THE LIGHT BAND'S, CENTRED ON THE MEMBER, RATHER THAN A ROUND NUMBER. 0.040 wide
+   * either side of 0.2242 gives 0.204 to 0.244 and a swing of 41.4%, the same figure the light band
+   * carries. A band drawn to fit its member exactly would have zero width and no meaning.
+   *
+   * ⚠ AND `hueFloor` IS null BECAUSE THERE IS NOTHING TO SEPARATE FROM. The registry comment above
+   * already states the rule — a band with one member has no separation to enforce, and the floor is
+   * a property of the CHROMA a class chooses rather than of the class, so inheriting the dark band's
+   * 6.1 would be the wrong-unit error this file ships gates against. No floor has been measured for
+   * this band, and that is a measurement nobody has taken rather than a default.
+   *
+   * WHAT WOULD MOVE IT: a second member. Blueprint sits at L 0.2803, outside this band too, so it
+   * does not join by default — and the moment two grounds share this band, a floor has to be
+   * judged the way the other two were, by rendering them side by side. */
+  { label: "panel", min: 0.204, max: 0.244, hueFloor: null, floorUnit: "dE",
+    why: "\u26a0 ONE MEMBER, SO no floor has been measured for this band. `machine-room` is the lit "
+       + "service panel and its ground is L 0.2242, which belongs to neither shipped band: above "
+       + "dark's 0.200 ceiling, below light's 0.950 floor, the between-bands state L1d refuses. "
+       + "Widening the dark band to reach it takes L2's swing from 28.1% to 13.6% against a 25 "
+       + "floor, so the registry gained a band rather than loosening a rule. Width 0.040 centred on "
+       + "the member, matching the light band, for a swing of 41.4%. The ground separates from all "
+       + "four dark grounds by 18.38 to 27.22 in the dark band's own unit against its 6.1 floor, so "
+       + "distinguishability was never the question — which floor governs it was. A floor becomes "
+       + "measurable when a second member arrives; blueprint at L 0.2803 is outside this band too "
+       + "and does not join by default." },
 ];
 
 
@@ -774,7 +805,12 @@ const groundLightness = (n) => {
 };
 /* ⚠ CLASSIFIED BY DECLARATION, NOT BY MEASUREMENT. L1c cross-checks the two against each other —
  * under inference they could not disagree, which is precisely why inference hid the defect. */
-const bandFor = (n) => BANDS.find((b) => b.label === THEME_GROUND[n]) ?? null;
+/* ⚠ THE BAND IS KEYED ON `THEME_BAND`, NOT ON THE GROUND CLASS, AND ONE PALETTE FORCED THEM APART.
+ * This read `THEME_GROUND[n]` while there were only two classes and two bands, so the two questions
+ * were indistinguishable — which is the same single-shape-for-a-per-class-fact the registry comment
+ * above describes, one level out. `machine-room` is a DARK ground in a band of its own, and keying
+ * on the ground class would have filed it in a band its lightness is not in. */
+const bandFor = (n) => BANDS.find((b) => b.label === THEME_BAND[n]) ?? null;
 const sameBand = (a, b) => { const x = bandFor(a), y = bandFor(b); return !!x && !!y && x.label === y.label; };
 const bandFloor = (a) => bandFor(a)?.hueFloor ?? null;
 let crossBandPairs = 0;
@@ -849,8 +885,28 @@ const ACCENT_EXEMPT = {
   /* ⚠ `basalt`'s EXEMPTION IS GONE BECAUSE ITS CONFLICT IS. It read "33.7 dE from fern's accent",
      and fern retired with the four chromatic lights. D12y fired on exactly that — an exemption for
      a collision that no longer exists is a rule quietly switched off, so the row removing it is
-     the gate working rather than an inconvenience. `ink-flare`'s conflict is with cream, which is
-     still shipped, so that one is still earned. */
+     the gate working rather than an inconvenience. */
+  /* ⚠ `ink-flare` IS BACK, WITH A DIFFERENT CONFLICT FROM THE ONE IT USED TO CARRY. Its old entry
+     named cream and died with cream; this one names `machine-room`, whose amber signal lands 24.2
+     dE from ink-flare's orange against a 48 floor. Same palette, same reasoning, a new subject —
+     and it had to be re-earned rather than restored, which is what D12y is for.
+
+     ⚠ AND IT IS `ink-flare` THAT CARRIES IT RATHER THAN `machine-room`, WHICH IS THE WHOLE RULING.
+     The exemption above is scoped to independently authored dark presets — drawn in
+     `docs/dark-mode-studio.html` before most of the shipped palette existed, so none was drawn
+     against it. `machine-room` is the opposite: it is a DERIVED palette, built against this system
+     with its ground placed in a band the registry had to gain and its roles solved per semantic
+     band. Exempting the derived one would have switched the rule off for the palette the rule was
+     available to. Exempting the authored one leaves the rule intact for everything drawn from here
+     on, which is the property the register's own header asks for.
+
+     ⚠ AND THE SCOPE IS A PALETTE RATHER THAN A PAIR, WHICH IS WIDER THAN THIS RULING NEEDS AND IS
+     SAID SO IT IS NOT MISTAKEN FOR INTENT. D12d skips a pair when EITHER member is exempt, so this
+     entry also stops ink-flare being compared against any future accent. The narrower mechanism is
+     a pair-keyed register, and it is not built here because one entry is not a population — the
+     trigger is a second authored preset needing an exemption against one palette but not another. */
+  "ink-flare": "Conflict: 24.2 dE from machine-room's amber accent, against a 48 floor. "
+    + AUTHORED_PRESET,
 };
 const GROUND_EXEMPT = {
   /* ⚠ THE ACCEPTED CONTRADICTION, STATED SO IT CANNOT READ AS DRIFT. Sapphire and nocturne at dE 6.0
@@ -1478,6 +1534,11 @@ const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
   basalt: [3.65, 2.69],
   "drawing-office": [20.12, 20.12], redline: [6.65, 9.51],
+  /* ⚠ TAKEN FROM A REAL machine-room BUILD, NOT COMPUTED, because the note above says there is no
+     shortcut and it is right. `on-accent` reads 21,29,32 — the page ground, which is what this
+     medium specifies for type on its amber — against accent-500 at 150,99,2. The 3.32 is the same
+     figure the rung was solved to analytically, reached here by a different route. */
+  "machine-room": [3.32, 2.45],
 };
 /* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
  * to this map fails here instead of being quietly unmeasured — which is the whole defect above,
@@ -1674,10 +1735,25 @@ t("L0b the registry has real bands — an empty one admits everything", BANDS.le
 
 t("L1 ⚠ EVERY PALETTE DECLARES A GROUND CLASS — a missing one would silently join the majority band",
   REAL.filter((n) => !THEME_GROUND[n]), []);
+/* ⚠ THE BAND DECLARATION, NOT THE GROUND CLASS. This compared `THEME_GROUND[n]` while the two were
+ * the same thing; `machine-room` is a DARK ground whose lightness band is its own, so the row has to
+ * ask the lightness question of the lightness map. */
 t("L1c ⚠ AND THE DECLARATION AGREES WITH THE MEASUREMENT — the case inference could never surface",
-  REAL.filter((n) => { const b = BANDS.find((x) => x.label === THEME_GROUND[n]); const L = Ls[n];
+  REAL.filter((n) => { const b = BANDS.find((x) => x.label === THEME_BAND[n]); const L = Ls[n];
     return !b || L === null || L < b.min - EPS || L > b.max + EPS; })
-    .map((n) => `${n} declares ${THEME_GROUND[n]} but its ${GROUND_TOKEN[THEME_GROUND[n]]} is L${Ls[n]?.toFixed(3)}`), []);
+    .map((n) => `${n} declares band ${THEME_BAND[n]} but its ${GROUND_TOKEN[THEME_GROUND[n]]} is L${Ls[n]?.toFixed(3)}`), []);
+/* ⚠ AND THE SECOND AXIS MUST NOT BECOME A WAY ROUND THE FIRST, WHICH IS THE COMPLEMENT L1c CANNOT
+ * ASSERT ABOUT ITSELF. Splitting band from ground class buys a palette its own lightness bounds; it
+ * must not buy a LIGHT palette the dark band's floors by relabelling. So where a band label is also
+ * a ground-class name the two have to agree, and only a band that is NEITHER — `panel` today — may
+ * differ from its palette's ground class. Same shape as the exemption rule this record carries: an
+ * exemption claim has to name the case it must NOT cover, or it only ever loosens. */
+t("L1e ⚠ EVERY PALETTE DECLARES A BAND, and one that names a ground class agrees with it",
+  REAL.filter((n) => !THEME_BAND[n]
+    || (["light", "dark"].includes(THEME_BAND[n]) && THEME_BAND[n] !== THEME_GROUND[n]))
+    .map((n) => `${n} band ${THEME_BAND[n] ?? "MISSING"} vs ground ${THEME_GROUND[n]}`), []);
+t("L1f …and a band that is neither class exists, or L1e is a rule with no subject",
+  BANDS.some((b) => !["light", "dark"].includes(b.label)), true);
 t("L1d …and a ground BETWEEN bands still belongs to no class, whatever it declares",
   REAL.filter((n) => !bandOf(Ls[n]))
     .map((n) => `${n} L${Ls[n]?.toFixed(3)} is between bands — no floor applies to it`), []);

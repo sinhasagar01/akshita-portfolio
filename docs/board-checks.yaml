@@ -173,3 +173,18 @@ entries:
       file: content/projects/fosfor-ai.yaml
       pattern: "videoEmbed"
       expect: absent
+
+  - match: "MACHINE ROOM IS BUILT AND UNRENDERED"
+    kind: judgement
+    why: >-
+      Whether a palette reads as the medium it is named for is an eye on a page, and no file records
+      which palettes have been through the render protocol. The entry closes when somebody looks.
+
+  - match: "THE `reference` ROLE, WHOSE TRIGGER THIS PALETTE FINALLY MEETS"
+    kind: structural
+    # The entry exists only while no `reference` role is declared. Adding it — which is the action —
+    # makes this pattern appear and expires the entry rather than leaving it open over finished work.
+    holds_while:
+      file: app/globals.css
+      pattern: "--color-reference"
+      expect: absent

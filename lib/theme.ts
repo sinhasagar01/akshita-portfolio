@@ -111,9 +111,15 @@ export const NINTH_THEME = "basalt";
    a page. Same lightnesses, so the ratios are basalt's rather than new. */
 /* `redline` — Drawing Office marked up. One signal doing correction, so it needs no new role. */
 const ELEVENTH_THEME = "redline";
+/* ⚠ THE LIT SERVICE PANEL, AND THE FIRST PALETTE WHOSE SEPARATION CLASS IS NOT ITS GROUND CLASS.
+   Its ground is dark, so `data-ground="dark"` fires and the ground layer remaps exactly as it does
+   for the other four. What it does not share is a BAND: at L 0.2242 it sits above the dark band's
+   0.200 ceiling, and widening that band to hold it drops the swing test from 28.1% to 13.6%. See
+   `THEME_BAND`. */
+const TWELFTH_THEME = "machine-room";
 
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, ELEVENTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, ELEVENTH_THEME, TWELFTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -170,8 +176,48 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   [DEFAULT_THEME]: "light",
   /* Warm proof paper. Light for the same reason drawing-office is — the page ground is `canvas`. */
   [ELEVENTH_THEME]: "light",
+  /* ⚠ DARK, AND ITS BAND IS ELSEWHERE. The ground class answers "which token is the page ground and
+     does the ground layer fire", and for this palette both answers are the dark ones. Its lightness
+     band is a separate question and a separate map. */
+  [TWELFTH_THEME]: "dark",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
   [VERIFY_THEME]: "light",
+};
+
+/* ============================================================================================
+   ⚠ THE BAND IS A SEPARATE AXIS FROM THE GROUND CLASS, AND ONE PALETTE IS WHY.
+
+   These were one thing until `machine-room`. `THEME_GROUND` answers two questions at once — which
+   token carries the page ground, and whether `data-ground="dark"` is emitted — and the separation
+   registry then keyed its BANDS off the same label, so a palette's lightness class and its ground
+   class could not differ.
+
+   ⚠ MACHINE ROOM IS A DARK GROUND THAT BELONGS TO NEITHER SHIPPED BAND. At L 0.2242 it sits above
+   the dark band's 0.200 ceiling and below the light band's 0.950 floor — the between-bands state
+   `theme-contrast` L1d refuses by name. It cannot join the dark band: widening that to 0.2242 takes
+   L2's swing from 28.1% to 13.6% against a 25 floor, and L2 exists precisely to stop a band being
+   stretched to admit a member.
+
+   ⚠ AND RELABELLING ITS GROUND CLASS WOULD HAVE BROKEN THE PALETTE OUTRIGHT, WHICH IS THE TRAP
+   WORTH RECORDING. `app/layout.tsx` emits the ground attribute on `ground === "dark"`, so a palette
+   labelled anything else never gets the remap and every role stays at its light value on a
+   near-black page. The two concepts had to come apart rather than one being renamed.
+
+   A band with one member enforces no separation, and the registry already says so in as many words.
+   ============================================================================================ */
+export type GroundBand = "light" | "dark" | "panel";
+
+export const THEME_BAND: Record<string, GroundBand> = {
+  [DEFAULT_THEME]: "light",
+  [ELEVENTH_THEME]: "light",
+  [VERIFY_THEME]: "light",
+  [SIXTH_THEME]: "dark",
+  [SEVENTH_THEME]: "dark",
+  [EIGHTH_THEME]: "dark",
+  [NINTH_THEME]: "dark",
+  /* The only member. Named for what the medium is rather than for where it sits, because "dark two"
+     would invite the next palette to join it without measuring. */
+  [TWELFTH_THEME]: "panel",
 };
 
 /* ============================================================================================
@@ -255,11 +301,15 @@ export const THEME_COUNTERPART: Record<string, string> = {
      both carry zero chroma, so there is no hue to be near — basalt IS this palette on a dark
      ground. Unreciprocated by the same rule as cerise, since basalt answers to fern on accent. */
   [DEFAULT_THEME]: NINTH_THEME,
-  /* ⚠ REDLINE'S RED SITS AT h27 AND `ink-flare` IS THE NEAREST DARK ACCENT AT h52, 25 degrees away.
-     Unreciprocated by the same pigeonhole rule as cerise — ink-flare answers to cream, which is
-     closer still. The artifact's own map pairs Redline with Machine Room, and that pair can only
-     exist once Machine Room does. */
-  [ELEVENTH_THEME]: SIXTH_THEME,
+  /* ⚠ THE PAIR THIS ENTRY SAID COULD NOT YET EXIST. It read that redline's red sits at h27 with
+     `ink-flare` the nearest dark accent at h52, unreciprocated by the pigeonhole rule — and closed
+     with "the artifact's own map pairs Redline with Machine Room, and that pair can only exist once
+     Machine Room does." Machine Room exists, so the artifact's pairing is taken and the two
+     reciprocate. The previous target, sapphire, was the nearest-accent fallback rather than a
+     choice, which is exactly what a directed recommendation should stop being once the intended
+     partner is buildable. */
+  [ELEVENTH_THEME]: TWELFTH_THEME,
+  [TWELFTH_THEME]: ELEVENTH_THEME,
 };
 
 export type ThemeName = (typeof THEME_NAMES)[number];
@@ -456,6 +506,10 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
      can give it. */
   [DEFAULT_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
   [ELEVENTH_THEME]: { cream: "#fafaf8", ink: "#111110", muted: "#474741", accent: "#b01c14" },
+  /* Read off the resolved palette, which is what `token-claims` compares this copy against. The
+     accent is the mid-lightness rung rather than the medium's amber — the rung is what an OG card
+     paints, since that surface has no dark ground to remap against. */
+  [TWELFTH_THEME]: { cream: "#f4fcfb", ink: "#050d10", muted: "#404a4c", accent: "#966302" },
   /* Byte-identical to the default, like every other value the control holds. */
   /* ⚠ THE TWIN IS A CLONE OF WHATEVER THE DEFAULT IS, so it holds the DEFAULT'S values rather
      than a copy of one particular palette's. It carried cream's until the default moved. */
@@ -469,6 +523,10 @@ export const THEME_SPLASH: Record<string, string> = {
   [NINTH_THEME]: "#FAFAFA",
   [DEFAULT_THEME]: "#FAFAFA",
   [ELEVENTH_THEME]: "#FAFAF8",
+  /* Machine Room's `cream-50`. A near-white with the medium's own cool cast, which is what the
+     splash surface takes on every palette — the ground it eventually paints is dark, and the record
+     already rules that a surface whose ground sits at an extreme buys nothing from theming. */
+  [TWELFTH_THEME]: "#F4FCFB",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FAFAFA",
 };
