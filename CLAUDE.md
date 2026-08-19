@@ -605,6 +605,71 @@ moment it grows an action again.
   the wrapper. **S1 and S3 are what watch for it, on every run, and neither has a palette in its
   subject.**
 
+- **⚠ CLOSED: THE WORK SECTION CAME BACK BLANK ON EVERY HASH LANDING, AND IT WAS A DEADLOCK RATHER
+  THAN A RACE.** Reported by the owner on three routes — a direct `/#work`, a refresh on it, and the
+  "All work" control on a case study — with the section visible only after scrolling back and forth.
+  Reproduced on production first try: `scrollY 828`, panel at viewport top, **no `is-revealed`**,
+  every card at `opacity: 0`.
+
+  **`.reveal-panel` SHIPS `clip-path: inset(0 0 100%)`, WHICH LEAVES A ZERO-HEIGHT STRIP AT THE
+  PANEL'S OWN TOP — AND IntersectionObserver CLIPS THE INTERSECTION RECT AGAINST IT.** With a TOP
+  inset on the observer's root, that strip had to pass THROUGH the band to be seen. A hash landing
+  puts it ABOVE the band. Measured on production, panel at top 72 in an 872px viewport:
+
+      rootMargin "-20% 0px"          isIntersecting false    band 174..698, strip at 72
+      rootMargin "0px 0px -20% 0px"  isIntersecting true     band   0..698
+      clip removed, "-20% 0px"       isIntersecting true     the clip is the blocker
+
+  **THE PANEL WAS HIDDEN BY A CLIP THAT BLINDED THE OBSERVER THAT WOULD REMOVE IT**, and scrolling
+  DOWN moved the strip further away — which is exactly why only scrolling back UP, or clean past
+  the bottom, ever fixed it. **A race is fixed by waiting and this could not be.**
+
+  **⚠ FOUR ACTORS HAD TO BE READ TOGETHER, WHICH IS WHY NO SINGLE FILE LOOKED WRONG.** `PageLoader`
+  freezes the page at scroll 0 for the loader's whole duration and applies the hash target only
+  after it lifts — so `RevealSection` decided while `scrollY` was still 0 and read a "top load" that
+  was really a deep link. **The loader is once-per-session, which is precisely why the owner
+  reported it as intermittent.** `ScrollManager` and Lenis are the other two.
+
+  **⚠ AND I MISREAD THIS EXACT SYMPTOM EARLIER THE SAME DAY AND WROTE THE MISREADING INTO #688.**
+  It read *"programmatic `window.scrollTo` raced the reveal observer … a whole section reading as
+  missing content"*, filed as an instrument condition beside two real ones. **The observer was
+  never going to fire.** `window.scrollTo` put the strip above the band exactly as a hash jump
+  does — the probe reproduced the site's defect and I credited it to the probe.
+
+  **THE SHAPE, AND IT IS NEW TO THIS RECORD: AN INSTRUMENT CONDITION IS A REAL DIAGNOSIS AND ALSO
+  THE MOST COMFORTABLE ONE AVAILABLE.** Every earlier instance here was a probe wrongly blamed for a
+  site defect being ABSENT. This is the inverse — a site defect wrongly blamed on the probe — and it
+  is the more expensive direction, because it closes the question. **The rule that would have caught
+  it is the one already written down: reproduce before ruling.**
+
+  **THE FIX IS THREE PARTS AND THE DECISION IS NOW A LEAF.** `lib/reveal-mode.ts` holds
+  `revealModeOnMount`, `revealModeOnScroll` and `REVEAL_ROOT_MARGIN`; `ralph/tests/reveal-mode.mjs`
+  calls them with the failure's real numbers. A hash naming the panel is instant WITHOUT reading the
+  scroll, the root margin drops its top inset, and a still-armed panel whose top has gone above the
+  fold goes instant. **`B3` is the row that keeps the last one honest** — every position on a normal
+  downward journey still returns null, so the guard cannot flatten the intro it protects.
+
+  **MUTATION-TESTED, ALL THREE:** deleting the hash rule reddens `A1`, restoring the top inset
+  reddens `C2`, deleting the top-above-fold arm reddens `B2`. Tree verified clean after restore.
+
+- **⚠ BOARDED: `ScrollManager` IS HASH-BLIND, AND IT IS LATENT RATHER THAN THE CAUSE ABOVE.** Its
+  route effect keys on `usePathname()`, **which does not include the hash**, and a PUSH resolves to
+  `target = 0`:
+
+      const target = isPop ? positionsRef.current[pathname] ?? 0 : 0;
+      window.scrollTo(0, target);
+      lenis.scrollTo(target, { immediate: true, force: true });
+
+  So a client-side push to `/#work` forces the scroll to the top and competes with the hash.
+  **MEASURED, IT IS NOT WHAT BROKE THE "All work" ROUTE**: that control produced a full document
+  load rather than a client push, so this path never ran, and the end state was byte-identical to
+  the direct-URL case. **Stated because the obvious fix for the report would have been to change
+  this, and it would have changed nothing.**
+
+  **THE TRIGGER IS A CLIENT-SIDE PUSH TO A HASHED ROUTE**, which is one `<Link>` away. It is not
+  fixed here because it governs every navigation on the site and the reported defect did not need
+  it — smuggling it in would put an unmeasured change inside a fix that is measured.
+
 - **⚠ CLOSED: THE REFUSAL POPULATION IS ENUMERATED, AND THE REASON NOBODY HAD LOOKED WAS THE
   INSTRUMENT RATHER THAN ANYBODY'S ATTENTION.** `paint-floors` returned a COUNT of its refusals and
   a breakdown by REASON, and no way to see WHICH elements were in them. **A population you cannot

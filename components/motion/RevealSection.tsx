@@ -3,6 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import type { ElementType, ReactNode } from "react";
+import {
+  revealModeOnMount,
+  revealModeOnScroll,
+  REVEAL_ROOT_MARGIN,
+} from "@/lib/reveal-mode";
 
 type Props = {
   as?: ElementType;
@@ -46,30 +51,32 @@ export default function RevealSection({
   const [mode, setMode] = useState<"armed" | "reveal" | "instant">("armed");
 
   useEffect(() => {
-    if (prefersReduced) {
-      setMode("instant");
-      return;
-    }
     const el = ref.current;
     if (!el) return;
 
-    // This runs after ScrollManager's layout-effect restore, so the geometry read here
-    // is the true landing position. Decide synchronously — never depend on catching an
-    // async observer frame, which back/forward remounts can outrun.
-    const rect = el.getBoundingClientRect();
-    const landedScrolled = window.scrollY > 0;
-    if (rect.bottom <= 0 || (landedScrolled && rect.top < window.innerHeight)) {
-      // Scrolled past, or landed with it already on screen without scrolling down into
-      // it (deep link, refresh mid-page, back/forward restore) → final, no animation.
+    // ⚠ THE DECISION LIVES IN `lib/reveal-mode.ts` AND IS CALLED HERE. It used to be written
+    // inline, where nothing could assert it — a source regex proves the words are in the file
+    // and nothing about which branch runs. `reveal-mode` A covers every case including the two
+    // that regressed, and this call site is the only place `window` is read.
+    const r0 = el.getBoundingClientRect();
+    if (
+      revealModeOnMount({
+        prefersReduced: !!prefersReduced,
+        hash: window.location.hash,
+        id,
+        rectTop: r0.top,
+        rectBottom: r0.bottom,
+        scrollY: window.scrollY,
+        innerHeight: window.innerHeight,
+      }) === "instant"
+    ) {
       setMode("instant");
       return;
     }
 
-    // Below the fold, or the first viewport on a top load: arm the reveal. It animates
-    // when scrolled into view (the downward journey, and the on-load intro), OR shows
-    // instantly if it is scrolled clean past first — an anchor jump or a fast scroll can
-    // skip a section without the observer ever firing, and a skipped section must not be
-    // left hidden to animate on the way back up.
+    // Below the fold on a top load: arm the reveal. It animates when scrolled into view (the
+    // downward journey, and the on-load intro), OR shows instantly if the reader gets past it
+    // without the observer firing — a skipped section must never be left hidden.
     let done = false;
     const finish = (next: "reveal" | "instant") => {
       if (done) return;
@@ -83,12 +90,13 @@ export default function RevealSection({
       (entries) => {
         if (entries[0].isIntersecting) finish("reveal");
       },
-      { rootMargin: "-20% 0px", threshold: 0 },
+      { rootMargin: REVEAL_ROOT_MARGIN, threshold: 0 },
     );
     let raf = 0;
     const check = () => {
       raf = 0;
-      if (el.getBoundingClientRect().bottom <= 0) finish("instant");
+      const r = el.getBoundingClientRect();
+      if (revealModeOnScroll(r.top, r.bottom) === "instant") finish("instant");
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(check);
@@ -100,7 +108,7 @@ export default function RevealSection({
       window.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [prefersReduced]);
+  }, [prefersReduced, id]);
 
   const state =
     mode === "reveal"
