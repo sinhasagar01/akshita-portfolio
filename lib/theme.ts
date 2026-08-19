@@ -495,21 +495,57 @@ export function unselectableReason(name: string): string | undefined {
    `theme` section I asserts every value here equals its theme's declaration in `globals.css`. That
    check did not exist for `THEME_SPLASH` either; it now covers both, which is how a hand-kept
    resolved value is allowed to be hand-kept. */
+/* ⚠ THE GROUND IS THE PALETTE'S PAGE GROUND, WHICH IS WHAT THE KEY `cream` NO LONGER MEANS. Every
+   entry below used to be `cream-50 / ink-950 / ink-600 / accent-500` — the LIGHT ladder, on all seven
+   palettes — so a card for a dark palette rendered near-white in front of a near-black site. Five of
+   the seven are dark, so that was five cards of seven describing a site that does not look like them.
+
+   ⚠ IT IS THE `cream-50` READ AS "THE PAGE GROUND" DEFECT, WHICH THIS RECORD ALREADY CARRIES TWICE
+   AS A CONTRAST ERROR AND ONCE IN THE MANIFEST. `cream-50` IS the page ground on a light palette and
+   is NOT on a dark one, where `band-dark` is. The four keys now read per ground class:
+
+       light   cream-50    ink-950    ink-600          accent-500
+       dark    band-dark   on-dark    on-dark-muted    accent-on-dark
+
+   Measured against the card's own ground, sanity 21.000 first — every pair clears 4.5 on every
+   palette, and the tightest is the lit panel's own muted step:
+
+       drawing-office  18.86  8.76  20.12      sapphire   17.32  8.45  6.99
+       redline         18.08  8.95   6.65      ink-flare  17.41  8.48  6.84
+                                               nocturne   17.32  8.43  6.75
+                                               basalt     17.27  8.44  7.52
+                                               machine-room 13.38 5.84 8.11
+
+   ⚠ THE TWO LIGHT PALETTES MOVE ZERO BYTES, and that is by construction rather than by luck — their
+   existing values already WERE the light map. Only the five dark ones change.
+
+   ⚠ AND THE KEY NAMES ARE KEPT DELIBERATELY. `cream`, `ink`, `muted` and `accent` name the card's
+   ROLES rather than the rungs they resolve from, so renaming them would touch `lib/og.tsx`, both
+   routes and `theme` I for no gain. `cream` is the one that reads oddly and the table above is why.
+
+   `theme` section I asserts every value here equals its theme's declaration in `globals.css`, and its
+   token list is now DERIVED FROM THE GROUND CLASS — it was a fixed four-pair list, which would have
+   gone on comparing a dark palette's card ground against its `cream-50` and passing. */
 export const THEME_OG: Record<string, { cream: string; ink: string; muted: string; accent: string }> = {
-  [SIXTH_THEME]: { cream: "#f7fbff", ink: "#040c16", muted: "#404952", accent: "#495bcb" },
-  [SEVENTH_THEME]: { cream: "#fef9f7", ink: "#130804", muted: "#504540", accent: "#a24e02" },
-  [EIGHTH_THEME]: { cream: "#f9faff", ink: "#09081b", muted: "#454658", accent: "#734fb9" },
-  [NINTH_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#527700" },
-  /* ⚠ THREE OF THE FOUR ARE BYTE-IDENTICAL TO BASALT'S AND THAT IS DERIVATION, NOT A COPY. Both
-     palettes read the same achromatic ladder, so `cream-50`, `ink-950` and `ink-600` resolve to
-     the same paint. Only the accent differs, and it differs to the one value an achromatic palette
-     can give it. */
+  [SIXTH_THEME]: { cream: "#0a1016", ink: "#f1f4f7", muted: "#a8adb2", accent: "#8097f6" },
+  [SEVENTH_THEME]: { cream: "#140d0a", ink: "#f6f3f1", muted: "#b1aba8", accent: "#e87e34" },
+  [EIGHTH_THEME]: { cream: "#0d0e19", ink: "#f2f3f8", muted: "#ababb5", accent: "#a984fb" },
+  [NINTH_THEME]: { cream: "#0f0f0f", ink: "#f3f3f3", muted: "#acacac", accent: "#80b12c" },
+  /* ⚠ THE ACHROMATIC PAIR NO LONGER SHARES THREE VALUES, BECAUSE THEY ARE NO LONGER IN THE SAME
+     GROUND CLASS. Both palettes read the same achromatic ladder, so under the old light-only map
+     `cream-50`, `ink-950` and `ink-600` resolved to the same paint on both and only the accent
+     differed. Basalt is DARK, so it now takes `band-dark / on-dark / on-dark-muted` and
+     drawing-office keeps the light three. The values diverge and the derivation is unchanged —
+     what moved is which ladder each end reads. */
   [DEFAULT_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
   [ELEVENTH_THEME]: { cream: "#fafaf8", ink: "#111110", muted: "#474741", accent: "#b01c14" },
-  /* Read off the resolved palette, which is what `token-claims` compares this copy against. The
-     accent is the mid-lightness rung rather than the medium's amber — the rung is what an OG card
-     paints, since that surface has no dark ground to remap against. */
-  [TWELFTH_THEME]: { cream: "#f4fcfb", ink: "#050d10", muted: "#404a4c", accent: "#966302" },
+  /* ⚠ THE ACCENT IS THE MEDIUM'S AMBER NOW, AND THE NOTE HERE SAID THE OPPOSITE FOR A REASON THAT
+     HAS EXPIRED. It read: "the accent is the mid-lightness rung rather than the medium's amber — the
+     rung is what an OG card paints, since that surface has no dark ground to remap against." THE
+     CARD HAS A DARK GROUND NOW, so the premise is gone and the rung would be the wrong end: the mid
+     rung `#966302` measures 3.32 on `band-dark` where the amber measures 8.11. A true note whose
+     condition changed, corrected in the commit that changed it. */
+  [TWELFTH_THEME]: { cream: "#151d20", ink: "#dee5e4", muted: "#8b9a98", accent: "#f0a31f" },
   /* Byte-identical to the default, like every other value the control holds. */
   /* ⚠ THE TWIN IS A CLONE OF WHATEVER THE DEFAULT IS, so it holds the DEFAULT'S values rather
      than a copy of one particular palette's. It carried cream's until the default moved. */

@@ -444,6 +444,20 @@ const near = (hex, decl) => {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 };
 
+/* ⚠ THE TOKEN LIST IS DERIVED FROM THE GROUND CLASS, AND IT WAS A FIXED FOUR-PAIR LIST NAMING THE
+ * LIGHT LADDER FOR ALL SEVEN PALETTES. A card's ground is the palette's PAGE ground — `cream-50` on
+ * a light palette and `band-dark` on a dark one — so the old list compared five dark palettes' card
+ * grounds against their `cream-50` and PASSED, because that is what those entries held. The row was
+ * correct about the equality it checked and the equality was the wrong one.
+ *
+ * ⚠ IT IS THE FIXED-LIST SHAPE INSIDE THE GATE THAT ENFORCES A TOKEN-LAYER CLAIM — the same place
+ * `G4` was found comparing two palettes while its title claimed every one. Derived here so a third
+ * ground class cannot silently inherit the light ladder. */
+const OG_TOKENS = {
+  light: [["cream", "cream-50"], ["ink", "ink-950"], ["muted", "ink-600"], ["accent", "accent-500"]],
+  dark: [["cream", "band-dark"], ["ink", "on-dark"], ["muted", "on-dark-muted"], ["accent", "accent-on-dark"]],
+};
+
 const drift = [];
 let checked = 0;
 for (const name of THEME_NAMES) {
@@ -456,7 +470,7 @@ for (const name of THEME_NAMES) {
   }
   const og = THEME_OG[name];
   if (og) {
-    for (const [key, token] of [["cream", "cream-50"], ["ink", "ink-950"], ["muted", "ink-600"], ["accent", "accent-500"]]) {
+    for (const [key, token] of OG_TOKENS[THEME_GROUND[name] === "dark" ? "dark" : "light"]) {
       checked++;
       const d = near(og[key], declaredIn(block, token));
       if (d === null || d > 1) drift.push(`${name} og.${key} ${og[key]} vs ${token} — ${d === null ? "unresolvable" : d.toFixed(1)} away`);
@@ -471,6 +485,19 @@ t("I2 ⚠ EVERY RESOLVED HEX MATCHES ITS TOKEN — a hand-kept value is allowed 
 /* The OG map must cover every theme, or a palette renders a card in another palette's colours. */
 t("I3 every theme has an OG palette — a missing one would silently draw cream",
   THEME_NAMES.filter((n) => !THEME_OG[n]), []);
+/* ⚠ AND THE DERIVED LIST NEEDS ITS OWN DENOMINATOR, OR A GROUND CLASS WITH NO MEMBERS MAKES ITS HALF
+ * OF I2 VACUOUS. Both classes are populated today — two light and five dark — and asserting it
+ * against a literal is what stops one side draining without anything saying so. */
+const ogByClass = { light: [], dark: [] };
+for (const n of THEME_NAMES) if (THEME_OG[n]) ogByClass[THEME_GROUND[n] === "dark" ? "dark" : "light"].push(n);
+console.log(`         card grounds by class: ${ogByClass.light.length} light, ${ogByClass.dark.length} dark`);
+t("I4 ⚠ BOTH GROUND CLASSES HAVE OG PALETTES — a class with no members makes its half of I2 vacuous",
+  ogByClass.light.length >= 2 && ogByClass.dark.length >= 2, true);
+/* ⚠ AND THE TWO LISTS MUST NOT AGREE, or the split is decorative. If a future edit pointed the dark
+ * list back at the light ladder, I2 would go on passing and every dark card would go near-white
+ * again — the exact state this section was rewritten to make impossible. */
+t("I5 …and the two token lists genuinely differ, so the split is load-bearing rather than decorative",
+  OG_TOKENS.light.map(([, t2]) => t2).filter((t2) => OG_TOKENS.dark.some(([, d]) => d === t2)), []);
 
 console.log("\nJ · every palette IN THE STYLESHEET is a palette the code knows about");
 
