@@ -584,6 +584,54 @@ moment it grows an action again.
 
   **THE BOARDED FRAMING, KEPT BECAUSE NAMING THE FALSE POSITIVE IS WHAT MADE THIS FIXABLE:**
 
+- **⚠ RULED VOID: "CONFIRM `cascade-public` S2's ZERO SURVIVED THE PALETTE CHANGE" WAS A CHECK
+  WHOSE RESULT WAS DETERMINED BEFORE IT RAN — AND I PROPOSED IT.** It ran green. It could not have
+  done anything else: that suite reads SOURCE and the BUILT BUNDLE, and its subject is class strings
+  and cascade shape. **A palette change moves colour VALUES and touches neither**, so no theme swap
+  can move a single one of its rows.
+
+  **⚠ THE ASSERTION-THAT-CANNOT-FAIL SHAPE, ARRIVING IN A PROPOSED NEXT STEP RATHER THAN IN A ROW.**
+  Every instance this record carries lives inside a suite and was found by mutation. This one was a
+  work item — offered three times in a ranked list, described as "cheap", and cheap it was, because
+  it asked a question whose answer was fixed. **Nothing mutates a next-steps list.**
+
+  **THE TEST IS THE SAME ONE AS EVER AND IT IS ONE SENTENCE: what would have to change for this to
+  come out differently?** For S2 under a new palette the answer is nothing, and asking it would have
+  taken less time than running the suite. The zero is real and it was real yesterday.
+
+  **⚠ AND THE SIX DEAD CLASSES ARE NOT AT RISK FROM A PALETTE EITHER**, which is the half the
+  proposal got wrong in substance rather than in form. They were `font-display` utilities shadowed by
+  `.case-study .font-display`; what brings that class back is somebody adding a family utility inside
+  the wrapper. **S1 and S3 are what watch for it, on every run, and neither has a palette in its
+  subject.**
+
+- **⚠ CLOSED: THE REFUSAL POPULATION IS ENUMERATED, AND THE REASON NOBODY HAD LOOKED WAS THE
+  INSTRUMENT RATHER THAN ANYBODY'S ATTENTION.** `paint-floors` returned a COUNT of its refusals and
+  a breakdown by REASON, and no way to see WHICH elements were in them. **A population you cannot
+  enumerate is one nobody can triage**, so the fix was a field rather than a study.
+
+  **64 GROUND REFUSALS ACROSS FIVE PAGES, FOUR CLASSES, NOTHING LEFT OVER:**
+
+      31   deliberately hidden chrome    25 mobile-menu social chips (the menu is MOVED OUT OF VIEW
+                                         at desktop rather than display:none — the off-screen
+                                         container route this record already names), 5 skip links at
+                                         clip-path: inset(50%), 3 palette-pill controls at opacity 0
+      16   text over pictures            blog figure labels and values, the hero fig label, 7
+                                         case-study block captions — correct by the stated rule
+      14   the /palettes switcher panel  a FIXED panel over the page, so elementsFromPoint returns
+                                         the panel at the label's own centre
+       3   one block title and two labels of the same shape
+
+  **EVERY ONE IS CORRECT, AND NOT ONE IS AN ELEMENT A VISITOR IS LOOKING AT.** The two largest
+  classes are things the design deliberately hides. That is the RESULT rather than a
+  disappointment — the honest claim a clean run makes has always been "no defect among the elements
+  it could resolve", and this is the first time anyone can say what the other half held.
+
+  **⚠ AND IT DOES NOT CLOSE THE GENERAL QUESTION, SAID RATHER THAN IMPLIED.** Five pages, one width,
+  one palette. What is established is the SHAPE of the population and that the instrument can now
+  show it — **not that every refusal on every page is benign.** The next person to ask can answer it
+  in one run instead of not at all.
+
 - **⚠ CLOSED, AND THE CAUSE WAS NOT THE ONE THIS ENTRY NAMED — A PENDING TRANSITION MAKES
   `getComputedStyle` REPORT THE STALE ENDPOINT.** Same element, same scroll position, same class
   list, eight seconds apart on a settled page:
@@ -4791,6 +4839,48 @@ build a gate for the limit and then believe it.
   declare the band it must stay in, which is a per-consumer registry for a population nobody has
   counted. The trigger for building one is a SECOND instance — if another whisper inverts, the
   population is real and the registry earns itself.
+
+  **⚠ THE TRIGGER FIRED, 2026-08-19, AND THE SECOND INSTANCE IS THE HERO CREST.** The population is
+  counted now: THREE decorative consumers, derived by the three-part predicate this record already
+  uses — `aria-hidden` plus `pointer-events: none` plus `user-select: none`, and drawing text.
+  Measured on `boat-crest` at 1920, all eight palettes, sanity 21.000, each settled and verified by
+  its own resolved ink before reading:
+
+      palette          class    Ciao      sheet stamp     crest
+      drawing-office   light    1.09      1.80 - 1.82     1.31
+      redline          light    1.00      1.80            1.24
+      sapphire         dark     1.14      2.17 - 2.23     3.17
+      ink-flare        dark     1.14      2.18 - 2.25     3.39
+      nocturne         dark     1.14      2.19 - 2.25     3.34
+      machine-room     dark     1.12      2.09 - 2.10     3.91
+      blueprint        dark     1.15      2.11 - 2.14     4.62
+      photostat        dark     1.12      2.14 - 2.23     5.52
+
+      band                      x1.15     x1.25           x4.45
+
+  **⚠ AND `Ciao` HAS STOPPED BEING AN INSTANCE, WHICH IS THE HALF THAT INVERTS THIS ENTRY.** Its
+  1.37-to-11.67 was the PRE-REPAIR state. It now paints `--color-background` — `canvas` on light,
+  `band-dark` on dark — so it is always DARKER than the panel rather than flipping direction, and it
+  reads 1.00 to 1.15 across eight palettes. **The repair was made by other work and filed against
+  nothing**, which is the shape this record carries a dozen times: a board entry whose subject was
+  fixed underneath it.
+
+  **SO THE SECOND INSTANCE ARRIVED AND THE FIRST ONE LEFT, AND THE POPULATION IS STILL REAL.** The
+  crest is `etch` at 55% alpha where the stamp is `etch` at 26%, and that is the whole difference —
+  **the same pigment role at twice the weight amplifies the ground flip instead of surviving it.**
+  A whisper at 1.24 on redline and a legible 176px mark at 5.52 on photostat.
+
+  **⚠ NO GATE IS BUILT, AND THE REASON IS THAT EVERY AVAILABLE ONE DECIDES A DESIGN QUESTION NOBODY
+  HAS RULED.** Pinning today's bands blesses x4.45 as acceptable, which is the pin-the-current-state
+  trap. Failing on x4.45 rules that a 176px watermark must be as quiet on near-black as on paper —
+  an owner's call about a mark they have looked at on five palettes and not on the other three.
+  **The measurement is the deliverable and the ruling is owed.**
+
+  **THE TWO CANDIDATE RULINGS, PRICED:** drop the crest's alpha toward the stamp's, which is one
+  value and makes the mark quieter on EVERY palette including the lights where it is already 1.24;
+  or scope the alpha to the ground class, which is a second value and is the honest shape if the
+  mark is meant to read equally on both. The figures live in `paint-floors`' header beside the
+  `Ciao` and stamp rulings.
 
 - **⚠ A FIXED VALUE CANNOT HOLD A RELATION, AND THE TOKEN IS USUALLY NOT THE THING TO FIX.** The
   `Ciao` backdrop asked for `cream-300` when it wanted *one step off the panel it sits on*.
