@@ -1662,6 +1662,149 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --dk-text-subtle:  4%;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   `blueprint` — A CYANOTYPE. The whole page is one hue at four values, and the lines are the
+   LIGHT rather than the ink.
+
+   ⚠ THE NINE VALUES ARE THE OWNER'S, READ FROM THE PROPOSAL ARTIFACT'S `.med-blueprint` BLOCK.
+
+       --g #0E2A47   --panel #143354   --hair #24476B   --obj #4E7FB0   --ink #E8F0F8
+       --mut #9DB8D0   --sig #EAF4FF   --ref #8FC4F0   --onsig #0E2A47
+
+   ⚠ AND THE READ IS PROVED BY THE TWO BLOCKS ALREADY IN THIS FILE. The same extraction returns
+   redline's nine and machine-room's nine BYTE-IDENTICALLY to what those palettes shipped, so the
+   parser is reading the right blocks rather than plausible ones. That check exists because redline
+   shipped a beige for 34 minutes when a DESCRIPTION was interpreted instead.
+
+   ⚠ ALL FOUR STATED CONTRASTS REPRODUCE, WHICH NO OTHER MEDIUM HAS MANAGED. Computed against the
+   ground, sanity pair 21.000 first:
+
+       ink     12.67  against a stated 12.6
+       muted    7.08  against 7.01
+       signal  13.11  against 13.1
+       object   3.46  against 3.41
+
+   Machine-room reproduced three of four and its object line had to be DERIVED, at 2.55 against a
+   stated 3.32. **Blueprint carries no derived value from the nine**, and its object line clears the
+   PANEL step at 3.06 as written — the pair redline missed by 0.04 and had to be darkened for.
+
+   ⚠ AND THE GROUND LANDS ON L 0.2803 EXACTLY, which `theme-contrast`'s band registry already
+   recorded from the artifact in an earlier session. Two readings, different sessions, same figure.
+
+   ⚠ ITS SIGNAL IS A NEAR-WHITE, WHICH IS THE MEDIUM RATHER THAN AN ODDITY. `--sig` is L 96.29% at
+   c 0.018 — the proposal's own table lists this medium as having ZERO separate signals and says
+   colour lives in the ground itself. So `accent-on-dark` is light, `on-accent` resolves to the
+   ground, and type on the signal is the paper.
+
+   ⚠ AND THAT LEAVES `on-dark-quote` ALMOST NO ROOM, WHICH IS STATED RATHER THAN HIDDEN. That token
+   is the accent's TEXT STEP — `theme-contrast` section N requires it to hold the accent's hue and
+   sit LIGHTER. The accent is already at 96.29%, so the step is +2.0 rather than the +7.8 the other
+   dark palettes carry. **The consequence is that the wordmark reads as ONE colour here** — the
+   surname and the script both near-white — where machine-room's reads as two. That is the medium
+   with no second signal, not a defect.
+
+   ⚠ THE ACCENT RUNG'S WINDOW IS 0.75 OF A LIGHTNESS POINT, FIVE TIMES NARROWER THAN MACHINE-ROOM'S.
+   It is pinned between clearing 4.5 on `cream-50`, which wants it darker, and 3.0 on `band-dark` as
+   a non-text pair, which wants it lighter — and this ground is 5.6 points LIGHTER than
+   machine-room's, so the two floors close on each other:
+
+       L 54.00   cream 4.87   ground 2.87
+       L 55.00   cream 4.67   ground 3.00   <- the window opens
+       L 55.75   cream 4.54   ground 3.09   <- and closes
+       L 56.00   cream 4.47   ground 3.13
+
+   55.40 sits in the middle at 4.59 and 3.06. **Both margins are thin and that is said rather than
+   rounded away**: +0.09 and +0.06. A future move to either the light ladder's top or the ground
+   closes one of them.
+
+   ⚠ AND THE GROUND BELONGS TO A FOURTH BAND, BY ARITHMETIC RATHER THAN BY PREFERENCE. `panel` is
+   0.204 to 0.244 and this is 0.2803. The two mid grounds cannot share a band: containing both needs
+   0.0561 of width and L2's 25% floor caps a band at 0.05333, so a band holding both swings 22.8%.
+   It misses by 0.0028. See `THEME_BAND` and the registry's own entry.
+   ───────────────────────────────────────────────────────────────────────────── */
+[data-theme="blueprint"] {
+  /* The light ladder, at the medium's own hues. A dark palette still declares it — the cards and
+     the vessel read it before the ground layer remaps what it remaps. */
+  /* ⚠ 0.007 AT THE TOP RATHER THAN THE 0.009 EVERY OTHER PALETTE CARRIES, AND K2 IS WHY. At L 98.5
+     the blue hue holds less chroma than the teal machine-room sits at — 0.009 overshoots sRGB by
+     1.07 here and is clean there. Third time in one palette family that chroma has not been
+     comparable across hues, and the rung below is unaffected because it has more room. */
+  --color-cream-50:          oklch(98.50% 0.007 248.0);
+  --color-cream-100:         oklch(96.80% 0.009 248.0);
+  --color-cream-200:         oklch(93.50% 0.009 248.0);
+  --color-cream-300:         oklch(88.00% 0.009 249.0);
+  --color-canvas:            oklch(92.00% 0.009 248.0);
+  --color-ink-950:           oklch(15.00% 0.015 251.8);
+  --color-ink-800:           oklch(26.20% 0.015 251.5);
+  --color-ink-600:           oklch(40.00% 0.013 250.8);
+  /* ⚠ 62.50 RATHER THAN THE 56.00 EVERY OTHER PALETTE CARRIES, AND THE GROUND'S LIGHTNESS IS WHY.
+     This rung draws icon rests — the stepper's inactive dots and the device-shelf marks — on the
+     three card grounds at a 3.0 floor. On a dark palette `cream-200` remaps to the panel while this
+     rung does NOT remap, so the pair closes as the ground rises:
+
+         ground L 0.169   sapphire, ink-flare, nocturne, basalt   3.28 to 3.30
+         ground L 0.224   machine-room                            3.09
+         ground L 0.280   blueprint at 56.00                      2.51
+
+     Machine-room was already only 0.09 clear and its panel knob is credited with fixing this pair.
+     At 62.50 all three clear with the widest margin available — cream-50 3.44, cream-100 3.26, the
+     panel 3.26 — and the window runs 60.5 to 64.5. The light-ladder halves fall from 4.48 and 4.25,
+     which costs nothing here because a dark palette never paints its own light `cream-200`. */
+  --color-ink-400:           oklch(62.50% 0.012 249.7);
+  --color-ink-200:           oklch(80.00% 0.010 248.0);
+  /* ⚠ DERIVED, AND THE ONLY VALUE HERE THAT IS. The medium's signal is a near-white and the rung
+     serves LIGHT contexts, so copying it would give `accent-500 on cream-50` a ratio near 1. Solved
+     at the signal's hue between the two floors — see the window in the note above. */
+  --color-accent-500:        oklch(55.40% 0.140 250.6);
+  --color-accent-600:        oklch(48.00% 0.120 250.0);
+  --color-text-subtle:       oklch(48.70% 0.013 250.0);
+  /* --ref #8FC4F0. The medium's second value, and it differs from `--mut` by CHROMA at one hue
+     rather than by hue — 0.084 against 0.045, 2.9 lightness points apart. Machine-room's pair
+     differs by 114.9 DEGREES. Two media, two ways for a reference to be distinct from secondary
+     text, which is the argument for a role rather than a per-palette special case. */
+  --color-reference:         oklch(79.94% 0.084 244.2);
+  --color-text-body:         oklch(37.50% 0.014 251.0);
+  /* --obj #4E7FB0, as written. It clears 3.0 on the ground at 3.46 and on the panel step at 3.06,
+     so unlike the other two media it needed no derivation at either pair. */
+  --color-rule:              oklch(58.28% 0.093 249.7);
+  /* --g #0E2A47, the page ground, and what `on-accent` resolves to on this ground. */
+  --color-band-dark:         oklch(28.03% 0.063 251.8);
+  --color-on-dark:           oklch(95.14% 0.014 248.0);
+  --color-on-dark-muted:     oklch(77.03% 0.045 245.3);
+  /* ⚠ THE ACCENT ITSELF, BECAUSE THIS MEDIUM HAS NO ROOM FOR A TEXT STEP AND THAT IS DERIVED RATHER
+     THAN CONCEDED. `on-dark-quote` is the accent at a lightness that reads as text on the ground.
+     Every other dark palette puts its accent at ~70% and steps +4 to +8 above it. This accent is at
+     96.29% — a step of the observed size lands past white, and a smaller one CANNOT HOLD THE HUE:
+     at L 98.3 the 8-bit round trip clips chroma 0.012 down to 0.009 and drags the hue 7.8 degrees,
+     which is section N's own failure. There is also nothing for a text step to fix, since the
+     accent already measures 13.11 on the ground.
+     `theme-contrast` N2b is the derived exemption — a palette whose accent sits within 4 lightness
+     points of white takes the accent here — and N2c asserts the value IS the accent rather than
+     some third choice. */
+  --color-on-dark-quote:     oklch(96.29% 0.018 250.6);
+  /* --sig #EAF4FF. The light IS the signal on this medium. */
+  --color-accent-on-dark:    oklch(96.29% 0.018 250.6);
+  --color-smoke-1:           oklch(0.84 0.008 250 / 0.74);
+  --color-smoke-2:           oklch(0.90 0.007 250 / 0.74);
+  --color-smoke-3:           oklch(0.97 0.005 248 / 0.74);
+  --color-smoke-4:           oklch(0.87 0.007 250 / 0.74);
+  --color-vessel-ink:        oklch(16.00% 0.014 251.8);
+  --color-vessel-capsule:    oklch(80.50% 0.010 248.0);
+  /* The tint relation, at the medium's hue. `theme` V2 requires pearl and glass at exactly ONE hue,
+     V3 the chroma step in -0.013 to -0.009, V4 glass carrying at least 0.013 so the step does not
+     collapse onto lightness alone. */
+  --color-vessel-glass:      oklch(94.50% 0.020 248.0);
+  --color-vessel-pearl:      oklch(96.50% 0.009 248.0);
+  --color-vessel-shadow:     oklch(92.50% 0.016 248.0);
+  --color-vessel-wave:       oklch(93.50% 0.013 248.0);
+  --color-glow-paper:        oklch(0.63 0.100 250.6 / 0.20);
+  --color-bounce:            oklch(99.50% 0.003 248.0);
+  --color-glow-web:          oklch(48.00% 0.083 250.0);
+  --dk-surface:      6%;
+  --dk-panel:        9%;
+  --dk-text-subtle:  4%;
+}
+
 
 
 

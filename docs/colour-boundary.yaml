@@ -449,7 +449,7 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_OG)
-    count: 32
+    count: 36
     files: [lib/theme.ts]
     reason: >
       ⚠ THE SOCIAL CARD'S FOUR COLOURS, RESOLVED PER THEME — TWENTY-FOUR VALUES ACROSS SIX ENTRIES.
@@ -458,7 +458,8 @@ entries:
       landed, and the census caught the stale figure before a human did. It moved 28 to 40 when the
       three dark presets arrived, four each — and the census caught that too, which is what a field
       somebody actually reads looks like rather than one that decorates a row. It moved 28 to 32
-      when machine-room landed, four again, and the census caught that as well.
+      when machine-room landed, four again, and the census caught that as well, and 32 to 36 when
+      blueprint did.
       `ImageResponse` renders OUTSIDE the document and cannot read a CSS custom property, exactly as
       a favicon cannot, so a card's colours must exist as literals in JavaScript. Same forced form as
       `pwa-splash-ground` beside it, for the same mechanical reason.
@@ -480,7 +481,7 @@ entries:
     kind: judgement
     category: forced-literal
     where: lib/theme.ts (THEME_SPLASH)
-    count: 8
+    count: 9
     files: [lib/theme.ts]
     reason: >
       ⚠ THIS ROW EXISTED AS PROSE IN `lib/theme.ts` AND NOWHERE IN THIS FILE, WHICH IS WHY THE COUNT
@@ -489,9 +490,11 @@ entries:
       the two facts looked identical from either side.
 
       `manifest.webmanifest` is JSON and cannot hold a `var()`, so a theme's splash ground is the one
-      place it must exist as a literal in JavaScript. Each value is its theme's `--color-cream-50`
-      resolved, not an approximation — the field held `#FBF6EE` for years, 5 from cream-50, which is
-      #327's shape on the last surface that had it.
+      place it must exist as a literal in JavaScript. Each value is its theme's PAGE GROUND resolved,
+      not an approximation — `cream-50` on a light palette and `band-dark` on a dark one. The field
+      held `#FBF6EE` for years, 5 from cream-50, which is #327's shape on the last surface that had
+      it; and it held every palette's `cream-50` unconditionally until the page-ground rule landed,
+      which put a near-white splash in front of five near-black sites.
 
       FORCED, THEN, RATHER THAN A JUDGEMENT ABOUT HOW THE SPLASH SHOULD LOOK. It follows the theme by
       construction; what it cannot do is follow it through the token layer.

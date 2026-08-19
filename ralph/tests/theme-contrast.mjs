@@ -585,6 +585,33 @@ const BANDS = [
    * WHAT WOULD MOVE IT: a second member. Blueprint sits at L 0.2803, outside this band too, so it
    * does not join by default — and the moment two grounds share this band, a floor has to be
    * judged the way the other two were, by rendering them side by side. */
+  /* ⚠ A FOURTH BAND, AND THE ARITHMETIC CHOSE IT RATHER THAN A PREFERENCE. `blueprint`'s ground is
+   * L 0.2803. The `panel` band's own note predicted this — "blueprint at L 0.2803 is outside this
+   * band too and does not join by default" — and the question it left open is now answered: the two
+   * mid grounds CANNOT share a band. Containing both needs 0.0561 of width; L2's 25% floor caps a
+   * band at 0.05333, where `3 x` … no — where `sqrt(w^2 + 0.04^2) / w` falls to 1.25. A band
+   * tightly containing both swings 22.8%. **It misses by 0.0028.**
+   *
+   * ⚠ AND THAT MAKES THE REGISTRY ONE BAND PER MID PALETTE, WHICH IS RECORDED AS A CONSEQUENCE
+   * RATHER THAN LEFT IMPLIED. Two mid grounds can share a band only if they sit within 0.0533 of
+   * each other in lightness. With one member each, `hueFloor` stays null on both — so NO separation
+   * is ever enforced between mid grounds, and a band exists to say which floor governs. A third mid
+   * medium is the trigger to ask whether banding is the right instrument down here at all, or
+   * whether pairwise separation between mid grounds is. The owner ruled the fourth band on that
+   * understanding.
+   *
+   * WIDTH IS THE PANEL BAND'S CONVENTION — 0.040 centred on the member, swing 41.4%. The gap to
+   * `panel`'s ceiling is 0.0163, and a future ground landing in it needs a fifth band. */
+  { label: "cyanotype", min: 0.2603, max: 0.3003, hueFloor: null, floorUnit: "dE",
+    why: "\u26a0 ONE MEMBER, SO no floor has been measured for this band either. `blueprint` is the "
+       + "cyanotype and its ground is L 0.2803 — above `panel`'s 0.244 ceiling and below light's "
+       + "0.950 floor. It cannot join `panel`: a band containing both mid grounds needs 0.0561 of "
+       + "width and L2 caps a band at 0.05333, so one holding both swings 22.8% against a 25 floor "
+       + "and misses by 0.0028. Width 0.040 centred on the member, matching `panel` and the light "
+       + "band, for a swing of 41.4%. ⚠ AND TWO SINGLE-MEMBER BANDS IS A CONSEQUENCE WORTH NAMING: "
+       + "with one member each neither enforces a hue floor, so no separation is enforced between "
+       + "mid grounds at all. A third mid medium is the trigger to ask whether banding is the right "
+       + "instrument in this range." },
   { label: "panel", min: 0.204, max: 0.244, hueFloor: null, floorUnit: "dE",
     why: "\u26a0 ONE MEMBER, SO no floor has been measured for this band. `machine-room` is the lit "
        + "service panel and its ground is L 0.2242, which belongs to neither shipped band: above "
@@ -1539,6 +1566,14 @@ const ORACLE = {
      medium specifies for type on its amber — against accent-500 at 150,99,2. The 3.32 is the same
      figure the rung was solved to analytically, reached here by a different route. */
   "machine-room": [3.32, 2.45],
+  /* ⚠ TAKEN FROM A REAL blueprint BUILD AT `/palettes/blueprint`, POST-HYDRATION, sanity pair 21.000
+     first and settled two seconds past every transition — because the note above says a `curl`
+     would measure the published theme and label it blueprint, and it is right. `on-accent` reads
+     14,42,71, which is the page ground, because this medium specifies type on its signal as the
+     paper. `accent-500` reads 35,117,193.
+     The 3.04 is the figure the rung was solved to analytically at 3.06, reached here by a different
+     route through a browser canvas — agreement between two methods that share no code. */
+  blueprint: [3.04, 2.23],
 };
 /* ⚠ AND THE POPULATION IS ASSERTED RATHER THAN LISTED, so a palette added to `THEME_NAMES` and not
  * to this map fails here instead of being quietly unmeasured — which is the whole defect above,
@@ -2053,13 +2088,28 @@ t("M1 ⚠ NO NON-TEXT TOKEN IS DRAWN AS TEXT ON THE GROUND ITS ROW NAMES — the
 ============================================================================================ */
 console.log("\nN · ⚠ THE DARK ACCENT'S TEXT STEP — the relation four palettes hold and one broke");
 const HUE_TOL = 3;
+/* ⚠ A STEP NEEDS ROOM ABOVE THE ACCENT, AND ONE MEDIUM HAS NONE — DERIVED, NOT NAMED. The four
+ * older dark palettes put their accent at ~70% and step +4 to +8 above it. `blueprint`'s accent is
+ * its near-white signal at 96.29%: a step of the observed size lands past white, and a SMALLER one
+ * cannot survive the 8-bit round trip — at L 98.3 chroma 0.012 clips to 0.009 and the hue drags 7.8
+ * degrees, which is N2's own failure arriving from the gamut rather than from a wrong value.
+ *
+ * ⚠ SO THE EXEMPTION IS A PROPERTY OF THE ACCENT'S POSITION rather than a palette name: there is no
+ * room for a step when the accent sits within the step's own size of white. Naming blueprint here
+ * would be the fixed-list shape; this predicate admits the next such medium and no other.
+ *
+ * AND THERE IS NOTHING FOR A TEXT STEP TO FIX ON THAT MEDIUM — its accent measures 13.11 on the
+ * ground, where a mid-tone accent at 70% is why the step exists at all. */
+const STEP_ROOM = 0.04;
+const hasStepRoom = (a) => a.L + STEP_ROOM <= 1.0;
 const stepRows = THEME_NAMES.filter((n) => THEME_GROUND[n] === "dark").map((n) => {
   const pal = resolvedPalette(paletteOf(n));
   const a = oklchOf(pal["accent-on-dark"]);
   const q = oklchOf(pal["on-dark-quote"]);
   if (!a || !q) return { n, missing: true };
   const dH = ((q.H - a.H + 540) % 360) - 180;
-  return { n, dL: (q.L - a.L) * 100, dC: q.C - a.C, dH };
+  return { n, dL: (q.L - a.L) * 100, dC: q.C - a.C, dH, room: hasStepRoom(a), accentL: a.L,
+    sameAsAccent: Math.abs(q.L - a.L) < 1e-9 && Math.abs(q.C - a.C) < 1e-9 && Math.abs(dH) < 1e-9 };
 });
 for (const r of stepRows)
   console.log(r.missing
@@ -2068,10 +2118,23 @@ for (const r of stepRows)
 
 t("N1 the population is real — every dark palette resolves BOTH tokens, asserted against a literal",
   stepRows.length >= 4 && stepRows.every((r) => !r.missing), true);
-t(`N2 ⚠ ON EVERY DARK PALETTE THE ACCENT'S TEXT STEP HOLDS THE ACCENT'S HUE within ${HUE_TOL} degrees — the teal sat 114.9 away and four elements that carry the signal carried a second one`,
-  stepRows.filter((r) => !r.missing && Math.abs(r.dH) > HUE_TOL).map((r) => `${r.n} dH ${r.dH.toFixed(1)}`), []);
+const stepped = stepRows.filter((r) => !r.missing && r.room);
+const noRoom = stepRows.filter((r) => !r.missing && !r.room);
+console.log(`         ${stepped.length} palettes have room for a step, ${noRoom.length} do not: ${noRoom.map((r) => `${r.n} accent L${(r.accentL * 100).toFixed(1)}`).join(", ") || "(none)"}`);
+t(`N2 ⚠ WHERE THERE IS ROOM, THE ACCENT'S TEXT STEP HOLDS THE ACCENT'S HUE within ${HUE_TOL} degrees — the teal sat 114.9 away and four elements that carry the signal carried a second one`,
+  stepped.filter((r) => Math.abs(r.dH) > HUE_TOL).map((r) => `${r.n} dH ${r.dH.toFixed(1)}`), []);
 t("N3 …and it is LIGHTER than the accent, which is what makes it the TEXT step rather than a second accent",
-  stepRows.filter((r) => !r.missing && r.dL <= 0).map((r) => `${r.n} dL ${r.dL.toFixed(1)}`), []);
+  stepped.filter((r) => r.dL <= 0).map((r) => `${r.n} dL ${r.dL.toFixed(1)}`), []);
+/* ⚠ AND THE EXEMPT HALF IS ASSERTED RATHER THAN MERELY SKIPPED, WHICH IS THE HALF AN EXEMPTION
+ * ALWAYS DROPS. An exclusion only ever makes a gate MORE permissive, so a palette that takes the
+ * exemption must still be pinned: its quote token IS the accent, not some third value chosen
+ * freely. Without N2b the exemption would admit anything at all on such a palette. */
+t("N2b ⚠ A PALETTE WITH NO STEP ROOM TAKES THE ACCENT ITSELF — the exemption pins the value rather than releasing it",
+  noRoom.filter((r) => !r.sameAsAccent).map((r) => `${r.n} dL ${r.dL.toFixed(1)} dC ${r.dC.toFixed(3)} dH ${r.dH.toFixed(1)}`), []);
+/* ⚠ AND THE COMPLEMENT IS NON-EMPTY, or the predicate has quietly excused every palette and N2/N3
+ * are rows over nothing — the vacuous pass this suite spends its comments on. */
+t("N2c …and the stepped set still has members, or N2 and N3 are rows with no subject",
+  stepped.length >= 4, true);
 /* ⚠ THE COMPLEMENT, AND IT IS THE HALF AN EXEMPTION ALWAYS SKIPS. An exclusion only ever makes a
  * gate MORE permissive, so without these two rows a light palette silently joining the dark set —
  * or the dark set draining to nothing — would read exactly like a clean run. */

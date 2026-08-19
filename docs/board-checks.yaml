@@ -164,6 +164,14 @@ entries:
 
   # ---- added with the case-study-sand relation, 2026-08-19 ----
 
+  - match: "BLUEPRINT'S HERO ILLUSTRATION ARGUES WITH ITS OWN PAGE"
+    kind: judgement
+    why: >-
+      Whether an illustration is uncomfortable on a ground is an eye on a page, and no file records
+      it — the sweep refuses a picture as `over-image` and discomfort is not a ratio. The remedy the
+      proposal names is a mount, which is a change to shared artwork and needs the other palettes
+      judged with it. Closes when the owner looks at the render at true size and rules.
+
   - match: "FOSFOR AI HAS NO PROTOTYPE FOOTAGE"
     kind: structural
     # The entry exists only while that study carries no video block. Adding the real footage — which

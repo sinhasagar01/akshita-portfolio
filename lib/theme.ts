@@ -117,9 +117,14 @@ const ELEVENTH_THEME = "redline";
    0.200 ceiling, and widening that band to hold it drops the swing test from 28.1% to 13.6%. See
    `THEME_BAND`. */
 const TWELFTH_THEME = "machine-room";
+/* ⚠ A CYANOTYPE, AND THE FOURTH BAND IS ITS STRUCTURAL COST — the same one machine-room paid, for
+   the same reason and by the same arithmetic. Its ground sits at L 0.2803, which the `panel` band
+   (0.204 to 0.244) does not reach, and the two mid grounds CANNOT SHARE ONE: containing both needs
+   0.0561 of width and L2's 25% floor caps a band at 0.05333. It misses by 0.0028. */
+const THIRTEENTH_THEME = "blueprint";
 
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, ELEVENTH_THEME, TWELFTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, ELEVENTH_THEME, TWELFTH_THEME, THIRTEENTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -180,6 +185,10 @@ export const THEME_GROUND: Record<string, GroundClass> = {
      does the ground layer fire", and for this palette both answers are the dark ones. Its lightness
      band is a separate question and a separate map. */
   [TWELFTH_THEME]: "dark",
+  /* ⚠ DARK, AND ITS BAND IS ELSEWHERE TOO — the second palette to need the two axes apart. Its page
+     ground is `band-dark` at L 0.2803, which is a MID lightness rather than a near-black; the class
+     answers which token the page paints and the band answers which floor governs it. */
+  [THIRTEENTH_THEME]: "dark",
   /* The twin is byte-identical to the default, so it is light for the same reason cream is. */
   [VERIFY_THEME]: "light",
 };
@@ -205,7 +214,7 @@ export const THEME_GROUND: Record<string, GroundClass> = {
 
    A band with one member enforces no separation, and the registry already says so in as many words.
    ============================================================================================ */
-export type GroundBand = "light" | "dark" | "panel";
+export type GroundBand = "light" | "dark" | "panel" | "cyanotype";
 
 export const THEME_BAND: Record<string, GroundBand> = {
   [DEFAULT_THEME]: "light",
@@ -218,6 +227,12 @@ export const THEME_BAND: Record<string, GroundBand> = {
   /* The only member. Named for what the medium is rather than for where it sits, because "dark two"
      would invite the next palette to join it without measuring. */
   [TWELFTH_THEME]: "panel",
+  /* ⚠ ITS OWN BAND, AND THE ARITHMETIC REFUSED THE ALTERNATIVE RATHER THAN A PREFERENCE CHOOSING IT.
+     Joining `panel` needs a band spanning 0.2242 to 0.2803 — 0.0561 wide — and L2 caps a band at
+     0.05333 before hue stops mattering across it. A band tightly containing both swings 22.8%
+     against a 25 floor. The registry gains a band rather than losing a rule, which is the trade
+     `panel` itself made. */
+  [THIRTEENTH_THEME]: "cyanotype",
 };
 
 /* ============================================================================================
@@ -310,6 +325,13 @@ export const THEME_COUNTERPART: Record<string, string> = {
      partner is buildable. */
   [ELEVENTH_THEME]: TWELFTH_THEME,
   [TWELFTH_THEME]: ELEVENTH_THEME,
+  /* ⚠ ITS COUNTERPART IS THE DEFAULT, AND THAT IS THE HONEST PAIRING RATHER THAN A SPARE ONE. The
+     map pairs a medium with its opposite exposure — redline with machine-room, each one medium at
+     two ends. Blueprint has no opposite exposure in the set: it is the only palette whose colour
+     lives in the GROUND rather than in the marks. Pairing it with drawing-office pairs the most
+     saturated page with the one that has no hue at all, which is a real contrast rather than a
+     leftover. */
+  [THIRTEENTH_THEME]: DEFAULT_THEME,
 };
 
 export type ThemeName = (typeof THEME_NAMES)[number];
@@ -546,6 +568,9 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
      rung `#966302` measures 3.32 on `band-dark` where the amber measures 8.11. A true note whose
      condition changed, corrected in the commit that changed it. */
   [TWELFTH_THEME]: { cream: "#151d20", ink: "#dee5e4", muted: "#8b9a98", accent: "#f0a31f" },
+  /* The page ground, the ink, the muted step and the signal — read off the resolved palette, and the
+     signal here is a near-white rather than a colour, which is what "the lines are the light" means. */
+  [THIRTEENTH_THEME]: { cream: "#0e2a47", ink: "#e8f0f8", muted: "#9db8d0", accent: "#eaf4ff" },
   /* Byte-identical to the default, like every other value the control holds. */
   /* ⚠ THE TWIN IS A CLONE OF WHATEVER THE DEFAULT IS, so it holds the DEFAULT'S values rather
      than a copy of one particular palette's. It carried cream's until the default moved. */
@@ -598,6 +623,8 @@ export const THEME_SPLASH: Record<string, string> = {
   /* Machine Room's `band-dark` — the lit panel's own ground, and the only one of the five whose tile
      separation (24.5) leaves the rounded square faintly visible. */
   [TWELFTH_THEME]: "#151D20",
+  /* Blueprint's `band-dark` — the cyanotype ground itself. */
+  [THIRTEENTH_THEME]: "#0E2A47",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FAFAFA",
 };
