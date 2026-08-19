@@ -98,7 +98,22 @@ export const SIXTH_THEME = "sapphire";
  * the scope, which does not extend to derived palettes. */
 export const SEVENTH_THEME = "ink-flare";
 export const EIGHTH_THEME = "nocturne";
-export const NINTH_THEME = "basalt";
+/* ⚠ `basalt` WAS HERE AND IS RETIRED, REPLACED BY `photostat` RATHER THAN JOINED BY IT. Their
+   grounds sit 5.2 apart in the dark band's own unit against a 6.1 floor — and BOTH ARE ACHROMATIC,
+   so that floor was measuring lightness while calling itself hue, which is the predicate question
+   basalt's own band entry deferred. Rendered full-bleed the two read as ONE near-black, and 5.2 is
+   below the 6.0 a person already judged indistinguishable for sapphire against nocturne.
+
+   ⚠ THE OWNER RULED REPLACE RATHER THAN EXEMPT, WHICH REMOVES THE COLLISION INSTEAD OF ARGUING IT
+   AWAY. Basalt was one of the four older hue-rotation palettes the media set was drawn to replace;
+   photostat is the same ground authored deliberately, as a reprographic medium with a stated reason
+   for having no hue. One in, one out.
+
+   ⚠ AND THE ACHROMATIC VESSEL EXEMPTION'S TRIGGER DOES NOT FIRE, WHICH ONLY THE ARITHMETIC SHOWS.
+   Its end condition is "the moment a THIRD achromatic palette is proposed". Basalt leaves as
+   photostat arrives, so the class still has two independent members and the deferred derivation
+   stays deferred with its trigger intact. */
+export const FOURTEENTH_THEME = "photostat";
 
 /* ⚠ THE FIRST PALETTE WITH NO ACCENT HUE AT ALL, AND THE FIRST THE HUE FLOOR COULD NOT HAVE
    ADMITTED. #616 moved the light band from degrees to dE for exactly this member, after measuring
@@ -106,9 +121,12 @@ export const NINTH_THEME = "basalt";
    silent about one — a chroma-0 ground still carries a hue DIGIT that `arc()` reads, and none of
    the 360 spellings clears 60 degrees against all five shipped hues.
 
-   IT IS FIVE VALUES FROM `basalt`, WHICH IS WHY IT IS ITS COUNTERPART. Basalt already carried a
-   fully achromatic light ladder that nothing on a basalt page drew, and this is that ladder given
-   a page. Same lightnesses, so the ratios are basalt's rather than new. */
+   IT IS FIVE VALUES FROM `photostat`, WHICH IS WHY IT IS ITS COUNTERPART. This read `basalt` and
+   the claim transferred with its arithmetic untouched: photostat's light ladder is BYTE-IDENTICAL
+   to the one basalt carried, checked value by value rather than assumed from the retirement. So
+   the sentence is true of the new member for the same reason and by the same measurement — an
+   achromatic light ladder that nothing on a dark page draws, given a page. Same lightnesses, so
+   the ratios are inherited rather than new. */
 /* `redline` — Drawing Office marked up. One signal doing correction, so it needs no new role. */
 const ELEVENTH_THEME = "redline";
 /* ⚠ THE LIT SERVICE PANEL, AND THE FIRST PALETTE WHOSE SEPARATION CLASS IS NOT ITS GROUND CLASS.
@@ -124,7 +142,7 @@ const TWELFTH_THEME = "machine-room";
 const THIRTEENTH_THEME = "blueprint";
 
 /** Every name the resolver accepts. A new real theme is ADDED here; the twin stays. */
-export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, NINTH_THEME, ELEVENTH_THEME, TWELFTH_THEME, THIRTEENTH_THEME, VERIFY_THEME] as const;
+export const THEME_NAMES = [DEFAULT_THEME, SIXTH_THEME, SEVENTH_THEME, EIGHTH_THEME, FOURTEENTH_THEME, ELEVENTH_THEME, TWELFTH_THEME, THIRTEENTH_THEME, VERIFY_THEME] as const;
 
 
 /* ============================================================================================
@@ -175,7 +193,7 @@ export const THEME_GROUND: Record<string, GroundClass> = {
   /* Declared, never inferred — a classifier reading a value files a dark palette in the light band. */
   [SEVENTH_THEME]: "dark",
   [EIGHTH_THEME]: "dark",
-  [NINTH_THEME]: "dark",
+  [FOURTEENTH_THEME]: "dark",
   /* Light, and the only member of that class carrying zero chroma. Its page ground is `canvas`
      like every other light palette; what it does not have is a hue anywhere. */
   [DEFAULT_THEME]: "light",
@@ -223,7 +241,7 @@ export const THEME_BAND: Record<string, GroundBand> = {
   [SIXTH_THEME]: "dark",
   [SEVENTH_THEME]: "dark",
   [EIGHTH_THEME]: "dark",
-  [NINTH_THEME]: "dark",
+  [FOURTEENTH_THEME]: "dark",
   /* The only member. Named for what the medium is rather than for where it sits, because "dark two"
      would invite the next palette to join it without measuring. */
   [TWELFTH_THEME]: "panel",
@@ -308,14 +326,24 @@ export const THEME_COUNTERPART: Record<string, string> = {
      lights means exactly one dark cannot have its partner point back. nocturne takes it, pointing
      at the nearest light accent while cream answers to ink-flare. */
   [EIGHTH_THEME]: ELEVENTH_THEME,
-  /* basalt keeps drawing-office, which its own note already calls the exact rather than nearest
-     match — the two share a ladder and both carry zero chroma. */
-  [NINTH_THEME]: DEFAULT_THEME,
+  /* ⚠ PHOTOSTAT TAKES BASALT'S SLOT AND THE PAIRING IS STRONGER THAN THE ONE IT REPLACES. The
+     note below already called this the EXACT rather than the nearest match, on the grounds that
+     both sides carry zero chroma and share a ladder. Photostat satisfies both — its light ladder
+     is byte-identical to the one basalt carried — and the proposal names the same pair for its
+     OWN reason, one medium at two exposures, a photostat being drawing office inverted. Two
+     independent derivations landing on one pair is why this is inheritance rather than a slot
+     being refilled. */
+  [FOURTEENTH_THEME]: DEFAULT_THEME,
   /* ⚠ THE ONE PAIR WHERE THE MATCH IS EXACT RATHER THAN NEAREST. Every other entry pairs on accent
      hue distance and the pigeonhole above forces one unreciprocated. These two share a ladder and
-     both carry zero chroma, so there is no hue to be near — basalt IS this palette on a dark
-     ground. Unreciprocated by the same rule as cerise, since basalt answers to fern on accent. */
-  [DEFAULT_THEME]: NINTH_THEME,
+     both carry zero chroma, so there is no hue to be near — photostat IS this palette on a dark
+     ground.
+
+     ⚠ AND IT IS RECIPROCATED WHERE ITS PREDECESSOR WAS NOT, WHICH IS A REAL CHANGE RATHER THAN A
+     RENAME. Basalt answered to fern on accent hue, so this direction pointed at a palette that
+     pointed elsewhere. Photostat's accent has no hue to answer with, so the exact match holds in
+     both directions and the pair closes. */
+  [DEFAULT_THEME]: FOURTEENTH_THEME,
   /* ⚠ THE PAIR THIS ENTRY SAID COULD NOT YET EXIST. It read that redline's red sits at h27 with
      `ink-flare` the nearest dark accent at h52, unreciprocated by the pigeonhole rule — and closed
      with "the artifact's own map pairs Redline with Machine Room, and that pair can only exist once
@@ -535,11 +563,18 @@ export function unselectableReason(name: string): string | undefined {
        drawing-office  18.86  8.76  20.12      sapphire   17.32  8.45  6.99
        redline         18.08  8.95   6.65      ink-flare  17.41  8.48  6.84
                                                nocturne   17.32  8.43  6.75
-                                               basalt     17.27  8.44  7.52
+                                               photostat  17.47  6.95  17.47
                                                machine-room 13.38 5.84 8.11
 
    ⚠ THE TWO LIGHT PALETTES MOVE ZERO BYTES, and that is by construction rather than by luck — their
    existing values already WERE the light map. Only the five dark ones change.
+
+   ⚠ THE `photostat` ROW REPLACED `basalt`'s (17.27 8.44 7.52) AND IT IS RE-MEASURED RATHER THAN
+   CARRIED. It reads 17.47 / 6.95 / 17.47, and the first two are the figures the medium's own
+   proposal states for its ink and its muted — reproduced here from the map's four keys rather
+   than copied from it, which is a third instrument agreeing with the stylesheet and the browser.
+   The accent column equals the ink column because this medium's signal IS its ink: `--sig` and
+   `--ink` are one value, so the card's accent and its heading carry the same weight by design.
 
    ⚠ AND THE KEY NAMES ARE KEPT DELIBERATELY. `cream`, `ink`, `muted` and `accent` name the card's
    ROLES rather than the rungs they resolve from, so renaming them would touch `lib/og.tsx`, both
@@ -552,7 +587,7 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
   [SIXTH_THEME]: { cream: "#0a1016", ink: "#f1f4f7", muted: "#a8adb2", accent: "#8097f6" },
   [SEVENTH_THEME]: { cream: "#140d0a", ink: "#f6f3f1", muted: "#b1aba8", accent: "#e87e34" },
   [EIGHTH_THEME]: { cream: "#0d0e19", ink: "#f2f3f8", muted: "#ababb5", accent: "#a984fb" },
-  [NINTH_THEME]: { cream: "#0f0f0f", ink: "#f3f3f3", muted: "#acacac", accent: "#80b12c" },
+  [FOURTEENTH_THEME]: { cream: "#0c0c0c", ink: "#f2f2f2", muted: "#9a9a9a", accent: "#f2f2f2" },
   /* ⚠ THE ACHROMATIC PAIR NO LONGER SHARES THREE VALUES, BECAUSE THEY ARE NO LONGER IN THE SAME
      GROUND CLASS. Both palettes read the same achromatic ladder, so under the old light-only map
      `cream-50`, `ink-950` and `ink-600` resolved to the same paint on both and only the accent
@@ -597,13 +632,20 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
        sapphire          10, 16, 22               9.2             15.60             1.01
        ink-flare         20, 13, 10               7.3             15.70             1.00
        nocturne          13, 14, 25              11.0             15.67             1.01
-       basalt            15, 15, 15               1.7             15.64             1.01
+       photostat         12, 12, 12               3.5             15.97             1.01
        machine-room      21, 29, 32              24.5             13.95             1.13
 
    BOTH ARRANGEMENTS WORK AND THEY WORK BY DIFFERENT MECHANISMS. On a near-white splash the glyph
    measures 1.17 against it and is legible ONLY because the tile supplies its ground — 15.76 on the
    tile itself. On a dark splash the SPLASH supplies the ground directly at 13.95 to 15.70, and the
-   tile merges into it: 1.7 on basalt, so the rounded square disappears.
+   tile merges into it: 3.5 on photostat, so the rounded square disappears.
+
+   ⚠ THAT ROW READ `basalt` AT 1.7 AND PHOTOSTAT'S GROUND IS DARKER, WHICH MOVES THE NUMBER IN THE
+   DIRECTION THAT LOOKS WRONG AND IS NOT. A larger tile separation means the square is MORE
+   distinguishable, and 3.5 against the 407.6 a light splash produces is still a merge by any
+   reading — the tile is 1.01 against the splash either way, which is the figure that decides it.
+   The separation column moved and the conclusion did not, so it is stated rather than left for
+   somebody to read as a regression.
 
    ⚠ SO WHAT CHANGES IS THAT THE ICON READS AS A BARE MONOGRAM RATHER THAN AS AN APP TILE, and that
    is stated rather than discovered later. It is the smaller cost: the mark reads within 1.8 of its
@@ -617,7 +659,7 @@ export const THEME_SPLASH: Record<string, string> = {
   [SIXTH_THEME]: "#0A1016",
   [SEVENTH_THEME]: "#140D0A",
   [EIGHTH_THEME]: "#0D0E19",
-  [NINTH_THEME]: "#0F0F0F",
+  [FOURTEENTH_THEME]: "#0C0C0C",
   [DEFAULT_THEME]: "#FAFAFA",
   [ELEVENTH_THEME]: "#FAFAF8",
   /* Machine Room's `band-dark` — the lit panel's own ground, and the only one of the five whose tile

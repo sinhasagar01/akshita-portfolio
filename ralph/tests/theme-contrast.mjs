@@ -977,8 +977,21 @@ const groundSep = (a, b) => bandUnit(a) === "dE"
  * wrong in the permissive direction, which the ground case could not.
  *
  * MEASURED, THE PHANTOM IS ENORMOUS. A pure black accent sits 144.5 dE from its NEAREST shipped
- * neighbour (basalt) against a shipped minimum of 33.7 — the MOST separated accent the system
- * carries. The pair degrees called a 4-degree collision, cerise, is 239.1 dE away.
+ * neighbour against a shipped minimum of 33.7 — the MOST separated accent the system carries. The
+ * pair degrees called a 4-degree collision, cerise, is 239.1 dE away.
+ *
+ * ⚠ THAT READING WAS TAKEN ON A PALETTE SET THAT NO LONGER EXISTS, AND BOTH ITS FIGURES HAVE MOVED.
+ * The neighbour it named was `basalt`, retired with photostat's arrival, and the 33.7 minimum was
+ * basalt against fern. Re-derived on today's set: the live minimum is **sapphire/blueprint at 47.1**,
+ * and the nearest shipped neighbour to a pure black accent is **drawing-office at 0.0 — because
+ * drawing-office's accent IS pure black.** So the colour this paragraph calls a phantom has been a
+ * shipped value the whole time.
+ *
+ * ⚠ AND THE ARGUMENT SURVIVES ITS OWN ARITHMETIC BEING WRONG, WHICH IS WHY THE OLD FIGURES STAY.
+ * The row's point is that DEGREES cannot rank a chroma-0 accent and dE can. Two achromatic accents
+ * now ship — drawing-office at L0 and photostat at L52 — and they sit **181.9 dE apart** while
+ * degrees would read both as h0 and call them identical. That is the same claim on a real pair
+ * instead of a hypothetical one, and it is stronger evidence than the reading it replaces.
  *
  * ⚠ AND THE FLOOR IS THE JUDGED PAIR, WHICH ALREADY EXISTED IN THIS FILE IN THIS UNIT. Sapphire and
  * nocturne's accents were rendered and read as TWO NAMEABLE COLOURS, and that reading is `dist3` in
@@ -1559,7 +1572,16 @@ t("P2 ⚠ EVERY PALETTE CLEARS EVERY ROW IN THE MAP — three of these had never
  * shortcut and this note exists so nobody spends an afternoon discovering that. */
 const ORACLE = {
   nocturne: [3.24, 2.39], sapphire: [3.32, 2.43], "ink-flare": [3.32, 2.46],
-  basalt: [3.65, 2.69],
+  /* ⚠ TAKEN FROM A REAL photostat BUILD AT `/palettes/photostat`, POST-HYDRATION, sanity pair
+     21.000 first — `basalt`'s entry stood here and left with the palette. `on-accent` reads
+     12,12,12, which is the medium's own ground: photostat labels its accent with the paper it is
+     printed on rather than with white, and the accent is a grey rather than a hue, so the pair is
+     a LIGHTNESS relation end to end. `accent-500` reads 105,105,105 and `accent-600` 85,85,85.
+
+     The resolver computes 3.56 and 2.62 from the stylesheet; the browser canvas reads 3.563 and
+     2.624 from the paint. Agreement to 0.00 between two methods that share no code, which is the
+     only thing this map is for. */
+  photostat: [3.56, 2.62],
   "drawing-office": [20.12, 20.12], redline: [6.65, 9.51],
   /* ⚠ TAKEN FROM A REAL machine-room BUILD, NOT COMPUTED, because the note above says there is no
      shortcut and it is right. `on-accent` reads 21,29,32 — the page ground, which is what this

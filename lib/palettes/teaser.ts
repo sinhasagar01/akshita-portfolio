@@ -24,9 +24,9 @@
      harbour    light   chroma 0.018   hue 233.0
      ink-flare  dark    chroma 0.014   hue  44.3      warm, NOT achromatic
      nocturne   dark    chroma 0.023   hue 279.6      the coloured dark
-     basalt     dark    chroma 0.000   hue   0.0      the achromatic dark
+     photostat  dark    chroma 0.000   hue   0.0      the achromatic dark
 
-   ---- WHY EACH ONE, AND WHY BASALT IS AN ADDITION RATHER THAN A SWAP --------------------------
+   ---- WHY EACH ONE, AND WHY THE ACHROMATIC DARK IS AN ADDITION RATHER THAN A SWAP --------------------------
 
      cream      the published default and the site's origin — the reference the other three are
                 read against, chroma 0.022 at hue 78.
@@ -42,8 +42,8 @@
                 AN ARGUMENT AGAINST A SWAP. Cream and ink-flare are a registry pair, so ONE PRESS
                 SHOWS THE SAME IDENTITY ON A DIFFERENT GROUND — the same warm hue, the same
                 structure, a near-black page. That is what a visitor learns in one click, and
-                REPLACING this dot with basalt would have bought achromatic coverage and lost the
-                demonstration.
+                REPLACING this dot with the achromatic dark would have bought achromatic
+                coverage and lost the demonstration.
 
                 ⚠ ADDING A FIFTH COSTS NEITHER. The pair survives untouched and the set gains the
                 one claim it could not make. The old reasoning is kept above rather than deleted,
@@ -54,11 +54,18 @@
      nocturne   the coloured dark, chroma 0.023 — the most chromatic dark ground of all four darks.
                 Set beside ink-flare's warm near-black it shows that a dark ground can carry hue.
 
-     basalt     the achromatic dark, chroma 0.000 — the only palette on the site with no hue at all.
-                It is the claim nocturne makes in reverse: that the ladder alone carries the
-                structure, with nothing for hue to do. ⚠ AND IT IS THE ONE MEMBER WHOSE PRESENCE A
-                READER WILL QUESTION, because the paragraph above spent two arcs arguing it out —
-                against a SWAP, which this is not.
+     photostat  the achromatic dark, chroma 0.000. It is the claim nocturne makes in reverse:
+                that the ladder alone carries the structure, with nothing for hue to do. ⚠ AND IT
+                IS THE ONE MEMBER WHOSE PRESENCE A READER WILL QUESTION, because the paragraph
+                above spent two arcs arguing it out — against a SWAP, which this is not.
+
+                ⚠ THIS SLOT READ `basalt` AND THE CLAIM TRANSFERRED WITHOUT A REMEASUREMENT,
+                BECAUSE THE TWO SHARE A GROUND CLASS AND A CHROMA OF ZERO. What did NOT transfer
+                is the sentence that used to close the line — "the only palette on the site with
+                no hue at all". It was false when written and false now: `drawing-office` is
+                achromatic too, and sits in this very set as the first dot. The uniqueness claim
+                is deleted rather than re-pointed, because the honest claim is the one above it —
+                this is the achromatic DARK, and the set's argument is about grounds.
 
    ⚠ AND IT IS TWO LIGHT AND THREE DARK, NOT A SYMMETRY — worth saying because the set was two and
    two for an arc and reads as though it wants to be even. The claims are not paired: there are two
@@ -66,9 +73,17 @@
    mean dropping a claim to satisfy a shape.
 
    ⚠ AND IT IS NOT A SET OF COUNTERPART PAIRS EITHER. Only cream and ink-flare are a registry pair.
-   Harbour's counterpart is sapphire, nocturne's is orchid, basalt's is cream — none of those
-   partners is here. Reading this as pairs would make the next person "fix" harbour to sapphire and
-   lose the widest light swing.
+   Harbour's counterpart is sapphire, nocturne's is orchid, photostat's is drawing-office — of those
+   only drawing-office is here, and it is here as the reference rather than as anybody's partner.
+   Reading this as pairs would make the next person "fix" harbour to sapphire and lose the widest
+   light swing.
+
+   ⚠ AND THE TABLE ABOVE NAMES A PALETTE SET THAT HAS SINCE BEEN REPLACED, WHICH IS STATED HERE
+   RATHER THAN QUIETLY REWRITTEN. It reads `cream` and `harbour`; the constant below ships
+   `drawing-office` and `redline`. The reasoning is sound and its SUBJECTS are the pre-media names,
+   so re-deriving it is a real pass over five members' arguments rather than a rename — and doing
+   it inside a palette swap would be a second change riding on the first. The trigger is anyone
+   editing this rationale for any reason: re-derive the whole table then, or it decays further.
 
    ---- ⚠ THE NAMES LIVE HERE AS STRINGS AND CANNOT BE IMPORTED FROM THE REGISTRY ---------------
 
@@ -106,7 +121,7 @@ const TEASER_COUNT_WORDS = ["zero", "one", "two", "three", "four", "five", "six"
    palette does not, since drawing-office carries no accent hue at all. Kept rather than rewritten,
    because the argument for CURATING five instead of deriving them is unchanged and is the half
    worth keeping. */
-export const TEASER_THEMES = ["drawing-office", "redline", "ink-flare", "nocturne", "basalt"] as const;
+export const TEASER_THEMES = ["drawing-office", "redline", "ink-flare", "nocturne", "photostat"] as const;
 
 export type TeaserTheme = (typeof TEASER_THEMES)[number];
 
