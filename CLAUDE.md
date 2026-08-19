@@ -584,7 +584,31 @@ moment it grows an action again.
 
   **THE BOARDED FRAMING, KEPT BECAUSE NAMING THE FALSE POSITIVE IS WHAT MADE THIS FIXABLE:**
 
-- **⚠ BOARDED: `paint-floors` READS A NAV GROUND THE NAV DOES NOT PAINT, AND THE SCREENSHOT IS THE
+- **⚠ CLOSED, AND THE CAUSE WAS NOT THE ONE THIS ENTRY NAMED — A PENDING TRANSITION MAKES
+  `getComputedStyle` REPORT THE STALE ENDPOINT.** Same element, same scroll position, same class
+  list, eight seconds apart on a settled page:
+
+      getAnimations()   backgroundColor reported            --glass-fill on the element
+      5                 oklab(0.985 … / 0.58)   LIGHT       dark, correct
+      0                 color(srgb 0.1427 … / 0.5) DARK     dark, correct
+
+  **The var was right in both readings and the property that reads it was not.** The sweep's whole
+  premise is that the computed value IS the paint, so a live transition anywhere in the ground stack
+  is now a refusal — `transition-pending`, beside `over-image` and `centre-missed-element`.
+
+  **⚠ TWELVE REFUSALS ACROSS 696 ELEMENTS REMOVED THIRTY-SIX FALSE FINDINGS**, and on the four pages
+  where the transition count is zero the nav was MEASURED and PASSED. **The rows did not vanish,
+  they resolved** — which is the whole difference between a refusal and a suppression, and it is
+  proved in both directions on one page rather than asserted.
+
+  **THE POPULATION IT SELECTS IS THE ONE THIS FILE ALREADY NAMES:** `.nav-glass`, `.wf-thumb` and
+  the hero's SVG paths. The first two are the two elements this record already carries false-ground
+  entries about; the paths draw no text. **A detector that lands on the known population rather than
+  a wide one is the evidence that it is narrow.**
+
+  **THE SUPERSEDED FRAMING, KEPT BECAUSE THE MEASUREMENT WAS SOUND AND ONLY ITS CAUSE WAS NOT:**
+
+- **⚠ SUPERSEDED: `paint-floors` READS A NAV GROUND THE NAV DOES NOT PAINT, AND THE SCREENSHOT IS THE
   ONLY THING THAT REFUTES IT.** On every dark palette the sweep reports the nav links at **1.02 to
   1.25** against a ground of `156,156,156` — a light glass fill. **The pill paints DARK and the
   links are plainly legible**, confirmed by screenshot on five local pages and on the live site.
@@ -605,7 +629,26 @@ moment it grows an action again.
   **THE TRIGGER FOR FIXING IT IS A SECOND ELEMENT CLASS SHOWING THE SAME DISAGREEMENT.** One
   component with a stale computed background is a component; two is the resolver's model.
 
-- **⚠ BOARDED: A SWEEP MUST RUN WHERE ITS ELEMENTS ARE PAINTED, AND NOTHING IN `paint-floors` CHECKS
+- **⚠ RULED NO: OFF-VIEWPORT IS NOT A REFUSAL, AND THIS ENTRY PROPOSED THE PROXY RATHER THAN THE
+  CAUSE.** It read *"a sweep must run where its elements are painted"* and asked for the rect check.
+  **Off-screen was merely WHERE transitions had most recently been kicked** — the identical
+  disagreement reproduces at scrollY 0 with the pill fully visible, so the viewport was correlated
+  and the transition was causal.
+
+  **⚠ BUILDING WHAT THIS ENTRY ASKED FOR WOULD HAVE COST MOST OF THE SWEEP'S COVERAGE AND LEFT THE
+  DEFECT.** Ordinary content below the fold has a perfectly correct computed style; refusing it
+  would have taken 696 measured elements down to the first viewport of each page while the nav went
+  on being misread. **The wrong-noun shape, and it was caught by testing the proxy against the state
+  it was meant to explain** rather than by shipping it and seeing the count collapse.
+
+  **WHAT DID SHIP FROM IT IS THE DIAGNOSIS HALF, AND IT IS INFORMATION RATHER THAN A PREDICATE.**
+  Every row carries its rect and an `onScreen` flag, and the report carries `scrollY` and the
+  viewport — because three refuted runs cost three rounds and one glance at a rect would have closed
+  each. **Nothing is refused for being off screen.**
+
+  **THE SUPERSEDED FRAMING, KEPT BECAUSE THE TWO INSTRUMENT CONDITIONS IN IT ARE REAL:**
+
+- **⚠ SUPERSEDED: A SWEEP MUST RUN WHERE ITS ELEMENTS ARE PAINTED, AND NOTHING IN `paint-floors` CHECKS
   THAT.** Run at `scrollY 5600` it measured a nav that had been translated OUT OF VIEW and reported
   its stale fill as a live ground. Run after `window.scrollTo` had raced the reveal observer, `#work`
   sat at `clip-path: inset(0 0 100%)` with every card at `opacity: 0` — **a whole section reading as
