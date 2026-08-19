@@ -151,6 +151,43 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     return JSON.stringify({ error: 'SANITY FAILED', sanity, note: 'the raster path is wrong; no figure below would mean anything' });
   }
 
+  /* ⚠ RULE 2b — A PENDING TRANSITION MAKES getComputedStyle REPORT THE STALE ENDPOINT RATHER
+     THAN THE PAINT, AND THIS SWEEP'S WHOLE PREMISE IS THAT THOSE TWO ARE THE SAME THING. Measured
+     on the nav pill at scrollY 0 on a published dark palette, settled for eight seconds:
+
+         getAnimations()  bg reported                     bg painted
+         5                oklab(0.985 … / 0.58)  LIGHT    dark, ~#242424 by screenshot
+         0                color(srgb 0.1427 … / 0.5)      the same dark
+
+     Same element, same scroll position, same class list. **The element's own --glass-fill
+     resolved DARK in both readings** — so the var was right and the property that reads it was
+     not. Nine nav rows per page reported 1.02 to 1.25 against a 4.5 floor on four of five pages,
+     and every one is refuted by a screenshot of the pill.
+
+     ⚠ THE FIRST DIAGNOSIS WAS THE VIEWPORT AND IT WAS THE CORRELATION RATHER THAN THE CAUSE. The
+     board entry this was raised as said "a sweep must run where its elements are painted", because
+     the loudest run had measured a nav translated out of view. Off-screen was merely WHERE
+     transitions had most recently been kicked; the same disagreement reproduces at scrollY 0 with
+     the pill fully visible. **Refusing off-viewport elements would have cost most of the sweep's
+     coverage and left the defect**, which is the wrong-noun shape this record names a dozen times,
+     and it was caught by testing the proxy against the state it was meant to explain.
+
+     THE TARGETS ARE COLLECTED ONCE. document.getAnimations() is a single call; per-element it
+     would be one call per ancestor per node. The ground stack is what matters rather than the
+     element alone, because a transitioning ANCESTOR is the ground being misreported. */
+  const animatingTargets = (() => {
+    const set = new Set();
+    for (const a of document.getAnimations()) {
+      const t = a.effect && a.effect.target;
+      if (t && t.nodeType === 1) set.add(t);
+    }
+    return set;
+  })();
+  const pendingOn = (stack) => {
+    for (const n of stack) if (animatingTargets.has(n)) return n;
+    return null;
+  };
+
   /* RULE 3 — composite through transparency to the first ancestor that really paints. */
   const alphaOf = (c) => {
     const m = /rgba?\([^)]*?([\d.]+)\s*\)/.exec(c);
@@ -176,7 +213,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
          better. In each case the centre point landed on the page, so the "ground" was the page.
          A ratio belongs to the ground it was taken on, and a point that misses its element has not
          taken one. */
-      if (self < 0) return { rgb: null, unresolved: true };
+      if (self < 0) return { rgb: null, unresolved: true, stack };
       /* ⚠ THE ELEMENT ITSELF IS PART OF ITS OWN GROUND. The first draft sliced one past itself and
          lost a button's own fill: a chip carrying the accent read 1.00 against the page, where the
          same chip measures 20.12 in the browser. An element that paints a background paints it
@@ -216,7 +253,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     const imagey = (n) => cs(n).backgroundImage !== 'none' || n.tagName === 'IMG' || n.tagName === 'VIDEO' || n.tagName === 'CANVAS';
     const layers = [];
     for (const node of stack) {
-      if (imagey(node)) return { rgb: null, overImage: true };
+      if (imagey(node)) return { rgb: null, overImage: true, stack };
       const bg = cs(node).backgroundColor;
       if (!bg || bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent') continue;
       const a = alphaOf(bg);
@@ -235,7 +272,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       layers.push({ rgb: straight, a });
       if (a >= 0.999) break;
     }
-    if (!layers.length) return { rgb: px(cs(document.documentElement).backgroundColor || '#fff'), layers: 0, method };
+    if (!layers.length) return { rgb: px(cs(document.documentElement).backgroundColor || '#fff'), layers: 0, method, stack };
     /* ⚠ THE BASE UNDER A STACK OF TRANSLUCENT LAYERS IS THE PAGE, NOT WHITE PAPER. This read
        px('#ffffff') and that is a LIGHT-GROUND ASSUMPTION BAKED INTO THE INSTRUMENT BUILT TO FIND
        LIGHT-GROUND ASSUMPTIONS. It was invisible on a near-white palette, where white is nearly
@@ -251,7 +288,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
       const { rgb, a } = layers[i];
       out = [0, 1, 2].map((k) => Math.round(rgb[k] * a + out[k] * (1 - a)));
     }
-    return { rgb: out, layers: layers.length + 1, method };
+    return { rgb: out, layers: layers.length + 1, method, stack };
   };
 
   /* ⚠ RULE 6 — WHAT THE DESIGN HAS DECLARED DECORATIVE, WHICH IS A PROPERTY RATHER THAN A LIST.
@@ -307,6 +344,17 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     return r.width > 0 && r.height > 0;
   };
 
+  /* Rounded so a row stays readable, and both halves kept: a rect alone does not say whether the
+     viewport it was measured against had scrolled. */
+  const rectOf = (el) => {
+    const r = el.getBoundingClientRect();
+    return [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)];
+  };
+  const onScreen = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+  };
+
   /* RULE 5 — the floor is a function of what rendered, not of what was asked for. */
   const floorFor = (c) => {
     const size = parseFloat(c.fontSize);
@@ -356,6 +404,26 @@ export const FLOORS_SCRIPT = String.raw`(() => {
        record already states about a bundle grep and now states about a harness.
        An unresolved row is KEPT rather than dropped, because the count of what a sweep could not
        measure is the honest half of its coverage claim. */
+    /* ⚠ RULE 2b APPLIED. A live transition anywhere in the ground stack means the reported colour
+       may be the stale endpoint rather than the paint, so the row is REFUSED rather than reported.
+       The element itself is tested alongside its stack, because a centre-miss returns an empty one
+       and a refusal that cannot see its own subject is no refusal at all. */
+    const animating = pendingOn([el, ...(g.stack || [])]);
+    if (animating) {
+      rows.push({
+        text: (el.textContent || '').trim().slice(0, 30),
+        tag: el.tagName,
+        cls: el.className.toString().replace(/\s+/g, ' ').slice(0, 46),
+        size: c.fontSize, weight: c.fontWeight,
+        fg: fg.join(','), bg: null, layers: null,
+        ratio: null, floor: floorFor(c), pass: null,
+        rect: rectOf(el), onScreen: onScreen(el),
+        unresolved: true, why: 'transition-pending',
+        animatingOn: animating === el ? 'self'
+          : animating.tagName + '.' + String(animating.className).split(' ')[0],
+      });
+      continue;
+    }
     if (!g.rgb) {
       rows.push({
         text: (el.textContent || '').trim().slice(0, 30),
@@ -364,6 +432,7 @@ export const FLOORS_SCRIPT = String.raw`(() => {
         size: c.fontSize, weight: c.fontWeight,
         fg: fg.join(','), bg: null, layers: null,
         ratio: null, floor: floorFor(c), pass: null,
+        rect: rectOf(el), onScreen: onScreen(el),
         unresolved: true, why: g.overImage ? 'over-image' : 'centre-missed-element',
       });
       continue;
@@ -381,6 +450,12 @@ export const FLOORS_SCRIPT = String.raw`(() => {
          reported as if it came from the stronger one, and nothing carried that to the output — so a
          reader triaging a run could not tell a paint-stack reading from an ancestor walk. */
       method: g.method,
+      /* ⚠ WHERE THE ELEMENT WAS WHEN THIS WAS READ, BECAUSE THREE REFUTED RUNS COST THREE ROUNDS
+         AND ONE GLANCE AT A RECT WOULD HAVE CLOSED EACH. A finding on an element sitting above the
+         fold at a scroll position deep in the page is the first thing to disbelieve, and nothing in
+         the output said so. It is INFORMATION rather than a predicate — off-screen was tested as a
+         refusal and rejected, because the same defect reproduces in full view. */
+      rect: rectOf(el), onScreen: onScreen(el),
       ratio: r, floor, pass: r >= floor,
     });
   }
@@ -401,23 +476,107 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     skippedNoText, skippedHidden,
     /* Declared decoration, counted rather than silently dropped. See rule 6. */
     skippedDecorative,
+    /* WHERE THE SWEEP WAS STANDING. Every rect below is relative to this, and a rect without it is
+       half a reading. */
+    scrollY: Math.round(window.scrollY),
+    viewport: [innerWidth, innerHeight],
     /* Reported, never folded into the pass total — an unresolved ground is an element this sweep
-       did not measure, which is a different claim from an element that passed. */
-    unresolvedGround: rows.filter((x) => x.unresolved).length,
+       did not measure, which is a different claim from an element that passed.
+
+       ⚠ THIS FIELD KEEPS ITS EXACT OLD MEANING AND A NEW ONE SITS BESIDE IT. Folding the
+       transition refusals in here would have moved a number every earlier run is quoted against —
+       the running-total defect this record carries against a deploy count and a ralph headline —
+       so GROUND refusals stay ground refusals and the total is its own field. */
+    unresolvedGround: rows.filter((x) => x.unresolved && x.why !== 'transition-pending').length,
+    refusedTransitionPending: rows.filter((x) => x.why === 'transition-pending').length,
+    refusedTotal: rows.filter((x) => x.unresolved).length,
     onDarkGrounds: dark.length,
     measuredGround: rows.filter((x) => !x.unresolved).length,
+    /* ⚠ THE VACUITY GUARD, BECAUSE A NEW REFUSAL IS A NEW WAY FOR THE SUBJECT TO EMPTY. A run that
+       refuses almost everything reports a clean zero and looks like a pass; this record already
+       carries that shape from a gate passing over an empty subject three times. The share is
+       printed so the reader sees it without doing the division. */
+    refusedShare: rows.length ? Math.round((rows.filter((x) => x.unresolved).length / rows.length) * 100) + '%' : 'n/a',
+    /* How many of the elements that were measured were actually in view when they were read. Not a
+       predicate — see the rect note above — but the figure that tells a reader how much of this
+       run is a reading of the page they are looking at. */
+    measuredOnScreen: rows.filter((x) => !x.unresolved && x.onScreen).length,
     unresolvedByReason: rows.filter((x) => x.unresolved)
       .reduce((a, x) => { a[x.why] = (a[x.why] || 0) + 1; return a; }, {}),
     worst: rows.some((x) => x.ratio !== null)
       ? Math.min(...rows.filter((x) => x.ratio !== null).map((x) => x.ratio)) : null,
     failureCount: fails.length,
     failures: fails.slice(0, 25),
+    /* ⚠ THE VERDICT NAMES WHAT WAS REFUSED, BECAUSE "FLOORS OK" OVER A MOSTLY-REFUSED RUN IS THE
+       claim this record refuses. A clean run means no defect among the elements it could resolve,
+       and that sentence is only honest while it says how many it could not. */
     verdict: fails.length === 0
       ? 'FLOORS OK — every element that draws text clears its floor against the ground it is painted on'
+        + ' (' + rows.filter((x) => x.unresolved).length + ' of ' + rows.length + ' refused, unmeasured)'
       : fails.length + ' element(s) below floor',
   }, null, 1);
 })()`;
 
+// ---- ⚠ THE STALE-COMPUTED-VALUE REFUSAL, 2026-08-19, photostat, sanity 21.000 ------------
+//
+// THIRTY-SIX FALSE FINDINGS ACROSS FOUR PAGES, NINE PER PAGE, EVERY ONE THE NAV. They read 1.02 to
+// 1.25 against a 4.5 floor on a ground of 156,156,156, and the pill paints dark with plainly
+// legible links — confirmed by screenshot on five local pages and on the published site.
+//
+// THE MECHANISM, MEASURED RATHER THAN REASONED. Same element, same scroll position, same class
+// list, eight seconds apart on a settled page:
+//
+//     getAnimations()   backgroundColor reported          --glass-fill on the element
+//     5                 oklab(0.985 … / 0.58)   LIGHT     dark, correct
+//     0                 color(srgb 0.1427 … / 0.5) DARK   dark, correct
+//
+// The var was right in both readings and the property that reads it was not. A pending transition
+// makes getComputedStyle report the stale endpoint, and this sweep's entire premise is that the
+// computed value IS the paint.
+//
+// ⚠ THE FIRST DIAGNOSIS WAS THE VIEWPORT AND IT WAS THE CORRELATION RATHER THAN THE CAUSE. The
+// loudest run had measured a nav translated out of view, so this was boarded as "a sweep must run
+// where its elements are painted". Off-screen was merely where transitions had most recently been
+// kicked: the identical disagreement reproduces at scrollY 0 with the pill fully visible. REFUSING
+// OFF-VIEWPORT ELEMENTS WOULD HAVE COST MOST OF THE SWEEP'S COVERAGE AND LEFT THE DEFECT — the
+// wrong-noun shape, caught by testing the proxy against the state it was meant to explain.
+//
+// SO THE RECT IS INFORMATION AND THE ANIMATION IS THE PREDICATE. Every row now carries its rect
+// and an onScreen flag, and the report carries scrollY and the viewport, because three refuted
+// runs cost three rounds and one glance at a rect would have closed each. Nothing is refused for
+// being off screen.
+//
+// PROVED IN BOTH DIRECTIONS ON ONE PAGE, WHICH IS WHAT A REFUSAL NOBODY HAS SEEN STAND DOWN IS
+// WORTH NOTHING WITHOUT:
+//
+//     nav mid-transition   18 refused, the nav not reported     0 findings
+//     nav settled          12 refused, the nav MEASURED         0 findings, and it passes
+//
+// ⚠ AND THE POPULATION IT SELECTS IS THE ONE THIS RECORD ALREADY NAMES. The animating targets on
+// the home page are .nav-glass, .wf-thumb and the hero's SVG paths — the nav and the work-filter
+// thumb being the two elements this file already carries false-ground entries about, and the paths
+// drawing no text. A detector that lands on the known population rather than a wide one is the
+// evidence that it is narrow.
+//
+// FIVE PAGES ON A PUBLISHED photostat BUILD, sanity 21.000 each run:
+//
+//     page                    measured   ground   unres-ground   transition   worst   findings
+//     /                            131      105             14           12    4.79          0
+//     /projects/boat-crest         119      113              6            0    5.24          0
+//     /blog/<the motion post>       71       57             14            0    5.24          0
+//     /gallery                      72       59             13            0    5.24          0
+//     /palettes                    303      283             20            0    7 pct         0
+//     TOTAL                        696      617             67           12              **0**
+//
+// TWELVE REFUSALS ACROSS 696 ELEMENTS REMOVED THIRTY-SIX FALSE FINDINGS, and on the four pages
+// where the transition count is zero the nav was MEASURED and PASSED — so the rows did not vanish,
+// they resolved. That distinction is the whole difference between a refusal and a suppression.
+//
+// ⚠ AND unresolvedGround KEEPS ITS EXACT OLD MEANING, WITH THE NEW TOTAL BESIDE IT. Folding the
+// transition refusals into it would have moved a number every earlier run is quoted against, which
+// is the running-total defect this record carries against a deploy count and a ralph headline.
+// refusedTotal, refusedShare and a verdict that names what it could not measure are the additions.
+//
 // ---- WHAT IT FOUND ON ITS FIRST RUN, 2026-08-18, drawing-office, sanity 21.000 ----------
 //
 //     /gallery   68 measured ·  7 refused over image ·  1 failure
