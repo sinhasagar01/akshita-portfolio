@@ -152,18 +152,6 @@ entries:
       can move it.
 
   # ---- added with the sheet direction's completion, 2026-08-18 ----
-  - match: "`cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES"
-    kind: structural
-    # The entry is true only while S2a exists to name them. Correcting the resolver removes S2a
-    # along with the false positives, and this entry expires with it.
-    holds_while:
-      file: ralph/tests/cascade-public.mjs
-      pattern: "S2a …and they are the hero's"
-      expect: present
-
-
-  # ---- added with the case-study-sand relation, 2026-08-19 ----
-
   - match: "FOSFOR AI HAS NO PROTOTYPE FOOTAGE"
     kind: structural
     # The entry exists only while that study carries no video block. Adding the real footage — which

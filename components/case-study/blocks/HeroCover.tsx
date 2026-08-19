@@ -183,7 +183,7 @@ export default function HeroCover({
           </motion.div>
         )}
 
-        <h1 className="font-display font-normal text-[clamp(2.75rem,5vw,3.75rem)] text-accent-text leading-[0.98] tracking-tight mt-4">
+        <h1 className="text-[clamp(2.75rem,5vw,3.75rem)] text-accent-text leading-[0.98] tracking-tight mt-4">
           <span className="block overflow-hidden">
             <motion.span
               {...mp}
@@ -214,7 +214,7 @@ export default function HeroCover({
             {...mp}
             variants={fadeUp(0.385)}
             {...edit("thesis", "Edit hero thesis")}
-            className={`relative z-[1] font-display italic text-[clamp(1.25rem,2.2vw,1.5rem)] leading-[1.35] max-w-[36ch]${aff}`}
+            className={`relative z-[1] italic text-[clamp(1.25rem,2.2vw,1.5rem)] leading-[1.35] max-w-[36ch]${aff}`}
           >
             {data.thesis}
           </motion.h2>
@@ -306,7 +306,7 @@ export default function HeroCover({
         </motion.div>
       )}
 
-      <h1 className="font-display font-normal text-6xl text-accent-text leading-[1] tracking-tight mt-3">
+      <h1 className="text-6xl text-accent-text leading-[1] tracking-tight mt-3">
         <span className="block overflow-hidden">
           <motion.span
             {...mp}
@@ -337,7 +337,7 @@ export default function HeroCover({
           {...mp}
           variants={fadeUp(0.385)}
           {...edit("thesis", "Edit hero thesis")}
-          className={`relative z-[1] font-display italic text-[34px] text-text-primary leading-[1.15]${aff}`}
+          className={`relative z-[1] italic text-[34px] text-text-primary leading-[1.15]${aff}`}
         >
           {data.thesis}
         </motion.h2>
