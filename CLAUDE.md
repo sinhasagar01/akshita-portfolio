@@ -584,6 +584,42 @@ moment it grows an action again.
 
   **THE BOARDED FRAMING, KEPT BECAUSE NAMING THE FALSE POSITIVE IS WHAT MADE THIS FIXABLE:**
 
+- **⚠ BOARDED: `paint-floors` READS A NAV GROUND THE NAV DOES NOT PAINT, AND THE SCREENSHOT IS THE
+  ONLY THING THAT REFUTES IT.** On every dark palette the sweep reports the nav links at **1.02 to
+  1.25** against a ground of `156,156,156` — a light glass fill. **The pill paints DARK and the
+  links are plainly legible**, confirmed by screenshot on five local pages and on the live site.
+
+  **THE MECHANISM: `--glass-fill` COMPUTES TO THE CORRECT DARK VALUE ON THE ELEMENT WHILE
+  `getComputedStyle(...).backgroundColor` REPORTS THE ROOT'S LIGHT ONE.** The sweep's own rule 1 is
+  *"the browser resolves, the canvas only converts"* — which assumes the computed background IS the
+  paint, and here it is not.
+
+  **⚠ IT REPRODUCES ON PUBLISHED BLUEPRINT, SO IT IS NOT ANY ONE PALETTE'S.** It was found during
+  photostat's render protocol and belongs to the suite. **Nine rows per page on four of five pages**,
+  every one the same eight nav strings plus the wordmark.
+
+  **AND IT IS THE `.wf-thumb` FAMILY WITH A NEW CAUSE.** That one resolves a ground painted by a
+  positioned SIBLING; this one resolves a ground the element declares and does not draw. **Both
+  arrive as findings rather than as refusals**, which is the property that makes them expensive.
+
+  **THE TRIGGER FOR FIXING IT IS A SECOND ELEMENT CLASS SHOWING THE SAME DISAGREEMENT.** One
+  component with a stale computed background is a component; two is the resolver's model.
+
+- **⚠ BOARDED: A SWEEP MUST RUN WHERE ITS ELEMENTS ARE PAINTED, AND NOTHING IN `paint-floors` CHECKS
+  THAT.** Run at `scrollY 5600` it measured a nav that had been translated OUT OF VIEW and reported
+  its stale fill as a live ground. Run after `window.scrollTo` had raced the reveal observer, `#work`
+  sat at `clip-path: inset(0 0 100%)` with every card at `opacity: 0` — **a whole section reading as
+  missing content.**
+
+  **THREE REFUTED RUNS BEFORE THE ZERO, AND A FIXED SLEEP SEPARATED NONE OF THEM.** What worked was
+  a stability poll on the element's own computed value, and driving the page with real wheel events
+  rather than `scrollTo`. **The instrument condition arrived in the SCROLL METHOD** — a third medium
+  after a probe and a screenshot.
+
+  **THE CHEAP FORM, NOT BUILT: report the scroll position and the measured element's viewport rect
+  beside each finding.** An element whose rect is off screen is a refusal rather than a row, which is
+  the shape the sweep already has for `centre-missed-element` and `over-image`.
+
 - **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
   Its resolver treats any `font-display` inside a case-study component as sitting under
   `.case-study .font-display` at 0-2-0. The DOM disagrees: the hero's `h1` sits under

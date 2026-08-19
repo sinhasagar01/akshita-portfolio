@@ -56,7 +56,7 @@ t("A4 ⚠ EXACTLY TWO LIGHT AND THREE DARK — the claim is about a change of gr
 
 /* ⚠ THE COMMENT BESIDE THE CONSTANT MAKES NUMERIC CLAIMS, SO THE NUMBERS ARE ASSERTED. It was first
  * written as "warm light, cool light, coloured dark, ACHROMATIC dark" and the measurement refuted it
- * — ink-flare's ground carries chroma 0.014 and the only achromatic palette is basalt at 0.000,
+ * — ink-flare's ground carries chroma 0.014 and the only achromatic palette is photostat at 0.000,
  * which is not in the set. A reasoning that does not survive its own numbers is worse than none, and
  * prose is the one thing no gate reads. These rows are what stop it drifting back. */
 const SRC = readPaletteSource(css);
@@ -72,8 +72,8 @@ console.log(`         ground chroma: ${TEASER_THEMES.map((n) => `${n} ${groundCh
  * the row existed to stop that sentence drifting back in. The set now HAS one, deliberately, so the
  * row follows the claim instead of the old membership.
  *
- * ⚠ AND IT NAMES THE MEMBER RATHER THAN COUNTING. "Exactly one achromatic" would pass if basalt were
- * swapped for some future neutral palette while the prose above went on naming basalt — the
+ * ⚠ AND IT NAMES THE MEMBER RATHER THAN COUNTING. "Exactly one achromatic" would pass if photostat were
+ * swapped for some future neutral palette while the prose above went on naming photostat — the
  * prose-and-data gap this file's own header was written about. */
 /* ⚠ TWO NOW, NOT ONE, AND THEY ARE EXACTLY THE COUNTERPART PAIR. `harbour` retired and
    `drawing-office` took its slot, which is achromatic by design. So the set carries a neutral
@@ -85,17 +85,17 @@ console.log(`         ground chroma: ${TEASER_THEMES.map((n) => `${n} ${groundCh
    media and two hued darks, which is what a sheet-set direction looks like once its chromatic
    palettes retire. The row states the MEMBERS rather than a count, so a fourth still fails. */
 t("A5 ⚠ THE ACHROMATIC MEMBERS ARE EXACTLY THE THREE SHEET MEDIA — a fourth neutral is drift and fails here",
-  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005).sort(), ["basalt", "drawing-office", "redline"]);
+  TEASER_THEMES.filter((n) => groundChroma(n) < 0.005).sort(), ["drawing-office", "photostat", "redline"]);
 /* The complement, because "one is achromatic" says nothing about the other four still carrying hue —
  * and a set drifting neutral is exactly what the original row was guarding. */
 t("A5a …and every OTHER member carries hue, so the set cannot drift neutral without failing",
-  TEASER_THEMES.filter((n) => !["basalt", "drawing-office", "redline"].includes(n)).filter((n) => groundChroma(n) < 0.005), []);
+  TEASER_THEMES.filter((n) => !["photostat", "drawing-office", "redline"].includes(n)).filter((n) => groundChroma(n) < 0.005), []);
 /* ⚠ A ROW TESTING `groundChroma === 0` WAS WRITTEN HERE AND DELETED, AND THE REASON IS MEASURED.
  * Basalt's ground chroma is 6.28e-9, not zero — the declaration is `oklch(... 0 ...)` and the
  * round-trip through sRGB leaves a residue — so the row could not fire even on the ONE palette it
  * existed to catch. And everything it would have caught is already inside A5's `< 0.005`. Implied
  * AND unfalsifiable, which is two reasons to delete rather than one. Found by mutating: swapping
- * basalt in killed A5 and A7 and left it green. */
+ * photostat in killed A5 and A7 and left it green. */
 /* ⚠ THREE DARKS NOW, AND THE ORDER IS BY CLAIM RATHER THAN BY A NUMBER. The first draft of the
  * comment beside the constant said "by ground chroma descending to zero" and the run is
  * 0.014, 0.023, 0.000 — the middle is the MOST chromatic ground on the site, so it is not monotonic
@@ -106,11 +106,11 @@ t("A5a …and every OTHER member carries hue, so the set cannot drift neutral wi
  * catching it, which is the `count:`-field defect arriving inside a row I had just written. The
  * prose is fixed and the rows now assert what is true. */
 t("A6 ⚠ THE DARKS RUN warm, coloured, ACHROMATIC — the comment claims an order, so the order is asserted",
-  darkMembers, ["ink-flare", "nocturne", "basalt"]);
+  darkMembers, ["ink-flare", "nocturne", "photostat"]);
 t("A6a …and the WARM dark really is less chromatic than the COLOURED one, so the first two names are earned",
   groundChroma(darkMembers[0]) < groundChroma(darkMembers[1]), true);
 /* ⚠ THE ROW THAT PINS WHY INK-FLARE IS HERE RATHER THAN BASALT. Cream and ink-flare are registry
- * counterparts, so one press shows the SAME IDENTITY ON A DIFFERENT GROUND. Swapping in basalt would
+ * counterparts, so one press shows the SAME IDENTITY ON A DIFFERENT GROUND. Swapping in photostat would
  * buy achromatic coverage and lose the demonstration — this fails if anyone does. */
 /* ⚠ THE CLAIM STRENGTHENED WHEN `harbour` RETIRED, AND THE ROW SAYS SO RATHER THAN KEEPING ITS OLD
    LITERAL. It asserted ONE pair, cream and ink-flare. With drawing-office in harbour's place EVERY
@@ -118,7 +118,7 @@ t("A6a …and the WARM dark really is less chromatic than the COLOURED one, so t
    rather than only two of them doing it. A literal left at the old pair goes red on an improvement. */
 t("A7 ⚠ FOUR OF THE FIVE PAIR INSIDE THE SET — redline's partner is sapphire, which the teaser does not carry",
   TEASER_THEMES.filter((n) => TEASER_THEMES.includes(THEME_COUNTERPART[n])).sort(),
-  ["basalt", "drawing-office", "ink-flare", "nocturne"]);
+  ["drawing-office", "ink-flare", "nocturne", "photostat"]);
 
 console.log("\nB · ONE mechanism — the dots are a door onto the preview, not a second one");
 t("B0 the component was found and has code — a zero here makes every row below vacuous",

@@ -196,7 +196,7 @@ export const THEME_METRICS: Record<string, ThemeMetrics> = {
   },
 
   /* Dark preset. Inherits for the same reason sapphire does — it changes no font. */
-  "basalt": {
+  "photostat": {
     bodyFont: "IBM Plex Sans",
     measure68chPx: 652.797,
     provenance: {

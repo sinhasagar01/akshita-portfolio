@@ -29,6 +29,108 @@ history and is left as written.**
 
 ---
 
+## PHOTOSTAT SHIPS AND BASALT RETIRES
+
+**One in, one out.** The palette count does not move — nine names, eight selectable plus the verify
+twin — and the achromatic class still has exactly two independent members, so the vessel exemption's
+"a THIRD achromatic palette" trigger stays armed rather than firing.
+
+**⚠ THE RULING WAS REPLACE RATHER THAN EXEMPT, AND THE ARITHMETIC IS WHY IT WAS EVEN A QUESTION.**
+Photostat's ground sits **5.2 from basalt's in the dark band's own unit against a 6.1 floor**, and
+both are achromatic — so that floor was measuring LIGHTNESS while calling itself hue, which is the
+predicate question basalt's own band entry deferred. Rendered full-bleed the two read as one
+near-black, and 5.2 is below the 6.0 a person already judged indistinguishable for sapphire against
+nocturne. **Exempting the pair would have shipped a collision with a note on it. Retiring the older
+member removes the subject**, and basalt was one of the four hue-rotation palettes the media set was
+drawn to replace. **The deferred predicate question is untouched and still deferred**, which is the
+point of doing it this way.
+
+**⚠ THE ONE REAL DEFECT WAS A ROLE RAMP, AND `theme-contrast` P2 NAMED IT ON THE FIRST RUN.**
+`text-subtle` is built by the dark ground block as a mix of `band-dark` into `on-dark-muted`, and
+BOTH of photostat's inputs are darker than any other dark palette's — the ground at L15.43 against
+basalt's 15.1, the muted at L68.62 against basalt's 72.4. Two darkenings compound, and at the shared
+15% the role landed **#828282 on the panel at 4.14 against a 4.5 floor.**
+
+**THE LEVER WAS THE RAMP AND NOT `--mut`, WHICH IS THE PART WORTH KEEPING.** The palette's muted is
+authored — `#9A9A9A`, and its stated 6.95 on the ground reproduces to 0.01 — so retuning it to
+satisfy a derived role would have moved the design to fit its own mechanism. Blueprint already
+declares its own ramp and the dark block's comment says in as many words that these surfaces want to
+be per-palette. **`--dk-text-subtle: 8%` lands the role at 4.55.**
+
+**THREE INSTRUMENTS AGREE ON THE PALETTE AND THEY SHARE NO CODE.** The proposal states ink 17.47 and
+muted 6.95; the share-card map recomputes 17.47 and 6.95 from its own four keys; the ORACLE pair
+reads **3.56 / 2.62 from the stylesheet resolver and 3.563 / 2.624 from a browser canvas at
+`/palettes/photostat`, post-hydration, sanity 21.000 first.** Agreement to 0.00 is the only thing
+that map exists for.
+
+**⚠ AND ONE CLAIM GOT BETTER RATHER THAN MERELY SURVIVING.** `drawing-office` pairs with the
+achromatic dark as **the one exact rather than nearest counterpart**, and basalt answered to fern on
+accent so the pairing was unreciprocated. Photostat's accent has no hue to answer with, so the pair
+closes in both directions. Two independent derivations land on it — the shared ladder, and the
+proposal's own "one medium at two exposures".
+
+**⚠ AND THE `D12z` PARAGRAPH'S FIGURES HAD EXPIRED, WHICH ONLY THE CENSUS FOUND.** It read that a
+pure black accent sits 144.5 dE from its nearest shipped neighbour "(basalt)" against a shipped
+minimum of 33.7. Re-derived: the live minimum is **sapphire/blueprint at 47.1**, and the nearest
+neighbour to a pure black accent is **drawing-office at 0.0, because drawing-office's accent IS pure
+black** — the colour that paragraph calls a phantom has shipped the whole time. **The argument
+survives its own arithmetic being wrong**, and it is now stronger: two achromatic accents ship,
+drawing-office at L0 and photostat at L52, and they sit **181.9 dE apart** while degrees would read
+both as h0 and call them identical. That is the row's claim on a real pair instead of a hypothetical
+one.
+
+**⚠ THE RENDER PROTOCOL RAN AND ITS FIRST THREE PASSES WERE FALSE, WHICH IS THE OTHER HALF OF THIS
+ENTRY.** `paint-floors` was driven over five pages on a real photostat build — home, `boat-crest`,
+the blog, the gallery, `/palettes` — **678 elements measured, sanity 21.000 on every run, ZERO real
+findings.** Getting to that zero took three refuted runs:
+
+    run 1   4 findings   nav links at 1.02 on a 156,156,156 ground
+    run 2   9 findings   the same, at scrollY 5600 — where the nav is OFF SCREEN
+    run 3   9 findings   the same, on the blog at scrollY 0
+
+**EVERY ONE WAS THE NAV, AND THE SCREENSHOT REFUTES ALL OF THEM: the pill paints dark and the links
+are plainly legible on all five pages.** `--glass-fill` computes to the correct dark value on the
+element while `getComputedStyle(...).backgroundColor` reports the ROOT's light one — so the sweep
+composited a ground the element does not paint.
+
+**⚠ IT REPRODUCES ON LIVE BLUEPRINT, WHICH IS WHAT MAKES IT AN INSTRUMENT LIMIT RATHER THAN A
+PHOTOSTAT DEFECT.** The published site returns 1.25 for the same element on the same reading, and
+its nav is dark and legible in a screenshot taken in the same minute. **A palette change was the
+occasion for finding this and is not its subject.**
+
+**THE PRACTICAL FORM, AND IT IS NEW FOR THIS SUITE: A SWEEP MUST RUN AT A SCROLL POSITION WHERE THE
+ELEMENTS IT MEASURES ARE ACTUALLY PAINTED.** Scrolling to reveal a page and returning to the top is
+not the same as settled — run 2 measured a nav that had been translated out of view, and reported
+its stale fill as a live ground. **A fixed sleep did not separate the states and a stability poll on
+the element's own computed value did.**
+
+**⚠ AND A BLANK WORK SECTION WAS THE FOURTH FALSE FINDING, CAUGHT BEFORE IT WAS WRITTEN DOWN.**
+Programmatic `window.scrollTo` raced the reveal observer, so `#work` sat at
+`clip-path: inset(0 0 100%)` with every card at `opacity: 0` — a whole section reading as missing
+content. Driving the page with real wheel events revealed it normally. **Third medium this record
+has caught an instrument condition in, after a probe and a screenshot: this one was the SCROLL
+METHOD.**
+
+**WHAT ELSE MOVED.** `lib/theme.ts` (`FOURTEENTH_THEME`, both ground and band maps, the counterpart
+registry, `THEME_OG`, `THEME_SPLASH`), `lib/palettes/teaser.ts`, `lib/studio/three-pane.ts`,
+`lib/studio/site-settings-format.ts`, and four suites. **The share-card and splash tables were
+re-measured rather than carried** — photostat's splash row reads `12,12,12 / 3.5 / 15.97 / 1.01`
+against basalt's `15,15,15 / 1.7 / 15.64 / 1.01`, and the tile-separation column moved in the
+direction that looks like a regression and is not: 3.5 against the 407.6 a light splash produces is
+still a merge, and the 1.01 is the figure that decides it.
+
+**⚠ AND THE TEASER'S RATIONALE IS STALE FOR A REASON THAT PREDATES THIS UNIT, SAID RATHER THAN
+REWRITTEN.** Its table names `cream` and `harbour`; the constant beneath it ships `drawing-office`
+and `redline`. Re-deriving five members' arguments is a real pass and doing it inside a palette swap
+would be a second change riding on the first. **The trigger is written into the file: anyone editing
+that rationale for any reason re-derives the whole table.** One false sentence WAS deleted rather
+than re-pointed — "the only palette on the site with no hue at all", which was untrue when written
+because drawing-office sits in that same set.
+
+ralph **3677 across 110 suites**, `npm run lint` clean, `tsc` clean.
+
+---
+
 ## (HISTORICAL) BOAT CREST BECOMES CONTENT
 
 **main** = `2ad6dac` = the case-study canvas zooms from its centre (#295).

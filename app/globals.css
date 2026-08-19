@@ -1302,11 +1302,66 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    this a derived palette wearing an authored one's name.
 
    The row is the scoped LIGHT ladder, which a dark palette carries for scoped use rather than
-   paints its pages with, so nothing on a basalt page draws it today. That is context and not a
+   paints its pages with, so nothing on a dark page draws it today. (This named `basalt` as the
+   example and the palette has been retired; the claim was never about that member — it is about
+   what a dark ground does with a light ladder, so the example is dropped rather than re-pointed.) That is context and not a
    defence — the shortfall is real and stated.
 ============================================================================================ */
-[data-theme="basalt"] {
+/* ─────────────────────────────────────────────────────────────────────────────
+   `photostat` — A COPY OF A COPY. Drawing Office inverted, which is a LIGHTING change rather than
+   a look, and the medium that proves the set does not need a hue to be a set.
+
+   ⚠ THE NINE VALUES ARE THE OWNER'S, READ FROM THE PROPOSAL ARTIFACT'S `.med-photostat` BLOCK.
+
+       --g #0C0C0C   --panel #171717   --hair #262626   --obj #626262   --ink #F2F2F2
+       --mut #9A9A9A   --sig #F2F2F2   --ref #9A9A9A   --onsig #0C0C0C
+
+   ALL FOUR STATED CONTRASTS REPRODUCE, sanity pair 21.000 first — ink 17.47 against a stated 17.4,
+   muted 6.95 against 6.96, signal 17.47 against 17.4, object 3.21 against 3.22. Second medium
+   running to read cleanly, which is what proves the values were read rather than interpreted.
+
+   ⚠ AND `--sig` EQUALS `--ink` WHILE `--ref` EQUALS `--mut`, WHICH IS THE MEDIUM RATHER THAN AN
+   OVERSIGHT. The proposal's own table lists this medium as ZERO signals with colour living in the
+   work only. So there is no accent to place and no reference distinct from secondary text — this
+   palette is the reason `--color-reference` defaults to `text-secondary` rather than being required.
+
+   ⚠ ONE VALUE IS DERIVED AND IT IS THE SAME ONE REDLINE NEEDED. `--obj` as written clears the GROUND
+   at 3.21 and misses the PANEL step at 2.94 against a 3.0 floor — the pair the proposal never
+   published and the one its own text calls the number to gate. Two bytes per channel, `#626262` to
+   `#646464`, takes the panel to 3.03 and the ground to 3.31. Redline moved one byte for the same
+   reason; this moves two, and the ground reading drifts 0.09 from the stated figure as the cost.
+
+   ⚠ AND ITS ACCENT RUNG IS THE SYSTEM'S OWN 52 WITH THE CHROMA DROPPED. `accent-500` must clear 4.5
+   on `cream-50` and 3.0 on `band-dark`; the window is L 49 to 55 and every other palette already
+   sits at 52. Nothing was invented — a medium with no signal takes the shared lightness and stops
+   there, at 5.26 and 3.56.
+
+   ⚠ AND `on-dark-quote` TAKES THE ACCENT ITSELF, THROUGH A RULE WRITTEN FOR A DIFFERENT PALETTE.
+   `theme-contrast` N2b exempts a palette whose accent sits within a step's own size of white, which
+   blueprint needed because its signal is a near-white. This signal is `--ink` at 96.12%, so the
+   same predicate catches it without being widened — an exemption keyed on a PROPERTY admitting its
+   second member unchanged, which is the whole argument for deriving one.
+
+   THE LIGHT LADDER IS THE ACHROMATIC ONE, and that is derivation rather than a copy: a palette with
+   no hue has one ladder available to it, so these lightnesses are the same ones the other
+   achromatic media read. Only the ground, the ink and the object line differ.
+   ───────────────────────────────────────────────────────────────────────────── */
+[data-theme="photostat"] {
   --vessel-dark-n: 4%;
+  /* ⚠ THE QUIET TEXT RAMP IS PER-PALETTE HERE, AND THE REASON IS ARITHMETIC RATHER THAN TASTE.
+     `--color-text-subtle` is built by the dark ground block as a mix of `band-dark` into
+     `on-dark-muted`, and BOTH of photostat's inputs are darker than any other dark palette's —
+     the ground at L15.43 against basalt's 15.1 and sapphire's 17.0, the muted at L68.62 against
+     basalt's 72.4. Two darkenings compound, and at the shared 15% the role lands #828282 on the
+     panel at 4.14 against a 4.5 floor. That is a real failure a reader meets, not a gate being
+     strict, and `theme-contrast` P2 named it on the first run.
+
+     ⚠ THE LEVER IS THE RAMP AND NOT `--mut`, WHICH IS THE PART WORTH WRITING DOWN. The palette's
+     own muted is authored — #9A9A9A, and its stated 6.95 on the ground reproduces to 0.01 — so
+     retuning it to satisfy a derived role would move the design to fit its own mechanism. The ramp
+     is the mechanism, blueprint already declares its own, and the dark block's comment says in as
+     many words that these surfaces want to be per-palette. 8% lands the role at 4.55. */
+  --dk-text-subtle: 8%;
   --color-cream-50:          oklch(98.5% 0.000 0);
   --color-cream-100:         oklch(96.8% 0.000 0);
   --color-cream-200:         oklch(93.5% 0.000 0);
@@ -1317,30 +1372,36 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
   --color-ink-600:           oklch(40.0% 0.000 0);
   --color-ink-400:           oklch(56.0% 0.000 0);
   --color-ink-200:           oklch(80.0% 0.000 0);
-  --color-accent-500:        oklch(52.0% 0.136 128);
-  --color-accent-600:        oklch(45.0% 0.117 128);
+  /* No signal, so the rung is the shared lightness with the chroma dropped. See the note above. */
+  --color-accent-500:        oklch(52.0% 0.000 0);
+  --color-accent-600:        oklch(45.0% 0.000 0);
   --color-text-subtle:       oklch(48.7% 0.000 0);
+  /* --ref EQUALS --mut on this medium, so the role resolves to the secondary text it defaults to. */
   --color-reference:       var(--color-text-secondary);
   --color-text-body:         oklch(37.5% 0.000 0);
-  --color-rule:              oklch(48.5% 0.000 0);
-  --color-band-dark:         rgb(15, 15, 15);  /* authored — preview rung `bg` */
-  --color-on-dark:           rgb(243, 243, 243);  /* authored — preview rung `t1` */
-  --color-on-dark-muted:     rgb(172, 172, 172);  /* authored — preview rung `t3` */
-  --color-on-dark-quote: rgb(157, 200, 96);  /* authored — preview rung `aTxt` */
-  --color-accent-on-dark: rgb(128, 177, 44);  /* authored — preview rung `a` */
+  /* --obj, DERIVED. #626262 -> #646464, two bytes, for the panel pair. See the note above. */
+  --color-rule:              oklch(50.32% 0.000 0);
+  /* --g #0C0C0C, the page ground, and what `on-accent` resolves to on this ground. */
+  --color-band-dark:         oklch(15.43% 0.000 0);
+  --color-on-dark:           oklch(96.12% 0.000 0);
+  --color-on-dark-muted:     oklch(68.62% 0.000 0);
+  /* The accent itself — no room for a text step, and N2b is the derived exemption. */
+  --color-on-dark-quote:     oklch(96.12% 0.000 0);
+  /* --sig #F2F2F2, which IS --ink. The light is the only signal this medium has. */
+  --color-accent-on-dark:    oklch(96.12% 0.000 0);
   --color-smoke-1:           oklch(0.84 0.000 0 / 0.74);
   --color-smoke-2:           oklch(0.90 0.000 0 / 0.74);
   --color-smoke-3:           oklch(0.97 0.000 0 / 0.74);
   --color-smoke-4:           oklch(0.87 0.000 0 / 0.74);
-  --color-vessel-ink:        rgb(12, 12, 12);
-  --color-vessel-capsule:    rgb(199, 199, 199);
+  --color-vessel-ink:        oklch(12.0% 0.000 0);
+  --color-vessel-capsule:    oklch(80.5% 0.000 0);
   --color-vessel-glass:      oklch(94.5% 0.000 0);
-  --color-vessel-pearl: oklch(96.5% 0.000 0);
+  --color-vessel-pearl:      oklch(96.5% 0.000 0);
   --color-vessel-shadow:     oklch(92.5% 0.000 0);
   --color-vessel-wave:       oklch(93.5% 0.000 0);
-  --color-glow-paper:        oklch(0.63 0.155 128 / 0.2);
+  --color-glow-paper:        oklch(0.63 0.000 0 / 0.2);
   --color-bounce:            oklch(99.5% 0.000 0);
-  --color-glow-web:          oklch(48.0% 0.000 337);
+  --color-glow-web:          oklch(48.0% 0.000 0);
 }
 
 /* ============================================================================================
@@ -1360,11 +1421,17 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    it in /studio; the published theme is `theme` in `site-settings.yaml` and is CONTENT with an
    owner. Nothing here changes what a visitor sees.
 
-   ⚠ IT IS FIVE VALUES AWAY FROM `basalt` AND THAT IS THE ARGUMENT FOR IT RATHER THAN A COINCIDENCE.
-   Basalt already carries a fully achromatic LIGHT ladder — cream-50 through canvas at chroma 0.000
-   — and its own block comment says "nothing on a basalt page draws it today", because a dark
-   palette carries the light rungs for scoped use only. This palette is that ladder with a page to
-   paint. Every lightness below is basalt's, unchanged, so the ratios are not new numbers.
+   ⚠ IT IS FIVE VALUES AWAY FROM `photostat` AND THAT IS THE ARGUMENT FOR IT RATHER THAN A
+   COINCIDENCE. Photostat carries a fully achromatic LIGHT ladder — cream-50 through canvas at
+   chroma 0.000 — that nothing on its own pages draws, because a dark palette carries the light
+   rungs for scoped use only. This palette is that ladder with a page to paint. Every lightness
+   below is photostat's, unchanged, so the ratios are not new numbers.
+
+   ⚠ THIS SENTENCE READ `basalt` UNTIL PHOTOSTAT REPLACED IT, AND IT WAS CHECKED RATHER THAN
+   RE-POINTED. The two dark achromatics carry BYTE-IDENTICAL light ladders — cream-50 98.5,
+   cream-100 96.8, cream-200 93.5, cream-300 88.0, canvas 92.0 — compared value by value against
+   the retired block rather than assumed from the retirement. A claim that survives a change of
+   subject unmeasured is the shape this file records a dozen times.
 
    MEASURED, sanity pair asserted first, rasterised through a canvas pixel:
 
@@ -1423,7 +1490,7 @@ html.has-custom-cursor [contenteditable] { cursor: auto; }
    ⚠ AND THE CHROME IS NOT ACHROMATIC, WHICH THE FIRST READING GOT BACKWARDS IN THE OTHER DIRECTION.
    Converted, the neutrals carry c 0.003 to 0.011 at h 106.5 — a faint warm grey, not a zero. That is
    why the proposal lists this medium's chrome as "1 hue" against Drawing Office's "0", and why this
-   palette does NOT join the achromatic vessel exemption basalt and drawing-office share.
+   palette does NOT join the achromatic vessel exemption photostat and drawing-office share.
 
    ⚠ IT NEEDS NO NEW ROLE. The proposal adds a signal-and-reference PAIR because Machine Room carries
    TWO signals doing different jobs. Redline carries ONE — `--ref` equals `--mut` here — and `accent`

@@ -127,7 +127,7 @@ t("A7 the twin is NOT selectable, so it cannot be published by accident",
  * of the circle. They are kept rather than corrected, because the reasoning was sound and it is the
  * unit that moved underneath them. */
 t("A8a the selectable set is the eight real palettes — two light and six dark",
-  selectableThemes(), ["drawing-office", "sapphire", "ink-flare", "nocturne", "basalt", "redline", "machine-room", "blueprint"]);
+  selectableThemes(), ["drawing-office", "sapphire", "ink-flare", "nocturne", "photostat", "redline", "machine-room", "blueprint"]);
 /* ⚠ AND THE SITE MUST NOT SAY A DIFFERENT NUMBER FROM THE ONE IT OFFERS, WHICH IT DID FOR AS LONG
  * AS DRAWING-OFFICE HAS BEEN SHIPPED. Three user-facing strings read "nine" against ten selectable
  * palettes — `All nine` and `See all nine` as visible text, and `See all nine palettes` as an
@@ -566,7 +566,7 @@ t("J3 …and every registered name has a block or is the default, so the two lis
 /* The rule's own constants. A gate comparing against these cannot be satisfied by moving the subject. */
 const TINT_dL = 2.00, TINT_dC_MIN = -0.013, TINT_dC_MAX = -0.009;
 
-/* ⚠ A NAMED EXEMPTION, NOT A WIDENED BAND. `basalt` draws a ZERO-CHROMA ground by design, so its
+/* ⚠ A NAMED EXEMPTION, NOT A WIDENED BAND. `photostat` draws a ZERO-CHROMA ground by design, so its
  * vessel has no chroma for the tint's step to act on and V3 and V4 both fail — exactly as V4 was
  * written to. Widening the band to admit it would silence the tripwire for every palette, which is
  * the escape hatch this suite refuses; naming the member keeps the rule intact and the exception
@@ -580,8 +580,14 @@ const TINT_dL = 2.00, TINT_dC_MIN = -0.013, TINT_dC_MAX = -0.009;
  * UNITS ALONE where every chromatic palette carries the separation in lightness and chroma
  * together. Whether that reads as smoke is a RENDER question, and the render is the end condition. */
 const TINT_EXEMPT = {
-  basalt: "owner ruling — an independently authored achromatic preset. Its ground is c 0 by design, "
-        + "so the chroma step has nothing to act on. END: the exemption is reviewed if the preset's "
+  /* ⚠ BASALT HELD THIS ENTRY AND PHOTOSTAT INHERITS IT UNCHANGED, WHICH IS THE POINT RATHER THAN
+     THE PAPERWORK. The exemption was keyed on a PROPERTY — a ground at zero chroma, so the tint's
+     signed step has nothing to act on — and photostat satisfies that property for its own reason
+     rather than by resembling its predecessor. An exemption written as a property admits its next
+     member without an edit to its own terms; one written as a name would have needed a new
+     paragraph and would have been a second spelling of one rule. */
+  photostat: "an independently authored achromatic medium. Its ground is c 0 by design, "
+        + "so the chroma step has nothing to act on. END: the exemption is reviewed if the medium's "
         + "ground ever carries chroma, or if the vessel gains an achromatic derivation of its own.",
   /* ⚠ THE TWIN INHERITS THE EXEMPTION BECAUSE IT INHERITS THE PALETTE. It shares a selector
      list with the default and therefore its values, so exempting the default while refusing
@@ -589,10 +595,10 @@ const TINT_EXEMPT = {
      register the moment the default does. */
   "drawing-office-verify": "a clone of the default, which is exempt above. It has no values of "
         + "its own to judge. END: it follows whatever the default palette's entry does.",
-  "drawing-office": "the SECOND member of the class basalt's exemption already describes, and it "
+  "drawing-office": "the SECOND member of the class photostat's exemption already describes, and it "
         + "joins that exemption rather than widening the band — V4 is the achromatic tripwire and it "
         + "fired correctly. Its whole design is zero chroma, so the tint's step has nothing to act "
-        + "on, exactly as basalt's does not. ⚠ TWO MEMBERS IS THE TRIGGER RATHER THAN THE SETTLEMENT: "
+        + "on, exactly as photostat's does not. ⚠ TWO MEMBERS IS THE TRIGGER RATHER THAN THE SETTLEMENT: "
         + "one exempt palette is a preset nobody derived, two is a CLASS, and a class wants the "
         + "achromatic vessel derivation this entry keeps deferring instead of a third exemption. "
         + "END: the exemption is reviewed the moment a third achromatic palette is proposed, or when "
