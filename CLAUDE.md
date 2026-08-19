@@ -215,33 +215,6 @@ gates.
 
 
 
-- **⚠ BOARDED: THE PWA SPLASH IS A NEAR-WHITE ON ALL FIVE DARK PALETTES, AND IT IS `cream-50` BEING
-  READ AS "THE PAGE GROUND" WHEN IT IS NOT.** `THEME_SPLASH` maps each palette to its `cream-50`,
-  which IS the page ground on a light palette and is NOT on a dark one, where `band-dark` is. So an
-  installed app opens on a near-white splash and paints near-black:
-
-      sapphire #F7FBFF   ink-flare #FEF9F7   nocturne #F9FAFF   basalt #FAFAFA
-      machine-room #F4FCFB   against a ground of #151D20
-
-  **⚠ THIRD INSTANCE OF THE GROUND-IS-PER-CLASS DEFECT, AND THE FIRST OUTSIDE A CONTRAST
-  MEASUREMENT.** The other two were a dark foreground measured against `canvas` and a role resolved
-  against the wrong rung. This is the same substitution arriving in a MANIFEST, where no contrast
-  gate looks.
-
-  **⚠ AND MY OWN COMMENT ON THE MACHINE-ROOM ROW DEFENDS IT WITH A RULING ABOUT A DIFFERENT
-  QUESTION.** It cites *"a surface whose ground sits at an extreme buys nothing from theming"* —
-  which is the favicon ruling, and that ruling is about whether HUE is perceptible at 16 to 64px.
-  The splash is FULL-BLEED and the question is lightness rather than hue. **A true rule cited about
-  the wrong subject**, written by me, one commit before publishing a dark palette.
-
-  **EXPOSURE IS ZERO TODAY AND THAT IS WHY IT IS BOARDED RATHER THAN FIXED.** `background_color` is
-  only drawn for an INSTALLED PWA, and nothing suggests anyone has installed this. It has also been
-  true of four dark palettes for arcs, so publishing machine-room reveals it rather than causing it.
-
-  **THE FIX IS ONE MAP AND A RULE: the splash takes the palette's PAGE ground** — `cream-50` on a
-  light palette, `band-dark` on a dark one — which is a derivation `THEME_GROUND` already carries.
-  `theme` section I would need its comparison retargeted with it.
-
 - **⚠ BOARDED: FOSFOR AI HAS NO PROTOTYPE FOOTAGE, AND ITS `final-video` SECTION IS REMOVED UNTIL IT
   DOES.** The section played `video-wide-2x1.mp4`, the same file data-profiling plays — and sampled
   at t=3, t=45 and t=90 across its 92 seconds, **the whole file is the Data Profiling product**. A
@@ -580,6 +553,78 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ CLOSED: THE SPLASH IS THE PAGE GROUND, AND THE ENTRY'S "ONE MAP AND A RULE" WAS MISSING A
+  CONSEQUENCE — A SPLASH IS THE GROUND BEHIND A FIXED ICON.** `THEME_SPLASH` now holds each palette's
+  `band-dark` on the five dark palettes and its `cream-50` on the two light ones. The two light values
+  move zero bytes, exactly as the card's did, because they already WERE the page ground.
+
+  **⚠ THE COST THE BOARD DID NOT NAME, MEASURED FROM THE ICON'S OWN PIXELS.** `icon-512.png` is a
+  near-black rounded tile at `14,14,14` carrying a light monogram whose brightest stroke is
+  `232,232,232`. It is a fixed asset and cannot follow the palette:
+
+      palette          splash        tile on splash   glyph on splash   carried by
+      drawing-office   250,250,250            18.50              1.16   the tile
+      redline          250,250,248            18.47              1.16   the tile
+      sapphire          10, 16, 22             1.01             15.74   the glyph
+      ink-flare         20, 13, 10             1.00             15.84   the glyph
+      nocturne          13, 14, 25             1.01             15.81   the glyph
+      basalt            15, 15, 15             1.01             15.79   the glyph
+      machine-room      21, 29, 32             1.13             14.08   the glyph
+
+  **BOTH ARRANGEMENTS WORK AND THEY WORK BY DIFFERENT MECHANISMS.** On a near-white splash the glyph
+  measures **1.16** and is legible ONLY because the tile supplies its ground. On a dark splash the
+  SPLASH supplies the ground directly and the tile merges into it — 1.01 on basalt, so the rounded
+  square disappears.
+
+  **⚠ SO WHAT CHANGES IS THAT THE ICON READS AS A BARE MONOGRAM RATHER THAN AN APP TILE.** Stated
+  rather than left to be discovered: it is the smaller cost, because the mark reads within 1.7 of its
+  strength on its own tile (15.76) and the near-white-to-near-black flash is gone. **Reversing it is
+  one map.** Nobody has installed the app, so the exposure was zero either way — which is why this
+  was boarded rather than urgent.
+
+  **`raster-grounds` SECTION C IS THE ASSERTION, AND IT IS A DISJUNCTION RATHER THAN A FLOOR.**
+  Something in the icon must separate from the splash by 3.0 — the tile on a light palette, the glyph
+  on a dark one. A floor on the glyph alone would fail the two light palettes where the design has
+  always worked through the tile; a floor on the tile would fail the five dark ones. **It fails in the
+  band where a splash sits between the two**, close to both at once, which is the real hazard. `C3`
+  asserts both mechanisms actually carry a palette, so the disjunction is a description rather than a
+  hedge covering an untested half.
+
+  **⚠ AND `theme` I2 WOULD HAVE GONE ON PASSING — SECOND ROW IN THAT SECTION WITH THAT SHAPE, ONE PR
+  APART.** It compared each splash against a hardcoded `cream-50`, so it checked five dark palettes'
+  splashes against their own `cream-50` and matched, because that is exactly what they held. The token
+  is derived from the ground class now, and `I6` asserts the card's ground key and the splash read ONE
+  constant — **two maps holding "the palette's page ground" separately is how the same defect shipped
+  in two places and was found twice, a PR apart.**
+
+  **THE BOARDED FRAMING, KEPT BECAUSE ITS DIAGNOSIS WAS RIGHT AND ITS COSTING WAS NOT:**
+
+- **⚠ BOARDED: THE PWA SPLASH IS A NEAR-WHITE ON ALL FIVE DARK PALETTES, AND IT IS `cream-50` BEING
+  READ AS "THE PAGE GROUND" WHEN IT IS NOT.** `THEME_SPLASH` maps each palette to its `cream-50`,
+  which IS the page ground on a light palette and is NOT on a dark one, where `band-dark` is. So an
+  installed app opens on a near-white splash and paints near-black:
+
+      sapphire #F7FBFF   ink-flare #FEF9F7   nocturne #F9FAFF   basalt #FAFAFA
+      machine-room #F4FCFB   against a ground of #151D20
+
+  **⚠ THIRD INSTANCE OF THE GROUND-IS-PER-CLASS DEFECT, AND THE FIRST OUTSIDE A CONTRAST
+  MEASUREMENT.** The other two were a dark foreground measured against `canvas` and a role resolved
+  against the wrong rung. This is the same substitution arriving in a MANIFEST, where no contrast
+  gate looks.
+
+  **⚠ AND MY OWN COMMENT ON THE MACHINE-ROOM ROW DEFENDS IT WITH A RULING ABOUT A DIFFERENT
+  QUESTION.** It cites *"a surface whose ground sits at an extreme buys nothing from theming"* —
+  which is the favicon ruling, and that ruling is about whether HUE is perceptible at 16 to 64px.
+  The splash is FULL-BLEED and the question is lightness rather than hue. **A true rule cited about
+  the wrong subject**, written by me, one commit before publishing a dark palette.
+
+  **EXPOSURE IS ZERO TODAY AND THAT IS WHY IT IS BOARDED RATHER THAN FIXED.** `background_color` is
+  only drawn for an INSTALLED PWA, and nothing suggests anyone has installed this. It has also been
+  true of four dark palettes for arcs, so publishing machine-room reveals it rather than causing it.
+
+  **THE FIX IS ONE MAP AND A RULE: the splash takes the palette's PAGE ground** — `cream-50` on a
+  light palette, `band-dark` on a dark one — which is a derivation `THEME_GROUND` already carries.
+  `theme` section I would need its comparison retargeted with it.
 - **⚠ CLOSED: THE SITE CARD IS GENERATED AND THEMED, AND THE OWNER RULED THE GROUND QUESTION THAT
   CAME WITH IT.** The static PNG is deleted and `/og` renders the identity lockup — monogram, the
   script signature over its construction grid, the surname between rules, the job line — in the

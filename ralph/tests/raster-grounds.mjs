@@ -20,11 +20,15 @@
 // ⚠ A COMPLETE POPULATION SEARCHED WITH A NARROW PREDICATE REPORTS A CLEAN RESULT THAT IS TRUE OF
 // THE PREDICATE AND FALSE OF THE QUESTION — and it reads as thorough, because the denominator is
 // right. That is this file's reason for existing more than any single asset is.
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import sharp from "sharp";
-import { parseOklch, parseColor } from "../../lib/theme-contrast.ts";
+import { parseOklch, parseColor, contrastRatio } from "../../lib/theme-contrast.ts";
+import { THEME_SPLASH } from "../../lib/theme.ts";
+
+/** The card and the splash both need this; `theme-contrast` owns the arithmetic. */
+const cr = (a, b) => contrastRatio(a, b);
 
 let pass = 0, fail = 0;
 const t = (name, got, want) => {
@@ -330,6 +334,110 @@ t("B2a ⚠ …AND A REASON IS NOT A TRIGGER — the exact string that survived t
     namesEndCondition("depicts a product; clears when boat-crest stops shipping it"),
   ],
   [false, false, false, false, false, true]);
+
+/* ============================================================================================
+   C · ⚠ THE APP ICON IS DISTINGUISHABLE FROM THE SPLASH IT SITS ON, AND NOTHING ASKED UNTIL THE
+   SPLASH MOVED.
+
+   `THEME_SPLASH` is the full-bleed PWA background shown while an installed app loads, and
+   `icon-512.png` is centred on it. The splash used to be `cream-50` on all seven palettes; it is the
+   palette's PAGE ground now, which means five of them went from near-white to near-black — and the
+   icon is a FIXED asset that cannot follow.
+
+   ⚠ THE ICON CARRIES ITS OWN GROUND, WHICH IS WHY THE CLAIM IS A DISJUNCTION RATHER THAN A FLOOR ON
+   THE GLYPH. It is a near-black rounded tile with a light monogram, so the mark reads by one of two
+   mechanisms depending on the splash:
+
+       near-white splash   the GLYPH measures 1.17 against it and is legible only because the TILE
+                           supplies its ground at 18.50
+       near-black splash   the SPLASH supplies the ground directly, glyph 13.95 to 15.70, and the
+                           TILE merges — 1.01 on basalt, so the rounded square disappears
+
+   BOTH ARE FINE AND NEITHER IS THE CLAIM ON ITS OWN. Asserting "the glyph clears the splash" would
+   fail the two light palettes, where the design has always worked through the tile. Asserting "the
+   tile clears the splash" would fail the five dark ones. The property that holds in both is that
+   SOMETHING in the icon separates from the splash.
+
+   ⚠ AND `C2` CANNOT FAIL ON A SPLASH CHANGE WHILE THIS ICON IS THE ICON, WHICH IS DERIVED RATHER
+   THAN HOPED. Its first title said it "fails in the band where a splash sits between the two". There
+   is no such band here. A background within 3.0 of both would need relative luminance below 0.1132
+   AND above 0.2357 at once — impossible — because the icon's own tile-to-glyph contrast is 15.76.
+
+   THE CONDITION IS ON THE ICON: a middle background exists only once the icon's INTERNAL contrast
+   drops under 9.0, which is where `3 x (Lt + 0.05)` meets `(Lg + 0.05) / 3`. Worked:
+
+       tile  14  glyph 232   internal 15.76   no failing background
+       tile  60  glyph 200   internal  6.59   a failing background EXISTS
+       tile  90  glyph 170   internal  2.97   exists
+       tile 110  glyph 150   internal  1.72   exists
+
+   ⚠ SO `C2`'s SUBJECT IS THE PAIR, AND ITS VARIABLE IS THE ICON RATHER THAN THE SPLASH. `C2a` is the
+   row that determines whether `C2` can ever fire. What it CANNOT be killed by is a splash value —
+   proved, not assumed: setting sapphire's splash back to its `cream-50` leaves C2 green and reddens
+   `theme` I2 instead, which is the correct division of labour. What DOES kill all three is the
+   sampling going wrong — pointing the tile sample inside the glyph reddens C0a, C2 and C2a together —
+   or the icon being redrawn flatter than 9.0.
+
+   ⚠ AND THE FIRST TITLE WOULD HAVE BEEN A REGISTER ENTRY: a row that cannot fail for the reason it
+   names. Retitled to what it proves, which is the same repair the register records for the
+   inspector's derivation row. The floor is 3.0 because this is a mark rather than text, and the
+   carrying mechanism is printed per palette so a reader sees a palette flip from tile to glyph —
+   which is a visible change to the icon and not a failure.
+============================================================================================ */
+console.log(`\nC · ⚠ THE APP ICON SEPARATES FROM ITS SPLASH — by the tile on light, by the glyph on dark`);
+const ICON_FLOOR = 3.0;
+const iconPath = join(root, "public/icon-512.png");
+const iconOk = existsSync(iconPath);
+let tile = null, glyph = null;
+if (iconOk) {
+  const { data, info } = await sharp(iconPath).raw().toBuffer({ resolveWithObject: true });
+  const ch = info.channels;
+  const at = (x, y) => [data[(y * info.width + x) * ch], data[(y * info.width + x) * ch + 1], data[(y * info.width + x) * ch + 2]];
+  /* The tile is sampled well inside the rounded square and away from the glyph; the glyph is the
+   * BRIGHTEST pixel in the same inset, which is its stroke rather than an antialiased edge. */
+  tile = at(Math.round(info.width * 0.2), Math.round(info.height * 0.2));
+  let bv = -1;
+  for (let y = Math.round(info.height * 0.08); y < info.height * 0.92; y += 2)
+    for (let x = Math.round(info.width * 0.08); x < info.width * 0.92; x += 2) {
+      const q = at(x, y), sum = q[0] + q[1] + q[2];
+      if (sum > bv) { bv = sum; glyph = q; }
+    }
+}
+t("C0 the icon exists and its pixels were read — a missing asset must not pass as a clean run",
+  iconOk && tile !== null && glyph !== null, true);
+/* ⚠ AND THE TWO SAMPLES MUST DIFFER, or one point was read twice and every ratio below is a
+ * comparison of a colour with itself. The icon's own internal contrast is the check. */
+t("C0a …and the tile and the glyph are genuinely different colours, or both ratios are the same reading",
+  iconOk && cr(tile, glyph) > 5, true);
+
+const splashRows = Object.entries(THEME_SPLASH).map(([name, hex]) => {
+  const bg = parseColor(hex);
+  if (!bg || !tile || !glyph) return { name, missing: true };
+  const byTile = +cr(tile, bg).toFixed(2), byGlyph = +cr(glyph, bg).toFixed(2);
+  return { name, hex, byTile, byGlyph, best: Math.max(byTile, byGlyph), via: byTile >= byGlyph ? "tile" : "glyph" };
+});
+for (const r of splashRows)
+  console.log(r.missing
+    ? `         ${r.name.padEnd(22)} UNREADABLE SPLASH VALUE`
+    : `         ${r.name.padEnd(22)} ${r.hex}   tile ${String(r.byTile).padStart(6)}   glyph ${String(r.byGlyph).padStart(6)}   carried by the ${r.via}`);
+t("C1 the population is real — every palette has a splash that parses, against a literal",
+  splashRows.length >= 5 && splashRows.every((r) => !r.missing), true);
+t(`C2 ⚠ THE ICON SEPARATES FROM EVERY SPLASH BY AT LEAST ${ICON_FLOOR} — by the tile on a light one and by the glyph on a dark one`,
+  splashRows.filter((r) => !r.missing && r.best < ICON_FLOOR).map((r) => `${r.name} ${r.hex} best ${r.best}`), []);
+/* ⚠ THE ROW C2 DEPENDS ON, AND THE ONE THAT CAN ACTUALLY MOVE. A background within the floor of BOTH
+ * halves exists only when the icon's own internal contrast drops under 9.0 — the point where
+ * `3 x (Lt + 0.05)` meets `(Lg + 0.05) / 3`. At 15.76 no splash value can fail C2, so C2 is a check
+ * on the pair whose variable is the ICON. Asserted against a literal rather than against C2's own
+ * floor, because a guard computed from the thing it guards cannot fail when that thing moves. */
+const iconInternal = iconOk ? +cr(tile, glyph).toFixed(2) : null;
+console.log(`         the icon's own tile-to-glyph contrast is ${iconInternal} — a splash can fail C2 only below 9.0`);
+t("C2a ⚠ AND THE ICON'S OWN INTERNAL CONTRAST EXCEEDS 9.0, which is what makes C2 unfailable by a splash value — a flatter icon is the trigger for both",
+  iconInternal !== null && iconInternal > 9, true);
+/* ⚠ AND BOTH MECHANISMS ARE IN USE, which is what makes C2's disjunction a description rather than a
+ * hedge. If every palette were carried by the same half, the other half would be untested and the
+ * row would be a floor on one quantity wearing a disjunction's clothes. */
+t("C3 …and BOTH mechanisms actually carry a palette, or the disjunction is covering an untested half",
+  new Set(splashRows.filter((r) => !r.missing).map((r) => r.via)).size, 2);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

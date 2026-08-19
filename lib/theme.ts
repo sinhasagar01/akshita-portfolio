@@ -552,17 +552,52 @@ export const THEME_OG: Record<string, { cream: string; ink: string; muted: strin
   [VERIFY_THEME]: { cream: "#fafafa", ink: "#0b0b0b", muted: "#484848", accent: "#000000" },
 };
 
+/* ⚠ THE SPLASH IS THE PALETTE'S PAGE GROUND, AND IT WAS `cream-50` ON ALL SEVEN. Same defect as the
+   OG card's ground above and the third instance of `cream-50` read as "the page ground": it IS the
+   page ground on a light palette and is NOT on a dark one, where `band-dark` is. Five of the seven
+   are dark, so an installed app opened on a near-white splash and painted near-black.
+
+   ⚠ AND THE COMMENT THAT DEFENDED IT CITED THE FAVICON RULING, WHICH IS ABOUT A DIFFERENT QUESTION.
+   It read "the record already rules that a surface whose ground sits at an extreme buys nothing from
+   theming". That ruling is about whether HUE is perceptible at 16 to 64px. The splash is FULL-BLEED
+   and the question is LIGHTNESS. A true rule cited about the wrong subject.
+
+   ⚠ AND THE FIX HAS A CONSEQUENCE THE BOARD ENTRY DID NOT NAME, BECAUSE A SPLASH IS NOT JUST A
+   COLOUR — IT IS THE GROUND BEHIND A FIXED ICON. `icon-512.png` is a near-black rounded tile at
+   `14,14,14` carrying a light monogram whose brightest stroke is `232,232,232`. Measured:
+
+       palette          splash        tile separation   glyph on splash   tile on splash
+       drawing-office   250,250,250             408.8              1.17            18.50
+       redline          250,250,248             407.6              1.17            18.47
+       sapphire          10, 16, 22               9.2             15.60             1.01
+       ink-flare         20, 13, 10               7.3             15.70             1.00
+       nocturne          13, 14, 25              11.0             15.67             1.01
+       basalt            15, 15, 15               1.7             15.64             1.01
+       machine-room      21, 29, 32              24.5             13.95             1.13
+
+   BOTH ARRANGEMENTS WORK AND THEY WORK BY DIFFERENT MECHANISMS. On a near-white splash the glyph
+   measures 1.17 against it and is legible ONLY because the tile supplies its ground — 15.76 on the
+   tile itself. On a dark splash the SPLASH supplies the ground directly at 13.95 to 15.70, and the
+   tile merges into it: 1.7 on basalt, so the rounded square disappears.
+
+   ⚠ SO WHAT CHANGES IS THAT THE ICON READS AS A BARE MONOGRAM RATHER THAN AS AN APP TILE, and that
+   is stated rather than discovered later. It is the smaller cost: the mark reads within 1.8 of its
+   strength on its own tile, and the near-white-to-near-black flash the old value produced is gone.
+   Reversing it is one map.
+
+   `theme` section I compares each value against its theme's declaration, and the token it compares
+   against is DERIVED FROM THE GROUND CLASS — it was a fixed `cream-50`, which would have gone on
+   passing for exactly the five palettes that were wrong. */
 export const THEME_SPLASH: Record<string, string> = {
-  [SIXTH_THEME]: "#F7FBFF",
-  [SEVENTH_THEME]: "#FEF9F7",
-  [EIGHTH_THEME]: "#F9FAFF",
-  [NINTH_THEME]: "#FAFAFA",
+  [SIXTH_THEME]: "#0A1016",
+  [SEVENTH_THEME]: "#140D0A",
+  [EIGHTH_THEME]: "#0D0E19",
+  [NINTH_THEME]: "#0F0F0F",
   [DEFAULT_THEME]: "#FAFAFA",
   [ELEVENTH_THEME]: "#FAFAF8",
-  /* Machine Room's `cream-50`. A near-white with the medium's own cool cast, which is what the
-     splash surface takes on every palette — the ground it eventually paints is dark, and the record
-     already rules that a surface whose ground sits at an extreme buys nothing from theming. */
-  [TWELFTH_THEME]: "#F4FCFB",
+  /* Machine Room's `band-dark` — the lit panel's own ground, and the only one of the five whose tile
+     separation (24.5) leaves the rounded square faintly visible. */
+  [TWELFTH_THEME]: "#151D20",
   /* Byte-identical to the default, like every other value the control holds. */
   [VERIFY_THEME]: "#FAFAFA",
 };

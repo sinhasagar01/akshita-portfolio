@@ -13246,6 +13246,67 @@ generalised for a second face**, which is the matcher-narrower-than-its-concept 
 row written to stop exactly this drift. Both hops are asserted now.
 
 
+## ⚠ THE PWA SPLASH IS THE PAGE GROUND, AND "ONE MAP AND A RULE" WAS MISSING A CONSEQUENCE
+
+The third and last of the frozen surfaces. `THEME_SPLASH` held `cream-50` on all seven palettes, so
+an installed app opened near-white and painted near-black on five of them. It holds each palette's
+`band-dark` on the dark five now, and the two light values move zero bytes because they already WERE
+the page ground.
+
+**⚠ THE COMMENT THAT DEFENDED IT CITED THE FAVICON RULING, WHICH IS ABOUT A DIFFERENT QUESTION.** It
+read *"the record already rules that a surface whose ground sits at an extreme buys nothing from
+theming"*. That ruling is about whether HUE is perceptible at 16 to 64px. The splash is FULL-BLEED and
+the question is LIGHTNESS. A true rule cited about the wrong subject — and I wrote it, one commit
+before publishing a dark palette.
+
+**⚠ THE BOARD SAID THE FIX WAS "ONE MAP AND A RULE" AND IT WAS NOT, BECAUSE A SPLASH IS THE GROUND
+BEHIND A FIXED ICON.** `icon-512.png` is a near-black rounded tile at `14,14,14` carrying a light
+monogram whose brightest stroke is `232,232,232`, and it cannot follow the palette:
+
+    palette          splash        tile on splash   glyph on splash   carried by
+    drawing-office   250,250,250            18.50              1.16   the tile
+    redline          250,250,248            18.47              1.16   the tile
+    sapphire          10, 16, 22             1.01             15.74   the glyph
+    ink-flare         20, 13, 10             1.00             15.84   the glyph
+    nocturne          13, 14, 25             1.01             15.81   the glyph
+    basalt            15, 15, 15             1.01             15.79   the glyph
+    machine-room      21, 29, 32             1.13             14.08   the glyph
+
+**BOTH ARRANGEMENTS WORK AND BY DIFFERENT MECHANISMS.** On a near-white splash the glyph measures
+**1.16** against it and is legible only because the tile supplies its ground at 18.50. On a dark
+splash the SPLASH supplies the ground directly and the tile merges — 1.01 on basalt, so the rounded
+square disappears.
+
+**SO WHAT CHANGES IS THAT THE ICON READS AS A BARE MONOGRAM RATHER THAN AN APP TILE.** It is the
+smaller cost: the mark reads within 1.7 of its strength on its own tile, and the white-to-black flash
+is gone. Reversing it is one map. Nobody has installed the app, which is why this was boarded rather
+than urgent — and why the measurement was worth taking before shipping rather than after.
+
+**`raster-grounds` SECTION C IS THE ASSERTION, AND IT IS A DISJUNCTION RATHER THAN A FLOOR.**
+Something in the icon must separate from the splash by 3.0 — the tile on a light palette, the glyph on
+a dark one. A floor on the glyph alone fails the two light palettes where the design has always worked
+through the tile; a floor on the tile fails the five dark ones. **It fails in the band where a splash
+sits between the two**, close to both at once, which is the hazard neither single floor expresses.
+`C0a` asserts the two samples are genuinely different colours, or every ratio is one reading compared
+with itself; `C3` asserts both mechanisms actually carry a palette, so the disjunction is a
+description rather than a hedge over an untested half.
+
+**⚠ AND `theme` I2 WOULD HAVE GONE ON PASSING — SECOND ROW IN ONE SECTION WITH THAT SHAPE, ONE PR
+APART.** It compared each splash against a hardcoded `cream-50`, so it checked five dark palettes'
+splashes against their own `cream-50` and matched, because that is exactly what they held. Identical
+to the card-ground row a PR earlier: **the gate that enforces a token-layer claim, holding a fixed
+list.**
+
+**AND `I6` IS THE ROW THAT MAKES IT ONE DEFECT RATHER THAN TWO.** The card's ground and the splash are
+the same quantity, so they read ONE constant now. **Two maps holding "the palette's page ground"
+separately is how the same defect shipped in two places and was found twice** — the OG map on the day
+the palette was published, the splash map an hour later. A shared constant is what stops a third.
+
+**ALL THREE FROZEN SURFACES ARE NOW ACCOUNTED FOR:** the per-page cards follow the palette and are
+measured by `theme-contrast` O, the site card is generated and guarded by `share-cards`, and the
+splash follows it with `raster-grounds` C over the icon that sits on it.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

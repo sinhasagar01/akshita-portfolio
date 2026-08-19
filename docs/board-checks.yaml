@@ -164,15 +164,6 @@ entries:
 
   # ---- added with the case-study-sand relation, 2026-08-19 ----
 
-  - match: "THE PWA SPLASH IS A NEAR-WHITE ON ALL FIVE DARK PALETTES"
-    kind: structural
-    # The entry exists only while `THEME_SPLASH` maps machine-room to its `cream-50`. Pointing the
-    # splash at the page ground — which is the action — changes that value and expires the entry.
-    holds_while:
-      file: lib/theme.ts
-      pattern: "\\[TWELFTH_THEME\\]: \"#F4FCFB\""
-      expect: present
-
   - match: "FOSFOR AI HAS NO PROTOTYPE FOOTAGE"
     kind: structural
     # The entry exists only while that study carries no video block. Adding the real footage — which
