@@ -13106,6 +13106,68 @@ publish or a render has found something no suite has as its subject. Neither is 
 change and both are boarded with their measurements.
 
 
+## ⚠ A SOCIAL CARD'S GROUND IS THE PALETTE'S PAGE GROUND, AND FIVE CARDS OF SEVEN WERE NEAR-WHITE
+
+`THEME_OG` held `cream-50 / ink-950 / ink-600 / accent-500` for all seven palettes — the LIGHT ladder,
+unconditionally. Five of the seven palettes are DARK, so five cards of seven arrived in a feed
+near-white in front of a near-black site. Found by checking the machine-room publish rather than by a
+gate.
+
+**IT IS THE `cream-50` READ AS "THE PAGE GROUND" DEFECT, WHICH THIS RECORD ALREADY CARRIED TWICE AS A
+CONTRAST ERROR AND ONCE IN THE MANIFEST.** `cream-50` IS the page ground on a light palette and is NOT
+on a dark one, where `band-dark` is. The four card roles now read per ground class:
+
+    light   cream-50    ink-950    ink-600          accent-500
+    dark    band-dark   on-dark    on-dark-muted    accent-on-dark
+
+**⚠ AND MY OWN OPTION LABEL GOT THE COUNT BACKWARDS WHILE ITS TABLE WAS RIGHT.** I offered the ruling
+as *"cream-50 on the five light palettes, band-dark on the two dark ones"*. **It is two light and five
+dark** — the table under that sentence listed all seven correctly and the prose above it inverted
+them. Prose and data in one place, looking like one claim and being two, which is the defect this
+record names against a `count:` field and an `A8a` title. The direction of the ruling did not depend
+on it; the blast radius did, and it is five cards rather than two.
+
+**MEASURED AGAINST THE CARD'S OWN GROUND, SANITY 21.000 FIRST — every pair clears on every palette:**
+
+    drawing-office  18.86  8.76  20.12        sapphire      17.32  8.45  6.99
+    redline         18.08  8.95   6.65        ink-flare      17.41  8.48  6.84
+                                              nocturne      17.32  8.43  6.75
+                                              basalt        17.27  8.44  7.52
+                                              machine-room  13.38  5.84  8.11
+
+**THE TWO LIGHT PALETTES MOVE ZERO BYTES AND THAT IS BY CONSTRUCTION** — their existing entries already
+WERE the light map, so only the five dark ones change.
+
+**⚠ AND `theme` I2 WOULD HAVE GONE ON PASSING, WHICH IS WHY THE GATE MOVED WITH THE VALUES.** It
+compared each card colour against a token from a FIXED four-pair list naming the light ladder. Correct
+about the equality it checked, and the equality was the wrong one — five dark palettes' card grounds
+were compared against their own `cream-50` and matched, because that is exactly what the defect was.
+The list is now derived from `THEME_GROUND`, with `I4` asserting both classes have members and `I5`
+asserting the two lists genuinely differ, so pointing dark back at the light ladder fails rather than
+passing quietly. **The fixed-list shape inside the gate that enforces a token-layer claim**, which is
+where `G4` was found doing the same thing.
+
+**⚠ AND EQUALITY WAS ALL ANYTHING EVER CHECKED — `theme-contrast` SECTION O IS THE FIRST TIME THE CARD
+HAS BEEN MEASURED AS A SURFACE.** Section I asserts each hex equals its token; a card whose ground and
+ink both moved correctly can still pair them badly, and the card is the one surface a reader cannot
+compare against anything because it arrives alone in a feed.
+
+**⚠ ITS FLOOR IS 3.0 AND THAT IS THE GOVERNING ONE RATHER THAN A LENIENT ONE.** Read off `lib/og.tsx`
+and `lib/og-fit.ts` rather than assumed: title 84 or 68px at 600, eyebrow 24px at 600, dek 32px, name
+30px at 600, job title 26px. **Every element is LARGE by WCAG and there is no small text on the
+card**, so 4.5 would assert more than the design owes — the inverse of the row this record already
+carries that was labelled "non-text" when the checkable claim was "3.0 applies". The real figures are
+printed in the log because they all clear 4.5 too, at 5.84 worst, and a row passing at 3.0 over
+figures above 4.5 would hide a large regression inside a green gate.
+
+**AND `O3` ASKS THE QUESTION A READER WOULD**: is a dark palette's card dark. That is the property the
+values were changed for, and it is a different claim from equality with a token.
+
+**THE SITE'S OWN CARD IS STILL A STATIC PNG IN THE RETIRED CREAM PALETTE** — untouched here, and the
+board entry for it stays open. This unit is the per-page cards and the rule; the site card is a
+renderer rather than a value, and it goes next.
+
+
 ## WHAT'S NEXT
 
 **THE SHEET DIRECTION HAS REACHED EVERY PUBLIC PAGE.** What is open is no longer conversion.

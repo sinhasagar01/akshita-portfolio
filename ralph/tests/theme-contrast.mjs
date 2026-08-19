@@ -108,7 +108,7 @@ import {
   readPaletteSource, layerPalette, paletteResolver, rgbToOklch, oklchOf, hexOf,
   USAGE, usageFor as usageForGround,
 } from "../../lib/theme-contrast.ts";
-import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME, THEME_GROUND, THEME_BAND, GROUND_TOKEN } from "../../lib/theme.ts";
+import { THEME_NAMES, DEFAULT_THEME, VERIFY_THEME, THEME_GROUND, THEME_BAND, GROUND_TOKEN, THEME_OG } from "../../lib/theme.ts";
 
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -2089,6 +2089,66 @@ const lightRefDrift = lightWithQuote.filter((n) => {
 });
 t("N5 ⚠ NO LIGHT PALETTE OVERRIDES `reference` — the moment one does, reference and secondary text differ there too and the exclusion above stops describing it",
   lightRefDrift, []);
+
+/* ============================================================================================
+   O · ⚠ THE SOCIAL CARD IS A SURFACE WITH TEXT ON IT AND NOTHING HAS EVER MEASURED IT.
+
+   `THEME_OG` holds four resolved hexes per palette and `theme` section I checks they EQUAL their
+   tokens. Equality is not legibility: a card whose ground and ink both moved correctly can still
+   pair them badly, and until this section nothing asked. The card is also the one surface a reader
+   cannot compare against anything — it arrives alone in a feed.
+
+   ⚠ THE FLOOR IS 3.0 AND THAT IS THE GOVERNING ONE RATHER THAN A LENIENT ONE. Every text element on
+   the card is LARGE by WCAG, measured from `lib/og.tsx` and `lib/og-fit.ts` rather than assumed:
+
+       title      84px or 68px, weight 600     large
+       eyebrow    24px, weight 600             large — the bold threshold is 18.66
+       dek        32px, weight 400             large — the plain threshold is 24
+       name       30px, weight 600             large
+       job title  26px, weight 400             large
+
+   There is NO small text on this card, so 4.5 would be asserting more than the design owes. This
+   record already carries the inverse error — a row labelled "non-text" that was really "3.0
+   applies", which reported two accent headings as violations because the LABEL named a cause where
+   the checkable claim was a threshold.
+
+   ⚠ AND THE MARGINS ARE PRINTED BECAUSE EVERY PAIR ALSO CLEARS 4.5 TODAY, at 5.84 worst. A row that
+   passes at 3.0 while the real figures sit above 4.5 would hide a large regression inside a passing
+   gate, so the numbers are in the log where a reader can see the headroom shrink.
+============================================================================================ */
+console.log("\nO · ⚠ THE SOCIAL CARD'S OWN PAIRS — equality was checked and legibility never was");
+const OG_FLOOR = 3.0;
+const ogRows = THEME_NAMES.filter((n) => n !== VERIFY_THEME).map((n) => {
+  const og = THEME_OG[n];
+  if (!og) return { n, missing: true };
+  const g = parseColor(og.cream);
+  const pair = (k) => { const c = parseColor(og[k]); return g && c ? +contrastRatio(c, g).toFixed(2) : null; };
+  return { n, ground: og.cream, ink: pair("ink"), muted: pair("muted"), accent: pair("accent") };
+});
+for (const r of ogRows)
+  console.log(r.missing
+    ? `         ${r.n.padEnd(16)} NO OG PALETTE`
+    : `         ${r.n.padEnd(16)} ground ${r.ground}   ink ${String(r.ink).padStart(6)}   muted ${String(r.muted).padStart(6)}   accent ${String(r.accent).padStart(6)}`);
+
+t("O1 the population is real — every non-twin palette has an OG palette that resolves, against a literal",
+  ogRows.length >= 5 && ogRows.every((r) => !r.missing && r.ink !== null && r.muted !== null && r.accent !== null), true);
+t(`O2 ⚠ EVERY CARD PAIR CLEARS ${OG_FLOOR} AGAINST THE CARD'S OWN GROUND — the card is all large type, so this is the governing floor rather than a lenient one`,
+  ogRows.filter((r) => !r.missing).flatMap((r) => ["ink", "muted", "accent"]
+    .filter((k) => r[k] < OG_FLOOR).map((k) => `${r.n} ${k} ${r[k]} on ${r.ground}`)), []);
+/* ⚠ AND THE GROUND IS ASSERTED TO BE THE PAGE GROUND'S CLASS, which is the property the values were
+ * changed for. Equality with a token is section I's job; this asks the cheaper question a reader
+ * would ask of a card — is it light on a light site and dark on a dark one. A dark palette whose
+ * card ground came back near-white is the exact state that shipped for five palettes. */
+const ogClassWrong = ogRows.filter((r) => !r.missing).filter((r) => {
+  const g = parseColor(r.ground);
+  if (!g) return true;
+  const light = (0.2126 * g[0] + 0.7152 * g[1] + 0.0722 * g[2]) / 255 > 0.5;
+  return light !== (THEME_GROUND[r.n] !== "dark");
+}).map((r) => `${r.n} is ${THEME_GROUND[r.n]} and its card ground is ${r.ground}`);
+t("O3 ⚠ …AND A DARK PALETTE'S CARD IS DARK — the ground follows the page's class, which five cards of seven did not",
+  ogClassWrong, []);
+t("O4 …and both classes are represented, or O3 passes over one kind only",
+  new Set(ogRows.filter((r) => !r.missing).map((r) => THEME_GROUND[r.n])).size, 2);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
