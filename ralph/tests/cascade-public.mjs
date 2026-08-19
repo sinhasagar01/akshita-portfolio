@@ -60,6 +60,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 /* ⚠ SHARED AT THE SECOND CONSUMER. `collection-dispatch` hit the identical defect one unit after
    this suite was repaired for it — see the helper's header for why the mechanism travels. */
+import { load } from "js-yaml";
 import { blankCommentBodies } from "../strip-comments.mjs";
 
 let pass = 0, fail = 0;
@@ -329,6 +330,86 @@ t("A1b: every tag with an unlayered reset is enumerated, and the set is not deri
    SO THE MODEL NAMES THE RULE AND ITS PROPERTIES, AND CLASSIFIES THE OUTCOME RATHER THAN ASSUMING
    IT. A third party that agrees with the utility repairs it; one that differs SHADOWS it, which is
    still dead and must not read as fixed. */
+/* ⚠ A DIRECTORY IS NOT AN ANCESTOR, AND THAT WAS THIS MODEL'S DEFECT FOR AN ARC. `applies` read
+ * `rel.startsWith("components/case-study/")` — a PATH used as a proxy for a DOM ancestry question.
+ * The two coincide for every block but one, and the exception is the loudest element on the page.
+ *
+ * `CaseStudyView` renders the hero section OUTSIDE the wrapper and the body sections inside it:
+ *
+ *     const heroSection  = study.sections.find((s) => s.variant === "hero")
+ *     const bodySections = study.sections.filter((s) => s.variant !== "hero")
+ *     <SectionRenderer section={heroSection} asGround />        <- outside
+ *     <article className="case-study"> {bodySections.map(...)}  <- inside
+ *
+ * So `.case-study .font-display` never matches an element in the hero, and `HeroCover`'s two `h1`
+ * branches drew the 400 they asked for while this suite reported them shadowed. Measured in the DOM
+ * when the false positive was boarded: `closest('.case-study')` is null, computed weight 400.
+ *
+ * ⚠ AND THE SEPARATOR IS THE SECTION'S `variant`, WHICH IS CONTENT RATHER THAN STRUCTURE. The schema
+ * does not restrict `heroCover` to a hero-variant section — a body section could carry one, and then
+ * that same component WOULD be inside the wrapper. So the honest answer is not "HeroCover is
+ * special"; it is "which kinds only ever land in a hero section", and that is a question about the
+ * content the site actually renders.
+ *
+ * ⚠ DERIVED FOR THAT REASON RATHER THAN DECLARED. A registry naming `HeroCover` would be the
+ * fixed-list shape this repo removes on sight, and it would be WRONG the day somebody authors a
+ * heroCover into a body section — silently, in the permissive direction. Two joins, both readable:
+ *
+ *     kind -> component   `BlockRenderer`'s switch and its imports
+ *     kind -> variants    every yaml under `content/projects`, through the same parser the site
+ *                         uses (spelled in words: writing the star-dot glob here puts a comment
+ *                         OPENER in this comment, and `css-comment-trap` A5 caught exactly that)
+ *
+ * A component is outside the wrapper only when EVERY kind that renders it lands exclusively in a
+ * hero section. Today that is `heroCover` alone; `featureRows` proves the map discriminates, since
+ * it appears in two variants and neither is hero. */
+const caseStudyBlockFile = (() => {
+  const src = readFileSync(new URL("../../components/case-study/BlockRenderer.tsx", import.meta.url), "utf8");
+  const imports = new Map([...src.matchAll(/import\s+(\w+)\s+from\s+"\.\/(blocks\/)?(\w+)"/g)]
+    .map((m) => [m[1], `components/case-study/${m[2] ?? ""}${m[3]}.tsx`]));
+  const byKind = new Map();
+  /* The switch arm and the first component it returns. A kind that renders several components maps
+   * to each of them, so a shared block cannot be excluded by one of its arms. */
+  for (const m of src.matchAll(/case\s+"(\w+)":([\s\S]*?)(?=\n\s*case\s+"|\n\s*default:|\n\s*\}\s*$)/g)) {
+    const comps = [...m[2].matchAll(/<(\w+)[\s/>]/g)].map((c) => c[1]).filter((c) => imports.has(c));
+    if (comps.length) byKind.set(m[1], [...new Set(comps.map((c) => imports.get(c)))]);
+  }
+  return byKind;
+})();
+
+const kindVariants = (() => {
+  const dir = new URL("../../content/projects/", import.meta.url);
+  const out = new Map();
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".yaml"))) {
+    const doc = load(readFileSync(new URL(f, dir), "utf8").split(/\n---\n/)[0]) ?? {};
+    for (const sec of doc.sections ?? []) {
+      const v = sec.variant ?? "default";
+      for (const b of sec.blocks ?? []) {
+        const k = b?.discriminant ?? b?.kind;
+        if (!k) continue;
+        if (!out.has(k)) out.set(k, new Set());
+        out.get(k).add(v);
+      }
+    }
+  }
+  return out;
+})();
+
+/** Files whose every rendering kind lands ONLY in a hero-variant section, so they never appear
+ *  under `.case-study` and the 0-2-0 rule cannot reach them. */
+const outsideWrapper = (() => {
+  const inside = new Set(), outside = new Set();
+  for (const [kind, rels] of caseStudyBlockFile) {
+    const vs = kindVariants.get(kind);
+    if (!vs) continue;                                   // a kind no study uses renders nowhere
+    for (const rel of rels) (vs.size === 1 && vs.has("hero") ? outside : inside).add(rel);
+  }
+  /* A file reached by BOTH a hero-only kind and a body kind is INSIDE somewhere, so the rule can
+   * reach it and the correction must not apply. Inside wins. */
+  for (const rel of inside) outside.delete(rel);
+  return outside;
+})();
+
 const THIRD_PARTY = [
   {
     id: ".case-study .font-display",
@@ -336,7 +417,8 @@ const THIRD_PARTY = [
        element carries `font-display`; what it then SHADOWS is a different utility on that same
        element — `font-normal`. Checking the utility's own class found nothing, which is how the
        first two attempts at this model reported zero. */
-    applies: (rel, tokens) => rel.startsWith("components/case-study/") && tokens.includes("font-display"),
+    applies: (rel, tokens) => rel.startsWith("components/case-study/") && !outsideWrapper.has(rel)
+      && tokens.includes("font-display"),
     /* ⚠ THE RAW DECLARATIONS, RESOLVED THROUGH THE SAME `deref` THE RESET GOES THROUGH — because
        the two sides of this comparison must be the same KIND of thing. The first version stored
        class names against resolved values and reported fourteen honoured `font-family` sites as
@@ -353,7 +435,7 @@ const thirdPartyFor = (rel, tokens, prop) => {
   return null;
 };
 
-const collisions = [], inert = [], shadowed = [];
+const collisions = [], inert = [], shadowed = [], honoured = [];
 for (const rel of files) {
   const src = readFileSync(new URL(`../../${rel}`, import.meta.url), "utf8");
   for (const el of elements(src, rel)) {
@@ -378,7 +460,13 @@ for (const rel of files) {
         const third = thirdPartyFor(rel, el.tokens, u.p);
         if (third) {
           const gives = deref(third.gives[u.p]);
-          if (String(gives).toLowerCase() === String(want).toLowerCase()) continue;   // honoured
+          /* ⚠ THE HONOURED HITS ARE TALLIED RATHER THAN DISCARDED, and that is what keeps `S3`
+           * honest now that no utility is shadowed anywhere. A zero shadow count means "the third
+           * party reaches these elements and every one agrees with it"; a broken matcher means "the
+           * third party reaches nothing". Both print zero shadows, and only this tally separates
+           * them. It was a bare `continue` while the shadow population was non-empty and could
+           * carry that job itself. */
+          if (String(gives).toLowerCase() === String(want).toLowerCase()) { honoured.push({ where: `${rel}:${el.line}`, cls: bare, property: u.p }); continue; }
           shadowed.push({ where: `${rel}:${el.line}`, tag: el.tag, cls: bare, property: u.p,
             want, got: gives, by: third.id });
           continue;
@@ -393,6 +481,30 @@ for (const rel of files) {
 }
 const outside = (h) => !/\/studio\//.test(h.where);
 
+/* ⚠ WHAT THE ANCESTRY CORRECTION REMOVED, COUNTED RATHER THAN ASSUMED — because a filter whose
+ * effect is invisible is a filter nobody can tell from a broken matcher. This repeats the shadow
+ * test over the files the wrapper derivation excluded, so `S4` can assert the correction still has
+ * a subject while `S2` asserts the corrected count is zero. Without it, deleting `outsideWrapper`
+ * entirely and deleting the whole third party would look identical from S2 alone. */
+const wouldShadowOutside = [];
+for (const rel of outsideWrapper) {
+  const src = readFileSync(new URL(`../../${rel}`, import.meta.url), "utf8");
+  for (const el of elements(src, rel)) {
+    if (!el.tokens.includes("font-display")) continue;
+    for (const cls of el.tokens) {
+      const bare = cls.includes(":") ? cls.slice(cls.lastIndexOf(":") + 1) : cls;
+      for (const u of UTIL) {
+        const want = u.f(bare);
+        if (want === null || want === undefined) continue;
+        const gives = deref(THIRD_PARTY[0].gives[u.p]);
+        if (gives === undefined) continue;
+        if (String(gives).toLowerCase() === String(want).toLowerCase()) continue;
+        wouldShadowOutside.push({ where: `${rel}:${el.line}`, property: u.p, want, got: gives });
+      }
+    }
+  }
+}
+
 /* ================================================ S. SHADOWED — THE THIRD PARTY'S VICTIMS
  * ⚠ A UTILITY THAT LOSES TO A RULE THAT IS NOT THE ELEMENT RESET. Neither a collision (the reset
  * does not win) nor inert (nothing agrees) — DEAD BY A DIFFERENT HAND, and the category this suite
@@ -404,7 +516,7 @@ const outside = (h) => !/\/studio\//.test(h.where);
  * of them changed to what it asked for. */
 const shadowedPub = shadowed.filter(outside);
 t("S1: every shadowed utility is `font-weight` under `.case-study .font-display` — a NEW shape here means a third party nobody has modelled",
-  [...new Set(shadowedPub.map((h) => `${h.property} by ${h.by}`))], ["font-weight by .case-study .font-display"]);
+  [...new Set(shadowedPub.map((h) => `${h.property} by ${h.by}`))], []);
 /* ⚠ 22 -> 21, AND IT IS A REPAIR RATHER THAN A LOSS, WHICH IS THE DISTINCTION THIS ROW EXISTS TO
  * FORCE. C1 below states the rule: a change here is a dead utility GAINED or REPAIRED, and the number
  * alone cannot say which. This one is a repair, and the mechanism is checkable rather than asserted.
@@ -466,16 +578,56 @@ t("S1: every shadowed utility is `font-weight` under `.case-study .font-display`
  * SO THEY ARE LIVE UTILITIES AND MUST NOT BE DELETED, and S2a is here so the next person to read a
  * count of 2 does not go looking for two more classes to remove. Correcting the resolver is a change
  * to this suite's cascade model with its own blast radius, and it is not smuggled into a cleanup. */
-t("S2: ⚠ 2 REMAIN AND BOTH ARE THIS SUITE'S OWN FALSE POSITIVE — the eleven real ones were deleted",
-  shadowedPub.length, 2);
-t("S2a …and they are the hero's, which renders OUTSIDE `.case-study` and draws the 400 it asks for",
-  [...new Set(shadowedPub.map((h) => h.where.replace(/:\d+$/, "")))].sort(),
-  ["components/case-study/blocks/HeroCover.tsx"]);
+t("S2: ⚠ ZERO SHADOWED UTILITIES REMAIN, AND IT IS A TRUE ZERO RATHER THAN THIS SUITE'S MODEL — the eleven real ones were deleted and the last two were never shadowed at all",
+  shadowedPub.map((h) => `${h.where} ${h.cls}`).sort(), []);
+/* ⚠ THE CORRECTION'S OWN SUBJECT, ASSERTED — because S2 reaching zero by a WORKING derivation and by
+ * a BROKEN one look identical from S2. These are the hits the ancestry rule removed: real elements,
+ * carrying real classes, that the old path-based model called shadowed and the DOM did not. */
+console.log(`         the wrapper derivation excludes ${outsideWrapper.size} file(s), removing ${wouldShadowOutside.length} would-be shadow hit(s)`);
+t("S2a ⚠ AND THE ANCESTRY CORRECTION STILL RESOLVES — a derivation that excludes nothing is indistinguishable from one that was deleted",
+  outsideWrapper.size >= 1, true);
+/* ⚠ AND ITS OWN SUBJECT DRAINED, WHICH IS THE CORRECTION SUCCEEDING RATHER THAN FAILING. This row
+ * asserted that the exclusion removed a real would-be hit, and it did — two of them, `HeroCover`'s
+ * `h1` branches. Correcting the model then showed those classes were DEAD against the unlayered
+ * `h1, h2` reset, which declares the display family and the regular weight itself, so they were
+ * deleted and the exclusion now covers a file with nothing left to exclude.
+ *
+ * The exclusion still has to exist: a `font-display` authored back into the hero tomorrow would be
+ * called shadowed again by the old model. What it no longer has is a live member, and saying so
+ * beats a row that quietly passes over nothing. */
+t("S2a-drained …and the set it removes is now EMPTY because those classes were deleted — asserted so the drain is a recorded state rather than a silent one",
+  wouldShadowOutside.length, 0);
+t("S2b …and the file it excludes is the hero's, which renders under `SECTION.hero-ground` and draws the 400 it asks for",
+  [...outsideWrapper].sort(), ["components/case-study/blocks/HeroCover.tsx"]);
+/* ⚠ AND THE DERIVATION IS PROVED TO DISCRIMINATE RATHER THAN TO EXCLUDE BY HABIT. If every kind read
+ * as hero-only the whole third party would switch off silently, so the INSIDE set is asserted too —
+ * `featureRows` alone appears in two variants and neither is hero. */
+t("S2c ⚠ AND MOST CASE-STUDY BLOCKS ARE STILL INSIDE THE WRAPPER — an exclusion that swallowed them all would turn the third party off and look like a clean site",
+  caseStudyBlockFile.size - outsideWrapper.size >= 8, true);
+t("S2d …and both joins the derivation rests on are real, against literals — an empty map excludes nothing and reports a clean zero",
+  [caseStudyBlockFile.size >= 10, kindVariants.size >= 10], [true, true]);
 /* ⚠ S3 USED `.every()`, WHICH RETURNS TRUE ON AN EMPTY ARRAY — so the row written to stop S1 and S2
  * passing on nothing would itself have passed on nothing the moment this population drained. It came
  * within two members of that. The length check is what makes it a measurement. */
-t("S3: …and the population is real, so S1 and S2 cannot pass by finding nothing",
-  [shadowedPub.length > 0, shadowedPub.every((h) => h.want === "400" && h.got === "500")], [true, true]);
+/* ⚠ S3 ONCE ASSERTED THE POPULATION WAS NON-EMPTY, AND THAT ROW HAS OUTLIVED ITS SUBJECT — which is
+ * the good outcome rather than a loss. It existed because `.every()` returns true on an empty array,
+ * so S1 would have passed on nothing. The population is now legitimately zero, so the guard moves
+ * UPSTREAM: S2a asserts the correction removed something real and S2c that the third party still
+ * applies to most of the directory. The shape claim survives on the hits the correction removed,
+ * which are the only members left to describe. */
+/* ⚠ S3 HAS BEEN REBUILT TWICE IN ONE UNIT, AND BOTH TIMES BECAUSE ITS SUBJECT MOVED UNDER IT. It
+ * first asserted the shadow population was non-empty, which was right while eleven real members
+ * existed. The ancestry correction took that to zero; a version resting on the excluded hits then
+ * drained too, when the dead classes those hits described were deleted.
+ *
+ * WHAT SURVIVES IS THE THIRD PARTY'S OWN REACH. `.case-study .font-display` still matches real
+ * elements inside the wrapper and every one of them AGREES with it — that is what a clean site looks
+ * like here. A matcher that reached nothing would also report zero shadows, and this is the only row
+ * that tells the two apart. */
+const honouredPub = honoured.filter(outside);
+console.log(`         the third party reaches ${honouredPub.length} public element(s), all honoured, none shadowed`);
+t("S3: …and the third party still REACHES real elements, so a zero shadow count means agreement rather than a matcher that stopped matching",
+  honouredPub.length > 0, true);
 
 const pub = collisions.filter(outside);
 
@@ -676,6 +828,12 @@ t("C3: the inert inventory outside /studio is pinned too — inert is not safe, 
      looks like from inside this inventory: headings leaving the element reset's reach by taking a
      class that beats it. */
   inert.filter(outside).length, 1);
+/* ⚠ THE INVENTORY IS PRINTED, BECAUSE A COUNT THAT MOVES CANNOT SAY WHICH WAY. This repository's own
+ * rule is that a failure carries the names rather than the number — C3 is a ratchet on a COUNT by
+ * design, so the names go to the log beside it and a reader diffing two runs can see what moved. */
+console.log(`         inert inventory (${inert.filter(outside).length} outside /studio):`);
+for (const h of inert.filter(outside).slice().sort((a, b) => a.where.localeCompare(b.where)))
+  console.log(`           ${h.where.padEnd(52)} ${h.cls.padEnd(14)} ${h.property} = ${h.want}`);
 
 if (pub.length) {
   console.log(`\n  ${pub.length} PUBLIC COLLISIONS — the element draws the reset, the author's value never lands.`);

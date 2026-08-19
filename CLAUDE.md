@@ -235,18 +235,6 @@ gates.
   item rather than a copy item.
 
 
-- **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
-  Its resolver treats any `font-display` inside a case-study component as sitting under
-  `.case-study .font-display` at 0-2-0. The DOM disagrees: the hero's `h1` sits under
-  `SECTION.hero-ground`, `closest('.case-study')` is null, and it draws the 400 it asks for.
-
-  **SO S2's COUNT OF 2 IS THE SUITE'S MODEL AND NOT THE SITE'S STATE.** S2a names them so the next
-  reader of that number does not go hunting for two more classes to remove — which is the whole
-  reason a false entry is worse than a missing one.
-
-  **THE FIX IS A CHANGE TO THAT SUITE'S CASCADE MODEL**, with its own blast radius over every other
-  row it feeds, so it is not smuggled into a cleanup. It takes S2 to a true zero.
-
 - **⚠ BOARDED: AUTHORABLE-AND-INERT ON EXACTLY ONE SURFACE — A NARROWER VARIANT, AND THAT NARROWNESS
   IS WHY IT SURVIVED TWO DAYS.** The other three instances — `videoEmbed.poster`, the `imageBlock`
   kind, the gallery image fields — were inert EVERYWHERE: the UI offered a value and nothing
@@ -553,6 +541,60 @@ that ages into being false while still reading as verification; summarising a cl
 its measurement gets separated from its conclusion. Moving one back to `Open` is legitimate the
 moment it grows an action again.
 
+- **⚠ CLOSED: S2 IS A TRUE ZERO, AND CORRECTING THE MODEL FOUND SIX DEAD UTILITIES THE FALSE MODEL
+  WAS HIDING.** The resolver read `rel.startsWith("components/case-study/")` — **a DIRECTORY used as
+  a proxy for a DOM ancestry question.** `CaseStudyView` renders the hero section OUTSIDE the
+  `.case-study` article and the body sections inside it, so the 0-2-0 rule never reached the hero.
+
+  **⚠ AND THE SEPARATOR IS THE SECTION'S `variant`, WHICH IS CONTENT RATHER THAN STRUCTURE.** The
+  schema does not restrict `heroCover` to a hero-variant section — a body section could carry one and
+  that same component would then be inside the wrapper. So the answer is not "HeroCover is special";
+  it is **which kinds only ever land in a hero section**, and that is a question about the content the
+  site renders.
+
+  **DERIVED FROM TWO JOINS RATHER THAN DECLARED**, because a registry naming the file would be the
+  fixed-list shape and would be wrong in the permissive direction the day somebody authors a
+  heroCover into a body section:
+
+      kind -> component    `BlockRenderer`'s switch and its imports
+      kind -> variants     every yaml under `content/projects`, through the site's own parser
+
+  `heroCover` is the only kind that appears exclusively in a hero section; `featureRows` proves the
+  map discriminates, appearing in two variants of which neither is hero.
+
+  **⚠ AND THE CORRECTION'S FIRST ACT WAS TO REVEAL SIX REAL DEAD CLASSES.** With the third party no
+  longer absorbing them, four `font-display` and two `font-normal` on `HeroCover`'s two `h1` and two
+  `h2` branches fell through to the element reset — and **the unlayered `h1, h2` rule declares
+  `font-family: var(--font-display)` and `font-weight: var(--font-weight-regular)`, which is exactly
+  what both classes ask for.** They were inert, and the false model had been reporting two of them as
+  shadowed and swallowing the other four entirely.
+
+  **DELETED, AND THE DEATH IS PROVED TWICE.** Structurally the utilities sit in `@layer utilities`
+  against an unlayered rule, so they could never win whatever they asked for. Measured on a real
+  build with the classes gone: the `h1` computes **IBM Plex Sans at weight 400** and the `h2` the
+  same — precisely what they asked for — and `closest('.case-study')` is **false**, which
+  independently re-confirms the DOM reading this entry was boarded on, from a different session.
+
+  **⚠ AND S3 WAS REBUILT TWICE IN ONE UNIT BECAUSE ITS SUBJECT MOVED UNDER IT.** It asserted the
+  shadow population was non-empty; the correction took that to zero. A version resting on the
+  EXCLUDED hits then drained too, when the dead classes those hits described were deleted. What
+  survives is the third party's own REACH — it still matches **10 public elements, all honoured** —
+  which is the only thing that separates "a clean site" from "a matcher that stopped matching". Both
+  print zero shadows.
+
+  **THE BOARDED FRAMING, KEPT BECAUSE NAMING THE FALSE POSITIVE IS WHAT MADE THIS FIXABLE:**
+
+- **⚠ BOARDED: `cascade-public` S2 CARRIES TWO KNOWN FALSE POSITIVES, NAMED RATHER THAN DELETED.**
+  Its resolver treats any `font-display` inside a case-study component as sitting under
+  `.case-study .font-display` at 0-2-0. The DOM disagrees: the hero's `h1` sits under
+  `SECTION.hero-ground`, `closest('.case-study')` is null, and it draws the 400 it asks for.
+
+  **SO S2's COUNT OF 2 IS THE SUITE'S MODEL AND NOT THE SITE'S STATE.** S2a names them so the next
+  reader of that number does not go hunting for two more classes to remove — which is the whole
+  reason a false entry is worse than a missing one.
+
+  **THE FIX IS A CHANGE TO THAT SUITE'S CASCADE MODEL**, with its own blast radius over every other
+  row it feeds, so it is not smuggled into a cleanup. It takes S2 to a true zero.
 - **⚠ RULED: ACCEPT. THE MOUNT IS NOT CONSTRUCTIBLE IN THIS HERO'S GEOMETRY, AND THREE MORE ROUTES
   ARE EACH REFUSED BY A STANDING RULE OR AN EXISTING GATE.** The discomfort is real, measured and
   accepted — not dismissed. What is ruled is the REMEDY.
