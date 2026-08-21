@@ -687,7 +687,43 @@ moment it grows an action again.
   the hash arm reddens `A1` and `A3b`, killing the margin reddens `B1` and `B2`, killing the pop
   arm reddens `A3`, `A3a` and `A3b`.
 
-- **⚠ BOARDED: BACK/FORWARD DOES NOT RESTORE THE POSITION IT WAS BUILT TO RESTORE, AND IT IS
+- **⚠ RULED FALSE: BACK/FORWARD RESTORES CORRECTLY, AND THE ENTRY BELOW WAS AN ARTEFACT OF MY OWN
+  PROBE.** Re-driven with REAL wheel input on a real build, every reading exact:
+
+      left the home page at 1400, into a case study, back      ->  1400   restored
+      forward to the case study, back again                     ->  1400   restored
+      a hashed entry left at 663, away, forward back to it      ->   663   the SAVED offset,
+                                                                          not the hash's 775
+      a hashed entry left at 563, away by FULL LOAD, back       ->   563   restored
+
+  **THE MECHANISM OF THE FALSE READING: `window.scrollTo()` FIRES NO SCROLL EVENT ON THIS SITE,
+  BECAUSE LENIS OVERRIDES IT.** Measured directly — a listener on `window` AND on `document`
+  counted **zero** events across two programmatic jumps while `scrollY` moved 0 to 1200 to 2400. A
+  real wheel scroll on the same page fired one of each and wrote `{"/":800}` within the frame.
+
+  **SO THE SAVE HANDLER NEVER RAN IN MY REPRODUCTION AND THERE WAS NOTHING TO RESTORE.** The
+  `{"/": 0}` I read out of `sessionStorage` and offered as evidence was the loader's own hold at
+  zero, which is the only scroll a real event ever fired for in that drive.
+
+  **⚠ THIRD TIME PROGRAMMATIC SCROLLING HAS PRODUCED A FALSE READING IN THIS CODEBASE, AND THE
+  FIRST TWO ARE ALREADY IN THIS FILE.** It armed a reveal panel above the observer's band and was
+  written off as a race; it failed to move a same-page nav click and looked like a regression. **A
+  synthetic scroll is not a scroll here**, and any probe that uses one to SET UP a state is
+  measuring a page no reader can produce.
+
+  **⚠ AND I ATTRIBUTED IT AGAINST PRODUCTION AND STILL GOT IT WRONG, WHICH IS THE PART WORTH
+  KEEPING.** The comparison was sound and its conclusion — "identical on the deployed build, so
+  inherited rather than caused" — was correct and useless: **both sides were running the same
+  invalid probe.** A differential test tells you whether YOUR change did it. It cannot tell you the
+  behaviour is real, and I read it as if it could.
+
+  **ONE ANOMALOUS READING DID NOT REPRODUCE.** A back that recreated the document once landed at 0
+  with a saved offset present; the same drive repeated restored 563. **Recorded as unreproduced
+  rather than boarded** — one reading is how the false entry below happened.
+
+  **THE FALSE ENTRY, KEPT SO THE NEXT READER SEES WHAT A CONFIDENT WRONG BOARDING LOOKS LIKE:**
+
+- **⚠ FALSE, SEE ABOVE: BACK/FORWARD DOES NOT RESTORE THE POSITION IT WAS BUILT TO RESTORE, AND IT IS
   PRE-EXISTING RATHER THAN CAUSED BY THE FIX ABOVE.** Left the home page at **2400**, entered a
   case study, pressed back: landed at **0**. `sessionStorage` holds `{"/": 0}` — the saved offset
   for the home page is zero, not where the reader was.
