@@ -5027,6 +5027,47 @@ build a gate for the limit and then believe it.
   **the same pigment role at twice the weight amplifies the ground flip instead of surviving it.**
   A whisper at 1.24 on redline and a legible 176px mark at 5.52 on photostat.
 
+  **⚠ RULED AND SHIPPED, AND THE INVESTIGATION FOUND THE MIRROR DEFECT SHIPPING TOO.** The owner
+  chose ground-scoping. Reading the code first turned the entry's premise over: the mark was never
+  one token at one alpha. It was a PAIR named for the two hero TEMPLATES — `--hero-word-light` at
+  55% for the mobile hero, `--hero-word-dark` at 11% for the web hero, which once sat on its own
+  dark card. **That card was retired, so both heroes sit on the PAGE ground while each kept an alpha
+  drawn for one side of it.**
+
+      55% on a dark ground    photostat 5.52   — ABOVE the 4.5 text floor, so the watermark was as
+                                                 legible as body copy and competed with the tagline
+      11% on a light ground   drawing-office 1.05, redline 1.04
+                                               — invisible, on the site's own default palette
+
+  **THE ENTRY MEASURED ONE VARIANT AND CALLED IT "THE CREST", WHICH IS THE WRONG-NOUN DEFECT IN MY
+  OWN BOARDING.** The ×4.45 was real and it was half the subject; the other half was failing in the
+  opposite direction on the two light palettes and nobody had looked.
+
+  **NEITHER NUMBER WAS WRONG — BOTH WERE ATTACHED TO THE WRONG THING**, so the repair retunes
+  nothing. The same 55% and 11% are bound to the GROUND, and the pair collapses to ONE token because
+  the template distinction WAS the defect. Every hero on every palette now lands **1.21 to 1.37**,
+  a band of ×1.13 against ×4.45, with the call sites still differing in font size — a template
+  decision — and no longer in ink.
+
+  **AND THE RENDER IS WHAT RULED IT RATHER THAN THE RATIO**, per this file's own measure-then-look
+  rule. At 55% on photostat the script word cuts across the tagline and the body copy; at 11% it is
+  texture behind them and the tagline is plainly foreground. Both were looked at before the change
+  was written.
+
+  **`role-layer` SECTION W IS THE GATE**, and it asserts the PAIR rather than either value, because
+  a single row on one alpha passes happily while the other half is missing — which is exactly the
+  state that shipped. `W3` holds the DIRECTION so a future retune cannot invert it; `W4` and `W5`
+  are absence rows, the sound direction; `W6` is the complement that stops `W4` passing on a
+  watermark somebody deleted.
+
+  **⚠ AND `W0` EXISTS BECAUSE THE FIRST DRAFT READ A COMMENT.** It sliced from
+  `indexOf(':root[data-ground="dark"]')` and hit a note four hundred lines above the selector that
+  merely names it — **the self-reading defect this repository has now met in five scanners, arriving
+  in the row written to close a different one.** The slice is anchored to a line start and `W0`
+  asserts it.
+
+  **THE SUPERSEDED FRAMING, KEPT BECAUSE ITS REFUSAL TO GUESS WAS RIGHT:**
+
   **⚠ NO GATE IS BUILT, AND THE REASON IS THAT EVERY AVAILABLE ONE DECIDES A DESIGN QUESTION NOBODY
   HAS RULED.** Pinning today's bands blesses x4.45 as acceptable, which is the pin-the-current-state
   trap. Failing on x4.45 rules that a 176px watermark must be as quiet on near-black as on paper —

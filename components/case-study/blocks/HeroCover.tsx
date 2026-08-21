@@ -205,7 +205,7 @@ export default function HeroCover({
               {...mp}
               variants={glowV}
               className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-script leading-[0.8] lg:block"
-              style={{ color: "var(--hero-word-dark)", fontSize: "clamp(5.5rem, 11vw, 9rem)" }}
+              style={{ color: "var(--hero-word)", fontSize: "clamp(5.5rem, 11vw, 9rem)" }}
             >
               {data.watermark}
             </motion.span>
@@ -328,7 +328,7 @@ export default function HeroCover({
             {...mp}
             variants={glowV}
             className="pointer-events-none absolute left-1/2 top-1/2 z-0 hidden -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap font-script leading-[0.8] lg:block"
-            style={{ color: "var(--hero-word-light)", fontSize: "clamp(6rem, 13vw, 11rem)" }}
+            style={{ color: "var(--hero-word)", fontSize: "clamp(6rem, 13vw, 11rem)" }}
           >
             {data.watermark}
           </motion.span>
