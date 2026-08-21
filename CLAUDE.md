@@ -652,7 +652,63 @@ moment it grows an action again.
   **MUTATION-TESTED, ALL THREE:** deleting the hash rule reddens `A1`, restoring the top inset
   reddens `C2`, deleting the top-above-fold arm reddens `B2`. Tree verified clean after restore.
 
-- **⚠ BOARDED: `ScrollManager` IS HASH-BLIND, AND IT IS LATENT RATHER THAN THE CAUSE ABOVE.** Its
+- **⚠ CLOSED, AND IT WAS NEITHER LATENT NOR ONE LINK — IT WAS THE SITE'S PRIMARY NAVIGATION.** The
+  entry below boarded this as "one `<Link>` away", on the strength of the gallery hero. Censused:
+  **every SECTION entry in `NAV` renders `/#<id>` from any non-home page through a real `<Link>`**,
+  so the population is five entries times every case study, the blog, the gallery and the
+  playground. Measured on production, clicking nav "Work" from `/projects/fosfor-ai`:
+
+      url /#work    scrollY 0    #work top 855    revealed true
+
+  **THE READER IS AT THE HERO AND THE SECTION THEY ASKED FOR WAS NEVER SCROLLED TO.** `revealed:
+  true` is #693 working — that fix made the panel appear instead of staying blank, and this is the
+  other half of the same report: **you never travel to it.**
+
+  **⚠ TWO MECHANISMS HAD TO BOTH BE TRUE, WHICH IS WHY THE FIRST FIX DID NOT REVEAL IT.** Nothing
+  applied the hash — the nav's section links carry `scroll={false}` and `handleNavClick` returns
+  early when it is not home — AND `ScrollManager` then forced 0. Either alone would have looked
+  broken; together they produced a page that looked like it had simply opened at the top.
+
+  **THE FIX IS A THIRD ARM ON A RULE THAT HAD TWO**, extracted to `lib/scroll-target.ts` with
+  `ralph/tests/scroll-target.mjs` calling it by value. A PUSH now lands on the hash target when the
+  URL names an element, otherwise top; a POP still restores its saved offset. **`A3b` is the row
+  that keeps the asymmetry honest** — the two kinds must disagree on one input, or the rule has
+  collapsed to "use the hash" and the paragraph explaining the difference is holding nothing.
+
+  **⚠ AND `scroll-margin-top` IS THE HALF A HAND-ROLLED JUMP FORGETS.** Every section carries
+  `scroll-mt-20` so the 72px header does not cover its heading, and a browser honours that on a
+  real hash navigation. `rect.top + scrollY` alone is correct arithmetic that lands 80px wrong every
+  time. Verified from the paint rather than the maths: the section lands at viewport top **80**,
+  clear of the header by the 8px the nav's own `SCROLL_TO_OFFSET` intends.
+
+  **MUTATION-TESTED, ALL THREE ARMS** — and the first attempt reported a false SURVIVED because the
+  anchor did not match and **I had piped the refusal to `/dev/null`**, which is the exact defect
+  this record carries against suppressing that tool's output. Re-run with the output read: killing
+  the hash arm reddens `A1` and `A3b`, killing the margin reddens `B1` and `B2`, killing the pop
+  arm reddens `A3`, `A3a` and `A3b`.
+
+- **⚠ BOARDED: BACK/FORWARD DOES NOT RESTORE THE POSITION IT WAS BUILT TO RESTORE, AND IT IS
+  PRE-EXISTING RATHER THAN CAUSED BY THE FIX ABOVE.** Left the home page at **2400**, entered a
+  case study, pressed back: landed at **0**. `sessionStorage` holds `{"/": 0}` — the saved offset
+  for the home page is zero, not where the reader was.
+
+  **ATTRIBUTED BY COMPARISON RATHER THAN BY READING**, which is the only thing that separates a
+  regression from an inheritance: the identical drive on the deployed build returns the identical
+  `y: 0` and the identical `{"/": 0}`. **The pop path is byte-identical before and after.**
+
+  **THE SUSPICION, NOT THE DIAGNOSIS:** the layout effect sets `pathRef.current` to the NEW pathname
+  and then calls `window.scrollTo(0, target)`, whose scroll event the save handler writes under
+  `pathRef.current`. Whether that is the mechanism is unmeasured. **Naming a suspicion as a
+  suspicion is the point** — this file carries four entries where a plausible mechanism was written
+  down as established and inherited by the next reader.
+
+  **NOT FIXED HERE BECAUSE IT IS A DIFFERENT DEFECT WITH A DIFFERENT BLAST RADIUS**, and the
+  boarding below is the reason to take that seriously rather than as a formality: **the last thing
+  boarded on this file was five times larger than its entry claimed.**
+
+  **THE SUPERSEDED FRAMING, KEPT BECAUSE ITS UNDER-ESTIMATE IS THE LESSON:**
+
+- **⚠ SUPERSEDED: `ScrollManager` IS HASH-BLIND, AND IT IS LATENT RATHER THAN THE CAUSE ABOVE.** Its
   route effect keys on `usePathname()`, **which does not include the hash**, and a PUSH resolves to
   `target = 0`:
 
