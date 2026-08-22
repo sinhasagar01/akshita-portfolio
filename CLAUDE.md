@@ -5066,6 +5066,43 @@ build a gate for the limit and then believe it.
   in the row written to close a different one.** The slice is anchored to a line start and `W0`
   asserts it.
 
+  **⚠ AND THE CENSUS THAT FOLLOWED FOUND NOTHING ELSE, WHICH IS A RESULT RATHER THAN A SHRUG.** The
+  question was whether any other token carries a name binding it to the wrong AXIS. Four derived
+  passes over `app/globals.css` and every `.tsx` under `components` and `app`:
+
+      light/dark suffix pairs                                     0   after this fix
+      ground-word tokens chosen from MARKUP rather than the CSS    0   all 12 are cascade-selected
+      call sites branching between two tokens                      7   all on STATE or KIND, and
+                                                                       BOTH arms are roles that
+                                                                       follow the ground
+      markup tokens whose value never varies                      17   15 are not colours, one is a
+                                                                       frozen studio token, one is
+                                                                       `--color-white` and already
+                                                                       carries its own 31-site entry
+
+  **THE NEAR-MISSES ARE CORRECT FOR NAMEABLE REASONS, WHICH IS WHAT MAKES THE ZERO WORTH ANYTHING.**
+  `--glass-fill` and `--glass-stroke` have `-dark` twins selected by `[data-nav-tone="dark"]`, which
+  IS the cascade. The eight `--color-etch` consumers rest on a role whose alphas are measured to
+  survive the flip within 6%. And of the 22 alpha-over-ink tokens, **`--hero-word` is the only one
+  carrying two alphas** — the pair this unit built.
+
+  **⚠ AND ONE APPARENT GAP WAS THE INSTRUMENT.** `--hero-facts-line` is declared only on the dark
+  ground and printed a blank light column. Every consumer carries
+  `var(--hero-facts-line, color-mix(… etch 12% …))` — **a ground pair expressed as a var() FALLBACK,
+  which a declaration regex cannot see.** Correct, and it would have read as a missing light value
+  to anyone trusting the table.
+
+  **THE RULE THIS SHARPENS IS ALREADY IN THE RECORD ONE LEVEL DOWN:** a component may choose what
+  KIND of thing it is and may not choose where it LIVES. **`--hero-word` broke that at the TOKEN
+  layer rather than the prop layer** — a KIND branch selecting between two values that differed by
+  GROUND. The seven surviving ternaries pass the same test: they branch on state or kind, and both
+  arms follow the ground.
+
+  **`W7` GATES THE SHAPE RATHER THAN THE INSTANCE**, and it is the row that would have caught this on
+  arrival: a `--X-light` / `--X-dark` pair declared outside any ground selector is a ground decision
+  the cascade cannot make, so a call site must — and a call site knows its template, not its ground.
+  Proved by introducing an unrelated pair, which reddens `W7` alone.
+
   **THE SUPERSEDED FRAMING, KEPT BECAUSE ITS REFUSAL TO GUESS WAS RIGHT:**
 
   **⚠ NO GATE IS BUILT, AND THE REASON IS THAT EVERY AVAILABLE ONE DECIDES A DESIGN QUESTION NOBODY
