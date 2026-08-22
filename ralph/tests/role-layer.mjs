@@ -1515,5 +1515,65 @@ console.log("\nS · a ground DECLARATION must be reachable by a remap");
     /text-accent-500/.test(repairSite), true);
 }
 
+console.log("\nW · the hero's backdrop word takes its weight from the GROUND, not the template");
+
+/* ⚠ THE DEFECT THIS CLOSES, AND IT SHIPPED FROM BOTH ENDS AT ONCE. The script word behind a case
+ * study's tagline had a token PAIR — `--hero-word-light` at 55% and `--hero-word-dark` at 11% —
+ * named for the two hero TEMPLATES rather than for the ground. The mobile hero took 55%, the web
+ * hero took 11% because it once sat on its own dark card. That card was retired, so both heroes now
+ * sit on the PAGE ground, which flips with the palette, while each kept an alpha drawn for one side.
+ *
+ * Measured on `boat-crest` and `fosfor-ai` at 1920, sanity 21.000, ink composited over the resolved
+ * ground:
+ *
+ *     55% on a dark ground    photostat 5.52   — above the 4.5 TEXT floor, so the watermark was as
+ *                                                legible as body copy and competed with the tagline
+ *                                                it sits behind
+ *     11% on a light ground   drawing-office 1.05, redline 1.04
+ *                                              — invisible, on the site's own default palette
+ *
+ * ⚠ NEITHER NUMBER WAS WRONG; BOTH WERE ATTACHED TO THE WRONG THING. So the repair retunes nothing:
+ * the same 55% and 11% are bound to the GROUND, and the pair collapses to one token because the
+ * template distinction WAS the defect. Every hero on every palette now lands 1.21 to 1.37.
+ *
+ * ⚠ AND THE PAIR IS ASSERTED RATHER THAN THE VALUES, because a single row on either alpha passes
+ * happily while the other half is missing — which is exactly the state that shipped. */
+/* ⚠ THE TWO DECLARATIONS ARE FOUND BY POSITION AGAINST THE DARK BLOCK'S OWN SELECTOR, ANCHORED TO
+   A LINE START. A first draft sliced from `indexOf(':root[data-ground="dark"]')` and hit a COMMENT
+   four hundred lines above that mentions the selector — the self-reading defect this repository has
+   now met in five scanners, arriving in the row written to close a different one. `W0` is what
+   makes the slice honest rather than assumed. */
+const darkBlockStart = css.search(/^:root\[data-ground="dark"\]\s*\{/m);
+const heroWordDecls = [...css.matchAll(/--hero-word:\s*color-mix\([^;]*?\s(\d+)%/g)]
+  .map((m) => ({ at: m.index, alpha: Number(m[1]) }));
+const rootDecl = (heroWordDecls.find((d) => d.at < darkBlockStart) || {}).alpha ?? null;
+const darkDecl = (heroWordDecls.find((d) => d.at > darkBlockStart) || {}).alpha ?? null;
+t("W0 the dark ground block was located by its SELECTOR rather than by a comment naming it",
+  darkBlockStart > 0 && /^:root\[data-ground="dark"\]/m.test(css.slice(darkBlockStart, darkBlockStart + 40)), true);
+t("W0a …and exactly two declarations were found, so W1 and W2 are not reading one value twice",
+  heroWordDecls.length, 2);
+console.log(`         --hero-word alpha: light ground ${rootDecl}%, dark ground ${darkDecl}%`);
+
+t("W1 the token is declared on the light ground, or W3 would be ruling on nothing", rootDecl !== null, true);
+t("W2 ⚠ AND IT IS REMAPPED ON THE DARK GROUND — the half whose absence shipped a 5.52 watermark",
+  darkDecl !== null, true);
+/* The DIRECTION rather than the values, so a future retune of either side cannot invert the rule
+   while both rows stay green. A light ground needs MORE ink to show the same mark; a dark ground
+   needs less, because the ink is near-white either way. */
+t("W3 ⚠ THE DARK GROUND TAKES LESS INK — inverting this is the defect, and equal alphas are the state that shipped",
+  rootDecl !== null && darkDecl !== null && darkDecl < rootDecl, true);
+/* ⚠ ABSENCE IS THE SOUND DIRECTION FOR THE RETIRED PAIR. If the template-named tokens are gone,
+   nothing can consume them; a row asserting the new name is present would prove only that the
+   words exist somewhere. */
+t("W4 ⚠ THE TEMPLATE-NAMED PAIR IS GONE FROM THE STYLESHEET — a name bound to the wrong thing is what caused this",
+  [...css.matchAll(/--hero-word-(light|dark)\s*:/g)].map((m) => m[0]), []);
+const heroCover = readFileSync(new URL("../../components/case-study/blocks/HeroCover.tsx", import.meta.url), "utf8");
+t("W5 …and no call site reads one either, which the stylesheet alone cannot say",
+  [...heroCover.matchAll(/--hero-word-(light|dark)/g)].map((m) => m[0]), []);
+/* The complement: both templates must actually READ the surviving token, or W4 passes on a hero
+   that has quietly stopped drawing a watermark at all. */
+t("W6 …and BOTH hero templates read the surviving token, so W4 cannot pass on a deleted mark",
+  (heroCover.match(/var\(--hero-word\)/g) || []).length, 2);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

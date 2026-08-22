@@ -2167,9 +2167,28 @@ a {
   --glow-on-dark:  color-mix(in srgb, var(--color-on-dark-quote) 14%, transparent);
   --glow-size: 820px;
 
-  /* BACKDROP WORD — the script word behind the tagline, per surface */
-  --hero-word-light: color-mix(in srgb, var(--color-on-dark-quote) 55%, transparent);
-  --hero-word-dark:  color-mix(in srgb, var(--color-on-dark-quote) 11%, transparent);
+  /* ⚠ BACKDROP WORD — ONE TOKEN, AND THE ALPHA FOLLOWS THE GROUND RATHER THAN THE HERO VARIANT.
+     This was a PAIR, `--hero-word-light` at 55% and `--hero-word-dark` at 11%, named for the two
+     hero templates: the mobile hero took 55% and the web hero, which once sat on its own dark card,
+     took 11%. That card was retired, so both heroes now sit on the PAGE ground — which flips with
+     the palette — while each kept an alpha chosen for one ground and wrong on the other.
+
+     BOTH HALVES WERE SHIPPING, measured on `boat-crest` and `fosfor-ai` at 1920, sanity 21.000:
+
+         55% on a dark ground   photostat 5.52   — as legible as body text, competing with the
+                                                   tagline it sits behind
+         11% on a light ground  drawing-office 1.05, redline 1.04
+                                                   — invisible, on the site's own default palette
+
+     Same defect from opposite ends, and the two numbers were each RIGHT for the ground they were
+     drawn against. So nothing is retuned: the existing 55% and 11% are kept and simply attached to
+     the GROUND instead of to the template. After it, every hero on every palette lands 1.31 to
+     1.37 — a band of x1.05 against the x4.45 this replaces.
+
+     ⚠ AND THE PAIR COLLAPSES TO ONE TOKEN BECAUSE THE VARIANT DISTINCTION WAS THE DEFECT. Keeping
+     two names that resolve identically in every state is the duplicate this record deletes on
+     sight; the call sites differ in FONT SIZE, which is a template decision, and no longer in ink. */
+  --hero-word: color-mix(in srgb, var(--color-on-dark-quote) 55%, transparent);
 }
 
 .hero-ground {
@@ -2482,6 +2501,11 @@ a {
      mid-tone on both grounds, so its foreground must stay light. */
   --color-accent:        var(--color-accent-on-dark);
   --color-accent-text:   var(--color-accent-on-dark);  /* the fold — see the light block */
+  /* ⚠ THE BACKDROP WORD'S WEIGHT, WHICH IS A GROUND QUESTION AND WAS BOUND TO THE TEMPLATE. 11%
+     is the design's own dark answer — it was `--hero-word-dark`, correct on a dark ground and
+     invisible at 1.05 on a light one because it rode the web hero rather than the ground. Here it
+     lands 1.36 on photostat and 1.37 on blueprint, against the light grounds' 1.31. */
+  --hero-word: color-mix(in srgb, var(--color-on-dark-quote) 11%, transparent);
 }
 /* The full-bleed hero keeps its layout class; the dark part is the attribute above. */
 .hero-ground.is-dark {
