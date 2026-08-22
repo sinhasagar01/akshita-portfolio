@@ -365,10 +365,54 @@ export const FLOORS_SCRIPT = String.raw`(() => {
   const all = document.querySelectorAll('body *');
   const rows = [];
   let skippedNoText = 0, skippedHidden = 0, skippedDecorative = 0;
+  /* ⚠ THE DECLARED-DECORATIVE POPULATION, RECORDED RATHER THAN ONLY COUNTED — THE LAST FIELD OF
+     THIS KIND IN THE REPORT. skippedDecorative was a number with no way to see what was in it,
+     which is exactly the state the REFUSALS were in until somebody asked what the unresolved half
+     contained and the answer was "the instrument cannot say".
+
+     ⚠ AND THIS POPULATION IS NOT INERT, WHICH IS WHY IT EARNS THE FIELD RATHER THAN INHERITING IT.
+     Every decorative-ceiling finding this record carries came out of exactly these rows: the
+     footer's Ciao, which inverted 1.37 to 11.67 before it was repaired; the sheet stamps, ruled
+     decorative on evidence; and the hero watermark, which measured 5.52 on a dark ground against
+     1.24 on a light one and was fixed by binding its alpha to the ground. **Three findings, one
+     skipped set, and the skip is what kept it out of every run's output.**
+
+     THE ROWS ARE KEPT WITH THEIR RATIO UNCOMPUTED, because a decorative mark has no floor to fail —
+     what it has is a BAND it should stay inside across the ground flip, and nothing here measures a
+     ceiling. Naming the members is what lets somebody take that question up without re-deriving the
+     population first. */
+  const decorativeRows = [];
+  /* ⚠ THE DENOMINATOR, BECAUSE THE CENSUS ABOVE ONLY EVER SEES WHAT IS LAID OUT RIGHT NOW.
+     skippedDecorative sits behind the visibility gate, so a decorative mark inside an unrevealed
+     panel is counted as HIDDEN and never reaches it. Measured on a case study: eight sheet stamps
+     are declared decorative and draw text, and the sweep censused ONE — the other seven return a
+     zero-size rect while their panel is still clipped.
+
+     REPORTING THE VISIBLE COUNT ALONE WOULD HAVE BEEN A PARTIAL VIEW PRESENTED AS A POPULATION,
+     which is precisely the state the refusal half was in before it was enumerated. So both figures
+     are returned and the gap between them is the reader's to see rather than to discover. */
+  let decorativeVisible = 0, decorativeDeclared = 0;
   for (const el of all) {
+    if (drawsText(el) && decorative(el)) decorativeDeclared++;
     if (!drawsText(el)) { skippedNoText++; continue; }
     if (!visible(el)) { skippedHidden++; continue; }
-    if (decorative(el)) { skippedDecorative++; continue; }
+    if (decorative(el)) {
+      skippedDecorative++;
+      decorativeVisible++;
+      const dc = cs(el);
+      decorativeRows.push({
+        text: (el.textContent || '').trim().slice(0, 24),
+        tag: el.tagName,
+        cls: el.className.toString().replace(/\s+/g, ' ').slice(0, 40),
+        size: dc.fontSize,
+        /* The DECLARED ink and its alpha, not a composited ratio — see the note above on why there
+           is no figure here. fillStyle cannot parse every token form, so this is the string the
+           browser resolved rather than anything this sweep converted. */
+        color: dc.color,
+        why: el.getAttribute('data-texture') === 'true' ? 'data-texture' : 'aria-hidden+inert-ink',
+      });
+      continue;
+    }
     const c = cs(el);
     const g = groundOf(el);
     /* ⚠ A TRANSLUCENT FOREGROUND HAD TO BE COMPOSITED OVER ITS GROUND, AND THIS READ IT OVER WHITE.
@@ -477,6 +521,16 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     skippedNoText, skippedHidden,
     /* Declared decoration, counted rather than silently dropped. See rule 6. */
     skippedDecorative,
+    /* ⚠ AND NOW SHOWN. A count with no way to enumerate it is a population nobody can triage, which
+       is the lesson the refusal half already taught this report. */
+    decorativeByKind: decorativeRows
+      .reduce((a, x) => { const k = x.cls.split(' ')[0] || x.tag; a[k] = (a[k] || 0) + 1; return a; }, {}),
+    decorative: decorativeRows.slice(0, 40),
+    /* Declared decorative AND drawing text anywhere on the page, laid out or not. The pair is the
+       honest claim: the rows above are what this run could see, this is what exists. */
+    decorativeDeclared,
+    decorativeSeenShare: decorativeDeclared
+      ? Math.round((decorativeVisible / decorativeDeclared) * 100) + '%' : 'n/a',
     /* WHERE THE SWEEP WAS STANDING. Every rect below is relative to this, and a rect without it is
        half a reading. */
     scrollY: Math.round(window.scrollY),

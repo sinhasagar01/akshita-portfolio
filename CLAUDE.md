@@ -812,6 +812,29 @@ moment it grows an action again.
   separately. **A matrix over the volatile half would have produced forty numbers none of which
   mean anything.**
 
+  **⚠ AND THE DECORATIVE SKIP WAS THE LAST FIELD OF THIS KIND, NOW SHOWN — AND SHOWING IT EXPOSED A
+  PARTIAL VIEW THAT WOULD HAVE BEEN READ AS A POPULATION.** `skippedDecorative` was a count with no
+  way to enumerate it, exactly where the refusals were. Adding the rows was one field; what the rows
+  revealed needed a second.
+
+      boAt Crest    2 seen    10 declared    20%
+      home          1 seen     2 declared    50%
+
+  **THE SKIP SITS BEHIND THE VISIBILITY GATE**, so a decorative mark inside an unrevealed panel is
+  counted as HIDDEN and never reaches it. Eight sheet stamps are declared decorative and draw text
+  on a case study; **the sweep censused ONE**, because the other seven return a zero-size rect while
+  their panel is still clipped. The crest is a ninth and was at `opacity: 0` mid-animation.
+
+  **SO BOTH FIGURES ARE RETURNED AND THE GAP IS THE READER'S TO SEE RATHER THAN TO DISCOVER** —
+  `decorativeDeclared` beside `skippedDecorative`, with the share between them. Reporting the seen
+  count alone would have been the same defect the refusal half had, shipped in the fix for it.
+
+  **⚠ THIS POPULATION IS WHERE EVERY DECORATIVE-CEILING FINDING CAME FROM**, which is why it earned
+  the field rather than inheriting it: the footer's `Ciao`, which inverted 1.37 to 11.67 before it
+  was repaired; the sheet stamps, ruled decorative on evidence; and the hero watermark at 5.52
+  against 1.24. **Three findings out of one skipped set, and the skip is what kept it out of every
+  run's output.**
+
   **⚠ AND THE WIDTH AXIS IS UNREACHED, STATED RATHER THAN QUIETLY DROPPED.** The browser here
   reports `outerWidth: 0` and a window resize does not reach `innerWidth`, so every reading in this
   record is at one viewport. **Mobile is where the population should differ most** — the mobile menu
