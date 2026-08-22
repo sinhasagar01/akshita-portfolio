@@ -1575,5 +1575,49 @@ t("W5 …and no call site reads one either, which the stylesheet alone cannot sa
 t("W6 …and BOTH hero templates read the surviving token, so W4 cannot pass on a deleted mark",
   (heroCover.match(/var\(--hero-word\)/g) || []).length, 2);
 
+/* ⚠ W7 IS THE SHAPE RATHER THAN THE INSTANCE, AND IT IS THE ONE ROW THAT WOULD HAVE CAUGHT THIS ON
+   ARRIVAL. A token pair `--X-light` / `--X-dark`, both declared outside any ground selector, is a
+   ground decision the CASCADE cannot make — so something at a call site must, and a call site knows
+   its template rather than its ground. That is exactly how `--hero-word-light` at 55% ended up on a
+   dark page and `--hero-word-dark` at 11% on a light one.
+
+   ⚠ CENSUSED BEFORE THE ROW WAS WRITTEN, so it is not a gate over a population nobody counted. Four
+   passes over `app/globals.css` and every `.tsx` under `components` and `app`:
+
+       light/dark suffix pairs                                    0   after this fix
+       ground-word tokens chosen from MARKUP rather than the CSS   0   all 12 are cascade-selected
+       call sites branching between two tokens                     7   all on STATE or KIND, and
+                                                                       both arms are roles that
+                                                                       follow the ground
+       markup tokens whose value never varies                     17   15 are not colours, one is a
+                                                                       frozen studio token, one is
+                                                                       `--color-white` and already
+                                                                       carries its own 31-site entry
+
+   **ZERO NEW FINDINGS, AND THE NEAR-MISSES ARE CORRECT FOR NAMEABLE REASONS.** `--glass-fill` and
+   `--glass-stroke` have `-dark` twins selected by `[data-nav-tone="dark"]`, which IS the cascade.
+   The eight `--color-etch` consumers rest on a role whose alphas are measured to survive the flip
+   within 6%. And `--hero-facts-line` is declared only on dark with every consumer carrying
+   `var(--token, fallback)` — a ground pair in a spelling a declaration regex cannot see, which is
+   why the census printed a gap there and there is none.
+
+   THE RULE THIS SHARPENS IS ALREADY IN THE RECORD, ONE LEVEL DOWN: a component may choose what KIND
+   of thing it is and may not choose where it LIVES. `--hero-word` broke that at the TOKEN layer
+   rather than at the prop layer — a KIND branch selecting between two values that differed by
+   GROUND. */
+const suffixPairs = (() => {
+  const declared = new Set([...css.matchAll(/^\s*(--[a-z0-9-]+)\s*:/gm)].map((m) => m[1]));
+  return [...declared]
+    .filter((n) => n.endsWith("-light") && declared.has(n.replace(/-light$/, "-dark")))
+    .map((n) => `${n} | ${n.replace(/-light$/, "-dark")}`)
+    .sort();
+})();
+t("W7 ⚠ NO TOKEN PAIR IS NAMED FOR A GROUND IT CANNOT BE SELECTED BY — the shape that shipped, not the instance",
+  suffixPairs, []);
+/* The denominator: a matcher that found no declarations at all would report an empty pair list and
+   read as a clean site. */
+t("W7a …and the declaration scan found the stylesheet's tokens, so W7 is not an empty subject",
+  [...css.matchAll(/^\s*--[a-z0-9-]+\s*:/gm)].length > 200, true);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
