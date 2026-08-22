@@ -789,6 +789,36 @@ moment it grows an action again.
   show it — **not that every refusal on every page is benign.** The next person to ask can answer it
   in one run instead of not at all.
 
+  **⚠ WIDENED, AND THE ANSWER SPLIT THE POPULATION IN TWO RATHER THAN ENLARGING IT.** The census was
+  going to be run across a palette × width matrix. Testing the assumption underneath it first —
+  *are refusals palette-invariant?* — returned NO, and the NO was the finding:
+
+      centre-missed-element + over-image    9 and 1 on EVERY run of the home page, and IDENTICAL
+                                            across four palettes on three pages — twelve runs,
+                                            byte-identical kind maps.            STRUCTURAL
+      transition-pending                    18, then 58, then 30 on the SAME page, same palette,
+                                            stable through an eight-second settle each time.
+                                                                                 VOLATILE
+
+  **SO ONE HALF IS A PROPERTY OF THE PAGE AND THE OTHER IS A READING OF A MOMENT**, and the report
+  was summing them into `refusedTotal` and a `refusedShare` that moved from 24% to 44% with nothing
+  about the site changing. **A reader quoting either was quoting the instrument** — the running-total
+  defect this record carries against a deploy count and a ralph headline, arriving in a sweep's own
+  output.
+
+  **THE FIX IS THE SPLIT RATHER THAN A BIGGER MATRIX.** `refusedStructural` and
+  `refusedStructuralShare` are the quotable figures, `refusedTransitionPending` stands beside them,
+  `refusedTotal` carries a note saying not to quote it, and the verdict names both halves
+  separately. **A matrix over the volatile half would have produced forty numbers none of which
+  mean anything.**
+
+  **⚠ AND THE WIDTH AXIS IS UNREACHED, STATED RATHER THAN QUIETLY DROPPED.** The browser here
+  reports `outerWidth: 0` and a window resize does not reach `innerWidth`, so every reading in this
+  record is at one viewport. **Mobile is where the population should differ most** — the mobile menu
+  becomes reachable, the sheet stamps are `display: none` below 1024, the palette pill is hidden —
+  so the 25 mobile-menu chips that dominate the structural count are exactly the class most likely
+  to change. That is the open half now, and it needs a browser somebody can resize.
+
 - **⚠ CLOSED, AND THE CAUSE WAS NOT THE ONE THIS ENTRY NAMED — A PENDING TRANSITION MAKES
   `getComputedStyle` REPORT THE STALE ENDPOINT.** Same element, same scroll position, same class
   list, eight seconds apart on a settled page:

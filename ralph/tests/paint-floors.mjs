@@ -490,14 +490,34 @@ export const FLOORS_SCRIPT = String.raw`(() => {
        so GROUND refusals stay ground refusals and the total is its own field. */
     unresolvedGround: rows.filter((x) => x.unresolved && x.why !== 'transition-pending').length,
     refusedTransitionPending: rows.filter((x) => x.why === 'transition-pending').length,
+    /* ⚠ THE TWO HALVES ARE REPORTED SEPARATELY AND THE COMBINED SHARE CARRIES ITS OWN WARNING,
+       BECAUSE ONE HALF IS A PROPERTY OF THE PAGE AND THE OTHER IS A READING OF A MOMENT.
+
+       Measured on the home page, same palette, three sweeps 2.5s apart, then across palettes:
+
+           centre-missed + over-image     9 and 1 on EVERY run, and identical across four
+                                          palettes on three pages — twelve runs, byte-identical
+                                          kind maps. STRUCTURAL.
+           transition-pending             18, then 58, then 30 on the SAME page. VOLATILE.
+
+       So refusedTotal is a number that moves while nothing about the site does, and a reader
+       quoting it — or the share below — is quoting the instrument. This record already carries the
+       running-total defect against a deploy count and a ralph headline; this is the same shape in a
+       sweep's own output, and the split is what stops it being quotable as a fact. */
+    refusedStructural: rows.filter((x) => x.unresolved && x.why !== "transition-pending").length,
     refusedTotal: rows.filter((x) => x.unresolved).length,
+    refusedTotalNote: "structural + transition-pending; the second half is a reading of a moment, not a property — quote refusedStructural",
     onDarkGrounds: dark.length,
     measuredGround: rows.filter((x) => !x.unresolved).length,
     /* ⚠ THE VACUITY GUARD, BECAUSE A NEW REFUSAL IS A NEW WAY FOR THE SUBJECT TO EMPTY. A run that
        refuses almost everything reports a clean zero and looks like a pass; this record already
        carries that shape from a gate passing over an empty subject three times. The share is
        printed so the reader sees it without doing the division. */
-    refusedShare: rows.length ? Math.round((rows.filter((x) => x.unresolved).length / rows.length) * 100) + '%' : 'n/a',
+    /* The share of the STABLE half, which is the one that means something across runs. The combined
+       share moved 24% to 44% on one page with nothing changed, so it is not reported at all. */
+    refusedStructuralShare: rows.length
+      ? Math.round((rows.filter((x) => x.unresolved && x.why !== "transition-pending").length / rows.length) * 100) + '%'
+      : 'n/a',
     /* How many of the elements that were measured were actually in view when they were read. Not a
        predicate — see the rect note above — but the figure that tells a reader how much of this
        run is a reading of the page they are looking at. */
@@ -529,7 +549,9 @@ export const FLOORS_SCRIPT = String.raw`(() => {
        and that sentence is only honest while it says how many it could not. */
     verdict: fails.length === 0
       ? 'FLOORS OK — every element that draws text clears its floor against the ground it is painted on'
-        + ' (' + rows.filter((x) => x.unresolved).length + ' of ' + rows.length + ' refused, unmeasured)'
+        + ' (' + rows.filter((x) => x.unresolved && x.why !== "transition-pending").length
+        + ' of ' + rows.length + ' refused structurally, unmeasured; plus '
+        + rows.filter((x) => x.why === "transition-pending").length + ' mid-transition this run)'
       : fails.length + ' element(s) below floor',
   }, null, 1);
 })()`;
