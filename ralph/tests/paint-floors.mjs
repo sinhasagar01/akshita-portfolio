@@ -179,7 +179,12 @@ export const FLOORS_SCRIPT = String.raw`(() => {
     const set = new Set();
     for (const a of document.getAnimations()) {
       const t = a.effect && a.effect.target;
-      if (t && t.nodeType === 1) set.add(t);
+      /* ONLY A LIVE ANIMATION. A FINISHED ONE HAS REACHED ITS ENDPOINT, WHICH IS THE VALUE
+         getComputedStyle SHOULD REPORT — so counting it refuses an element for the opposite of
+         this refusal's own reason. document.getAnimations() returns finished animations too, and
+         on a settled home page ELEVEN of them are: nine finished entry animations and two
+         infinite ambient loops. Not one is mid-transition. */
+      if (t && t.nodeType === 1 && a.playState !== 'finished' && a.playState !== 'idle') set.add(t);
     }
     return set;
   })();
@@ -610,6 +615,103 @@ export const FLOORS_SCRIPT = String.raw`(() => {
   }, null, 1);
 })()`;
 
+// ---- ⚠ THE TRANSITION REFUSAL COUNTED FINISHED ANIMATIONS, AND THE MOBILE SWEEP FOUND IT -----
+//
+// `document.getAnimations()` RETURNS FINISHED ANIMATIONS TOO, and `animatingTargets` added every
+// target with no `playState` filter. A finished animation has reached its endpoint, which is the
+// value `getComputedStyle` SHOULD report — so counting it refused an element for the exact opposite
+// of this refusal's own reason.
+//
+// MEASURED ON A SETTLED HOME PAGE, photostat, after a full wheel-scroll pass:
+//
+//     11 animations   9 FINISHED   2 running   and BOTH running ones are iterations: Infinity
+//                                              (`hero-ping` on .hero-scroll, `footer-beat` on an svg)
+//
+// So on a settled page there was NO GENUINE PENDING TRANSITION AT ALL, and every one of the 13
+// refusals was false. The predicate now takes only a live animation.
+//
+// ⚠ AND THIS EXPLAINS THE VOLATILITY THE SPLIT WAS BUILT AROUND, WHICH IS THE PART WORTH KEEPING.
+// That unit measured 18, then 58, then 30 on the same page and called the half VOLATILE. It is —
+// but the volatility was the FINISHED half accumulating and being collected at unpredictable rates,
+// not a live transition coming and going. Narrowed, four runs 2.5s apart on one page:
+//
+//     base      trans 13   12   12   12      struct 18 throughout
+//     narrowed  trans  2    1    1    1      struct 22 throughout
+//
+// The structural count RISES by 4, which is the second half of the finding: those rows were
+// refusable for `centre-missed-element` or `over-image` all along and `transition-pending` was
+// merely the reason checked first. **A refusal reported under the wrong reason is the wrong-subject
+// defect arriving in a breakdown rather than in a number.**
+//
+// ⚠ AND THE NARROWING IS PROVED IN BOTH DIRECTIONS, BECAUSE A LOOSENED REFUSAL THAT STILL PASSES
+// IS INDISTINGUISHABLE FROM ONE THAT HAS STOPPED WORKING. Swept INSIDE the load window rather than
+// after it, at 1920 on a real build:
+//
+//     t=300ms   nav bg oklab(0.9539 …) vs a DARK --glass-fill   logo-sig and logo-singh REFUSED
+//     t=450ms   nav bg oklab(0.2669 …)  mid-flight              REFUSED, animatingOn DIV.nav-glass
+//     t=600ms   nav bg color(srgb 0.1427 …)  correct            MEASURED, not refused
+//     t=1500ms  the same                                        MEASURED
+//
+// Zero failures at every step. **The rows did not vanish, they resolved** — the property this file
+// claims for the refusal, now demonstrated on one page in both directions rather than across pages.
+//
+// A per-frame trace of the load window says the same thing from the other side: every frame in
+// which the computed background disagreed with `--glass-fill` carried `running:background-color` on
+// the nav's own stack, and the disagreement ended in the frame the transition did. **The stale
+// endpoint and a RUNNING animation are the same event.**
+//
+// ⚠ WHAT REMAINS REFUSED IS AN AMBIENT LOOP, AND IT IS BOARDED RATHER THAN NARROWED FURTHER. The
+// residual 1 to 2 per page is `hero-ping` and `footer-beat`, both `iterations: Infinity`, both
+// permanently `running` and therefore permanently refused. Neither animates a COLOUR, so neither
+// can produce a stale colour endpoint. Narrowing to colour properties would fix it and is a second
+// decision with its own blast radius — an opacity animation on an ancestor genuinely does change
+// what an element composites to. **The trigger is a page where the ambient residue hides something
+// worth measuring; today it is two elements of 911.**
+
+// ---- ⚠ THE MOBILE SWEEP, AND THE BOARD'S OWN PREDICTION WAS WRONG ------------------------------
+//
+// The width axis was boarded as unreached for arcs, on the honest ground that the browser this
+// repository drives reports `outerWidth: 0` and a resize does not reach `innerWidth`. **That was an
+// instrument limit, not an open question**, and the driver above closes it: playwright was already
+// a dependency and `paint-sites` already launches chromium.
+//
+// FIVE PAGES, photostat, both widths, sanity 21.000 every run, narrowed predicate:
+//
+//     page                    1920x928                     390x844
+//                          meas struct trans fail       meas struct trans fail
+//     /                     252     22     2    2        236     15     1    2
+//     /projects/boat-crest  213      6     0    0        198      7     0    0
+//     /blog/<motion>         71     14     0    0         50      9     0    0
+//     /gallery               72     13     0    0         57     14     0    0
+//     /palettes             303     20     0    0        274      7     0    0
+//     TOTAL                 911     75     2    2        815     52     1    2
+//
+// **THE TWO FAILURES ARE THE SAME TWO AT BOTH WIDTHS, AND BOTH ARE THIS FILE'S DOCUMENTED
+// `pointer-events` LIMIT** — the work filter's chip and its count, resolving through `.wf-thumb`,
+// a positioned sibling, and clearing at 6.65 measured directly. **No mobile defect exists.**
+//
+// ⚠ AND THE BOARD PREDICTED THE WRONG POPULATION, WHICH IS THE FINDING RATHER THAN THE ZERO. It
+// said the 25 mobile-menu social chips "are exactly the class most likely to change". Measured:
+//
+//     A.header-mob-soc-chip    25 refused at 1920    25 refused at 390    delta +0
+//
+// **They are refused at both widths because the menu is CLOSED at both.** It becomes reachable when
+// somebody OPENS it, which is a STATE and not a width — so a sweep at any viewport would have gone
+// on refusing them forever. Driven with the menu open at 390, after clicking `button.nav-morph`:
+//
+//     measured 123 · worst 4.79 · 0 failures · the five chips resolve at oklch(0.6862 0 0)
+//
+// **A prediction about a population is a claim about what SELECTS it**, and this one named the axis
+// that does not. The class that actually moved with width is the sheet stamps, `display: none`
+// below 1024: boAt Crest reads 8 of 10 decoratives seen at 1920 and 1 of 10 at 390.
+//
+// ⚠ AND THE DEEP SCROLL IS WHY THE DESKTOP FIGURES DISAGREE WITH EVERY EARLIER RUN IN THIS FILE.
+// The home page reads 252 here against the 131 recorded above, and 8 decoratives against 2 — not
+// because anything changed, but because a wheel-scrolled page has revealed its panels and a page at
+// rest has not. **Every figure in this file taken by the paste-in method is a reading of the first
+// screen plus whatever happened to be unclipped.** The earlier numbers are not wrong; they are
+// about a smaller subject than their labels suggest.
+
 // ---- ⚠ THE REFUSAL POPULATION, ENUMERATED FOR THE FIRST TIME, 2026-08-19 ------------------
 //
 // The board carried "nobody has looked at the unresolved half" for arcs, and THE REASON WAS THIS
@@ -833,7 +935,86 @@ export const FLOORS_SCRIPT = String.raw`(() => {
 // while building this were faults the record had already named — a sibling-painted ground, an
 // element's own fill, and a foreground over a picture — and each was found by disbelieving a
 // figure rather than by reading the code.
+/* ---- THE DRIVER, AND IT EXISTS BECAUSE THE PASTE-IN METHOD CANNOT REACH A SECOND VIEWPORT ----
+ *
+ * The header said "paste FLOORS_SCRIPT into the console", and for an arc every figure in this file
+ * was taken at ONE width, because the console this repository drives renders at a fixed viewport
+ * and a resize call does not reach `innerWidth`. The mobile half was boarded as unreached for that
+ * reason alone — an instrument limit wearing the clothes of an open question.
+ *
+ * playwright is already a dependency and `paint-sites` already launches chromium, so the driver is
+ * a consumer of what exists rather than a new capability. It changes nothing about the script: the
+ * same FLOORS_SCRIPT is evaluated, and pasting it still works.
+ *
+ * ⚠ IT SCROLLS WITH REAL WHEEL INPUT, WHICH IS NOT A STYLE CHOICE. Lenis overrides
+ * `window.scrollTo` and fires no scroll event, so a programmatic scroll leaves every `.reveal-panel`
+ * clipped and its contents at a zero-size rect. Measured on the home page: the paste-in method at
+ * rest reads 131 elements and this driver reads 252, because half the page had never been revealed.
+ * `page.mouse.wheel` dispatches an event the site actually listens to.
+ *
+ *   node ralph/tests/paint-floors.mjs 390 844        one width, five pages
+ *   node ralph/tests/paint-floors.mjs 1920 928
+ */
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log("paint-floors is a browser harness — see the header for how to run it.");
-  console.log("It is skipped by run.mjs by name, like parity and paint-sites.");
+  const W = Number(process.argv[2]);
+  const H = Number(process.argv[3] || 900);
+  if (!W) {
+    console.log("paint-floors is a browser harness. Two ways to run it:");
+    console.log("  node ralph/tests/paint-floors.mjs <width> <height>   drives chromium itself");
+    console.log("  or paste FLOORS_SCRIPT into a console — see the header");
+    console.log("It is skipped by run.mjs by name, like parity and paint-sites.");
+  } else {
+    const { chromium } = await import("playwright");
+    const BASE = process.env.FLOORS_BASE || "http://localhost:3300";
+    const PAGES = [
+      "/",
+      "/projects/boat-crest",
+      "/blog/you-find-out-what-motion-is-for-by-removing-it",
+      "/gallery",
+      "/palettes",
+    ];
+    const b = await chromium.launch();
+    const page = await (await b.newContext({
+      viewport: { width: W, height: H }, deviceScaleFactor: 2,
+    })).newPage();
+    const rows = [];
+    for (const p of PAGES) {
+      await page.goto(BASE + p, { waitUntil: "networkidle" });
+      const step = Math.floor(H * 0.8);
+      const full = await page.evaluate(() => document.body.scrollHeight);
+      for (let y = 0; y < full; y += step) {
+        await page.mouse.wheel(0, step);
+        await page.waitForTimeout(120);
+      }
+      await page.mouse.wheel(0, -full * 2);
+      await page.waitForTimeout(1500);
+      const r = JSON.parse(await page.evaluate(FLOORS_SCRIPT));
+      rows.push([p, r]);
+    }
+    await b.close();
+
+    const pad = (v, n) => String(v).padStart(n);
+    console.log(`paint-floors @ ${W}x${H}`);
+    console.log("page                                 san  meas onScr struct share trans   dec  worst fail");
+    let mT = 0, sT = 0, tT = 0, fT = 0;
+    for (const [p, r] of rows) {
+      mT += r.measured; sT += r.refusedStructural;
+      tT += r.refusedTransitionPending; fT += r.failureCount;
+      console.log(
+        p.slice(0, 36).padEnd(37) + pad(r.sanity, 4) + pad(r.measured, 6) +
+        pad(r.measuredOnScreen, 6) + pad(r.refusedStructural, 7) +
+        pad(r.refusedStructuralShare, 6) + pad(r.refusedTransitionPending, 6) +
+        pad(r.skippedDecorative + "/" + r.decorativeDeclared, 6) +
+        pad(r.worst, 7) + pad(r.failureCount, 5));
+    }
+    console.log("TOTAL".padEnd(37) + pad("", 4) + pad(mT, 6) + pad("", 6) +
+      pad(sT, 7) + pad("", 6) + pad(tT, 6) + pad("", 6) + pad("", 7) + pad(fT, 5));
+    for (const [p, r] of rows) {
+      for (const f of r.failures || []) {
+        console.log("  FAIL " + p + "  " + JSON.stringify(f));
+      }
+    }
+    /* ⚠ A NON-ZERO EXIT, BECAUSE A HARNESS THAT ONLY PRINTS IS ONE NOBODY CAN GATE ON. */
+    if (fT > 0) process.exitCode = 1;
+  }
 }

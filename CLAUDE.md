@@ -835,12 +835,83 @@ moment it grows an action again.
   against 1.24. **Three findings out of one skipped set, and the skip is what kept it out of every
   run's output.**
 
-  **⚠ AND THE WIDTH AXIS IS UNREACHED, STATED RATHER THAN QUIETLY DROPPED.** The browser here
-  reports `outerWidth: 0` and a window resize does not reach `innerWidth`, so every reading in this
-  record is at one viewport. **Mobile is where the population should differ most** — the mobile menu
-  becomes reachable, the sheet stamps are `display: none` below 1024, the palette pill is hidden —
-  so the 25 mobile-menu chips that dominate the structural count are exactly the class most likely
-  to change. That is the open half now, and it needs a browser somebody can resize.
+  **⚠ THE WIDTH AXIS IS CLOSED, AND IT WAS AN INSTRUMENT LIMIT WEARING AN OPEN QUESTION'S
+  CLOTHES.** This read *"it needs a browser somebody can resize"*, on the honest ground that the
+  browser here reports `outerWidth: 0`. **playwright was already a dependency and `paint-sites`
+  already launches chromium**, so the axis was reachable the whole time and nobody had asked what
+  the repository already had. `paint-floors` drives itself at any viewport now.
+
+  **FIVE PAGES, photostat, both widths, sanity 21.000 every run:**
+
+      page                    1920x928                     390x844
+                           meas struct trans fail       meas struct trans fail
+      /                     252     22     2    2        236     15     1    2
+      /projects/boat-crest  213      6     0    0        198      7     0    0
+      /blog/<motion>         71     14     0    0         50      9     0    0
+      /gallery               72     13     0    0         57     14     0    0
+      /palettes             303     20     0    0        274      7     0    0
+      TOTAL                 911     75     2    2        815     52     1    2
+
+  **THE SAME TWO FAILURES AT BOTH WIDTHS, AND BOTH ARE THE DOCUMENTED `pointer-events` LIMIT** —
+  the work filter's chip and its count. **No mobile defect exists.**
+
+  **⚠ AND THIS ENTRY'S OWN PREDICTION WAS WRONG, WHICH IS WORTH MORE THAN THE ZERO.** It named the
+  25 mobile-menu chips as "the class most likely to change". Measured, **25 refused at 1920 and 25
+  refused at 390 — delta zero** — because the menu is CLOSED at both. It becomes reachable when
+  somebody OPENS it, **which is a state and not a width**, so no sweep at any viewport would ever
+  have moved them. Driven with the menu open at 390: **123 measured, worst 4.79, zero failures**,
+  and the five chips resolve.
+
+  **A PREDICTION ABOUT A POPULATION IS A CLAIM ABOUT WHAT SELECTS IT**, and this one named the axis
+  that does not. What actually moved with width is the sheet stamps at `display: none` below 1024 —
+  boAt Crest reads **8 of 10 decoratives seen at 1920 and 1 of 10 at 390**.
+
+- **⚠ CLOSED: THE TRANSITION REFUSAL COUNTED FINISHED ANIMATIONS, AND THE MOBILE RUN IS WHAT FOUND
+  IT.** `document.getAnimations()` returns finished animations too and `animatingTargets` filtered
+  on nothing. **A finished animation has reached its endpoint, which is the value `getComputedStyle`
+  should report** — so counting it refused an element for the exact opposite of the refusal's own
+  reason. On a settled home page:
+
+      11 animations   9 FINISHED   2 running   and BOTH running ones are iterations: Infinity
+
+  **SO THERE WAS NO PENDING TRANSITION ON A SETTLED PAGE AT ALL**, and all 13 refusals were false.
+
+  **⚠ AND IT EXPLAINS THE VOLATILITY THE SPLIT WAS BUILT AROUND.** That unit measured 18, then 58,
+  then 30 on one page and called the half VOLATILE. It is — but the volatility was **finished
+  animations accumulating and being collected at unpredictable rates**, not a live transition coming
+  and going. Four runs 2.5s apart: base `13 12 12 12`, narrowed `2 1 1 1`, structural constant at 18
+  and 22. **The structural count RISES by four**, because those rows were refusable for
+  `centre-missed-element` or `over-image` all along and `transition-pending` was merely the reason
+  checked first — **the wrong-subject defect arriving in a breakdown rather than in a number.**
+
+  **⚠ PROVED IN BOTH DIRECTIONS, BECAUSE A LOOSENED REFUSAL THAT STILL PASSES IS INDISTINGUISHABLE
+  FROM ONE THAT HAS STOPPED WORKING.** Swept INSIDE the load window rather than after it:
+
+      t=300ms   nav bg oklab(0.9539 …) against a DARK --glass-fill    logo-sig, logo-singh REFUSED
+      t=450ms   nav bg oklab(0.2669 …) mid-flight                     REFUSED, on DIV.nav-glass
+      t=600ms   nav bg color(srgb 0.1427 …) correct                   MEASURED
+      t=1500ms  the same                                              MEASURED
+
+  Zero failures at every step. **The rows did not vanish, they resolved** — the property this file
+  claims for the refusal, now shown on one page in both directions rather than across pages. A
+  per-frame trace agrees from the other side: **every frame where the computed background disagreed
+  with `--glass-fill` carried `running:background-color` on the nav's own stack**, and the
+  disagreement ended in the frame the transition did.
+
+  **⚠ AND EVERY DESKTOP FIGURE IN THIS FILE'S HISTORY IS ABOUT A SMALLER SUBJECT THAN ITS LABEL
+  SAYS.** The driver scrolls with REAL WHEEL INPUT, because Lenis overrides `window.scrollTo` and
+  fires no scroll event — so a programmatic scroll leaves every `.reveal-panel` clipped. The home
+  page reads **252 against the 131 recorded**, and **8 decoratives against 2**, with nothing about
+  the site changed. The earlier numbers are not wrong; they are readings of the first screen.
+  **`paint-sites` scrolls with `scrollTo` and has the same exposure, which is stated rather than
+  fixed here.**
+
+  **⚠ WHAT REMAINS REFUSED IS AN AMBIENT LOOP, BOARDED RATHER THAN NARROWED FURTHER.** The residual
+  1 to 2 per page is `hero-ping` and `footer-beat`, both `iterations: Infinity`, both permanently
+  `running` and so permanently refused. Neither animates a colour, so neither can produce a stale
+  colour endpoint. **Narrowing to colour properties is a second decision with its own blast radius**
+  — an opacity animation on an ancestor genuinely does change what an element composites to. The
+  trigger is a page where the residue hides something worth measuring; today it is two of 911.
 
 - **⚠ CLOSED, AND THE CAUSE WAS NOT THE ONE THIS ENTRY NAMED — A PENDING TRANSITION MAKES
   `getComputedStyle` REPORT THE STALE ENDPOINT.** Same element, same scroll position, same class
